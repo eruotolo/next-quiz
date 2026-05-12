@@ -1,80 +1,81 @@
 'use client';
 
-import { Button } from '@heroui/react';
-import { BookOpen, ClipboardList, GraduationCap, LayoutDashboard } from 'lucide-react';
+import {
+    ArrowRight,
+    BookOpen,
+    GraduationCap,
+    LayoutDashboard,
+} from 'lucide-react';
+import { LogoMark } from '@/components/ui/logo';
 import Link from 'next/link';
 
 export default function HomePage() {
     return (
-        <main className="via-primary-950 flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-slate-900 p-6">
+        <main className="flex min-h-screen flex-col items-center justify-center bg-[linear-gradient(135deg,#0f172a_0%,#001731_50%,#0f172a_100%)] p-6">
             {/* Logo */}
-            <div className="mb-8 flex flex-col items-center gap-3">
-                <div className="bg-primary shadow-primary/30 flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg">
-                    <ClipboardList size={32} className="text-white" />
-                </div>
+            <div className="mb-10 flex flex-col items-center gap-3">
+                <LogoMark size={64} className="shadow-[0_8px_24px_rgba(0,111,238,0.35)]" />
                 <div className="text-center">
-                    <h1 className="text-3xl font-bold text-white">EduNext Quiz</h1>
+                    <h1 className="text-3xl font-extrabold tracking-tight text-white">
+                        EduNext Quiz
+                    </h1>
                     <p className="mt-1 text-sm text-slate-400">Sistema de exámenes en línea</p>
                 </div>
             </div>
 
             {/* Cards */}
-            <div className="grid w-full max-w-md gap-4">
+            <div className="flex w-full max-w-[420px] flex-col gap-3.5">
                 {/* Student card */}
                 <Link
                     href="/examen/login"
-                    className="group flex items-center gap-5 rounded-2xl bg-white/10 px-6 py-5 ring-1 ring-white/10 backdrop-blur-sm transition-all hover:bg-white/15 hover:ring-white/20"
+                    className="group flex items-center gap-[18px] rounded-[18px] border border-white/10 bg-white/5 px-[22px] py-[18px] backdrop-blur-[6px] transition-all hover:border-white/20 hover:bg-white/10"
                 >
                     <div className="bg-primary/20 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl">
-                        <GraduationCap size={24} className="text-primary-300" />
+                        <GraduationCap size={24} className="text-blue-300" />
                     </div>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                         <p className="font-semibold text-white">Soy alumno</p>
-                        <p className="text-sm text-slate-400">
+                        <p className="mt-0.5 text-[13px] text-slate-400">
                             Ingresá con tu RUT para rendir tu examen
                         </p>
                     </div>
-                    <div className="ml-auto text-slate-500 transition-transform group-hover:translate-x-0.5">
-                        →
+                    <div className="text-slate-500 transition-transform group-hover:translate-x-1">
+                        <ArrowRight size={18} />
                     </div>
                 </Link>
 
                 {/* Admin card */}
                 <Link
                     href="/admin/login"
-                    className="group flex items-center gap-5 rounded-2xl bg-white/10 px-6 py-5 ring-1 ring-white/10 backdrop-blur-sm transition-all hover:bg-white/15 hover:ring-white/20"
+                    className="group flex items-center gap-[18px] rounded-[18px] border border-white/10 bg-white/5 px-[22px] py-[18px] backdrop-blur-[6px] transition-all hover:border-white/20 hover:bg-white/10"
                 >
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-500/20">
                         <LayoutDashboard size={24} className="text-violet-300" />
                     </div>
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                         <p className="font-semibold text-white">Soy administrador</p>
-                        <p className="text-sm text-slate-400">
+                        <p className="mt-0.5 text-[13px] text-slate-400">
                             Accedé al panel para gestionar exámenes
                         </p>
                     </div>
-                    <div className="ml-auto text-slate-500 transition-transform group-hover:translate-x-0.5">
-                        →
+                    <div className="text-slate-500 transition-transform group-hover:translate-x-1">
+                        <ArrowRight size={18} />
                     </div>
                 </Link>
 
                 {/* Demo link */}
-                <div className="text-center">
-                    <Button
-                        as={Link}
+                <div className="mt-1 text-center">
+                    <Link
                         href="/demo/exam"
-                        variant="light"
-                        size="sm"
-                        startContent={<BookOpen size={14} />}
-                        className="text-slate-500 hover:text-slate-300"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs text-slate-500 transition-colors hover:text-slate-300"
                     >
-                        Ver demo de examen
-                    </Button>
+                        <BookOpen size={13} /> Ver demo de examen
+                    </Link>
                 </div>
             </div>
 
-            <p className="mt-12 text-xs text-slate-600">
-                © {new Date().getFullYear()} Crow Advance. Todos los derechos reservados.
+            <p className="mt-12 text-[11px] text-slate-600">
+                <a href="https://crowadvance.com">Crow Advance</a> Copyright © {new Date().getFullYear()} EduNext · Plataforma educativa
             </p>
         </main>
     );

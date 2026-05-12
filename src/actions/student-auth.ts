@@ -34,24 +34,23 @@ export async function validateStudent(
 
     const student = await prisma.user.findFirst({
         where: { rut, role: Role.STUDENT },
-        include: {
-            group: {
-                include: {
-                    exams: {
-                        where: { active: true },
-                        orderBy: { createdAt: 'desc' },
-                        take: 1,
-                    },
-                },
-            },
-        },
+        select: { id: true, groupId: true },
     });
 
-    if (!student?.group) {
+    if (!student) {
         return { error: 'RUT no encontrado. Verificá con tu profesor.' };
     }
 
-    const exam = student.group.exams[0];
+    if (!student.groupId) {
+        return { error: 'No estás asignado a ningún grupo. Verificá con tu profesor.' };
+    }
+
+    const exam = await prisma.exam.findFirst({
+        where: { active: true, groups: { some: { id: student.groupId } } },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, timeLimit: true },
+    });
+
     if (!exam) {
         return { error: 'Tu grupo no tiene un examen activo en este momento.' };
     }

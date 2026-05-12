@@ -1,8 +1,10 @@
 'use client';
 
-import { Button, Input, Link } from '@heroui/react';
-import { BookOpen, Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Eye, EyeOff, Loader2, Lock, Mail } from 'lucide-react';
+import { LogoMark } from '@/components/ui/logo';
 import { signIn } from 'next-auth/react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -37,28 +39,26 @@ export default function AdminLoginPage() {
     };
 
     return (
-        <div className="via-primary-900 flex min-h-screen bg-gradient-to-br from-slate-900 to-slate-900">
+        <div className="flex min-h-screen bg-[linear-gradient(135deg,#0f172a_0%,#001f3f_50%,#0f172a_100%)]">
             {/* Left — branding */}
-            <div className="hidden flex-col justify-between p-16 lg:flex lg:w-1/2">
+            <div className="hidden flex-col justify-between px-14 py-12 lg:flex lg:w-[51%]">
                 <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
-                        <BookOpen size={20} className="text-white" />
-                    </div>
-                    <span className="text-xl font-bold text-white">EduNext Quiz</span>
+                    <LogoMark size={40} />
+                    <span className="text-[19px] font-bold text-white">EduNext Quiz</span>
                 </div>
 
                 <div>
-                    <h2 className="mb-4 text-4xl leading-tight font-bold text-white">
+                    <h2 className="mb-4 text-[36px] font-extrabold leading-[1.15] tracking-[-0.72px] text-white">
                         Plataforma de exámenes
                         <br />
                         para docentes modernos.
                     </h2>
-                    <p className="text-primary-200 text-lg">
+                    <p className="text-[17px] text-[#99c7fb]">
                         Creá exámenes, gestioná grupos y revisá resultados en tiempo real.
                     </p>
                 </div>
 
-                <div className="flex gap-6 text-sm text-white/50">
+                <div className="flex gap-5 text-xs text-white/50">
                     <span>Plataforma educativa</span>
                     <span>·</span>
                     <span>Panel administrativo</span>
@@ -66,21 +66,19 @@ export default function AdminLoginPage() {
             </div>
 
             {/* Right — login form */}
-            <div className="flex flex-1 items-center justify-center bg-white p-8 lg:rounded-l-3xl">
-                <div className="w-full max-w-sm">
+            <div className="flex flex-1 items-center justify-center bg-white p-10 lg:rounded-l-[24px]">
+                <div className="w-full max-w-[340px]">
                     {/* Mobile logo */}
                     <div className="mb-8 flex items-center gap-3 lg:hidden">
-                        <div className="bg-primary flex h-9 w-9 items-center justify-center rounded-xl">
-                            <BookOpen size={18} className="text-white" />
-                        </div>
-                        <span className="text-default-900 text-lg font-bold">EduNext Quiz</span>
+                        <LogoMark size={36} />
+                        <span className="text-lg font-bold text-[#18181b]">EduNext Quiz</span>
                     </div>
 
-                    <div className="mb-8">
-                        <h1 className="text-default-900 text-2xl font-bold">
+                    <div className="mb-6">
+                        <h1 className="text-[22px] font-extrabold tracking-[-0.08px] text-[#18181b]">
                             Acceso administrativo
                         </h1>
-                        <p className="text-default-500 mt-1 text-sm">
+                        <p className="mt-1.5 text-[13px] text-[#71717a]">
                             Ingresá con tus credenciales de administrador
                         </p>
                     </div>
@@ -89,49 +87,59 @@ export default function AdminLoginPage() {
                         onSubmit={(e) => {
                             void handleSubmit(e);
                         }}
-                        className="flex flex-col gap-4"
+                        className="flex flex-col gap-3"
                     >
-                        <Input
-                            type="email"
-                            label="Email"
-                            placeholder="admin@institución.edu"
-                            value={email}
-                            onValueChange={setEmail}
-                            startContent={<Mail size={16} className="text-default-400" />}
-                            variant="bordered"
-                            radius="lg"
-                            isDisabled={isPending}
-                            isRequired
-                            classNames={{ input: 'text-base' }}
-                        />
+                        {/* Email field */}
+                        <label className="flex h-[49px] cursor-text items-center gap-3 rounded-[14px] border-2 border-[#e4e4e7] bg-white px-3 transition-colors duration-200 hover:border-[#a1a1aa] focus-within:border-[#18181b] focus-within:hover:border-[#18181b]">
+                            <Mail size={16} className="shrink-0 text-[#a1a1aa]" />
+                            <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
+                                <span className="text-[11px] font-medium leading-none text-[#71717a]">
+                                    Email{' '}
+                                    <span className="text-[10px] text-destructive">*</span>
+                                </span>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="admin@edunext.local"
+                                    disabled={isPending}
+                                    required
+                                    className="bg-transparent text-[15px] leading-none text-[#18181b] outline-none placeholder:text-[#c4c4c8] disabled:opacity-60"
+                                />
+                            </div>
+                        </label>
 
-                        <Input
-                            type={showPassword ? 'text' : 'password'}
-                            label="Contraseña"
-                            placeholder="••••••••"
-                            value={password}
-                            onValueChange={setPassword}
-                            startContent={<Lock size={16} className="text-default-400" />}
-                            endContent={
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword((v) => !v)}
-                                    className="text-default-400 hover:text-default-600"
-                                    tabIndex={-1}
-                                >
-                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                                </button>
-                            }
-                            variant="bordered"
-                            radius="lg"
-                            isDisabled={isPending}
-                            isRequired
-                            classNames={{ input: 'text-base' }}
-                        />
+                        {/* Password field */}
+                        <label className="flex h-[49px] cursor-text items-center gap-3 rounded-[14px] border-2 border-[#e4e4e7] bg-white px-3 transition-colors duration-200 hover:border-[#a1a1aa] focus-within:border-[#18181b] focus-within:hover:border-[#18181b]">
+                            <Lock size={16} className="shrink-0 text-[#a1a1aa]" />
+                            <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
+                                <span className="text-[11px] font-medium leading-none text-[#71717a]">
+                                    Contraseña{' '}
+                                    <span className="text-[10px] text-destructive">*</span>
+                                </span>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    disabled={isPending}
+                                    required
+                                    className="bg-transparent text-[15px] leading-none text-[#18181b] outline-none placeholder:text-[#c4c4c8] disabled:opacity-60"
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword((v) => !v)}
+                                className="shrink-0 text-[#a1a1aa] outline-none transition-colors hover:text-[#71717a]"
+                                tabIndex={-1}
+                            >
+                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                        </label>
 
                         {error && (
-                            <div className="border-danger-200 bg-danger-50 text-danger-700 flex items-center gap-2 rounded-xl border px-4 py-3 text-sm">
-                                <span className="bg-danger flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white">
+                            <div className="flex items-center gap-2 rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                                <span className="bg-destructive flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white">
                                     !
                                 </span>
                                 {error}
@@ -140,20 +148,17 @@ export default function AdminLoginPage() {
 
                         <Button
                             type="submit"
-                            color="primary"
-                            size="lg"
-                            radius="full"
-                            fullWidth
-                            isLoading={isPending}
-                            className="mt-2 font-semibold"
+                            disabled={isPending}
+                            className="mt-1 h-[48px] w-full rounded-full text-[15px] font-semibold"
                         >
-                            {isPending ? 'Ingresando...' : 'Ingresar al panel'}
+                            {isPending && <Loader2 className="animate-spin" />}
+                            Ingresar al panel
                         </Button>
                     </form>
 
-                    <p className="text-default-400 mt-8 text-center text-sm">
+                    <p className="mt-6 text-center text-[13px] text-[#a1a1aa]">
                         ¿Sos alumno?{' '}
-                        <Link href="/examen/login" className="text-primary font-medium">
+                        <Link href="/examen/login" className="text-[13px] font-medium text-primary">
                             Accedé aquí
                         </Link>
                     </p>

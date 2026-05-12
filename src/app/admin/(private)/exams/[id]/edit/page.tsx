@@ -12,7 +12,7 @@ export default async function ExamEditorPage({ params }: PageProps) {
     const exam = await prisma.exam.findUnique({
         where: { id },
         include: {
-            group: true,
+            groups: true,
             questions: {
                 orderBy: { order: 'asc' },
                 include: { options: { orderBy: { createdAt: 'asc' } } },

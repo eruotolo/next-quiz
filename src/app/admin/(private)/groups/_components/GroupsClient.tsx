@@ -1,18 +1,17 @@
 'use client';
 
 import { createGroup, deleteGroup, updateGroup } from '@/actions/groups';
+import { Button } from '@/components/ui/button';
 import {
-    Button,
-    Input,
-    Modal,
-    ModalBody,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    useDisclosure,
-} from '@heroui/react';
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import type { Group } from '@prisma/client';
-import { Edit2, Plus, Trash2, Users } from 'lucide-react';
+import { Edit2, Loader2, Plus, Trash2, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
@@ -22,8 +21,8 @@ interface GroupWithCount extends Group {
 
 export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
     const router = useRouter();
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
-    const { isOpen: isDelOpen, onOpen: onDelOpen, onOpenChange: onDelOpenChange } = useDisclosure();
+    const [isOpen, setIsOpen] = useState(false);
+    const [isDelOpen, setIsDelOpen] = useState(false);
     const [editing, setEditing] = useState<GroupWithCount | null>(null);
     const [toDelete, setToDelete] = useState<GroupWithCount | null>(null);
     const [name, setName] = useState('');
@@ -34,20 +33,20 @@ export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
         setEditing(null);
         setName('');
         setError(null);
-        onOpen();
+        setIsOpen(true);
     };
     const openEdit = (g: GroupWithCount): void => {
         setEditing(g);
         setName(g.name);
         setError(null);
-        onOpen();
+        setIsOpen(true);
     };
     const openDelete = (g: GroupWithCount): void => {
         setToDelete(g);
-        onDelOpen();
+        setIsDelOpen(true);
     };
 
-    const handleSave = (close: () => void): void => {
+    const handleSave = (): void => {
         if (!name.trim()) {
             setError('El nombre es requerido.');
             return;
@@ -56,7 +55,7 @@ export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
             try {
                 if (editing) await updateGroup(editing.id, { name });
                 else await createGroup({ name });
-                close();
+                setIsOpen(false);
                 router.refresh();
             } catch {
                 setError('Ocurrió un error. Intentá de nuevo.');
@@ -64,11 +63,11 @@ export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
         });
     };
 
-    const handleDelete = (close: () => void): void => {
+    const handleDelete = (): void => {
         if (!toDelete) return;
         startTransition(async () => {
             await deleteGroup(toDelete.id);
-            close();
+            setIsDelOpen(false);
             router.refresh();
         });
     };
@@ -77,33 +76,23 @@ export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-default-900 text-2xl font-bold">Grupos</h1>
-                    <p className="text-default-500 text-sm">{groups.length} grupos registrados</p>
+                    <h1 className="text-2xl font-bold text-foreground">Grupos</h1>
+                    <p className="text-sm text-muted-foreground">{groups.length} grupos registrados</p>
                 </div>
-                <Button
-                    color="primary"
-                    radius="full"
-                    startContent={<Plus size={16} />}
-                    onPress={openCreate}
-                >
+                <Button className="rounded-full" onClick={openCreate}>
+                    <Plus size={16} />
                     Nuevo grupo
                 </Button>
             </div>
 
             {groups.length === 0 ? (
-                <div className="border-default-200 flex flex-col items-center justify-center rounded-2xl border border-dashed bg-white py-20">
-                    <Users size={40} className="text-default-300 mb-3" />
-                    <p className="text-default-500 font-medium">Todavía no hay grupos</p>
-                    <p className="text-default-400 mt-1 text-sm">
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-white py-20">
+                    <Users size={40} className="mb-3 text-muted-foreground/40" />
+                    <p className="font-medium text-muted-foreground">Todavía no hay grupos</p>
+                    <p className="mt-1 text-sm text-muted-foreground/70">
                         Creá el primero para empezar a organizar alumnos.
                     </p>
-                    <Button
-                        className="mt-4"
-                        color="primary"
-                        size="sm"
-                        radius="full"
-                        onPress={openCreate}
-                    >
+                    <Button className="mt-4 rounded-full" size="sm" onClick={openCreate}>
                         Crear grupo
                     </Button>
                 </div>
@@ -112,34 +101,33 @@ export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
                     {groups.map((g) => (
                         <div
                             key={g.id}
-                            className="border-default-100 rounded-2xl border bg-white p-6 shadow-sm"
+                            className="rounded-2xl border border-border bg-white p-6 shadow-sm"
                         >
-                            <div className="bg-primary/10 mb-4 flex h-11 w-11 items-center justify-center rounded-xl">
+                            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
                                 <Users size={20} className="text-primary" />
                             </div>
-                            <h3 className="text-default-900 font-semibold">{g.name}</h3>
-                            <p className="text-default-500 mt-1 text-sm">
+                            <h3 className="font-semibold text-foreground">{g.name}</h3>
+                            <p className="mt-1 text-sm text-muted-foreground">
                                 {g._count.users} alumno{g._count.users !== 1 ? 's' : ''} ·{' '}
                                 {g._count.exams} examen{g._count.exams !== 1 ? 'es' : ''}
                             </p>
                             <div className="mt-4 flex gap-2">
                                 <Button
                                     size="sm"
-                                    variant="flat"
-                                    radius="lg"
-                                    startContent={<Edit2 size={13} />}
-                                    onPress={() => openEdit(g)}
+                                    variant="outline"
+                                    className="rounded-lg"
+                                    onClick={() => openEdit(g)}
                                 >
+                                    <Edit2 size={13} />
                                     Editar
                                 </Button>
                                 <Button
                                     size="sm"
-                                    variant="flat"
-                                    color="danger"
-                                    radius="lg"
-                                    startContent={<Trash2 size={13} />}
-                                    onPress={() => openDelete(g)}
+                                    variant="ghost"
+                                    className="rounded-lg text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                    onClick={() => openDelete(g)}
                                 >
+                                    <Trash2 size={13} />
                                     Eliminar
                                 </Button>
                             </div>
@@ -148,85 +136,81 @@ export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
                 </div>
             )}
 
-            {/* Create/Edit modal */}
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-                <ModalContent>
-                    {(close) => (
-                        <>
-                            <ModalHeader>{editing ? 'Editar grupo' : 'Nuevo grupo'}</ModalHeader>
-                            <ModalBody>
-                                <Input
-                                    label="Nombre del grupo"
-                                    placeholder="Ej: 4to Año B"
-                                    value={name}
-                                    onValueChange={(v) => {
-                                        setName(v);
-                                        setError(null);
-                                    }}
-                                    variant="bordered"
-                                    radius="lg"
-                                    isInvalid={!!error}
-                                    errorMessage={error ?? undefined}
-                                    autoFocus
-                                />
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button
-                                    variant="flat"
-                                    radius="full"
-                                    onPress={close}
-                                    isDisabled={isPending}
-                                >
-                                    Cancelar
-                                </Button>
-                                <Button
-                                    color="primary"
-                                    radius="full"
-                                    isLoading={isPending}
-                                    onPress={() => handleSave(close)}
-                                >
-                                    {editing ? 'Guardar cambios' : 'Crear grupo'}
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
+            {/* Create/Edit dialog */}
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{editing ? 'Editar grupo' : 'Nuevo grupo'}</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-1.5 py-2">
+                        <label className="text-sm font-medium text-foreground">
+                            Nombre del grupo
+                        </label>
+                        <Input
+                            placeholder="Ej: 4to Año B"
+                            value={name}
+                            onChange={(e) => {
+                                setName(e.target.value);
+                                setError(null);
+                            }}
+                            className={error ? 'border-destructive' : ''}
+                            autoFocus
+                        />
+                        {error && <p className="text-sm text-destructive">{error}</p>}
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            className="rounded-full"
+                            onClick={() => setIsOpen(false)}
+                            disabled={isPending}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            className="rounded-full"
+                            disabled={isPending}
+                            onClick={handleSave}
+                        >
+                            {isPending && <Loader2 className="animate-spin" />}
+                            {editing ? 'Guardar cambios' : 'Crear grupo'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
-            {/* Delete modal */}
-            <Modal isOpen={isDelOpen} onOpenChange={onDelOpenChange} size="sm">
-                <ModalContent>
-                    {(close) => (
-                        <>
-                            <ModalHeader className="text-danger">Eliminar grupo</ModalHeader>
-                            <ModalBody>
-                                <p className="text-default-600">
-                                    ¿Estás seguro de eliminar <strong>{toDelete?.name}</strong>? Se
-                                    eliminarán también sus alumnos y exámenes asociados.
-                                </p>
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button
-                                    variant="flat"
-                                    radius="full"
-                                    onPress={close}
-                                    isDisabled={isPending}
-                                >
-                                    Cancelar
-                                </Button>
-                                <Button
-                                    color="danger"
-                                    radius="full"
-                                    isLoading={isPending}
-                                    onPress={() => handleDelete(close)}
-                                >
-                                    Eliminar
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
+            {/* Delete dialog */}
+            <Dialog open={isDelOpen} onOpenChange={setIsDelOpen}>
+                <DialogContent className="sm:max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle className="text-destructive">Eliminar grupo</DialogTitle>
+                    </DialogHeader>
+                    <p className="text-sm text-muted-foreground">
+                        ¿Estás seguro de eliminar{' '}
+                        <strong className="text-foreground">{toDelete?.name}</strong>? Se eliminarán
+                        también sus alumnos y exámenes asociados.
+                    </p>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            className="rounded-full"
+                            onClick={() => setIsDelOpen(false)}
+                            disabled={isPending}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            className="rounded-full"
+                            disabled={isPending}
+                            onClick={handleDelete}
+                        >
+                            {isPending && <Loader2 className="animate-spin" />}
+                            Eliminar
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

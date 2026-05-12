@@ -1,24 +1,23 @@
 'use client';
 
 import { deleteQuestion, upsertQuestion } from '@/actions/exams';
+import { Button } from '@/components/ui/button';
 import {
-    Button,
-    Input,
-    Modal,
-    ModalBody,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    useDisclosure,
-} from '@heroui/react';
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import type { Exam, Group, Option, Question } from '@prisma/client';
-import { ArrowLeft, BookOpen, Plus, Trash2, X } from 'lucide-react';
+import { ArrowLeft, BookOpen, Loader2, Plus, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
 type QuestionWithOptions = Question & { options: Option[] };
-type ExamWithAll = Exam & { group: Group; questions: QuestionWithOptions[] };
+type ExamWithAll = Exam & { groups: Group[]; questions: QuestionWithOptions[] };
 
 interface OptionDraft {
     _key: string;
@@ -53,8 +52,8 @@ function defaultQuestionDraft(): QuestionDraft {
 
 export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
     const router = useRouter();
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
-    const { isOpen: isDelOpen, onOpen: onDelOpen, onOpenChange: onDelOpenChange } = useDisclosure();
+    const [isOpen, setIsOpen] = useState(false);
+    const [isDelOpen, setIsDelOpen] = useState(false);
 
     const [draft, setDraft] = useState<QuestionDraft | null>(null);
     const [draftOrder, setDraftOrder] = useState(0);
@@ -70,7 +69,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
         setDraft(defaultQuestionDraft());
         setDraftOrder(exam.questions.length);
         setQErrors({});
-        onOpen();
+        setIsOpen(true);
     };
 
     const openEdit = (q: QuestionWithOptions, order: number): void => {
@@ -87,12 +86,12 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
         });
         setDraftOrder(order);
         setQErrors({});
-        onOpen();
+        setIsOpen(true);
     };
 
     const confirmDelete = (id: string): void => {
         setToDeleteId(id);
-        onDelOpen();
+        setIsDelOpen(true);
     };
 
     const setDraftText = (text: string): void => {
@@ -155,12 +154,12 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
         return Object.keys(errs).length === 0;
     };
 
-    const handleSaveQ = (close: () => void): void => {
+    const handleSaveQ = (): void => {
         if (!validate() || !draft) return;
         startTransition(async () => {
             try {
                 await upsertQuestion(exam.id, draft, draftOrder);
-                close();
+                setIsOpen(false);
                 router.refresh();
             } catch {
                 setQErrors({ general: 'Ocurrió un error. Intentá de nuevo.' });
@@ -168,11 +167,11 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
         });
     };
 
-    const handleDeleteQ = (close: () => void): void => {
+    const handleDeleteQ = (): void => {
         if (!toDeleteId) return;
         startTransition(async () => {
             await deleteQuestion(toDeleteId, exam.id);
-            close();
+            setIsDelOpen(false);
             router.refresh();
         });
     };
@@ -183,28 +182,29 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
             <div className="flex items-center gap-4">
                 <Link
                     href="/admin/exams"
-                    className="border-default-200 text-default-600 hover:bg-default-50 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border bg-white transition-colors"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-white text-muted-foreground transition-colors hover:bg-muted/50"
                 >
                     <ArrowLeft size={16} />
                 </Link>
                 <div>
-                    <h1 className="text-default-900 text-2xl font-bold">{exam.title}</h1>
-                    <p className="text-default-500 text-sm">
-                        {exam.group.name} · {exam.timeLimit} min · {exam.questions.length} pregunta
+                    <h1 className="text-2xl font-bold text-foreground">{exam.title}</h1>
+                    <p className="text-sm text-muted-foreground">
+                        {exam.groups.map((g) => g.name).join(' · ')} · {exam.timeLimit} min ·{' '}
+                        {exam.questions.length} pregunta
                         {exam.questions.length !== 1 ? 's' : ''}
                     </p>
                 </div>
             </div>
 
             {/* Questions */}
-            <div className="space-y-3">
+            <div className="space-y-3.5">
                 {exam.questions.length === 0 ? (
-                    <div className="border-default-200 flex flex-col items-center justify-center rounded-2xl border border-dashed bg-white py-16">
-                        <BookOpen size={36} className="text-default-300 mb-3" />
-                        <p className="text-default-500 font-medium">
+                    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-white py-16">
+                        <BookOpen size={36} className="mb-3 text-muted-foreground/40" />
+                        <p className="font-medium text-muted-foreground">
                             Este examen no tiene preguntas
                         </p>
-                        <p className="text-default-400 mt-1 text-sm">
+                        <p className="mt-1 text-sm text-muted-foreground/70">
                             Agregá la primera para empezar.
                         </p>
                     </div>
@@ -212,24 +212,24 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                     exam.questions.map((q, idx) => (
                         <div
                             key={q.id}
-                            className="border-default-100 rounded-2xl border bg-white p-5 shadow-sm"
+                            className="rounded-2xl border border-border bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
                         >
                             <div className="flex items-start gap-4">
-                                <div className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-sm font-bold">
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-sm font-extrabold text-primary">
                                     {idx + 1}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <p className="text-default-900 leading-snug font-medium">
+                                    <p className="text-[15px] leading-snug font-semibold text-foreground">
                                         {q.text}
                                     </p>
-                                    <div className="mt-2 flex flex-wrap gap-2">
+                                    <div className="mt-2.5 flex flex-wrap gap-2">
                                         {q.options.map((o, oi) => (
                                             <span
                                                 key={o.id}
-                                                className={`inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-xs font-medium ${
+                                                className={`inline-flex items-center gap-1 rounded-full px-3 py-0.5 text-xs font-semibold ${
                                                     o.isCorrect
-                                                        ? 'bg-success-50 text-success-700 ring-success-200 ring-1'
-                                                        : 'bg-default-100 text-default-600'
+                                                        ? 'bg-success/10 text-success ring-1 ring-success/30'
+                                                        : 'bg-muted text-muted-foreground'
                                                 }`}
                                             >
                                                 {LETTERS[oi]}) {o.text}
@@ -237,23 +237,24 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                             </span>
                                         ))}
                                     </div>
+                                    <p className="mt-2 text-[11px] text-muted-foreground">
+                                        {q.points} {q.points === 1 ? 'punto' : 'puntos'}
+                                    </p>
                                 </div>
                                 <div className="flex shrink-0 gap-2">
                                     <Button
                                         size="sm"
-                                        variant="flat"
-                                        radius="lg"
-                                        onPress={() => openEdit(q, idx)}
+                                        variant="outline"
+                                        className="rounded-lg font-semibold"
+                                        onClick={() => openEdit(q, idx)}
                                     >
                                         Editar
                                     </Button>
                                     <Button
                                         size="sm"
-                                        variant="flat"
-                                        color="danger"
-                                        radius="lg"
-                                        isIconOnly
-                                        onPress={() => confirmDelete(q.id)}
+                                        variant="ghost"
+                                        className="rounded-lg text-destructive hover:bg-destructive/10 hover:text-destructive"
+                                        onClick={() => confirmDelete(q.id)}
                                     >
                                         <Trash2 size={13} />
                                     </Button>
@@ -264,172 +265,161 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                 )}
             </div>
 
-            <Button
-                color="primary"
-                radius="full"
-                startContent={<Plus size={16} />}
-                onPress={openNew}
-            >
+            <Button className="rounded-full" onClick={openNew}>
+                <Plus size={16} />
                 Agregar pregunta
             </Button>
 
-            {/* Question create/edit modal */}
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="2xl" scrollBehavior="inside">
-                <ModalContent>
-                    {(close) => (
-                        <>
-                            <ModalHeader>
-                                {draft?.id ? 'Editar pregunta' : 'Nueva pregunta'}
-                            </ModalHeader>
-                            <ModalBody className="gap-5">
-                                {qErrors.general && (
-                                    <p className="bg-danger-50 text-danger rounded-xl px-4 py-2 text-sm">
-                                        {qErrors.general}
-                                    </p>
-                                )}
-                                <Input
-                                    label="Texto de la pregunta"
-                                    placeholder="Ej: ¿Cuál es la capital de Chile?"
-                                    value={draft?.text ?? ''}
-                                    onValueChange={setDraftText}
-                                    variant="bordered"
-                                    radius="lg"
-                                    isInvalid={!!qErrors.text}
-                                    errorMessage={qErrors.text}
-                                    autoFocus
-                                />
-                                <Input
-                                    label="Puntos"
-                                    type="number"
-                                    min={1}
-                                    max={100}
-                                    value={String(draft?.points ?? 1)}
-                                    onValueChange={(v) => setDraftPoints(Number(v) || 1)}
-                                    variant="bordered"
-                                    radius="lg"
-                                    className="max-w-[120px]"
-                                />
+            {/* Question create/edit dialog */}
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>
+                            {draft?.id ? 'Editar pregunta' : 'Nueva pregunta'}
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="flex-1 space-y-5 overflow-y-auto py-2">
+                        {qErrors.general && (
+                            <p className="rounded-xl bg-destructive/10 px-4 py-2 text-sm text-destructive">
+                                {qErrors.general}
+                            </p>
+                        )}
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-sm font-medium text-foreground">
+                                Texto de la pregunta
+                            </label>
+                            <Input
+                                placeholder="Ej: ¿Cuál es la capital de Chile?"
+                                value={draft?.text ?? ''}
+                                onChange={(e) => setDraftText(e.target.value)}
+                                className={qErrors.text ? 'border-destructive' : ''}
+                                autoFocus
+                            />
+                            {qErrors.text && (
+                                <p className="text-xs text-destructive">{qErrors.text}</p>
+                            )}
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-sm font-medium text-foreground">Puntos</label>
+                            <Input
+                                type="number"
+                                min={1}
+                                max={100}
+                                value={String(draft?.points ?? 1)}
+                                onChange={(e) => setDraftPoints(Number(e.target.value) || 1)}
+                                className="max-w-[120px]"
+                            />
+                        </div>
 
-                                <div>
-                                    <div className="mb-3 flex items-center justify-between">
-                                        <p className="text-default-700 text-sm font-medium">
-                                            Opciones{' '}
-                                            <span className="text-default-400 font-normal">
-                                                (hacé clic en la letra para marcar la correcta)
-                                            </span>
-                                        </p>
-                                        {(draft?.options.length ?? 0) < 6 && (
-                                            <Button
-                                                size="sm"
-                                                variant="flat"
-                                                radius="lg"
-                                                startContent={<Plus size={12} />}
-                                                onPress={addOption}
+                        <div>
+                            <div className="mb-3 flex items-center justify-between">
+                                <p className="text-sm font-medium text-foreground">
+                                    Opciones{' '}
+                                    <span className="font-normal text-muted-foreground">
+                                        (hacé clic en la letra para marcar la correcta)
+                                    </span>
+                                </p>
+                                {(draft?.options.length ?? 0) < 6 && (
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="rounded-lg"
+                                        onClick={addOption}
+                                    >
+                                        <Plus size={12} />
+                                        Agregar opción
+                                    </Button>
+                                )}
+                            </div>
+                            {qErrors.options && (
+                                <p className="mb-2 text-sm text-destructive">{qErrors.options}</p>
+                            )}
+                            <div className="space-y-2">
+                                {draft?.options.map((opt, i) => (
+                                    <div key={opt._key} className="flex items-center gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => setCorrect(i)}
+                                            title="Marcar como correcta"
+                                            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-all ${
+                                                opt.isCorrect
+                                                    ? 'border-success bg-success text-white shadow-sm'
+                                                    : 'border-border text-muted-foreground hover:border-success/60 hover:text-success'
+                                            }`}
+                                        >
+                                            {LETTERS[i]}
+                                        </button>
+                                        <Input
+                                            placeholder={`Opción ${LETTERS[i]}`}
+                                            value={opt.text}
+                                            onChange={(e) => setOptionText(i, e.target.value)}
+                                            className="flex-1"
+                                        />
+                                        {(draft?.options.length ?? 0) > 2 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => removeOption(i)}
+                                                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                                             >
-                                                Agregar opción
-                                            </Button>
+                                                <X size={14} />
+                                            </button>
                                         )}
                                     </div>
-                                    {qErrors.options && (
-                                        <p className="text-danger mb-2 text-sm">
-                                            {qErrors.options}
-                                        </p>
-                                    )}
-                                    <div className="space-y-2">
-                                        {draft?.options.map((opt, i) => (
-                                            <div key={opt._key} className="flex items-center gap-3">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setCorrect(i)}
-                                                    title="Marcar como correcta"
-                                                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-all ${
-                                                        opt.isCorrect
-                                                            ? 'border-success bg-success text-white shadow-sm'
-                                                            : 'border-default-200 text-default-400 hover:border-success/60 hover:text-success'
-                                                    }`}
-                                                >
-                                                    {LETTERS[i]}
-                                                </button>
-                                                <Input
-                                                    placeholder={`Opción ${LETTERS[i]}`}
-                                                    value={opt.text}
-                                                    onValueChange={(v) => setOptionText(i, v)}
-                                                    variant="bordered"
-                                                    radius="lg"
-                                                    size="sm"
-                                                    className="flex-1"
-                                                />
-                                                {(draft?.options.length ?? 0) > 2 && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeOption(i)}
-                                                        className="text-default-400 hover:bg-danger-50 hover:text-danger flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors"
-                                                    >
-                                                        <X size={14} />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button
-                                    variant="flat"
-                                    radius="full"
-                                    onPress={close}
-                                    isDisabled={isPending}
-                                >
-                                    Cancelar
-                                </Button>
-                                <Button
-                                    color="primary"
-                                    radius="full"
-                                    isLoading={isPending}
-                                    onPress={() => handleSaveQ(close)}
-                                >
-                                    Guardar pregunta
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            className="rounded-full"
+                            onClick={() => setIsOpen(false)}
+                            disabled={isPending}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            className="rounded-full"
+                            disabled={isPending}
+                            onClick={handleSaveQ}
+                        >
+                            {isPending && <Loader2 className="animate-spin" />}
+                            Guardar pregunta
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
-            {/* Delete question confirmation */}
-            <Modal isOpen={isDelOpen} onOpenChange={onDelOpenChange} size="sm">
-                <ModalContent>
-                    {(close) => (
-                        <>
-                            <ModalHeader className="text-danger">Eliminar pregunta</ModalHeader>
-                            <ModalBody>
-                                <p className="text-default-600">
-                                    ¿Estás seguro de eliminar esta pregunta? Esta acción no se puede
-                                    deshacer.
-                                </p>
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button
-                                    variant="flat"
-                                    radius="full"
-                                    onPress={close}
-                                    isDisabled={isPending}
-                                >
-                                    Cancelar
-                                </Button>
-                                <Button
-                                    color="danger"
-                                    radius="full"
-                                    isLoading={isPending}
-                                    onPress={() => handleDeleteQ(close)}
-                                >
-                                    Eliminar
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
+            {/* Delete question dialog */}
+            <Dialog open={isDelOpen} onOpenChange={setIsDelOpen}>
+                <DialogContent className="sm:max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle className="text-destructive">Eliminar pregunta</DialogTitle>
+                    </DialogHeader>
+                    <p className="text-sm text-muted-foreground">
+                        ¿Estás seguro de eliminar esta pregunta? Esta acción no se puede deshacer.
+                    </p>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            className="rounded-full"
+                            onClick={() => setIsDelOpen(false)}
+                            disabled={isPending}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            className="rounded-full"
+                            disabled={isPending}
+                            onClick={handleDeleteQ}
+                        >
+                            {isPending && <Loader2 className="animate-spin" />}
+                            Eliminar
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

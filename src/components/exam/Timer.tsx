@@ -44,6 +44,7 @@ export function Timer({ initialSeconds, onTimeout }: TimerProps) {
 
     return (
         <div
+            role="timer"
             className="relative"
             aria-live="polite"
             aria-label={`Tiempo restante: ${formatTime(remaining)}`}
@@ -54,7 +55,7 @@ export function Timer({ initialSeconds, onTimeout }: TimerProps) {
                     cy="36"
                     r={RADIUS}
                     fill="none"
-                    className="stroke-default-200"
+                    className="stroke-border"
                     strokeWidth="5"
                 />
                 <circle
@@ -68,7 +69,7 @@ export function Timer({ initialSeconds, onTimeout }: TimerProps) {
                     strokeDashoffset={dashOffset}
                     className={cn(
                         'transition-[stroke-dashoffset] duration-1000 ease-linear',
-                        danger ? 'stroke-danger' : warning ? 'stroke-warning' : 'stroke-primary',
+                        danger ? 'stroke-destructive' : warning ? 'stroke-warning' : 'stroke-primary',
                     )}
                 />
             </svg>
@@ -76,7 +77,7 @@ export function Timer({ initialSeconds, onTimeout }: TimerProps) {
                 <span
                     className={cn(
                         'font-mono text-xs leading-none font-bold',
-                        danger ? 'text-danger' : warning ? 'text-warning' : 'text-default-700',
+                        danger ? 'text-destructive' : warning ? 'text-warning' : 'text-foreground',
                     )}
                 >
                     {formatTime(remaining)}

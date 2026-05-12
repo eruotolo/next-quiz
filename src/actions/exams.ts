@@ -5,15 +5,20 @@ import { examSchema, questionSchema } from '@/schemas/exam';
 import { revalidatePath } from 'next/cache';
 
 export async function createExam(data: unknown): Promise<{ id: string }> {
-    const parsed = examSchema.parse(data);
-    const exam = await prisma.exam.create({ data: parsed });
+    const { groupIds, ...rest } = examSchema.parse(data);
+    const exam = await prisma.exam.create({
+        data: { ...rest, groups: { connect: groupIds.map((id) => ({ id })) } },
+    });
     revalidatePath('/admin/exams');
     return { id: exam.id };
 }
 
 export async function updateExam(id: string, data: unknown): Promise<void> {
-    const parsed = examSchema.parse(data);
-    await prisma.exam.update({ where: { id }, data: parsed });
+    const { groupIds, ...rest } = examSchema.parse(data);
+    await prisma.exam.update({
+        where: { id },
+        data: { ...rest, groups: { set: groupIds.map((id) => ({ id })) } },
+    });
     revalidatePath('/admin/exams');
     revalidatePath(`/admin/exams/${id}/edit`);
 }

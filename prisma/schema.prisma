@@ -44,19 +44,20 @@ model Group {
 }
 
 model Exam {
-  id        String     @id @default(uuid()) @db.Uuid
-  title     String
-  timeLimit Int
-  active    Boolean    @default(false)
-  groupId   String     @db.Uuid
-  group     Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  questions Question[]
-  results   Result[]
-  answers   Answer[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id                String     @id @default(uuid()) @db.Uuid
+  title             String
+  timeLimit         Int
+  active            Boolean    @default(false)
+  maxGrade          Float      @default(7)
+  passingGrade      Float      @default(4)
+  passingPercentage Int        @default(60)
+  groups            Group[]
+  questions         Question[]
+  results           Result[]
+  answers           Answer[]
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
-  @@index([groupId])
   @@index([active])
 }
 

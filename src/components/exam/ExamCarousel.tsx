@@ -2,10 +2,12 @@
 
 import { autoSubmit, finishExam, submitAnswer } from '@/actions/exam-session';
 import type { SafeExam } from '@/types/exam';
-import { Button, addToast } from '@heroui/react';
+import { Button } from '@/components/ui/button';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
+import { toast } from 'sonner';
 import { QuestionCard } from './QuestionCard';
 import { Timer } from './Timer';
 
@@ -36,10 +38,8 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
                 router.replace(`/examen/resultado/${res.resultId}`);
             } catch (err) {
                 submittedRef.current = false;
-                addToast({
-                    title: 'Error al enviar',
+                toast.error('Error al enviar', {
                     description: 'No se pudo enviar el examen. Intentá de nuevo.',
-                    color: 'danger',
                 });
                 console.error(err);
             }
@@ -48,10 +48,8 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
     );
 
     const handleTimeout = useCallback(() => {
-        addToast({
-            title: '¡Tiempo agotado!',
+        toast.warning('¡Tiempo agotado!', {
             description: 'El examen se envió automáticamente.',
-            color: 'warning',
         });
         void finalizeAndRedirect('auto');
     }, [finalizeAndRedirect]);
@@ -72,10 +70,8 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
                 setCurrentIndex((i) => i + 1);
                 setSelectedOptionId(null);
             } catch {
-                addToast({
-                    title: 'Error al guardar',
+                toast.error('Error al guardar', {
                     description: 'No se pudo guardar la respuesta. Reintentá.',
-                    color: 'danger',
                 });
             }
         });
@@ -91,10 +87,8 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
         history.pushState(null, '', window.location.href);
         const onPopState = (): void => {
             history.pushState(null, '', window.location.href);
-            addToast({
-                title: 'Navegación bloqueada',
+            toast.warning('Navegación bloqueada', {
                 description: 'No podés salir mientras el examen está en curso.',
-                color: 'warning',
             });
         };
         window.addEventListener('popstate', onPopState);
@@ -114,15 +108,15 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
     };
 
     return (
-        <div className="bg-default-50 flex min-h-screen flex-col">
+        <div className="flex min-h-screen flex-col bg-muted/30">
             {/* Header */}
-            <header className="border-default-200 sticky top-0 z-10 border-b bg-white/90 px-6 py-4 backdrop-blur-sm">
+            <header className="sticky top-0 z-10 border-b border-border bg-white/95 px-6 py-3.5 backdrop-blur-sm">
                 <div className="mx-auto flex max-w-2xl items-center justify-between gap-4">
                     <div className="min-w-0">
-                        <h1 className="text-default-900 truncate text-base font-bold">
+                        <h1 className="truncate text-[15px] font-bold text-foreground">
                             {exam.title}
                         </h1>
-                        <p className="text-default-400 text-sm">
+                        <p className="mt-0.5 text-[13px] text-muted-foreground">
                             {currentIndex + 1} / {totalQuestions} preguntas
                         </p>
                     </div>
@@ -130,8 +124,8 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
                 </div>
 
                 {/* Progress bar */}
-                <div className="mx-auto mt-3 max-w-2xl">
-                    <div className="bg-default-100 h-2 overflow-hidden rounded-full">
+                <div className="mx-auto mt-2.5 max-w-2xl">
+                    <div className="h-1.5 overflow-hidden rounded-full bg-muted">
                         <div
                             className="bg-primary h-full rounded-full transition-all duration-500 ease-out"
                             style={{ width: `${progressPct}%` }}
@@ -150,7 +144,7 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
                         initial="enter"
                         animate="center"
                         exit="exit"
-                        transition={{ duration: 0.25, ease: 'easeInOut' }}
+                        transition={{ duration: 0.2, ease: 'easeInOut' }}
                     >
                         <QuestionCard
                             question={currentQuestion}
@@ -165,22 +159,25 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
             </main>
 
             {/* Footer */}
-            <footer className="border-default-200 sticky bottom-0 border-t bg-white px-6 py-4">
+            <footer className="sticky bottom-0 border-t border-border bg-white px-6 py-3.5">
                 <div className="mx-auto flex max-w-2xl justify-end">
                     <Button
-                        color="primary"
                         size="lg"
-                        radius="full"
-                        isDisabled={!selectedOptionId || isPending}
-                        isLoading={isPending}
-                        onPress={handleNext}
-                        className="min-w-36 font-semibold"
-                        endContent={
-                            !isPending && (
+                        disabled={!selectedOptionId || isPending}
+                        onClick={handleNext}
+                        className="min-w-[150px] rounded-full font-semibold"
+                    >
+                        {isPending ? (
+                            <Loader2 className="animate-spin" />
+                        ) : isLastQuestion ? (
+                            'Finalizar'
+                        ) : (
+                            <>
+                                Siguiente
                                 <svg
                                     aria-hidden="true"
-                                    width="18"
-                                    height="18"
+                                    width="16"
+                                    height="16"
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
@@ -188,10 +185,8 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
                                 >
                                     <path d="M5 12h14M12 5l7 7-7 7" />
                                 </svg>
-                            )
-                        }
-                    >
-                        {isLastQuestion ? 'Finalizar' : 'Siguiente'}
+                            </>
+                        )}
                     </Button>
                 </div>
             </footer>

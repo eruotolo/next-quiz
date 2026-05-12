@@ -5,7 +5,7 @@ export default async function ExamsPage() {
     const [exams, groups] = await Promise.all([
         prisma.exam.findMany({
             include: {
-                group: true,
+                groups: true,
                 _count: { select: { questions: true } },
             },
             orderBy: { createdAt: 'desc' },

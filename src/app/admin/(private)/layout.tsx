@@ -8,10 +8,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     if (!session) redirect('/admin/login');
 
     return (
-        <div className="bg-default-50 flex min-h-screen">
+        <div className="flex min-h-screen bg-muted/30">
             <Sidebar userName={session.user?.name} userEmail={session.user?.email} />
             <main className="ml-64 flex-1 overflow-y-auto">
-                <div className="p-8">{children}</div>
+                <div className="px-10 py-8">{children}</div>
             </main>
         </div>
     );

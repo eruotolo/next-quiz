@@ -23,12 +23,12 @@ export function QuestionCard({
     disabled,
 }: QuestionCardProps) {
     return (
-        <div className="flex flex-col gap-5">
-            <div className="space-y-2">
-                <p className="text-default-400 text-sm font-medium">
+        <div className="flex flex-col gap-[22px]">
+            <div className="space-y-1.5">
+                <p className="text-[13px] font-medium text-muted-foreground">
                     Pregunta {questionNumber} de {totalQuestions}
                 </p>
-                <h2 className="text-default-900 text-2xl leading-snug font-semibold">
+                <h2 className="text-[26px] leading-[1.3] font-bold tracking-tight text-foreground">
                     {question.text}
                 </h2>
             </div>
@@ -54,8 +54,8 @@ export function QuestionCard({
                                 'focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
                                 disabled && 'cursor-not-allowed opacity-60',
                                 isSelected
-                                    ? 'border-primary bg-primary/8 shadow-md'
-                                    : 'border-default-200 hover:border-primary/40 hover:bg-primary/4 bg-white hover:shadow-sm',
+                                    ? 'border-primary bg-primary/5 shadow-md'
+                                    : 'border-border hover:border-primary/40 hover:bg-primary/5 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.02)]',
                             )}
                         >
                             <span
@@ -63,7 +63,7 @@ export function QuestionCard({
                                     'flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold transition-colors',
                                     isSelected
                                         ? 'bg-primary text-white'
-                                        : 'bg-default-100 text-default-500',
+                                        : 'bg-muted text-muted-foreground',
                                 )}
                             >
                                 {label}
@@ -71,25 +71,25 @@ export function QuestionCard({
                             <span
                                 className={cn(
                                     'text-base font-medium',
-                                    isSelected ? 'text-primary' : 'text-default-700',
+                                    isSelected ? 'text-primary' : 'text-foreground',
                                 )}
                             >
                                 {option.text}
                             </span>
                             {isSelected && (
-                                <span className="text-primary ml-auto">
+                                <span className="ml-auto text-primary">
                                     <svg
                                         aria-hidden="true"
                                         width="20"
                                         height="20"
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="3"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
                                     >
-                                        <path
-                                            fillRule="evenodd"
-                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                            clipRule="evenodd"
-                                        />
+                                        <polyline points="20 6 9 17 4 12" />
                                     </svg>
                                 </span>
                             )}

@@ -69,3 +69,6 @@ out/
 .cache/
 tmp/
 temp/
+design.html
+extract_html.js
+parse_html.js

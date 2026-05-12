@@ -2,14 +2,15 @@
 
 import { cn } from '@/lib/utils';
 import {
+    Activity,
     BarChart3,
     BookOpen,
-    ClipboardList,
     GraduationCap,
     LayoutDashboard,
     LogOut,
     Users,
 } from 'lucide-react';
+import { LogoMark } from '@/components/ui/logo';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -20,6 +21,7 @@ const navItems = [
     { href: '/admin/students', label: 'Alumnos', icon: GraduationCap },
     { href: '/admin/exams', label: 'Exámenes', icon: BookOpen },
     { href: '/admin/results', label: 'Resultados', icon: BarChart3 },
+    { href: '/admin/liveresults', label: 'En vivo', icon: Activity },
 ];
 
 interface SidebarProps {
@@ -31,15 +33,17 @@ export function Sidebar({ userName, userEmail }: SidebarProps) {
     const pathname = usePathname();
 
     return (
-        <aside className="border-default-100 fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r bg-white">
+        <aside className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-border bg-white">
             {/* Logo */}
-            <div className="border-default-100 flex items-center gap-3 border-b px-6 py-5">
-                <div className="bg-primary flex h-9 w-9 shrink-0 items-center justify-center rounded-xl">
-                    <ClipboardList size={18} className="text-white" />
-                </div>
+            <div className="flex items-center gap-3 border-b border-border px-6 py-5">
+                <LogoMark size={36} className="shrink-0 shadow-sm" />
                 <div>
-                    <p className="text-default-900 leading-none font-bold">EduNext Quiz</p>
-                    <p className="text-default-400 text-xs leading-snug">Panel administrativo</p>
+                    <p className="text-[15px] font-bold leading-none text-foreground">
+                        EduNext Quiz
+                    </p>
+                    <p className="mt-1 text-xs leading-none text-muted-foreground">
+                        Panel administrativo
+                    </p>
                 </div>
             </div>
 
@@ -53,10 +57,10 @@ export function Sidebar({ userName, userEmail }: SidebarProps) {
                                 <Link
                                     href={href}
                                     className={cn(
-                                        'flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors',
+                                        'flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors',
                                         isActive
-                                            ? 'bg-primary text-white'
-                                            : 'text-default-600 hover:bg-default-100 hover:text-default-900',
+                                            ? 'bg-primary text-primary-foreground shadow-sm'
+                                            : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                                     )}
                                 >
                                     <Icon size={18} className="shrink-0" />
@@ -69,17 +73,17 @@ export function Sidebar({ userName, userEmail }: SidebarProps) {
             </nav>
 
             {/* User + Logout */}
-            <div className="border-default-100 space-y-1 border-t px-3 py-4">
-                <div className="bg-default-50 rounded-xl px-4 py-3">
-                    <p className="text-default-800 truncate text-sm font-semibold">
+            <div className="space-y-1 border-t border-border px-3 py-4">
+                <div className="rounded-xl bg-muted/50 px-4 py-3">
+                    <p className="truncate text-sm font-bold text-foreground">
                         {userName ?? 'Admin'}
                     </p>
-                    <p className="text-default-400 truncate text-xs">{userEmail}</p>
+                    <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
                 </div>
                 <button
                     type="button"
                     onClick={() => void signOut({ callbackUrl: '/admin/login' })}
-                    className="text-danger-600 hover:bg-danger-50 flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors"
+                    className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
                 >
                     <LogOut size={18} className="shrink-0" />
                     Cerrar sesión
