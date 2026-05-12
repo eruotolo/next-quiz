@@ -1,0 +1,125 @@
+// Schema — EduNext Quiz
+// All IDs use PostgreSQL native UUID. See docs in src/lib/rut.ts for RUT normalization.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  lastname  String
+  email     String   @unique
+  rut       String   @unique
+  password  String?
+  role      Role     @default(STUDENT)
+  groupId   String?  @db.Uuid
+  group     Group?   @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  results   Result[]
+  answers   Answer[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([groupId])
+  @@index([role])
+}
+
+model Group {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  users     User[]
+  exams     Exam[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Exam {
+  id        String     @id @default(uuid()) @db.Uuid
+  title     String
+  timeLimit Int
+  active    Boolean    @default(false)
+  groupId   String     @db.Uuid
+  group     Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  questions Question[]
+  results   Result[]
+  answers   Answer[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([groupId])
+  @@index([active])
+}
+
+model Question {
+  id        String   @id @default(uuid()) @db.Uuid
+  text      String
+  points    Int      @default(1)
+  order     Int      @default(0)
+  examId    String   @db.Uuid
+  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  options   Option[]
+  answers   Answer[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([examId])
+}
+
+model Option {
+  id         String   @id @default(uuid()) @db.Uuid
+  text       String
+  isCorrect  Boolean  @default(false)
+  questionId String   @db.Uuid
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers    Answer[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([questionId])
+}
+
+model Answer {
+  id         String   @id @default(uuid()) @db.Uuid
+  attemptKey String
+  studentId  String   @db.Uuid
+  student    User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  examId     String   @db.Uuid
+  exam       Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  questionId String   @db.Uuid
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  optionId   String   @db.Uuid
+  option     Option   @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([attemptKey, questionId])
+  @@index([attemptKey])
+  @@index([studentId])
+  @@index([examId])
+}
+
+model Result {
+  id          String   @id @default(uuid()) @db.Uuid
+  studentId   String   @db.Uuid
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  examId      String   @db.Uuid
+  exam        Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  score       Int
+  maxScore    Int
+  answers     Json
+  completedAt DateTime @default(now())
+
+  @@unique([studentId, examId])
+  @@index([studentId])
+  @@index([examId])
+}
