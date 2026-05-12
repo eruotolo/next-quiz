@@ -99,7 +99,13 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
         };
     }, []);
 
-    if (!currentQuestion) return null;
+    if (!currentQuestion) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-muted/30">
+                <p className="text-muted-foreground">Este examen no tiene preguntas disponibles.</p>
+            </div>
+        );
+    }
 
     const variants = {
         enter: (d: number) => ({ x: d > 0 ? 40 : -40, opacity: 0 }),

@@ -32,6 +32,7 @@ import {
     Users,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { isValidRut, normalizeRut } from '@/lib/rut';
 import { useEffect, useRef, useState, useTransition } from 'react';
 
 interface Stats {
@@ -195,10 +196,15 @@ export function DashboardClient({ firstName, stats, groups }: Props) {
 
     const handleCreateStudent = (): void => {
         const errs: Record<string, string> = {};
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!studentForm.name.trim()) errs.name = 'Nombre requerido';
         if (!studentForm.lastname.trim()) errs.lastname = 'Apellido requerido';
-        if (!studentForm.email.includes('@')) errs.email = 'Email inválido';
-        if (!studentForm.rut.trim()) errs.rut = 'RUT requerido';
+        if (!emailRegex.test(studentForm.email)) errs.email = 'Email inválido';
+        if (!studentForm.rut.trim()) {
+            errs.rut = 'RUT requerido';
+        } else if (!isValidRut(normalizeRut(studentForm.rut))) {
+            errs.rut = 'RUT inválido';
+        }
         if (!studentForm.groupId) errs.groupId = 'Seleccioná un grupo';
         if (Object.keys(errs).length) {
             setStudentErrors(errs);
@@ -236,6 +242,12 @@ export function DashboardClient({ firstName, stats, groups }: Props) {
         if (!examForm.timeLimit || Number.isNaN(tl) || tl < 1 || tl > 180)
             errs.timeLimit = 'Entre 1 y 180 minutos';
         if (examForm.groupIds.length === 0) errs.groupIds = 'Seleccioná al menos un grupo';
+        const mg = Number(examForm.maxGrade);
+        const pg = Number(examForm.passingGrade);
+        const pp = Number(examForm.passingPercentage);
+        if (Number.isNaN(mg) || mg < 1 || mg > 10) errs.maxGrade = 'Entre 1 y 10';
+        if (Number.isNaN(pg) || pg < 1 || pg >= mg) errs.passingGrade = `Entre 1 y ${examForm.maxGrade} (exclusivo)`;
+        if (Number.isNaN(pp) || pp < 1 || pp > 99) errs.passingPercentage = 'Entre 1 y 99';
         if (Object.keys(errs).length) {
             setExamErrors(errs);
             return;

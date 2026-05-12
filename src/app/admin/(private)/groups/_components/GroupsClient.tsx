@@ -27,6 +27,7 @@ export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
     const [toDelete, setToDelete] = useState<GroupWithCount | null>(null);
     const [name, setName] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
 
     const openCreate = (): void => {
@@ -43,6 +44,7 @@ export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
     };
     const openDelete = (g: GroupWithCount): void => {
         setToDelete(g);
+        setDeleteError(null);
         setIsDelOpen(true);
     };
 
@@ -66,9 +68,13 @@ export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
     const handleDelete = (): void => {
         if (!toDelete) return;
         startTransition(async () => {
-            await deleteGroup(toDelete.id);
-            setIsDelOpen(false);
-            router.refresh();
+            try {
+                await deleteGroup(toDelete.id);
+                setIsDelOpen(false);
+                router.refresh();
+            } catch {
+                setDeleteError('Ocurrió un error al eliminar. Intentá de nuevo.');
+            }
         });
     };
 
@@ -187,9 +193,15 @@ export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
                     </DialogHeader>
                     <p className="text-sm text-muted-foreground">
                         ¿Estás seguro de eliminar{' '}
-                        <strong className="text-foreground">{toDelete?.name}</strong>? Se eliminarán
-                        también sus alumnos y exámenes asociados.
+                        <strong className="text-foreground">{toDelete?.name}</strong>? Los alumnos
+                        del grupo quedarán sin asignación y los exámenes se desvincularán, pero no
+                        se eliminarán.
                     </p>
+                    {deleteError && (
+                        <p className="rounded-xl bg-destructive/10 px-4 py-2 text-sm text-destructive">
+                            {deleteError}
+                        </p>
+                    )}
                     <DialogFooter>
                         <Button
                             variant="outline"

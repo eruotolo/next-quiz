@@ -63,6 +63,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
         options?: string;
         general?: string;
     }>({});
+    const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
 
     const openNew = (): void => {
@@ -91,6 +92,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
 
     const confirmDelete = (id: string): void => {
         setToDeleteId(id);
+        setDeleteError(null);
         setIsDelOpen(true);
     };
 
@@ -146,10 +148,11 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
     const validate = (): boolean => {
         const errs: { text?: string; options?: string } = {};
         if (!draft?.text.trim()) errs.text = 'El texto de la pregunta es requerido.';
-        if (draft?.options.some((o) => !o.text.trim()))
+        if (draft?.options.some((o) => !o.text.trim())) {
             errs.options = 'Todas las opciones deben tener texto.';
-        if (!draft?.options.some((o) => o.isCorrect))
+        } else if (!draft?.options.some((o) => o.isCorrect)) {
             errs.options = 'Debe marcarse una opción como correcta.';
+        }
         setQErrors(errs);
         return Object.keys(errs).length === 0;
     };
@@ -170,9 +173,13 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
     const handleDeleteQ = (): void => {
         if (!toDeleteId) return;
         startTransition(async () => {
-            await deleteQuestion(toDeleteId, exam.id);
-            setIsDelOpen(false);
-            router.refresh();
+            try {
+                await deleteQuestion(toDeleteId, exam.id);
+                setIsDelOpen(false);
+                router.refresh();
+            } catch {
+                setDeleteError('Ocurrió un error al eliminar. Intentá de nuevo.');
+            }
         });
     };
 
@@ -399,6 +406,11 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                     <p className="text-sm text-muted-foreground">
                         ¿Estás seguro de eliminar esta pregunta? Esta acción no se puede deshacer.
                     </p>
+                    {deleteError && (
+                        <p className="rounded-xl bg-destructive/10 px-4 py-2 text-sm text-destructive">
+                            {deleteError}
+                        </p>
+                    )}
                     <DialogFooter>
                         <Button
                             variant="outline"

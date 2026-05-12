@@ -2,6 +2,8 @@ import { Button } from '@/components/ui/button';
 import { calcGrade } from '@/lib/grade';
 import { cn } from '@/lib/utils';
 import { prisma } from '@/lib/prisma';
+import { getResultSession } from '@/lib/student-session';
+import { auth } from '@/auth';
 import { Award, CheckCircle, XCircle } from 'lucide-react';
 import { LogoMark } from '@/components/ui/logo';
 import Link from 'next/link';
@@ -37,6 +39,14 @@ export default async function ResultadoPage({ params }: PageProps) {
     });
 
     if (!result) notFound();
+
+    // Allow access to: the student who owns the result (via result session set at exam completion),
+    // or any logged-in admin.
+    const [resultSession, adminSession] = await Promise.all([getResultSession(), auth()]);
+    const isOwner =
+        resultSession?.studentId === result.studentId && resultSession?.resultId === resultId;
+    const isAdmin = !!adminSession?.user;
+    if (!isOwner && !isAdmin) notFound();
 
     const percentage = result.maxScore > 0 ? Math.round((result.score / result.maxScore) * 100) : 0;
 

@@ -3,7 +3,7 @@
 import { randomUUID } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
 import { isValidRut, normalizeRut } from '@/lib/rut';
-import { createStudentSession } from '@/lib/student-session';
+import { createResultSession, createStudentSession } from '@/lib/student-session';
 import { Role } from '@prisma/client';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
@@ -18,7 +18,6 @@ const schema = z.object({
 
 interface ActionState {
     error?: string;
-    resultId?: string;
 }
 
 export async function validateStudent(
@@ -48,18 +47,23 @@ export async function validateStudent(
     const exam = await prisma.exam.findFirst({
         where: { active: true, groups: { some: { id: student.groupId } } },
         orderBy: { createdAt: 'desc' },
-        select: { id: true, timeLimit: true },
+        select: { id: true, timeLimit: true, _count: { select: { questions: true } } },
     });
 
     if (!exam) {
         return { error: 'Tu grupo no tiene un examen activo en este momento.' };
     }
 
+    if (exam._count.questions === 0) {
+        return { error: 'El examen activo no tiene preguntas disponibles. Verificá con tu profesor.' };
+    }
+
     const existing = await prisma.result.findUnique({
         where: { studentId_examId: { studentId: student.id, examId: exam.id } },
     });
     if (existing) {
-        return { error: 'Ya completaste este examen.', resultId: existing.id };
+        await createResultSession(existing.id, student.id);
+        redirect(`/examen/resultado/${existing.id}`);
     }
 
     const endsAt = Date.now() + exam.timeLimit * 60 * 1000;

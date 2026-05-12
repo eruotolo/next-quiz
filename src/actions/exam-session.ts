@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { deleteStudentSession, getStudentSession } from '@/lib/student-session';
+import { createResultSession, getStudentSession } from '@/lib/student-session';
 import { type SubmitAnswerInput, submitAnswerSchema } from '@/schemas/exam-session';
 
 export async function submitAnswer(input: SubmitAnswerInput): Promise<void> {
@@ -49,7 +49,7 @@ async function computeAndSave(): Promise<{ resultId: string }> {
         where: { studentId_examId: { studentId, examId } },
     });
     if (existing) {
-        await deleteStudentSession();
+        await createResultSession(existing.id, studentId);
         return { resultId: existing.id };
     }
 
@@ -86,7 +86,7 @@ async function computeAndSave(): Promise<{ resultId: string }> {
     });
 
     await prisma.answer.deleteMany({ where: { attemptKey } });
-    await deleteStudentSession();
+    await createResultSession(result.id, studentId);
 
     return { resultId: result.id };
 }

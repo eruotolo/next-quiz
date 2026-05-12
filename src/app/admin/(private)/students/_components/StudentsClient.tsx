@@ -19,7 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { formatRut, normalizeRut } from '@/lib/rut';
+import { formatRut, isValidRut, normalizeRut } from '@/lib/rut';
 import type { Group, User } from '@prisma/client';
 import {
     AlertTriangle,
@@ -76,6 +76,7 @@ export function StudentsClient({ students, groups }: Props) {
     const [toDelete, setToDelete] = useState<StudentWithGroup | null>(null);
     const [form, setForm] = useState<FormState>(emptyForm);
     const [errors, setErrors] = useState<Partial<Record<keyof FormState | 'general', string>>>({});
+    const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
 
     // Import state
@@ -112,15 +113,21 @@ export function StudentsClient({ students, groups }: Props) {
 
     const openDelete = (s: StudentWithGroup): void => {
         setToDelete(s);
+        setDeleteError(null);
         setIsDelOpen(true);
     };
 
     const validate = (): boolean => {
         const next: Partial<Record<keyof FormState, string>> = {};
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!form.name.trim()) next.name = 'Nombre requerido';
         if (!form.lastname.trim()) next.lastname = 'Apellido requerido';
-        if (!form.email.includes('@')) next.email = 'Email inválido';
-        if (!form.rut.trim()) next.rut = 'RUT requerido';
+        if (!emailRegex.test(form.email)) next.email = 'Email inválido';
+        if (!form.rut.trim()) {
+            next.rut = 'RUT requerido';
+        } else if (!isValidRut(normalizeRut(form.rut))) {
+            next.rut = 'RUT inválido';
+        }
         if (!form.groupId) next.groupId = 'Seleccioná un grupo';
         setErrors(next);
         return Object.keys(next).length === 0;
@@ -147,9 +154,13 @@ export function StudentsClient({ students, groups }: Props) {
     const handleDelete = (): void => {
         if (!toDelete) return;
         startTransition(async () => {
-            await deleteStudent(toDelete.id);
-            setIsDelOpen(false);
-            router.refresh();
+            try {
+                await deleteStudent(toDelete.id);
+                setIsDelOpen(false);
+                router.refresh();
+            } catch {
+                setDeleteError('Ocurrió un error al eliminar. Intentá de nuevo.');
+            }
         });
     };
 
@@ -556,6 +567,11 @@ export function StudentsClient({ students, groups }: Props) {
                         </strong>
                         ? Esta acción no se puede deshacer.
                     </p>
+                    {deleteError && (
+                        <p className="rounded-xl bg-destructive/10 px-4 py-2 text-sm text-destructive">
+                            {deleteError}
+                        </p>
+                    )}
                     <DialogFooter>
                         <Button
                             variant="outline"

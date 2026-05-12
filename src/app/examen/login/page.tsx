@@ -8,7 +8,7 @@ import { LogoMark } from '@/components/ui/logo';
 import Link from 'next/link';
 import { useActionState } from 'react';
 
-const initialState = { error: undefined, resultId: undefined };
+const initialState = { error: undefined };
 
 export default function StudentLoginPage() {
     const [state, action, isPending] = useActionState(validateStudent, initialState);
@@ -56,20 +56,6 @@ export default function StudentLoginPage() {
                                         !
                                     </span>
                                     <p className="text-sm text-destructive">{state.error}</p>
-                                </div>
-                            )}
-
-                            {state?.resultId && (
-                                <div className="rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-center shadow-sm">
-                                    <p className="mb-2 text-sm font-medium text-success">
-                                        Ya completaste este examen.
-                                    </p>
-                                    <Link
-                                        href={`/examen/resultado/${state.resultId}`}
-                                        className="text-sm font-bold text-primary hover:underline"
-                                    >
-                                        Ver tu resultado →
-                                    </Link>
                                 </div>
                             )}
 

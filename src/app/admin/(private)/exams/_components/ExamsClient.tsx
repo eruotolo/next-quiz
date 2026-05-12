@@ -61,6 +61,7 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
     const [toDelete, setToDelete] = useState<ExamWithCount | null>(null);
     const [form, setForm] = useState<FormState>(emptyForm);
     const [errors, setErrors] = useState<Partial<Record<keyof FormState | 'general', string>>>({});
+    const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
 
     const setField = <K extends keyof FormState>(field: K, value: FormState[K]): void => {
@@ -102,6 +103,7 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
 
     const openDelete = (exam: ExamWithCount): void => {
         setToDelete(exam);
+        setDeleteError(null);
         setIsDelOpen(true);
     };
 
@@ -146,9 +148,13 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
     const handleDelete = (): void => {
         if (!toDelete) return;
         startTransition(async () => {
-            await deleteExam(toDelete.id);
-            setIsDelOpen(false);
-            router.refresh();
+            try {
+                await deleteExam(toDelete.id);
+                setIsDelOpen(false);
+                router.refresh();
+            } catch {
+                setDeleteError('Ocurrió un error al eliminar. Intentá de nuevo.');
+            }
         });
     };
 
@@ -489,6 +495,11 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                         </strong>
                         ? Se eliminarán todas las preguntas y resultados asociados.
                     </p>
+                    {deleteError && (
+                        <p className="rounded-xl bg-destructive/10 px-4 py-2 text-sm text-destructive">
+                            {deleteError}
+                        </p>
+                    )}
                     <DialogFooter>
                         <Button
                             variant="outline"

@@ -18,15 +18,20 @@ export const questionSchema = z.object({
         .refine((opts) => opts.some((o) => o.isCorrect), 'Debe haber al menos una opción correcta'),
 });
 
-export const examSchema = z.object({
-    title: z.string().min(1, 'Título requerido').max(200),
-    timeLimit: z.coerce.number().int().min(1, 'Mínimo 1 minuto').max(180, 'Máximo 3 horas'),
-    active: z.boolean().default(false),
-    groupIds: z.array(z.string().uuid()).min(1, 'Seleccioná al menos un grupo'),
-    maxGrade: z.coerce.number().min(1).max(10).default(7),
-    passingGrade: z.coerce.number().min(1).max(10).default(4),
-    passingPercentage: z.coerce.number().int().min(1).max(99).default(60),
-});
+export const examSchema = z
+    .object({
+        title: z.string().min(1, 'Título requerido').max(200),
+        timeLimit: z.coerce.number().int().min(1, 'Mínimo 1 minuto').max(180, 'Máximo 3 horas'),
+        active: z.boolean().default(false),
+        groupIds: z.array(z.string().uuid()).min(1, 'Seleccioná al menos un grupo'),
+        maxGrade: z.coerce.number().min(1).max(10).default(7),
+        passingGrade: z.coerce.number().min(1).max(10).default(4),
+        passingPercentage: z.coerce.number().int().min(1).max(99).default(60),
+    })
+    .refine((data) => data.passingGrade < data.maxGrade, {
+        message: 'La nota de aprobación debe ser menor a la nota máxima',
+        path: ['passingGrade'],
+    });
 
 export type OptionInput = z.infer<typeof optionSchema>;
 export type QuestionInput = z.infer<typeof questionSchema>;
