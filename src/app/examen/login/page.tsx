@@ -1,7 +1,6 @@
 'use client';
 
 import { validateStudent } from '@/actions/student-auth';
-import { RutInput } from '@/components/inputs/RutInput';
 import { Button } from '@/components/ui/button';
 import { GraduationCap, Loader2 } from 'lucide-react';
 import { LogoMark } from '@/components/ui/logo';
@@ -35,20 +34,30 @@ export default function StudentLoginPage() {
                                     Ingresar al examen
                                 </h1>
                                 <p className="mt-1 max-w-[280px] text-[13px] text-muted-foreground">
-                                    Ingresá tu RUT para acceder al examen activo de tu grupo
+                                    Ingresá tu RUT o email para acceder al examen activo de tu grupo
                                 </p>
                             </div>
                         </div>
 
                         {/* Form */}
                         <form action={action} className="flex flex-col gap-6">
-                            <RutInput
-                                name="rut"
-                                label="Tu RUT"
-                                labelPlacement="outside"
-                                placeholder="12.345.678-9"
-                                isDisabled={isPending}
-                            />
+                            <div className="flex flex-col gap-1.5">
+                                <label
+                                    htmlFor="credential"
+                                    className="text-sm font-medium text-foreground"
+                                >
+                                    RUT o Email
+                                </label>
+                                <input
+                                    id="credential"
+                                    name="credential"
+                                    type="text"
+                                    placeholder="12.345.678-9 o alumno@correo.cl"
+                                    disabled={isPending}
+                                    autoComplete="off"
+                                    className="h-[48px] w-full rounded-xl border-2 border-input px-4 text-[15px] font-medium outline-none transition-all placeholder:text-muted-foreground/60 focus:border-primary disabled:cursor-not-allowed disabled:opacity-50"
+                                />
+                            </div>
 
                             {state?.error && (
                                 <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3">

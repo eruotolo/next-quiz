@@ -6,15 +6,6 @@ import { isValidRut, normalizeRut } from '@/lib/rut';
 import { createResultSession, createStudentSession } from '@/lib/student-session';
 import { Role } from '@prisma/client';
 import { redirect } from 'next/navigation';
-import { z } from 'zod';
-
-const schema = z.object({
-    rut: z
-        .string()
-        .min(1, 'RUT requerido')
-        .transform((v) => normalizeRut(v))
-        .refine((v) => isValidRut(v), 'RUT inválido'),
-});
 
 interface ActionState {
     error?: string;
@@ -24,20 +15,35 @@ export async function validateStudent(
     _prevState: ActionState,
     formData: FormData,
 ): Promise<ActionState> {
-    const result = schema.safeParse({ rut: formData.get('rut') });
-    if (!result.success) {
-        return { error: result.error.errors[0]?.message ?? 'RUT inválido' };
+    const raw = ((formData.get('credential') as string) ?? '').trim();
+    if (!raw) return { error: 'Ingresá tu RUT o email.' };
+
+    const isEmail = raw.includes('@');
+
+    let student: { id: string; groupId: string | null } | null = null;
+
+    if (isEmail) {
+        const emailLower = raw.toLowerCase();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLower)) {
+            return { error: 'Email inválido.' };
+        }
+        student = await prisma.user.findFirst({
+            where: { email: emailLower, role: Role.STUDENT },
+            select: { id: true, groupId: true },
+        });
+        if (!student) return { error: 'Email no encontrado. Verificá con tu profesor.' };
+    } else {
+        const rut = normalizeRut(raw);
+        if (!isValidRut(rut)) return { error: 'RUT inválido.' };
+        student = await prisma.user.findFirst({
+            where: { rut, role: Role.STUDENT },
+            select: { id: true, groupId: true },
+        });
+        if (!student) return { error: 'RUT no encontrado. Verificá con tu profesor.' };
     }
 
-    const { rut } = result.data;
-
-    const student = await prisma.user.findFirst({
-        where: { rut, role: Role.STUDENT },
-        select: { id: true, groupId: true },
-    });
-
     if (!student) {
-        return { error: 'RUT no encontrado. Verificá con tu profesor.' };
+        return { error: 'Credencial no encontrada. Verificá con tu profesor.' };
     }
 
     if (!student.groupId) {
