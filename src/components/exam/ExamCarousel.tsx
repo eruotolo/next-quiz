@@ -3,6 +3,7 @@
 import { autoSubmit, finishExam, submitAnswer } from '@/actions/exam-session';
 import type { SafeExam } from '@/types/exam';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -19,6 +20,8 @@ interface ExamCarouselProps {
 export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
     const router = useRouter();
     const submittedRef = useRef(false);
+    const lastStrikeAtRef = useRef(0);
+    const [strikes, setStrikes] = useState(0);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
     const [direction, setDirection] = useState(1);
@@ -99,6 +102,56 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
         };
     }, []);
 
+    useEffect(() => {
+        if (!exam.antiCheatEnabled) return;
+
+        const STORAGE_KEY = `exam:${exam.id}:strikes`;
+        const saved = Number(sessionStorage.getItem(STORAGE_KEY) ?? '0');
+        if (saved > 0 && saved <= 3) setStrikes(saved);
+
+        const mountedAt = Date.now();
+        const DEBOUNCE_MS = 800;
+        const INITIAL_GRACE_MS = 500;
+
+        const registerStrike = (): void => {
+            if (submittedRef.current) return;
+            if (Date.now() - mountedAt < INITIAL_GRACE_MS) return;
+            if (Date.now() - lastStrikeAtRef.current < DEBOUNCE_MS) return;
+            lastStrikeAtRef.current = Date.now();
+
+            setStrikes((prev) => {
+                const next = prev + 1;
+                sessionStorage.setItem(STORAGE_KEY, String(next));
+                if (next === 1) {
+                    toast.warning('1/3 — Volvé al examen ya', {
+                        description: 'Si salís 3 veces el examen se envía automáticamente.',
+                    });
+                } else if (next === 2) {
+                    toast.warning('2/3 — Último aviso', {
+                        description: 'El próximo strike envía el examen.',
+                    });
+                } else if (next >= 3) {
+                    toast.error('Excediste los intentos permitidos. Examen enviado.');
+                    void finalizeAndRedirect('auto');
+                }
+                return next;
+            });
+        };
+
+        const onVisibility = (): void => {
+            if (document.hidden) registerStrike();
+        };
+        const onBlur = (): void => registerStrike();
+
+        document.addEventListener('visibilitychange', onVisibility);
+        window.addEventListener('blur', onBlur);
+
+        return () => {
+            document.removeEventListener('visibilitychange', onVisibility);
+            window.removeEventListener('blur', onBlur);
+        };
+    }, [exam.antiCheatEnabled, exam.id, finalizeAndRedirect]);
+
     if (!currentQuestion) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-muted/30">
@@ -125,6 +178,18 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
                         <p className="mt-0.5 text-[13px] text-muted-foreground">
                             {currentIndex + 1} / {totalQuestions} preguntas
                         </p>
+                        {exam.antiCheatEnabled && strikes > 0 && (
+                            <span
+                                className={cn(
+                                    'mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                                    strikes === 1 && 'bg-amber-100 text-amber-700',
+                                    strikes === 2 && 'bg-orange-100 text-orange-700',
+                                    strikes >= 3 && 'bg-destructive/10 text-destructive',
+                                )}
+                            >
+                                Strikes {strikes}/3
+                            </span>
+                        )}
                     </div>
                     <Timer initialSeconds={initialSeconds} onTimeout={handleTimeout} />
                 </div>

@@ -23,6 +23,7 @@ export const examSchema = z
         title: z.string().min(1, 'Título requerido').max(200),
         timeLimit: z.coerce.number().int().min(1, 'Mínimo 1 minuto').max(180, 'Máximo 3 horas'),
         active: z.boolean().default(false),
+        antiCheatEnabled: z.boolean().default(false),
         groupIds: z.array(z.string().uuid()).min(1, 'Seleccioná al menos un grupo'),
         maxGrade: z.coerce.number().min(1).max(10).default(7),
         passingGrade: z.coerce.number().min(1).max(10).default(4),

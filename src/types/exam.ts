@@ -17,5 +17,6 @@ export interface SafeExam {
     id: string;
     title: string;
     timeLimit: number;
+    antiCheatEnabled: boolean;
     questions: SafeQuestion[];
 }

@@ -51,6 +51,7 @@ model Exam {
   maxGrade          Float      @default(7)
   passingGrade      Float      @default(4)
   passingPercentage Int        @default(60)
+  antiCheatEnabled  Boolean    @default(false)
   groups            Group[]
   questions         Question[]
   results           Result[]

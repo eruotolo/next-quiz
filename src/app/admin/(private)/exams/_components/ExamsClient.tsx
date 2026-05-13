@@ -38,6 +38,7 @@ interface FormState {
     timeLimit: string;
     groupIds: string[];
     active: boolean;
+    antiCheatEnabled: boolean;
     maxGrade: string;
     passingGrade: string;
     passingPercentage: string;
@@ -48,6 +49,7 @@ const emptyForm: FormState = {
     timeLimit: '30',
     groupIds: [],
     active: false,
+    antiCheatEnabled: false,
     maxGrade: '7',
     passingGrade: '4',
     passingPercentage: '60',
@@ -93,6 +95,7 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
             timeLimit: String(exam.timeLimit),
             groupIds: exam.groups.map((g) => g.id),
             active: exam.active,
+            antiCheatEnabled: exam.antiCheatEnabled,
             maxGrade: String(exam.maxGrade),
             passingGrade: String(exam.passingGrade),
             passingPercentage: String(exam.passingPercentage),
@@ -301,10 +304,11 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                         )}
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium text-foreground">
+                            <label htmlFor="exam-title" className="text-sm font-medium text-foreground">
                                 Título del examen
                             </label>
                             <Input
+                                id="exam-title"
                                 placeholder="Ej: Matemáticas — Unidad 3"
                                 value={form.title}
                                 onChange={(e) => setField('title', e.target.value)}
@@ -317,10 +321,11 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium text-foreground">
+                            <label htmlFor="exam-time-limit" className="text-sm font-medium text-foreground">
                                 Tiempo límite (minutos)
                             </label>
                             <Input
+                                id="exam-time-limit"
                                 type="number"
                                 min={1}
                                 max={180}
@@ -338,7 +343,7 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
 
                         {/* Groups multi-select */}
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-sm font-medium text-foreground">Grupos</label>
+                            <p className="text-sm font-medium text-foreground">Grupos</p>
                             <div
                                 className={cn(
                                     'max-h-[160px] overflow-y-auto rounded-lg border',
@@ -373,15 +378,16 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
 
                         {/* Grade scale */}
                         <div className="flex flex-col gap-2">
-                            <label className="text-sm font-medium text-foreground">
+                            <p className="text-sm font-medium text-foreground">
                                 Escala de notas
-                            </label>
+                            </p>
                             <div className="grid grid-cols-3 gap-2">
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-xs text-muted-foreground">
+                                    <label htmlFor="exam-max-grade" className="text-xs text-muted-foreground">
                                         Nota máxima
                                     </label>
                                     <Input
+                                        id="exam-max-grade"
                                         type="number"
                                         min={1}
                                         max={10}
@@ -398,10 +404,11 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                                     )}
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-xs text-muted-foreground">
+                                    <label htmlFor="exam-passing-grade" className="text-xs text-muted-foreground">
                                         Nota aprobación
                                     </label>
                                     <Input
+                                        id="exam-passing-grade"
                                         type="number"
                                         min={1}
                                         max={10}
@@ -420,8 +427,9 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                                     )}
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-xs text-muted-foreground">% mínimo</label>
+                                    <label htmlFor="exam-passing-percentage" className="text-xs text-muted-foreground">% mínimo</label>
                                     <Input
+                                        id="exam-passing-percentage"
                                         type="number"
                                         min={1}
                                         max={99}
@@ -456,6 +464,18 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                             />
                             <label htmlFor="exam-active" className="cursor-pointer text-sm">
                                 {editing ? 'Examen activo' : 'Activar examen al crearlo'}
+                            </label>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <Switch
+                                id="exam-anti-cheat"
+                                checked={form.antiCheatEnabled}
+                                onCheckedChange={(v) => setField('antiCheatEnabled', v)}
+                                className="data-[state=checked]:bg-success"
+                            />
+                            <label htmlFor="exam-anti-cheat" className="cursor-pointer text-sm">
+                                Anti-trampa (3 strikes por cambio de pestaña)
                             </label>
                         </div>
 

@@ -5,6 +5,7 @@ const mockExam: SafeExam = {
     id: 'demo-exam',
     title: 'Examen demo — Cultura general',
     timeLimit: 1,
+    antiCheatEnabled: false,
     questions: [
         {
             id: '11111111-1111-1111-1111-111111111111',
