@@ -21,6 +21,7 @@
         "seed": "tsx prisma/seed.ts"
     },
     "dependencies": {
+        "@getbrevo/brevo": "^5.0.4",
         "@hookform/resolvers": "^3.10.0",
         "@prisma/client": "^6.2.0",
         "bcryptjs": "^2.4.3",

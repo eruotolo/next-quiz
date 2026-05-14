@@ -21,18 +21,19 @@ model UserRole {
 }
 
 model AcademicInstitution {
-    id        String   @id @default(uuid()) @db.Uuid
-    name      String   @unique
-    slug      String   @unique
+    id        String     @id @default(uuid()) @db.Uuid
+    name      String     @unique
+    slug      String     @unique
     phone     String
     address   String
     city      String
     campus    String?
     country   String
-    active    Boolean  @default(true)
+    active    Boolean    @default(true)
     users     User[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    auditLogs AuditLog[]
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
 }
 
 // ─── Users & Groups ──────────────────────────────────────────────────────────
@@ -61,6 +62,7 @@ model User {
     group                 Group?               @relation(fields: [groupId], references: [id], onDelete: SetNull)
     results               Result[]
     answers               Answer[]
+    auditLogs             AuditLog[]
     createdAt             DateTime             @default(now())
     updatedAt             DateTime             @updatedAt
 
@@ -154,4 +156,41 @@ model Result {
     @@unique([studentId, examId])
     @@index([studentId])
     @@index([examId])
+}
+
+// ─── Audit ───────────────────────────────────────────────────────────────────
+
+model AuditLog {
+    id                    String               @id @default(uuid()) @db.Uuid
+    action                String
+    entity                String?
+    entityId              String?              @db.Uuid
+    actorId               String?              @db.Uuid
+    actorEmail            String?
+    actorRole             String?
+    academicInstitutionId String?              @db.Uuid
+    status                String
+    ip                    String?
+    userAgent             String?
+    metadata              Json?
+    createdAt             DateTime             @default(now())
+
+    actor                 User?                @relation(fields: [actorId], references: [id], onDelete: SetNull)
+    institution           AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
+
+    @@index([createdAt])
+    @@index([action])
+    @@index([actorId])
+    @@index([academicInstitutionId])
+    @@index([entity, entityId])
+}
+
+// ─── App Config ───────────────────────────────────────────────────────────────
+
+model AppConfig {
+    id        String   @id @default(uuid()) @db.Uuid
+    key       String   @unique
+    value     String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }

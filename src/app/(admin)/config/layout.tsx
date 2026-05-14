@@ -1,7 +1,7 @@
 import { auth } from '@/features/auth/auth';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { LogoMark } from '@/shared/components/branding/logo';
-import { Building2, LogOut, Settings } from 'lucide-react';
+import { Building2, LogOut, ScrollText, Settings, UserCog, Users } from 'lucide-react';
 import { signOut } from '@/features/auth/auth';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -38,7 +38,7 @@ export default async function ConfigLayout({ children }: Props) {
                                 className="text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors"
                             >
                                 <Settings size={18} className="shrink-0" />
-                                Configuración
+                                Panel
                             </Link>
                         </li>
                         <li>
@@ -48,6 +48,42 @@ export default async function ConfigLayout({ children }: Props) {
                             >
                                 <Building2 size={18} className="shrink-0" />
                                 Instituciones
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                href="/config/admins"
+                                className="text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors"
+                            >
+                                <UserCog size={18} className="shrink-0" />
+                                Administradores
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                href="/config/students"
+                                className="text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors"
+                            >
+                                <Users size={18} className="shrink-0" />
+                                Alumnos
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                href="/config/auditoria"
+                                className="text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors"
+                            >
+                                <ScrollText size={18} className="shrink-0" />
+                                Auditoría
+                            </Link>
+                        </li>
+                        <li>
+                            <Link
+                                href="/config/settings"
+                                className="text-muted-foreground hover:bg-muted hover:text-foreground flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors"
+                            >
+                                <Settings size={18} className="shrink-0" />
+                                Configuración
                             </Link>
                         </li>
                     </ul>

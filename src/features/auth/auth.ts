@@ -1,5 +1,7 @@
+import { logAudit } from '@/shared/lib/audit';
 import { prisma } from '@/shared/lib/prisma';
 import { ADMIN_ROLES } from '@/shared/lib/roles';
+import { AUDIT_ACTION } from '@/features/audit/lib/actions';
 import bcrypt from 'bcryptjs';
 import NextAuth, { type Session, type User } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
@@ -15,8 +17,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) return null;
 
+                const emailStr = credentials.email as string;
+
                 const user = await prisma.user.findUnique({
-                    where: { email: credentials.email as string },
+                    where: { email: emailStr },
                     select: {
                         id: true,
                         name: true,
@@ -28,12 +32,49 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     },
                 });
 
-                if (!user || !user.userRole || !user.password) return null;
-                if (!ADMIN_ROLES.includes(user.userRole.name as (typeof ADMIN_ROLES)[number]))
+                if (!user || !user.userRole || !user.password) {
+                    await logAudit({
+                        action: AUDIT_ACTION.AUTH_LOGIN_FAILURE,
+                        actorEmail: emailStr,
+                        status: 'failure',
+                        metadata: { reason: 'user_not_found_or_invalid' },
+                    });
                     return null;
+                }
+
+                if (!ADMIN_ROLES.includes(user.userRole.name as (typeof ADMIN_ROLES)[number])) {
+                    await logAudit({
+                        action: AUDIT_ACTION.AUTH_LOGIN_FAILURE,
+                        actorId: user.id,
+                        actorEmail: user.email,
+                        actorRole: user.userRole.name,
+                        status: 'failure',
+                        metadata: { reason: 'insufficient_role' },
+                    });
+                    return null;
+                }
 
                 const valid = await bcrypt.compare(credentials.password as string, user.password);
-                if (!valid) return null;
+                if (!valid) {
+                    await logAudit({
+                        action: AUDIT_ACTION.AUTH_LOGIN_FAILURE,
+                        actorId: user.id,
+                        actorEmail: user.email,
+                        actorRole: user.userRole.name,
+                        status: 'failure',
+                        metadata: { reason: 'invalid_password' },
+                    });
+                    return null;
+                }
+
+                await logAudit({
+                    action: AUDIT_ACTION.AUTH_LOGIN_SUCCESS,
+                    actorId: user.id,
+                    actorEmail: user.email,
+                    actorRole: user.userRole.name,
+                    academicInstitutionId: user.academicInstitution?.id ?? null,
+                    status: 'success',
+                });
 
                 return {
                     id: user.id,
@@ -64,6 +105,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 session.user.institutionSlug = token.institutionSlug;
             }
             return session;
+        },
+    },
+    events: {
+        async signOut(message) {
+            const token = 'token' in message ? message.token : null;
+            if (!token) return;
+            await logAudit({
+                action: AUDIT_ACTION.AUTH_LOGOUT,
+                actorId: (token.id as string) ?? null,
+                actorEmail: (token.email as string) ?? null,
+                actorRole: (token.userRoleName as string) ?? null,
+                status: 'success',
+            });
         },
     },
     pages: {

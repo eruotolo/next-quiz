@@ -26,10 +26,20 @@ async function getStats(academicInstitutionId: string) {
 
 export default async function InstitutionDashboardPage({ params }: Props) {
     const [{ slug }, session] = await Promise.all([params, auth()]);
-    if (!session?.user.academicInstitutionId) redirect('/login');
+    if (!session) redirect('/login');
+
+    let institutionId: string;
+    if (session.user.userRoleName === USER_ROLE.SUPER_ADMIN) {
+        const inst = await prisma.academicInstitution.findUnique({ where: { slug }, select: { id: true } });
+        if (!inst) redirect('/config');
+        institutionId = inst.id;
+    } else {
+        if (!session.user.academicInstitutionId) redirect('/login');
+        institutionId = session.user.academicInstitutionId;
+    }
 
     const [stats, groups] = await Promise.all([
-        getStats(session.user.academicInstitutionId),
+        getStats(institutionId),
         prisma.group.findMany({ orderBy: { name: 'asc' } }),
     ]);
 

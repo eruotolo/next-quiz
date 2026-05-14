@@ -28,7 +28,7 @@ export default auth((req: NextAuthRequest) => {
     const slug = pathname.split('/')[1];
 
     if (session.user.userRoleName === USER_ROLE.SUPER_ADMIN) {
-        return NextResponse.redirect(new URL('/config', req.url));
+        return NextResponse.next();
     }
 
     if (!session.user.institutionSlug || session.user.institutionSlug !== slug) {

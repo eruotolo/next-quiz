@@ -3,6 +3,8 @@
 import { auth } from '@/features/auth/auth';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
+import { logAudit } from '@/shared/lib/audit';
+import { AUDIT_ACTION } from '@/features/audit/lib/actions';
 import { studentSchema } from '@/features/students/schemas/student.schemas';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -14,13 +16,23 @@ export async function createStudent(data: unknown): Promise<void> {
     if (!institutionId || !slug) throw new Error('Unauthorized');
 
     const { groupId, ...rest } = studentSchema.parse(data);
-    await prisma.user.create({
+    const student = await prisma.user.create({
         data: {
             ...rest,
             group: { connect: { id: groupId } },
             userRole: { connect: { name: USER_ROLE.STUDENT } },
             academicInstitution: { connect: { id: institutionId } },
         },
+        select: { id: true },
+    });
+    await logAudit({
+        action: AUDIT_ACTION.STUDENT_CREATE,
+        actorId: session.user.id,
+        actorEmail: session.user.email,
+        actorRole: session.user.userRoleName,
+        academicInstitutionId: institutionId,
+        entity: 'User',
+        entityId: student.id,
     });
     revalidatePath(`/${slug}/students`);
 }
@@ -32,6 +44,15 @@ export async function updateStudent(id: string, data: unknown): Promise<void> {
 
     const parsed = studentSchema.parse(data);
     await prisma.user.update({ where: { id }, data: parsed });
+    await logAudit({
+        action: AUDIT_ACTION.STUDENT_UPDATE,
+        actorId: session.user.id,
+        actorEmail: session.user.email,
+        actorRole: session.user.userRoleName,
+        academicInstitutionId: session.user.academicInstitutionId,
+        entity: 'User',
+        entityId: id,
+    });
     revalidatePath(`/${slug}/students`);
 }
 
@@ -42,6 +63,15 @@ export async function deleteStudent(id: string): Promise<void> {
 
     await prisma.user.delete({
         where: { id, userRole: { name: USER_ROLE.STUDENT } },
+    });
+    await logAudit({
+        action: AUDIT_ACTION.STUDENT_DELETE,
+        actorId: session.user.id,
+        actorEmail: session.user.email,
+        actorRole: session.user.userRoleName,
+        academicInstitutionId: session.user.academicInstitutionId,
+        entity: 'User',
+        entityId: id,
     });
     revalidatePath(`/${slug}/students`);
 }
@@ -102,6 +132,15 @@ export async function importStudents(
 
     const result = await prisma.user.createMany({ data: valid, skipDuplicates: true });
 
+    await logAudit({
+        action: AUDIT_ACTION.STUDENT_IMPORT,
+        actorId: session.user.id,
+        actorEmail: session.user.email,
+        actorRole: session.user.userRoleName,
+        academicInstitutionId: institutionId,
+        entity: 'User',
+        metadata: { created: result.count, skipped: valid.length - result.count, errorCount: errors.length },
+    });
     revalidatePath(`/${slug}/students`);
     return { created: result.count, skipped: valid.length - result.count, errors };
 }
