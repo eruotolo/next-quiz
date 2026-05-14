@@ -1,4 +1,4 @@
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from '@/shared/components/ui/sonner';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import './globals.css';

@@ -1,0 +1,17 @@
+import { prisma } from '@/shared/lib/prisma';
+import { ExamsClient } from '@/features/exams/components/ExamsClient';
+
+export default async function ExamsPage() {
+    const [exams, groups] = await Promise.all([
+        prisma.exam.findMany({
+            include: {
+                groups: true,
+                _count: { select: { questions: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+        }),
+        prisma.group.findMany({ orderBy: { name: 'asc' } }),
+    ]);
+
+    return <ExamsClient exams={exams} groups={groups} />;
+}

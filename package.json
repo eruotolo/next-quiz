@@ -4,6 +4,7 @@
     "private": true,
     "scripts": {
         "dev": "next dev",
+        "devBuild": "rm -rf .next && next build",
         "build": "prisma migrate deploy && next build",
         "start": "next start",
         "lint": "biome check .",
@@ -13,6 +14,7 @@
         "db:generate": "prisma generate",
         "db:migrate": "prisma migrate dev",
         "db:seed": "tsx prisma/seed.ts",
+        "db:seed:local": "tsx prisma/seeders/local-test.ts",
         "db:studio": "prisma studio"
     },
     "prisma": {
@@ -20,12 +22,10 @@
     },
     "dependencies": {
         "@hookform/resolvers": "^3.10.0",
-        "@netlify/database": "^1.0.0",
         "@prisma/client": "^6.2.0",
         "bcryptjs": "^2.4.3",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
-        "drizzle-orm": "1.0.0-beta.22",
         "framer-motion": "^11.15.0",
         "jose": "^5.9.6",
         "lucide-react": "^1.14.0",
@@ -45,13 +45,11 @@
     },
     "devDependencies": {
         "@biomejs/biome": "^2.4.15",
-        "@netlify/plugin-nextjs": "^5.15.11",
         "@tailwindcss/postcss": "^4.0.0",
         "@types/bcryptjs": "^2.4.6",
         "@types/node": "^22.10.5",
         "@types/react": "^19.0.7",
         "@types/react-dom": "^19.0.3",
-        "drizzle-kit": "1.0.0-beta.22",
         "postcss": "^8.5.1",
         "prettier": "^3.4.2",
         "prettier-plugin-tailwindcss": "^0.6.10",

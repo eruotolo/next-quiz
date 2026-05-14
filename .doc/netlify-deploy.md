@@ -9,12 +9,12 @@ El build ejecuta automáticamente migraciones y seed en cada deploy.
 
 ## Stack de producción
 
-| Servicio | Proveedor | Notas |
-|---|---|---|
-| Hosting / Build | Netlify | Plugin @netlify/plugin-nextjs v5 |
-| Base de datos | Neon (neon.tech) | PostgreSQL serverless, free tier |
-| Autenticación admin | NextAuth v5 | Requiere AUTH_SECRET y AUTH_URL |
-| Sesiones estudiantes | jose (JWT) | Requiere STUDENT_SESSION_SECRET |
+| Servicio             | Proveedor        | Notas                            |
+| -------------------- | ---------------- | -------------------------------- |
+| Hosting / Build      | Netlify          | Plugin @netlify/plugin-nextjs v5 |
+| Base de datos        | Neon (neon.tech) | PostgreSQL serverless, free tier |
+| Autenticación admin  | NextAuth v5      | Requiere AUTH_SECRET y AUTH_URL  |
+| Sesiones estudiantes | jose (JWT)       | Requiere STUDENT_SESSION_SECRET  |
 
 ---
 
@@ -28,11 +28,13 @@ El build ejecuta automáticamente migraciones y seed en cada deploy.
 4. Usar la URL en formato pooled (con pgBouncer): pestaña "Connection pooling"
 
 La URL tiene esta forma:
+
 ```
 postgresql://user:password@ep-xxx.us-east-1.neon.tech/dbname?sslmode=require
 ```
 
 Para agregar parámetros de pooling:
+
 ```
 postgresql://user:password@ep-xxx.us-east-1.neon.tech/dbname?pgbouncer=true&connect_timeout=15&sslmode=require
 ```
@@ -51,12 +53,12 @@ openssl rand -base64 32
 
 En Netlify → Site configuration → Environment variables → Add variable:
 
-| Variable | Descripción |
-|---|---|
-| `DATABASE_URL` | URL de conexión Neon con pooling |
-| `AUTH_SECRET` | Secret generado con openssl (paso anterior) |
-| `AUTH_URL` | URL del sitio en Netlify, ej: `https://mi-sitio.netlify.app` |
-| `STUDENT_SESSION_SECRET` | Secret generado con openssl (paso anterior) |
+| Variable                 | Descripción                                                  |
+| ------------------------ | ------------------------------------------------------------ |
+| `DATABASE_URL`           | URL de conexión Neon con pooling                             |
+| `AUTH_SECRET`            | Secret generado con openssl (paso anterior)                  |
+| `AUTH_URL`               | URL del sitio en Netlify, ej: `https://mi-sitio.netlify.app` |
+| `STUDENT_SESSION_SECRET` | Secret generado con openssl (paso anterior)                  |
 
 > **Importante:** `AUTH_URL` debe coincidir exactamente con el dominio de producción.
 
@@ -90,8 +92,8 @@ El seed es **idempotente**: usa `upsert` en todas las entidades, por lo que re-e
 
 Una vez desplegado:
 
-| Ruta | Usuario |
-|---|---|
+| Ruta           | Usuario                   |
+| -------------- | ------------------------- |
 | `/admin/login` | edgardo.ruotolo@ulagos.cl |
 
 Examen demo disponible: **"Examen demo — Conocimientos generales"** (grupo: 4to Año B)
@@ -100,10 +102,10 @@ Examen demo disponible: **"Examen demo — Conocimientos generales"** (grupo: 4t
 
 ## Archivos de configuración creados
 
-| Archivo | Descripción |
-|---|---|
-| `netlify.toml` | Configuración de build, publish dir y plugin |
-| `package.json` devDependencies | `@netlify/plugin-nextjs ^5.15.11` |
+| Archivo                        | Descripción                                  |
+| ------------------------------ | -------------------------------------------- |
+| `netlify.toml`                 | Configuración de build, publish dir y plugin |
+| `package.json` devDependencies | `@netlify/plugin-nextjs ^5.15.11`            |
 
 ---
 
