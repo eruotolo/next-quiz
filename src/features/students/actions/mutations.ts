@@ -9,11 +9,22 @@ import { studentSchema } from '@/features/students/schemas/student.schemas';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
+function isAdminOrSuperAdmin(role: string): boolean {
+    return role === USER_ROLE.ADMIN || role === USER_ROLE.SUPER_ADMIN;
+}
+
+function isProfesor(role: string): boolean {
+    return role === USER_ROLE.PROFESOR;
+}
+
 export async function createStudent(data: unknown): Promise<void> {
     const session = await auth();
     const institutionId = session?.user.academicInstitutionId;
     const slug = session?.user.institutionSlug;
     if (!institutionId || !slug) throw new Error('Unauthorized');
+    if (!isAdminOrSuperAdmin(session.user.userRoleName)) {
+        throw new Error('Forbidden');
+    }
 
     const { groupId, ...rest } = studentSchema.parse(data);
     const student = await prisma.user.create({
@@ -41,6 +52,19 @@ export async function updateStudent(id: string, data: unknown): Promise<void> {
     const session = await auth();
     const slug = session?.user.institutionSlug;
     if (!slug) throw new Error('Unauthorized');
+    if (!isAdminOrSuperAdmin(session.user.userRoleName) && !isProfesor(session.user.userRoleName)) {
+        throw new Error('Forbidden');
+    }
+
+    if (isProfesor(session.user.userRoleName)) {
+        // Verify professor has access to this student's group
+        const student = await prisma.user.findUnique({
+            where: { id },
+            select: { group: { select: { professors: { where: { id: session.user.id }, select: { id: true } } } } },
+        });
+        const hasAccess = (student?.group?.professors.length ?? 0) > 0;
+        if (!hasAccess) throw new Error('Forbidden');
+    }
 
     const parsed = studentSchema.parse(data);
     await prisma.user.update({ where: { id }, data: parsed });
@@ -60,6 +84,9 @@ export async function deleteStudent(id: string): Promise<void> {
     const session = await auth();
     const slug = session?.user.institutionSlug;
     if (!slug) throw new Error('Unauthorized');
+    if (!isAdminOrSuperAdmin(session.user.userRoleName)) {
+        throw new Error('Forbidden');
+    }
 
     await prisma.user.delete({
         where: { id, userRole: { name: USER_ROLE.STUDENT } },
@@ -72,6 +99,37 @@ export async function deleteStudent(id: string): Promise<void> {
         academicInstitutionId: session.user.academicInstitutionId,
         entity: 'User',
         entityId: id,
+    });
+    revalidatePath(`/${slug}/students`);
+}
+
+export async function toggleStudentActive(id: string, active: boolean): Promise<void> {
+    const session = await auth();
+    const slug = session?.user.institutionSlug;
+    if (!slug) throw new Error('Unauthorized');
+    if (!isAdminOrSuperAdmin(session.user.userRoleName) && !isProfesor(session.user.userRoleName)) {
+        throw new Error('Forbidden');
+    }
+
+    if (isProfesor(session.user.userRoleName)) {
+        const student = await prisma.user.findUnique({
+            where: { id },
+            select: { group: { select: { professors: { where: { id: session.user.id }, select: { id: true } } } } },
+        });
+        const hasAccess = (student?.group?.professors.length ?? 0) > 0;
+        if (!hasAccess) throw new Error('Forbidden');
+    }
+
+    await prisma.user.update({ where: { id }, data: { active } });
+    await logAudit({
+        action: AUDIT_ACTION.STUDENT_UPDATE,
+        actorId: session.user.id,
+        actorEmail: session.user.email,
+        actorRole: session.user.userRoleName,
+        academicInstitutionId: session.user.academicInstitutionId,
+        entity: 'User',
+        entityId: id,
+        metadata: { active },
     });
     revalidatePath(`/${slug}/students`);
 }
@@ -89,6 +147,9 @@ export async function importStudents(
     const institutionId = session?.user.academicInstitutionId;
     const slug = session?.user.institutionSlug;
     if (!institutionId || !slug) throw new Error('Unauthorized');
+    if (!isAdminOrSuperAdmin(session.user.userRoleName)) {
+        throw new Error('Forbidden');
+    }
 
     const studentRole = await prisma.userRole.findUniqueOrThrow({
         where: { name: USER_ROLE.STUDENT },

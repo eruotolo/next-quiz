@@ -28,7 +28,7 @@ export interface LiveResultRow {
     grade: number | null;
     passing: boolean | null;
     status: 'in-progress' | 'completed';
-    answers: Record<string, string>;
+    answers: Record<string, string[] | string>;
 }
 
 export interface LiveExamData {
@@ -63,6 +63,7 @@ const QUESTION_COLORS = [
 
 const REFRESH_INTERVAL = 5000;
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
 export function LiveResultsClient({
     allExams,
     selectedExamId,
@@ -305,12 +306,24 @@ function MatrixTable({ examData }: { examData: LiveExamData }): React.JSX.Elemen
                                 )}
                             </td>
                             {questions.map((q) => {
-                                const correctOpt = q.options.find((o) => o.isCorrect);
+                                const correctSet = new Set(
+                                    q.options.filter((o) => o.isCorrect).map((o) => o.id),
+                                );
                                 // Count correct answers from ALL submissions (in-progress + completed)
-                                const correct = results.filter(
-                                    (r) => r.answers[q.id] === correctOpt?.id,
-                                ).length;
-                                const answered = results.filter((r) => r.answers[q.id]).length;
+                                const correct = results.filter((r) => {
+                                    const raw = r.answers[q.id];
+                                    if (!raw) return false;
+                                    const ids = Array.isArray(raw) ? raw : [raw];
+                                    const sel = new Set(ids);
+                                    return (
+                                        sel.size === correctSet.size &&
+                                        [...correctSet].every((id) => sel.has(id))
+                                    );
+                                }).length;
+                                const answered = results.filter((r) => {
+                                    const raw = r.answers[q.id];
+                                    return Array.isArray(raw) ? raw.length > 0 : !!raw;
+                                }).length;
                                 const pct =
                                     answered > 0 ? Math.round((correct / answered) * 100) : null;
                                 return (
@@ -343,19 +356,34 @@ function AnswerCell({
     answers,
 }: {
     question: LiveQuestion;
-    answers: Record<string, string>;
+    answers: Record<string, string[] | string>;
 }): React.JSX.Element {
-    const selectedId = answers[question.id];
+    const raw = answers[question.id];
 
-    if (!selectedId) {
+    if (!raw || (Array.isArray(raw) && raw.length === 0)) {
         return <td className="text-muted-foreground/30 px-2 py-3 text-center">—</td>;
     }
 
-    const selectedIndex = question.options.findIndex((o) => o.id === selectedId);
-    const letter = selectedIndex >= 0 ? String.fromCharCode(65 + selectedIndex) : '?';
-    const correctOption = question.options.find((o) => o.isCorrect);
-    const isCorrect = selectedId === correctOption?.id;
-    const fullText = question.options[selectedIndex]?.text ?? '';
+    const selectedIds = Array.isArray(raw) ? raw : [raw];
+    const correctOptions = question.options.filter((o) => o.isCorrect);
+    const correctSet = new Set(correctOptions.map((o) => o.id));
+    const selectedSet = new Set(selectedIds);
+    const isCorrect =
+        selectedSet.size > 0 &&
+        correctSet.size === selectedSet.size &&
+        [...correctSet].every((id) => selectedSet.has(id));
+
+    const letters = selectedIds
+        .map((id) => {
+            const idx = question.options.findIndex((o) => o.id === id);
+            return idx >= 0 ? String.fromCharCode(65 + idx) : '?';
+        })
+        .join(',');
+
+    const fullText = selectedIds
+        .map((id) => question.options.find((o) => o.id === id)?.text ?? '')
+        .filter(Boolean)
+        .join(', ');
 
     return (
         <td className="px-2 py-3">
@@ -367,7 +395,7 @@ function AnswerCell({
                 title={fullText}
             >
                 <span>{isCorrect ? '✓' : '✗'}</span>
-                <span>{letter}</span>
+                <span>{letters}</span>
             </div>
         </td>
     );

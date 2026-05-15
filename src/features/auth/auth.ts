@@ -32,7 +32,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     },
                 });
 
-                if (!user || !user.userRole || !user.password) {
+                if (!user?.userRole || !user.password) {
                     await logAudit({
                         action: AUDIT_ACTION.AUTH_LOGIN_FAILURE,
                         actorEmail: emailStr,

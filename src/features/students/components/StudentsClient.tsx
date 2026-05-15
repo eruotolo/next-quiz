@@ -4,6 +4,7 @@ import {
     createStudent,
     deleteStudent,
     importStudents,
+    toggleStudentActive,
     updateStudent,
 } from '@/features/students/actions/mutations';
 import type { ImportStudentsResult } from '@/features/students/actions/mutations';
@@ -24,6 +25,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
+import { Switch } from '@/shared/components/ui/switch';
 import { formatRut, isValidRut, normalizeRut } from '@/shared/lib/rut';
 import type { Group, User } from '@prisma/client';
 import {
@@ -42,6 +44,7 @@ import {
     X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import type React from 'react';
 import { useRef, useState, useTransition } from 'react';
 
 interface StudentWithGroup extends User {
@@ -51,6 +54,10 @@ interface StudentWithGroup extends User {
 interface Props {
     students: StudentWithGroup[];
     groups: Group[];
+    canCreate: boolean;
+    canEdit: boolean;
+    canDelete: boolean;
+    canToggleActive: boolean;
 }
 
 interface FormState {
@@ -72,7 +79,15 @@ interface ParsedRow {
 
 const emptyForm: FormState = { name: '', lastname: '', email: '', rut: '', groupId: '' };
 
-export function StudentsClient({ students, groups }: Props) {
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
+export function StudentsClient({
+    students,
+    groups,
+    canCreate,
+    canEdit,
+    canDelete,
+    canToggleActive,
+}: Props): React.JSX.Element {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
@@ -83,6 +98,7 @@ export function StudentsClient({ students, groups }: Props) {
     const [errors, setErrors] = useState<Partial<Record<keyof FormState | 'general', string>>>({});
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
+    const [togglingId, setTogglingId] = useState<string | null>(null);
 
     // Import state
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -90,6 +106,8 @@ export function StudentsClient({ students, groups }: Props) {
     const [parsedRows, setParsedRows] = useState<ParsedRow[] | null>(null);
     const [parseErrors, setParseErrors] = useState<string[]>([]);
     const [importResult, setImportResult] = useState<ImportStudentsResult | null>(null);
+
+    const showActionsCol = canEdit || canDelete;
 
     const setField = (field: keyof FormState, value: string): void => {
         setForm((f) => ({ ...f, [field]: value }));
@@ -165,6 +183,20 @@ export function StudentsClient({ students, groups }: Props) {
                 router.refresh();
             } catch {
                 setDeleteError('Ocurrió un error al eliminar. Intentá de nuevo.');
+            }
+        });
+    };
+
+    const handleToggleActive = (s: StudentWithGroup): void => {
+        setTogglingId(s.id);
+        startTransition(async () => {
+            try {
+                await toggleStudentActive(s.id, !s.active);
+                router.refresh();
+            } catch {
+                // silently revert — UI refreshes from server
+            } finally {
+                setTogglingId(null);
             }
         });
     };
@@ -267,7 +299,7 @@ export function StudentsClient({ students, groups }: Props) {
             const errs: string[] = [];
             const rows: ParsedRow[] = rawRows.map((row, i) => {
                 const rowNum = i + 2;
-                const groupName = String(row['Grupo'] ?? '').trim();
+                const groupName = String(row.Grupo ?? '').trim();
                 const groupId = groupMap.get(groupName.toLowerCase()) ?? '';
 
                 if (!groupId) {
@@ -275,10 +307,10 @@ export function StudentsClient({ students, groups }: Props) {
                 }
 
                 return {
-                    name: String(row['Nombre'] ?? '').trim(),
-                    lastname: String(row['Apellido'] ?? '').trim(),
-                    email: String(row['Email'] ?? '').trim(),
-                    rut: normalizeRut(String(row['RUT'] ?? '').trim()),
+                    name: String(row.Nombre ?? '').trim(),
+                    lastname: String(row.Apellido ?? '').trim(),
+                    email: String(row.Email ?? '').trim(),
+                    rut: normalizeRut(String(row.RUT ?? '').trim()),
                     groupId,
                     rowNum,
                 };
@@ -321,28 +353,30 @@ export function StudentsClient({ students, groups }: Props) {
                         {students.length} alumnos registrados
                     </p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Button
-                        variant="outline"
-                        className="rounded-full"
-                        onClick={() => void downloadTemplate()}
-                    >
-                        <Download size={15} />
-                        Plantilla
-                    </Button>
-                    <Button
-                        variant="outline"
-                        className="rounded-full"
-                        onClick={() => setImportOpen(true)}
-                    >
-                        <Upload size={15} />
-                        Importar
-                    </Button>
-                    <Button className="rounded-full" onClick={openCreate}>
-                        <Plus size={16} />
-                        Nuevo alumno
-                    </Button>
-                </div>
+                {canCreate && (
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            className="rounded-full"
+                            onClick={() => void downloadTemplate()}
+                        >
+                            <Download size={15} />
+                            Plantilla
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="rounded-full"
+                            onClick={() => setImportOpen(true)}
+                        >
+                            <Upload size={15} />
+                            Importar
+                        </Button>
+                        <Button className="rounded-full" onClick={openCreate}>
+                            <Plus size={16} />
+                            Nuevo alumno
+                        </Button>
+                    </div>
+                )}
             </div>
 
             {/* Students table / empty state */}
@@ -351,23 +385,27 @@ export function StudentsClient({ students, groups }: Props) {
                     <GraduationCap size={40} className="text-muted-foreground/40 mb-3" />
                     <p className="text-muted-foreground font-medium">Todavía no hay alumnos</p>
                     <p className="text-muted-foreground/70 mt-1 text-sm">
-                        Creá el primero o importá desde Excel.
+                        {canCreate
+                            ? 'Creá el primero o importá desde Excel.'
+                            : 'No tenés alumnos asignados en tus grupos.'}
                     </p>
-                    <div className="mt-4 flex gap-2">
-                        <Button
-                            variant="outline"
-                            className="rounded-full"
-                            size="sm"
-                            onClick={() => setImportOpen(true)}
-                        >
-                            <Upload size={14} />
-                            Importar
-                        </Button>
-                        <Button className="rounded-full" size="sm" onClick={openCreate}>
-                            <Plus size={14} />
-                            Agregar alumno
-                        </Button>
-                    </div>
+                    {canCreate && (
+                        <div className="mt-4 flex gap-2">
+                            <Button
+                                variant="outline"
+                                className="rounded-full"
+                                size="sm"
+                                onClick={() => setImportOpen(true)}
+                            >
+                                <Upload size={14} />
+                                Importar
+                            </Button>
+                            <Button className="rounded-full" size="sm" onClick={openCreate}>
+                                <Plus size={14} />
+                                Agregar alumno
+                            </Button>
+                        </div>
+                    )}
                 </div>
             ) : (
                 <div className="border-border overflow-hidden rounded-2xl border bg-white shadow-sm">
@@ -383,22 +421,38 @@ export function StudentsClient({ students, groups }: Props) {
                                 <th className="text-muted-foreground px-6 py-3 text-left text-xs font-semibold tracking-wide uppercase">
                                     Grupo
                                 </th>
-                                <th className="text-muted-foreground px-6 py-3 text-right text-xs font-semibold tracking-wide uppercase">
-                                    Acciones
-                                </th>
+                                {canToggleActive && (
+                                    <th className="text-muted-foreground px-6 py-3 text-center text-xs font-semibold tracking-wide uppercase">
+                                        Activo
+                                    </th>
+                                )}
+                                {showActionsCol && (
+                                    <th className="text-muted-foreground px-6 py-3 text-right text-xs font-semibold tracking-wide uppercase">
+                                        Acciones
+                                    </th>
+                                )}
                             </tr>
                         </thead>
                         <tbody className="divide-border divide-y">
+                            {/* biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component */}
                             {students.map((s) => (
                                 <tr key={s.id} className="hover:bg-muted/30 transition-colors">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="bg-primary/10 text-primary flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
+                                            <div
+                                                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
+                                                    s.active
+                                                        ? 'bg-primary/10 text-primary'
+                                                        : 'bg-muted text-muted-foreground'
+                                                }`}
+                                            >
                                                 {s.name[0]}
                                                 {s.lastname[0]}
                                             </div>
                                             <div>
-                                                <p className="text-foreground font-medium">
+                                                <p
+                                                    className={`font-medium ${s.active ? 'text-foreground' : 'text-muted-foreground line-through'}`}
+                                                >
                                                     {s.name} {s.lastname}
                                                 </p>
                                                 <p className="text-muted-foreground text-sm">
@@ -422,28 +476,44 @@ export function StudentsClient({ students, groups }: Props) {
                                             </span>
                                         )}
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex justify-end gap-2">
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                className="rounded-lg"
-                                                onClick={() => openEdit(s)}
-                                            >
-                                                <Edit2 size={13} />
-                                                Editar
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                className="text-destructive hover:bg-destructive/10 hover:text-destructive rounded-lg"
-                                                onClick={() => openDelete(s)}
-                                            >
-                                                <Trash2 size={13} />
-                                                Eliminar
-                                            </Button>
-                                        </div>
-                                    </td>
+                                    {canToggleActive && (
+                                        <td className="px-6 py-4 text-center">
+                                            <Switch
+                                                checked={s.active}
+                                                disabled={togglingId === s.id || isPending}
+                                                onCheckedChange={() => handleToggleActive(s)}
+                                                aria-label={`${s.active ? 'Desactivar' : 'Activar'} alumno`}
+                                            />
+                                        </td>
+                                    )}
+                                    {showActionsCol && (
+                                        <td className="px-6 py-4">
+                                            <div className="flex justify-end gap-2">
+                                                {canEdit && (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        className="rounded-lg"
+                                                        onClick={() => openEdit(s)}
+                                                    >
+                                                        <Edit2 size={13} />
+                                                        Editar
+                                                    </Button>
+                                                )}
+                                                {canDelete && (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        className="text-destructive hover:bg-destructive/10 hover:text-destructive rounded-lg"
+                                                        onClick={() => openDelete(s)}
+                                                    >
+                                                        <Trash2 size={13} />
+                                                        Eliminar
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    )}
                                 </tr>
                             ))}
                         </tbody>
@@ -465,10 +535,11 @@ export function StudentsClient({ students, groups }: Props) {
                         )}
                         <div className="grid grid-cols-2 gap-3">
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-foreground text-sm font-medium">
+                                <label htmlFor="student-name" className="text-foreground text-sm font-medium">
                                     Nombre
                                 </label>
                                 <Input
+                                    id="student-name"
                                     value={form.name}
                                     onChange={(e) => setField('name', e.target.value)}
                                     className={errors.name ? 'border-destructive' : ''}
@@ -479,10 +550,11 @@ export function StudentsClient({ students, groups }: Props) {
                                 )}
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-foreground text-sm font-medium">
+                                <label htmlFor="student-lastname" className="text-foreground text-sm font-medium">
                                     Apellido
                                 </label>
                                 <Input
+                                    id="student-lastname"
                                     value={form.lastname}
                                     onChange={(e) => setField('lastname', e.target.value)}
                                     className={errors.lastname ? 'border-destructive' : ''}
@@ -493,8 +565,9 @@ export function StudentsClient({ students, groups }: Props) {
                             </div>
                         </div>
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-foreground text-sm font-medium">Email</label>
+                            <label htmlFor="student-email" className="text-foreground text-sm font-medium">Email</label>
                             <Input
+                                id="student-email"
                                 type="email"
                                 value={form.email}
                                 onChange={(e) => setField('email', e.target.value)}
@@ -511,12 +584,13 @@ export function StudentsClient({ students, groups }: Props) {
                             error={errors.rut}
                         />
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-foreground text-sm font-medium">Grupo</label>
+                            <label htmlFor="student-group" className="text-foreground text-sm font-medium">Grupo</label>
                             <Select
                                 value={form.groupId}
                                 onValueChange={(v) => setField('groupId', v)}
                             >
                                 <SelectTrigger
+                                    id="student-group"
                                     className={errors.groupId ? 'border-destructive' : ''}
                                 >
                                     <SelectValue placeholder="Seleccioná un grupo" />
@@ -598,7 +672,6 @@ export function StudentsClient({ students, groups }: Props) {
                         <DialogTitle>Importar alumnos</DialogTitle>
                     </DialogHeader>
 
-                    {/* Hidden file input */}
                     <input
                         ref={fileInputRef}
                         type="file"
@@ -608,7 +681,6 @@ export function StudentsClient({ students, groups }: Props) {
                     />
 
                     {importResult ? (
-                        /* Step 3: results */
                         <div className="flex flex-col gap-3 py-2">
                             {importResult.created > 0 && (
                                 <div className="bg-success/10 flex items-center gap-3 rounded-xl px-4 py-3">
@@ -636,8 +708,8 @@ export function StudentsClient({ students, groups }: Props) {
                                         {importResult.errors.length !== 1 ? 's' : ''} con errores:
                                     </p>
                                     <ul className="text-destructive/80 max-h-28 space-y-0.5 overflow-y-auto text-xs">
-                                        {importResult.errors.map((e, i) => (
-                                            <li key={i}>
+                                        {importResult.errors.map((e) => (
+                                            <li key={`${e.row}-${e.message}`}>
                                                 • {e.row > 0 ? `Fila ${e.row}: ` : ''}
                                                 {e.message}
                                             </li>
@@ -660,7 +732,6 @@ export function StudentsClient({ students, groups }: Props) {
                                 )}
                         </div>
                     ) : parsedRows !== null ? (
-                        /* Step 2: file parsed, show summary */
                         <div className="flex flex-col gap-3 py-2">
                             <div className="bg-muted/50 flex items-center gap-3 rounded-xl px-4 py-3">
                                 <FileSpreadsheet
@@ -704,8 +775,8 @@ export function StudentsClient({ students, groups }: Props) {
                                         </p>
                                     </div>
                                     <ul className="text-warning/80 max-h-28 space-y-0.5 overflow-y-auto text-xs">
-                                        {parseErrors.map((e, i) => (
-                                            <li key={i}>• {e}</li>
+                                        {parseErrors.map((e) => (
+                                            <li key={e}>• {e}</li>
                                         ))}
                                     </ul>
                                 </div>
@@ -718,7 +789,6 @@ export function StudentsClient({ students, groups }: Props) {
                             )}
                         </div>
                     ) : (
-                        /* Step 1: file selector */
                         <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}

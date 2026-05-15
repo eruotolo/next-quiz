@@ -11,27 +11,33 @@ export async function submitAnswer(input: SubmitAnswerInput): Promise<void> {
     const session = await getStudentSession();
     if (!session) throw new Error('Sesión de examen no válida.');
 
-    const { questionId, optionId } = submitAnswerSchema.parse(input);
+    const { questionId, optionIds } = submitAnswerSchema.parse(input);
 
-    const [question, option] = await Promise.all([
+    const [question, options] = await Promise.all([
         prisma.question.findFirst({ where: { id: questionId, examId: session.examId } }),
-        prisma.option.findFirst({ where: { id: optionId, questionId }, select: { id: true } }),
+        prisma.option.findMany({
+            where: { id: { in: optionIds }, questionId },
+            select: { id: true },
+        }),
     ]);
 
     if (!question) throw new Error('Pregunta no encontrada.');
-    if (!option) throw new Error('Opción no válida.');
+    if (options.length !== optionIds.length) throw new Error('Una o más opciones no son válidas.');
 
-    await prisma.answer.upsert({
-        where: { attemptKey_questionId: { attemptKey: session.attemptKey, questionId } },
-        update: { optionId },
-        create: {
-            attemptKey: session.attemptKey,
-            studentId: session.studentId,
-            examId: session.examId,
-            questionId,
-            optionId,
-        },
-    });
+    await prisma.$transaction([
+        prisma.answer.deleteMany({
+            where: { attemptKey: session.attemptKey, questionId },
+        }),
+        prisma.answer.createMany({
+            data: optionIds.map((optionId) => ({
+                attemptKey: session.attemptKey,
+                studentId: session.studentId,
+                examId: session.examId,
+                questionId,
+                optionId,
+            })),
+        }),
+    ]);
 }
 
 export async function finishExam(): Promise<{ resultId: string }> {
@@ -73,15 +79,28 @@ async function computeAndSave(): Promise<{ resultId: string }> {
 
     if (!exam) throw new Error('Examen no encontrado.');
 
-    const answerMap: Record<string, string> = {};
-    for (const a of answers) answerMap[a.questionId] = a.optionId;
+    // Build answerMap: questionId -> array of selected optionIds
+    const answerMap: Record<string, string[]> = {};
+    for (const a of answers) {
+        const existing = answerMap[a.questionId];
+        if (existing) {
+            existing.push(a.optionId);
+        } else {
+            answerMap[a.questionId] = [a.optionId];
+        }
+    }
 
     let score = 0;
     let maxScore = 0;
     for (const q of exam.questions) {
         maxScore += q.points;
-        const correctId = q.options[0]?.id;
-        if (correctId && answerMap[q.id] === correctId) score += q.points;
+        const correctSet = new Set(q.options.map((o) => o.id));
+        const studentSet = new Set(answerMap[q.id] ?? []);
+        // All-or-nothing: score only if selected set exactly matches correct set
+        const isCorrect =
+            correctSet.size === studentSet.size &&
+            [...correctSet].every((id) => studentSet.has(id));
+        if (isCorrect) score += q.points;
     }
 
     const result = await prisma.result.create({

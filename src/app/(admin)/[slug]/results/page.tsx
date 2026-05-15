@@ -5,7 +5,12 @@ import {
     type ResultRow,
 } from '@/features/results/components/ResultsClient';
 
-export default async function ResultsPage(): Promise<React.JSX.Element> {
+interface PageProps {
+    params: Promise<{ slug: string }>;
+}
+
+export default async function ResultsPage({ params }: PageProps): Promise<React.JSX.Element> {
+    const { slug } = await params;
     const results = await prisma.result.findMany({
         include: {
             student: { select: { name: true, lastname: true, rut: true } },
@@ -68,7 +73,7 @@ export default async function ResultsPage(): Promise<React.JSX.Element> {
                 <h1 className="text-foreground text-2xl font-bold">Resultados</h1>
                 <p className="text-muted-foreground text-sm">{results.length} entregas en total</p>
             </div>
-            <ResultsClient examGroups={examGroups} totalCount={results.length} />
+            <ResultsClient examGroups={examGroups} totalCount={results.length} slug={slug} />
         </div>
     );
 }

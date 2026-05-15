@@ -23,7 +23,7 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
     const lastStrikeAtRef = useRef(0);
     const [strikes, setStrikes] = useState(0);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
+    const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>([]);
     const [direction, setDirection] = useState(1);
     const [isPending, startTransition] = useTransition();
 
@@ -57,21 +57,34 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
         void finalizeAndRedirect('auto');
     }, [finalizeAndRedirect]);
 
+    const isMultiple = exam.questionType === 'MULTIPLE';
+
+    const handleSelect = (optionId: string): void => {
+        if (!currentQuestion) return;
+        if (isMultiple) {
+            setSelectedOptionIds((prev) =>
+                prev.includes(optionId) ? prev.filter((id) => id !== optionId) : [...prev, optionId],
+            );
+        } else {
+            setSelectedOptionIds([optionId]);
+        }
+    };
+
     const handleNext = (): void => {
-        if (!currentQuestion || !selectedOptionId) return;
+        if (!currentQuestion || selectedOptionIds.length === 0) return;
         const questionId = currentQuestion.id;
-        const optionId = selectedOptionId;
+        const optionIds = selectedOptionIds;
 
         startTransition(async () => {
             try {
-                await submitAnswer({ questionId, optionId });
+                await submitAnswer({ questionId, optionIds });
                 if (isLastQuestion) {
                     await finalizeAndRedirect('manual');
                     return;
                 }
                 setDirection(1);
                 setCurrentIndex((i) => i + 1);
-                setSelectedOptionId(null);
+                setSelectedOptionIds([]);
             } catch {
                 toast.error('Error al guardar', {
                     description: 'No se pudo guardar la respuesta. Reintentá.',
@@ -219,10 +232,11 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
                     >
                         <QuestionCard
                             question={currentQuestion}
+                            examQuestionType={exam.questionType}
                             questionNumber={currentIndex + 1}
                             totalQuestions={totalQuestions}
-                            selectedOptionId={selectedOptionId}
-                            onSelect={setSelectedOptionId}
+                            selectedOptionIds={selectedOptionIds}
+                            onSelect={handleSelect}
                             disabled={isPending}
                         />
                     </motion.div>
@@ -234,7 +248,7 @@ export function ExamCarousel({ exam, initialSeconds }: ExamCarouselProps) {
                 <div className="mx-auto flex max-w-2xl justify-end">
                     <Button
                         size="lg"
-                        disabled={!selectedOptionId || isPending}
+                        disabled={selectedOptionIds.length === 0 || isPending}
                         onClick={handleNext}
                         className="min-w-[150px] rounded-full font-semibold"
                     >

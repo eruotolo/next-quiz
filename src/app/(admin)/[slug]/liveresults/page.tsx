@@ -11,6 +11,7 @@ interface PageProps {
     searchParams: Promise<{ examId?: string }>;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
 export default async function LiveResultsPage({
     searchParams,
 }: PageProps): Promise<React.JSX.Element> {
@@ -88,7 +89,8 @@ export default async function LiveResultsPage({
                         answers: {},
                     });
                 }
-                inProgressMap.get(a.studentId)!.answers[a.questionId] = a.optionId;
+                const entry = inProgressMap.get(a.studentId);
+                if (entry) entry.answers[a.questionId] = a.optionId;
             }
 
             const rows: LiveResultRow[] = [];

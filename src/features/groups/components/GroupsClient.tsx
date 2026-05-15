@@ -10,19 +10,36 @@ import {
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
+import { formatRut } from '@/shared/lib/rut';
 import type { Group } from '@prisma/client';
-import { Edit2, Loader2, Plus, Trash2, Users } from 'lucide-react';
+import { Edit2, GraduationCap, Loader2, Plus, Trash2, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import type React from 'react';
 import { useState, useTransition } from 'react';
+
+interface StudentInGroup {
+    id: string;
+    name: string;
+    lastname: string;
+    rut: string;
+    active: boolean;
+}
 
 interface GroupWithCount extends Group {
     _count: { users: number; exams: number };
+    users: StudentInGroup[];
 }
 
-export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
+interface Props {
+    groups: GroupWithCount[];
+    canMutate: boolean;
+}
+
+export function GroupsClient({ groups, canMutate }: Props): React.JSX.Element {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
+    const [studentsGroup, setStudentsGroup] = useState<GroupWithCount | null>(null);
     const [editing, setEditing] = useState<GroupWithCount | null>(null);
     const [toDelete, setToDelete] = useState<GroupWithCount | null>(null);
     const [name, setName] = useState('');
@@ -87,10 +104,12 @@ export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
                         {groups.length} grupos registrados
                     </p>
                 </div>
-                <Button className="rounded-full" onClick={openCreate}>
-                    <Plus size={16} />
-                    Nuevo grupo
-                </Button>
+                {canMutate && (
+                    <Button className="rounded-full" onClick={openCreate}>
+                        <Plus size={16} />
+                        Nuevo grupo
+                    </Button>
+                )}
             </div>
 
             {groups.length === 0 ? (
@@ -100,9 +119,11 @@ export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
                     <p className="text-muted-foreground/70 mt-1 text-sm">
                         Creá el primero para empezar a organizar alumnos.
                     </p>
-                    <Button className="mt-4 rounded-full" size="sm" onClick={openCreate}>
-                        Crear grupo
-                    </Button>
+                    {canMutate && (
+                        <Button className="mt-4 rounded-full" size="sm" onClick={openCreate}>
+                            Crear grupo
+                        </Button>
+                    )}
                 </div>
             ) : (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -119,30 +140,116 @@ export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
                                 {g._count.users} alumno{g._count.users !== 1 ? 's' : ''} ·{' '}
                                 {g._count.exams} examen{g._count.exams !== 1 ? 'es' : ''}
                             </p>
-                            <div className="mt-4 flex gap-2">
+                            <div className="mt-4 flex flex-wrap gap-2">
                                 <Button
                                     size="sm"
                                     variant="outline"
                                     className="rounded-lg"
-                                    onClick={() => openEdit(g)}
+                                    onClick={() => setStudentsGroup(g)}
                                 >
-                                    <Edit2 size={13} />
-                                    Editar
+                                    <GraduationCap size={13} />
+                                    Ver alumnos
                                 </Button>
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="text-destructive hover:bg-destructive/10 hover:text-destructive rounded-lg"
-                                    onClick={() => openDelete(g)}
-                                >
-                                    <Trash2 size={13} />
-                                    Eliminar
-                                </Button>
+                                {canMutate && (
+                                    <>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="rounded-lg"
+                                            onClick={() => openEdit(g)}
+                                        >
+                                            <Edit2 size={13} />
+                                            Editar
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            className="text-destructive hover:bg-destructive/10 hover:text-destructive rounded-lg"
+                                            onClick={() => openDelete(g)}
+                                        >
+                                            <Trash2 size={13} />
+                                            Eliminar
+                                        </Button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     ))}
                 </div>
             )}
+
+            {/* Students modal */}
+            <Dialog open={studentsGroup !== null} onOpenChange={(o) => !o && setStudentsGroup(null)}>
+                <DialogContent className="sm:max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>
+                            Alumnos — {studentsGroup?.name}
+                        </DialogTitle>
+                    </DialogHeader>
+                    {studentsGroup && studentsGroup.users.length === 0 ? (
+                        <div className="flex flex-col items-center gap-2 py-10 text-center">
+                            <GraduationCap size={36} className="text-muted-foreground/40" />
+                            <p className="text-muted-foreground text-sm">
+                                Este grupo no tiene alumnos asignados.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="max-h-96 overflow-y-auto">
+                            <table className="w-full text-sm">
+                                <thead className="border-border bg-muted/50 sticky top-0 border-b">
+                                    <tr>
+                                        <th className="text-muted-foreground px-4 py-2 text-left text-xs font-semibold uppercase">
+                                            Alumno
+                                        </th>
+                                        <th className="text-muted-foreground px-4 py-2 text-left text-xs font-semibold uppercase">
+                                            RUT
+                                        </th>
+                                        <th className="text-muted-foreground px-4 py-2 text-center text-xs font-semibold uppercase">
+                                            Estado
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-border divide-y">
+                                    {studentsGroup?.users.map((s) => (
+                                        <tr key={s.id} className="hover:bg-muted/20">
+                                            <td className="px-4 py-3">
+                                                <p
+                                                    className={`font-medium ${s.active ? 'text-foreground' : 'text-muted-foreground line-through'}`}
+                                                >
+                                                    {s.lastname}, {s.name}
+                                                </p>
+                                            </td>
+                                            <td className="text-muted-foreground px-4 py-3 font-mono text-xs">
+                                                {formatRut(s.rut)}
+                                            </td>
+                                            <td className="px-4 py-3 text-center">
+                                                <span
+                                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                                                        s.active
+                                                            ? 'bg-green-100 text-green-700'
+                                                            : 'bg-muted text-muted-foreground'
+                                                    }`}
+                                                >
+                                                    {s.active ? 'Activo' : 'Inactivo'}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            className="rounded-full"
+                            onClick={() => setStudentsGroup(null)}
+                        >
+                            Cerrar
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             {/* Create/Edit dialog */}
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -151,10 +258,11 @@ export function GroupsClient({ groups }: { groups: GroupWithCount[] }) {
                         <DialogTitle>{editing ? 'Editar grupo' : 'Nuevo grupo'}</DialogTitle>
                     </DialogHeader>
                     <div className="flex flex-col gap-1.5 py-2">
-                        <label className="text-foreground text-sm font-medium">
+                        <label htmlFor="group-name" className="text-foreground text-sm font-medium">
                             Nombre del grupo
                         </label>
                         <Input
+                            id="group-name"
                             placeholder="Ej: 4to Año B"
                             value={name}
                             onChange={(e) => {

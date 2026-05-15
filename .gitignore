@@ -32,6 +32,10 @@ lerna-debug.log*
 # ─── Testing ─────────────────────────────────────────────────────────────────
 coverage/
 .nyc_output/
+test-results/
+playwright-report/
+playwright/.cache/
+vitest.config.*.timestamp*
 
 # ─── OS ──────────────────────────────────────────────────────────────────────
 .DS_Store

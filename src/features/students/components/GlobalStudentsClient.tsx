@@ -142,7 +142,6 @@ function StudentForm({
     );
 }
 
-// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: CRUD table with institution filter
 export function GlobalStudentsClient({ result, institutions, q: initialQ, institutionId: initialInstitutionId }: Props): React.JSX.Element {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();

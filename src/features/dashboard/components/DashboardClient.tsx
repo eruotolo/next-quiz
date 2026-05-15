@@ -21,6 +21,7 @@ import {
     SelectValue,
 } from '@/shared/components/ui/select';
 import { Switch } from '@/shared/components/ui/switch';
+import { cn } from '@/shared/lib/utils';
 import type { Group } from '@prisma/client';
 import {
     BarChart3,
@@ -117,6 +118,7 @@ const quickActions = [
     },
 ] as const;
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
 export function DashboardClient({ firstName, stats, groups, slug }: Props) {
     const router = useRouter();
     const [menuOpen, setMenuOpen] = useState(false);
@@ -144,6 +146,7 @@ export function DashboardClient({ firstName, stats, groups, slug }: Props) {
         timeLimit: '30',
         groupIds: [] as string[],
         active: false,
+        questionType: 'UNICA' as 'UNICA' | 'MULTIPLE',
         maxGrade: '7',
         passingGrade: '4',
         passingPercentage: '60',
@@ -168,6 +171,7 @@ export function DashboardClient({ firstName, stats, groups, slug }: Props) {
                 timeLimit: '30',
                 groupIds: [],
                 active: false,
+                questionType: 'UNICA',
                 maxGrade: '7',
                 passingGrade: '4',
                 passingPercentage: '60',
@@ -244,6 +248,7 @@ export function DashboardClient({ firstName, stats, groups, slug }: Props) {
         setExamErrors((e) => ({ ...e, groupIds: undefined as unknown as string }));
     };
 
+    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
     const handleCreateExam = (): void => {
         const errs: Record<string, string> = {};
         if (!examForm.title.trim()) errs.title = 'Título requerido';
@@ -264,7 +269,7 @@ export function DashboardClient({ firstName, stats, groups, slug }: Props) {
         }
         startTransition(async () => {
             try {
-                await createExam({
+                await createExam(slug, {
                     ...examForm,
                     timeLimit: Number(examForm.timeLimit),
                     maxGrade: Number(examForm.maxGrade),
@@ -430,10 +435,11 @@ export function DashboardClient({ firstName, stats, groups, slug }: Props) {
                         <DialogTitle>Nuevo grupo</DialogTitle>
                     </DialogHeader>
                     <div className="flex flex-col gap-1.5 py-2">
-                        <label className="text-foreground text-sm font-medium">
+                        <label htmlFor="group-name-dashboard" className="text-foreground text-sm font-medium">
                             Nombre del grupo
                         </label>
                         <Input
+                            id="group-name-dashboard"
                             placeholder="Ej: 4to Año B"
                             value={groupName}
                             onChange={(e) => {
@@ -483,10 +489,11 @@ export function DashboardClient({ firstName, stats, groups, slug }: Props) {
                         )}
                         <div className="grid grid-cols-2 gap-3">
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-foreground text-sm font-medium">
+                                <label htmlFor="dashboard-student-name" className="text-foreground text-sm font-medium">
                                     Nombre
                                 </label>
                                 <Input
+                                    id="dashboard-student-name"
                                     value={studentForm.name}
                                     onChange={(e) =>
                                         setStudentForm((f) => ({ ...f, name: e.target.value }))
@@ -499,10 +506,11 @@ export function DashboardClient({ firstName, stats, groups, slug }: Props) {
                                 )}
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label className="text-foreground text-sm font-medium">
+                                <label htmlFor="dashboard-student-lastname" className="text-foreground text-sm font-medium">
                                     Apellido
                                 </label>
                                 <Input
+                                    id="dashboard-student-lastname"
                                     value={studentForm.lastname}
                                     onChange={(e) =>
                                         setStudentForm((f) => ({ ...f, lastname: e.target.value }))
@@ -517,8 +525,9 @@ export function DashboardClient({ firstName, stats, groups, slug }: Props) {
                             </div>
                         </div>
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-foreground text-sm font-medium">Email</label>
+                            <label htmlFor="dashboard-student-email" className="text-foreground text-sm font-medium">Email</label>
                             <Input
+                                id="dashboard-student-email"
                                 type="email"
                                 value={studentForm.email}
                                 onChange={(e) =>
@@ -537,12 +546,13 @@ export function DashboardClient({ firstName, stats, groups, slug }: Props) {
                             error={studentErrors.rut}
                         />
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-foreground text-sm font-medium">Grupo</label>
+                            <label htmlFor="dashboard-student-group" className="text-foreground text-sm font-medium">Grupo</label>
                             <Select
                                 value={studentForm.groupId}
                                 onValueChange={(v) => setStudentForm((f) => ({ ...f, groupId: v }))}
                             >
                                 <SelectTrigger
+                                    id="dashboard-student-group"
                                     className={studentErrors.groupId ? 'border-destructive' : ''}
                                 >
                                     <SelectValue placeholder="Seleccioná un grupo" />
@@ -594,10 +604,11 @@ export function DashboardClient({ firstName, stats, groups, slug }: Props) {
                             </p>
                         )}
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-foreground text-sm font-medium">
+                            <label htmlFor="exam-title" className="text-foreground text-sm font-medium">
                                 Título del examen
                             </label>
                             <Input
+                                id="exam-title"
                                 placeholder="Ej: Matemáticas — Unidad 3"
                                 value={examForm.title}
                                 onChange={(e) =>
@@ -611,10 +622,11 @@ export function DashboardClient({ firstName, stats, groups, slug }: Props) {
                             )}
                         </div>
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-foreground text-sm font-medium">
+                            <label htmlFor="exam-time-limit" className="text-foreground text-sm font-medium">
                                 Tiempo límite (minutos)
                             </label>
                             <Input
+                                id="exam-time-limit"
                                 type="number"
                                 min={1}
                                 max={180}
@@ -628,8 +640,50 @@ export function DashboardClient({ firstName, stats, groups, slug }: Props) {
                                 <p className="text-destructive text-xs">{examErrors.timeLimit}</p>
                             )}
                         </div>
+                        {/* Question type toggle */}
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-foreground text-sm font-medium">Grupos</label>
+                            <span className="text-foreground text-sm font-medium">
+                                Tipo de selección del alumno
+                            </span>
+                            <div className="flex overflow-hidden rounded-lg border border-border">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setExamForm((f) => ({ ...f, questionType: 'UNICA' }))
+                                    }
+                                    className={cn(
+                                        'flex-1 px-4 py-2 text-sm font-medium transition-colors',
+                                        examForm.questionType === 'UNICA'
+                                            ? 'bg-primary text-primary-foreground'
+                                            : 'bg-white text-muted-foreground hover:bg-muted/50',
+                                    )}
+                                >
+                                    Selección única
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setExamForm((f) => ({ ...f, questionType: 'MULTIPLE' }))
+                                    }
+                                    className={cn(
+                                        'flex-1 border-l border-border px-4 py-2 text-sm font-medium transition-colors',
+                                        examForm.questionType === 'MULTIPLE'
+                                            ? 'bg-primary text-primary-foreground'
+                                            : 'bg-white text-muted-foreground hover:bg-muted/50',
+                                    )}
+                                >
+                                    Selección múltiple
+                                </button>
+                            </div>
+                            <p className="text-muted-foreground text-[11px]">
+                                {examForm.questionType === 'UNICA'
+                                    ? 'El alumno puede elegir solo una opción por pregunta.'
+                                    : 'El alumno puede elegir varias opciones por pregunta.'}
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                            <span className="text-foreground text-sm font-medium">Grupos</span>
                             <div
                                 className={`max-h-[140px] overflow-y-auto rounded-lg border ${examErrors.groupIds ? 'border-destructive' : 'border-border'}`}
                             >
@@ -661,15 +715,16 @@ export function DashboardClient({ firstName, stats, groups, slug }: Props) {
                             )}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label className="text-foreground text-sm font-medium">
+                            <span className="text-foreground text-sm font-medium">
                                 Escala de notas
-                            </label>
+                            </span>
                             <div className="grid grid-cols-3 gap-2">
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-muted-foreground text-xs">
+                                    <label htmlFor="exam-max-grade" className="text-muted-foreground text-xs">
                                         Nota máxima
                                     </label>
                                     <Input
+                                        id="exam-max-grade"
                                         type="number"
                                         min={1}
                                         max={10}
@@ -682,10 +737,11 @@ export function DashboardClient({ firstName, stats, groups, slug }: Props) {
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-muted-foreground text-xs">
+                                    <label htmlFor="exam-passing-grade" className="text-muted-foreground text-xs">
                                         Aprobación
                                     </label>
                                     <Input
+                                        id="exam-passing-grade"
                                         type="number"
                                         min={1}
                                         max={10}
@@ -701,10 +757,11 @@ export function DashboardClient({ firstName, stats, groups, slug }: Props) {
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-muted-foreground text-xs">
+                                    <label htmlFor="exam-passing-percentage" className="text-muted-foreground text-xs">
                                         % mínimo
                                     </label>
                                     <Input
+                                        id="exam-passing-percentage"
                                         type="number"
                                         min={1}
                                         max={99}

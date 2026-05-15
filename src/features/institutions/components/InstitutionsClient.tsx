@@ -30,7 +30,7 @@ import type React from 'react';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { z } from 'zod';
+import type { z } from 'zod';
 
 type InstitutionInput = z.infer<typeof institutionSchema>;
 
@@ -111,7 +111,6 @@ function InstitutionForm({
     );
 }
 
-// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: CRUD table with dialogs
 export function InstitutionsClient({ result, q: initialQ }: Props): React.JSX.Element {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();

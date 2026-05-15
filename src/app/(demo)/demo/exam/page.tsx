@@ -5,12 +5,14 @@ const mockExam: SafeExam = {
     id: 'demo-exam',
     title: 'Examen demo — Cultura general',
     timeLimit: 1,
+    questionType: 'UNICA',
     antiCheatEnabled: false,
     questions: [
         {
             id: '11111111-1111-1111-1111-111111111111',
             order: 1,
             points: 1,
+            questionType: 'UNICA' as const,
             text: '¿Cuál es la capital de Chile?',
             options: [
                 { id: '11111111-1111-1111-1111-1111111111a1', text: 'Buenos Aires' },
@@ -23,6 +25,7 @@ const mockExam: SafeExam = {
             id: '22222222-2222-2222-2222-222222222222',
             order: 2,
             points: 1,
+            questionType: 'UNICA' as const,
             text: '¿Cuánto es 7 × 8?',
             options: [
                 { id: '22222222-2222-2222-2222-2222222222b1', text: '54' },
@@ -35,6 +38,7 @@ const mockExam: SafeExam = {
             id: '33333333-3333-3333-3333-333333333333',
             order: 3,
             points: 1,
+            questionType: 'UNICA' as const,
             text: '¿En qué año llegó el hombre a la Luna?',
             options: [
                 { id: '33333333-3333-3333-3333-3333333333c1', text: '1959' },

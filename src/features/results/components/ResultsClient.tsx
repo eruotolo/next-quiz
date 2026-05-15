@@ -37,7 +37,7 @@ export interface ResultRow {
     score: number;
     maxScore: number;
     completedAt: string;
-    answers: Record<string, string>;
+    answers: Record<string, string[] | string>;
 }
 
 export interface ExamGroup {
@@ -54,9 +54,10 @@ export interface ExamGroup {
 interface Props {
     examGroups: ExamGroup[];
     totalCount: number;
+    slug: string;
 }
 
-export function ResultsClient({ examGroups, totalCount }: Props): React.JSX.Element {
+export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JSX.Element {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [deleteTarget, setDeleteTarget] = useState<{ id: string; studentName: string } | null>(
@@ -70,7 +71,7 @@ export function ResultsClient({ examGroups, totalCount }: Props): React.JSX.Elem
         if (!deleteTarget) return;
         const { id, studentName } = deleteTarget;
         startTransition(async () => {
-            await deleteResult(id);
+            await deleteResult(slug, id);
             setDeleteTarget(null);
             toast.success('Resultado eliminado', {
                 description: `Se eliminó el resultado de ${studentName}.`,
@@ -274,14 +275,25 @@ function AnswersReview({
     exam: ExamGroup;
 }): React.JSX.Element {
     const answerMap = result.answers;
+
+    function getSelectedIds(val: string[] | string | undefined): string[] {
+        if (!val) return [];
+        return Array.isArray(val) ? val : [val];
+    }
+
     return (
         <div className="min-h-0 flex-1 overflow-y-auto">
             <div className="space-y-2 pr-1 pb-2">
                 {exam.questions.map((q, idx) => {
-                    const selectedId = answerMap[q.id];
-                    const correctOption = q.options.find((o) => o.isCorrect);
-                    const selectedOption = q.options.find((o) => o.id === selectedId);
-                    const isCorrect = selectedId === correctOption?.id;
+                    const selectedIds = getSelectedIds(answerMap[q.id]);
+                    const correctOptions = q.options.filter((o) => o.isCorrect);
+                    const correctSet = new Set(correctOptions.map((o) => o.id));
+                    const selectedSet = new Set(selectedIds);
+                    const isCorrect =
+                        selectedSet.size > 0 &&
+                        correctSet.size === selectedSet.size &&
+                        [...correctSet].every((id) => selectedSet.has(id));
+                    const selectedOptions = q.options.filter((o) => selectedIds.includes(o.id));
 
                     return (
                         <div
@@ -313,11 +325,15 @@ function AnswersReview({
                                 <div className="mt-1.5 ml-7 flex flex-col gap-0.5 text-[13px]">
                                     <p className="text-destructive">
                                         <span className="font-semibold">Respuesta:</span>{' '}
-                                        {selectedOption?.text ?? 'Sin respuesta'}
+                                        {selectedOptions.length > 0
+                                            ? selectedOptions.map((o) => o.text).join(', ')
+                                            : 'Sin respuesta'}
                                     </p>
                                     <p className="text-success">
-                                        <span className="font-semibold">Correcta:</span>{' '}
-                                        {correctOption?.text}
+                                        <span className="font-semibold">
+                                            {correctOptions.length > 1 ? 'Correctas:' : 'Correcta:'}
+                                        </span>{' '}
+                                        {correctOptions.map((o) => o.text).join(', ')}
                                     </p>
                                 </div>
                             )}

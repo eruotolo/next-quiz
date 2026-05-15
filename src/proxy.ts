@@ -1,7 +1,7 @@
 import { auth } from '@/features/auth/auth';
 import { USER_ROLE } from '@/shared/lib/roles';
 import type { Session } from 'next-auth';
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 type NextAuthRequest = NextRequest & { auth: Session | null };
 
@@ -24,6 +24,10 @@ export default auth((req: NextAuthRequest) => {
     }
 
     if (!session) return NextResponse.redirect(new URL('/login', req.url));
+
+    if (session.user.userRoleName === USER_ROLE.STUDENT) {
+        return NextResponse.redirect(new URL('/examen/login', req.url));
+    }
 
     const slug = pathname.split('/')[1];
 

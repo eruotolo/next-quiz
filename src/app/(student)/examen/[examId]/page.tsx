@@ -37,12 +37,14 @@ export default async function ExamPage({ params }: PageProps) {
         id: exam.id,
         title: exam.title,
         timeLimit: exam.timeLimit,
+        questionType: exam.questionType,
         antiCheatEnabled: exam.antiCheatEnabled,
         questions: exam.questions.map((q) => ({
             id: q.id,
             text: q.text,
             points: q.points,
             order: q.order,
+            questionType: q.questionType,
             options: q.options,
         })),
     };

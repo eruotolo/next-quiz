@@ -10,6 +10,7 @@ export interface SafeQuestion {
     text: string;
     points: number;
     order: number;
+    questionType: 'UNICA' | 'MULTIPLE';
     options: SafeOption[];
 }
 
@@ -17,6 +18,7 @@ export interface SafeExam {
     id: string;
     title: string;
     timeLimit: number;
+    questionType: 'UNICA' | 'MULTIPLE';
     antiCheatEnabled: boolean;
     questions: SafeQuestion[];
 }

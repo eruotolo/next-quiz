@@ -39,12 +39,13 @@ model AcademicInstitution {
 // ─── Users & Groups ──────────────────────────────────────────────────────────
 
 model Group {
-    id        String   @id @default(uuid()) @db.Uuid
-    name      String
-    users     User[]
-    exams     Exam[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id         String   @id @default(uuid()) @db.Uuid
+    name       String
+    users      User[]
+    professors User[]   @relation("ProfessorGroups")
+    exams      Exam[]
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
 }
 
 model User {
@@ -53,6 +54,7 @@ model User {
     lastname              String
     email                 String               @unique
     rut                   String               @unique
+    phone                 String?              @unique
     password              String?
     userRoleId            String?              @db.Uuid
     userRole              UserRole?            @relation(fields: [userRoleId], references: [id], onDelete: SetNull)
@@ -60,6 +62,8 @@ model User {
     academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
     groupId               String?              @db.Uuid
     group                 Group?               @relation(fields: [groupId], references: [id], onDelete: SetNull)
+    professorGroups       Group[]              @relation("ProfessorGroups")
+    active                Boolean              @default(true)
     results               Result[]
     answers               Answer[]
     auditLogs             AuditLog[]
@@ -71,38 +75,47 @@ model User {
     @@index([groupId])
 }
 
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum QuestionType {
+    UNICA
+    MULTIPLE
+}
+
 // ─── Exams ───────────────────────────────────────────────────────────────────
 
 model Exam {
-    id                String     @id @default(uuid()) @db.Uuid
+    id                String       @id @default(uuid()) @db.Uuid
     title             String
     timeLimit         Int
-    active            Boolean    @default(false)
-    maxGrade          Float      @default(7)
-    passingGrade      Float      @default(4)
-    passingPercentage Int        @default(60)
-    antiCheatEnabled  Boolean    @default(false)
+    active            Boolean      @default(false)
+    questionType      QuestionType @default(UNICA)
+    maxGrade          Float        @default(7)
+    passingGrade      Float        @default(4)
+    passingPercentage Int          @default(60)
+    antiCheatEnabled  Boolean      @default(false)
     groups            Group[]
     questions         Question[]
     results           Result[]
     answers           Answer[]
-    createdAt         DateTime   @default(now())
-    updatedAt         DateTime   @updatedAt
+    createdAt         DateTime     @default(now())
+    updatedAt         DateTime     @updatedAt
 
     @@index([active])
 }
 
 model Question {
-    id        String   @id @default(uuid()) @db.Uuid
-    text      String
-    points    Int      @default(1)
-    order     Int      @default(0)
-    examId    String   @db.Uuid
-    exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
-    options   Option[]
-    answers   Answer[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id           String       @id @default(uuid()) @db.Uuid
+    text         String
+    points       Int          @default(1)
+    order        Int          @default(0)
+    questionType QuestionType @default(UNICA)
+    examId       String       @db.Uuid
+    exam         Exam         @relation(fields: [examId], references: [id], onDelete: Cascade)
+    options      Option[]
+    answers      Answer[]
+    createdAt    DateTime     @default(now())
+    updatedAt    DateTime     @updatedAt
 
     @@index([examId])
 }
@@ -136,7 +149,7 @@ model Answer {
     createdAt  DateTime @default(now())
     updatedAt  DateTime @updatedAt
 
-    @@unique([attemptKey, questionId])
+    @@unique([attemptKey, questionId, optionId])
     @@index([attemptKey])
     @@index([studentId])
     @@index([examId])
@@ -161,22 +174,22 @@ model Result {
 // ─── Audit ───────────────────────────────────────────────────────────────────
 
 model AuditLog {
-    id                    String               @id @default(uuid()) @db.Uuid
+    id                    String   @id @default(uuid()) @db.Uuid
     action                String
     entity                String?
-    entityId              String?              @db.Uuid
-    actorId               String?              @db.Uuid
+    entityId              String?  @db.Uuid
+    actorId               String?  @db.Uuid
     actorEmail            String?
     actorRole             String?
-    academicInstitutionId String?              @db.Uuid
+    academicInstitutionId String?  @db.Uuid
     status                String
     ip                    String?
     userAgent             String?
     metadata              Json?
-    createdAt             DateTime             @default(now())
+    createdAt             DateTime @default(now())
 
-    actor                 User?                @relation(fields: [actorId], references: [id], onDelete: SetNull)
-    institution           AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
+    actor       User?                @relation(fields: [actorId], references: [id], onDelete: SetNull)
+    institution AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
 
     @@index([createdAt])
     @@index([action])

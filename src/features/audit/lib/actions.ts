@@ -22,6 +22,7 @@ export const AUDIT_ACTION = {
 
     QUESTION_UPSERT: 'question.upsert',
     QUESTION_DELETE: 'question.delete',
+    QUESTIONS_IMPORT: 'questions.import',
 
     RESULT_DELETE: 'result.delete',
 
@@ -34,6 +35,10 @@ export const AUDIT_ACTION = {
     ADMIN_USER_DELETE: 'admin_user.delete',
 
     APP_CONFIG_SAVE: 'app_config.save',
+
+    PROFESSOR_CREATE: 'professor.create',
+    PROFESSOR_UPDATE: 'professor.update',
+    PROFESSOR_DELETE: 'professor.delete',
 } as const;
 
 export type AuditActionKey = (typeof AUDIT_ACTION)[keyof typeof AUDIT_ACTION];
@@ -57,6 +62,7 @@ export const AUDIT_ACTION_LABEL: Record<AuditActionKey, string> = {
     'exam.toggle_active': 'Examen activado/desactivado',
     'question.upsert': 'Pregunta guardada',
     'question.delete': 'Pregunta eliminada',
+    'questions.import': 'Importación de preguntas',
     'result.delete': 'Resultado eliminado',
     'institution.create': 'Institución creada',
     'institution.update': 'Institución actualizada',
@@ -65,4 +71,7 @@ export const AUDIT_ACTION_LABEL: Record<AuditActionKey, string> = {
     'admin_user.update': 'Administrador actualizado',
     'admin_user.delete': 'Administrador eliminado',
     'app_config.save': 'Configuración guardada',
+    'professor.create': 'Profesor creado',
+    'professor.update': 'Profesor actualizado',
+    'professor.delete': 'Profesor eliminado',
 };

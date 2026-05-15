@@ -157,6 +157,25 @@ pnpm db:studio        # Prisma Studio GUI
 6. **Commits**: conventional commits en inglés, imperativo, minúsculas.
    Ejemplos: `feat(auth): add institution slug to session`, `fix: correct rut validation edge case`
 
+## SuperAdministrador — Regla absoluta
+
+El SuperAdministrador es la **llave maestra** del sistema: tiene permiso para **absolutamente todo**, sin restricciones. Esto implica:
+
+- Puede acceder y operar en CUALQUIER ruta, incluyendo `/[slug]/*` de cualquier institución.
+- Las Server Actions que requieran `institutionSlug` deben aceptarlo tanto del JWT como del contexto de la URL cuando el rol es `SuperAdministrador`.
+- El proxy NUNCA debe bloquear ni redirigir al SuperAdministrador.
+- Cualquier verificación de permisos debe cortocircuitar en favor del SuperAdministrador antes de evaluar reglas de rol o institución.
+
+Patrón obligatorio en `getSessionUser()` y funciones similares:
+```ts
+// SuperAdmin bypass — tiene acceso total
+if (session.user.userRoleName === USER_ROLE.SUPER_ADMIN) {
+    return { slug: null, userId: ..., userRole: ..., ... };
+}
+// Para los demás roles, requerir institutionSlug
+if (!slug) throw new Error('Unauthorized');
+```
+
 ## Reglas de Migraciones (CRÍTICO — PRODUCCIÓN)
 
 **NUNCA** usar SQL manual, `prisma db execute`, ni editar archivos `.sql` directamente.

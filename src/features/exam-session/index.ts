@@ -9,7 +9,7 @@ export {
     type StudentSessionPayload,
     type ResultSessionPayload,
 } from './lib/session';
-export { type SafeOption, type SafeQuestion, type SafeExam } from './types/exam.types';
+export type { SafeOption, SafeQuestion, SafeExam } from './types/exam.types';
 export { ExamCarousel } from './components/ExamCarousel';
 export { QuestionCard } from './components/QuestionCard';
 export { Timer } from './components/Timer';

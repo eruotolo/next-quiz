@@ -13,6 +13,7 @@ interface ActionState {
     error?: string;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
 export async function validateStudent(
     _prevState: ActionState,
     formData: FormData,

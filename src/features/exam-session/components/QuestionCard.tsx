@@ -7,21 +7,25 @@ const LABELS = ['A', 'B', 'C', 'D', 'E', 'F'] as const;
 
 interface QuestionCardProps {
     question: SafeQuestion;
+    examQuestionType: 'UNICA' | 'MULTIPLE';
     questionNumber: number;
     totalQuestions: number;
-    selectedOptionId: string | null;
+    selectedOptionIds: string[];
     onSelect: (optionId: string) => void;
     disabled?: boolean;
 }
 
 export function QuestionCard({
     question,
+    examQuestionType,
     questionNumber,
     totalQuestions,
-    selectedOptionId,
+    selectedOptionIds,
     onSelect,
     disabled,
 }: QuestionCardProps) {
+    const isMultiple = examQuestionType === 'MULTIPLE';
+
     return (
         <div className="flex flex-col gap-[22px]">
             <div className="space-y-1.5">
@@ -31,16 +35,20 @@ export function QuestionCard({
                 <h2 className="text-foreground text-[26px] leading-[1.3] font-bold tracking-tight">
                     {question.text}
                 </h2>
+                {isMultiple && (
+                    <p className="text-primary text-[13px] font-medium">
+                        Seleccioná todas las que correspondan
+                    </p>
+                )}
             </div>
 
-            <div
-                className="flex flex-col gap-3"
-                role="radiogroup"
+            <fieldset
+                className="flex flex-col gap-3 border-0 p-0 m-0"
                 aria-label="Opciones de respuesta"
             >
                 {question.options.map((option, idx) => {
                     const label = LABELS[idx] ?? String(idx + 1);
-                    const isSelected = selectedOptionId === option.id;
+                    const isSelected = selectedOptionIds.includes(option.id);
 
                     return (
                         <button
@@ -60,7 +68,8 @@ export function QuestionCard({
                         >
                             <span
                                 className={cn(
-                                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold transition-colors',
+                                    'flex h-9 w-9 shrink-0 items-center justify-center text-sm font-bold transition-colors',
+                                    isMultiple ? 'rounded-lg' : 'rounded-full',
                                     isSelected
                                         ? 'bg-primary text-white'
                                         : 'bg-muted text-muted-foreground',
@@ -96,7 +105,7 @@ export function QuestionCard({
                         </button>
                     );
                 })}
-            </div>
+            </fieldset>
         </div>
     );
 }

@@ -8,6 +8,7 @@ import {
     GraduationCap,
     LayoutDashboard,
     LogOut,
+    UserCog,
     Users,
 } from 'lucide-react';
 import { LogoMark } from '@/shared/components/branding/logo';
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
     { path: '', label: 'Dashboard', icon: LayoutDashboard, exact: true },
     { path: '/groups', label: 'Grupos', icon: Users },
     { path: '/students', label: 'Alumnos', icon: GraduationCap },
+    { path: '/professors', label: 'Profesores', icon: UserCog },
     { path: '/exams', label: 'Exámenes', icon: BookOpen },
     { path: '/results', label: 'Resultados', icon: BarChart3 },
     { path: '/liveresults', label: 'En vivo', icon: Activity },

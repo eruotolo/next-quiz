@@ -1,6 +1,7 @@
 'use client';
 
 import { deleteQuestion, upsertQuestion } from '@/features/exams/actions/mutations';
+import { ImportQuestionsDialog } from '@/features/exams/components/ImportQuestionsDialog';
 import { Button } from '@/shared/components/ui/button';
 import {
     Dialog,
@@ -10,8 +11,9 @@ import {
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
+import { cn } from '@/shared/lib/utils';
 import type { Exam, Group, Option, Question } from '@prisma/client';
-import { ArrowLeft, BookOpen, Loader2, Plus, Trash2, X } from 'lucide-react';
+import { ArrowLeft, BookOpen, Loader2, Plus, Trash2, Upload, X } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
@@ -30,6 +32,7 @@ interface QuestionDraft {
     id?: string;
     text: string;
     points: number;
+    questionType: 'UNICA' | 'MULTIPLE';
     options: OptionDraft[];
 }
 
@@ -41,6 +44,7 @@ function defaultQuestionDraft(): QuestionDraft {
     return {
         text: '',
         points: 1,
+        questionType: 'UNICA',
         options: [
             { _key: nextKey(), text: '', isCorrect: true },
             { _key: nextKey(), text: '', isCorrect: false },
@@ -50,11 +54,13 @@ function defaultQuestionDraft(): QuestionDraft {
     };
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
 export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
     const router = useRouter();
     const { slug } = useParams<{ slug: string }>();
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
+    const [isImportOpen, setIsImportOpen] = useState(false);
 
     const [draft, setDraft] = useState<QuestionDraft | null>(null);
     const [draftOrder, setDraftOrder] = useState(0);
@@ -79,6 +85,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
             id: q.id,
             text: q.text,
             points: q.points,
+            questionType: q.questionType as 'UNICA' | 'MULTIPLE',
             options: q.options.map((o) => ({
                 _key: o.id,
                 id: o.id,
@@ -106,6 +113,29 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
         setDraft((d) => (d ? { ...d, points } : d));
     };
 
+    const setDraftType = (type: 'UNICA' | 'MULTIPLE'): void => {
+        setDraft((d) => {
+            if (!d || d.questionType === type) return d;
+            let options = d.options;
+            if (type === 'UNICA') {
+                // Keep only first correct option to maintain validity
+                let foundFirst = false;
+                options = d.options.map((o) => {
+                    if (o.isCorrect && !foundFirst) {
+                        foundFirst = true;
+                        return o;
+                    }
+                    return { ...o, isCorrect: false };
+                });
+                if (!options.some((o) => o.isCorrect) && options[0]) {
+                    options = options.map((o, i) => (i === 0 ? { ...o, isCorrect: true } : o));
+                }
+            }
+            return { ...d, questionType: type, options };
+        });
+        setQErrors((e) => ({ ...e, options: undefined }));
+    };
+
     const setOptionText = (i: number, text: string): void => {
         setDraft((d) => {
             if (!d) return d;
@@ -123,6 +153,27 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                 options: d.options.map((o, idx) => ({ ...o, isCorrect: idx === i })),
             };
         });
+    };
+
+    const toggleCorrect = (i: number): void => {
+        setDraft((d) => {
+            if (!d) return d;
+            return {
+                ...d,
+                options: d.options.map((o, idx) =>
+                    idx === i ? { ...o, isCorrect: !o.isCorrect } : o,
+                ),
+            };
+        });
+        setQErrors((e) => ({ ...e, options: undefined }));
+    };
+
+    const handleCorrectClick = (i: number): void => {
+        if (draft?.questionType === 'MULTIPLE') {
+            toggleCorrect(i);
+        } else {
+            setCorrect(i);
+        }
     };
 
     const addOption = (): void => {
@@ -151,8 +202,14 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
         if (!draft?.text.trim()) errs.text = 'El texto de la pregunta es requerido.';
         if (draft?.options.some((o) => !o.text.trim())) {
             errs.options = 'Todas las opciones deben tener texto.';
-        } else if (!draft?.options.some((o) => o.isCorrect)) {
-            errs.options = 'Debe marcarse una opción como correcta.';
+        } else {
+            const correctCount = draft?.options.filter((o) => o.isCorrect).length ?? 0;
+            if (draft?.questionType === 'UNICA' && correctCount !== 1) {
+                errs.options = 'Una pregunta única debe tener exactamente 1 respuesta correcta.';
+            } else if (draft?.questionType === 'MULTIPLE' && correctCount < 2) {
+                errs.options =
+                    'Una pregunta múltiple debe tener al menos 2 respuestas correctas.';
+            }
         }
         setQErrors(errs);
         return Object.keys(errs).length === 0;
@@ -162,7 +219,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
         if (!validate() || !draft) return;
         startTransition(async () => {
             try {
-                await upsertQuestion(exam.id, draft, draftOrder);
+                await upsertQuestion(slug, exam.id, draft, draftOrder);
                 setIsOpen(false);
                 router.refresh();
             } catch {
@@ -175,7 +232,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
         if (!toDeleteId) return;
         startTransition(async () => {
             try {
-                await deleteQuestion(toDeleteId, exam.id);
+                await deleteQuestion(slug, toDeleteId, exam.id);
                 setIsDelOpen(false);
                 router.refresh();
             } catch {
@@ -183,6 +240,8 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
             }
         });
     };
+
+    const isMultiple = draft?.questionType === 'MULTIPLE';
 
     return (
         <div className="space-y-6">
@@ -213,7 +272,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                             Este examen no tiene preguntas
                         </p>
                         <p className="text-muted-foreground/70 mt-1 text-sm">
-                            Agregá la primera para empezar.
+                            Agregá la primera o importalas en masa.
                         </p>
                     </div>
                 ) : (
@@ -227,9 +286,21 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                     {idx + 1}
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <p className="text-foreground text-[15px] leading-snug font-semibold">
-                                        {q.text}
-                                    </p>
+                                    <div className="flex items-center gap-2">
+                                        <p className="text-foreground text-[15px] leading-snug font-semibold">
+                                            {q.text}
+                                        </p>
+                                        <span
+                                            className={cn(
+                                                'shrink-0 rounded-full px-2 py-0.5 text-[10.5px] font-semibold',
+                                                q.questionType === 'MULTIPLE'
+                                                    ? 'bg-blue-50 text-blue-700'
+                                                    : 'bg-amber-50 text-amber-700',
+                                            )}
+                                        >
+                                            {q.questionType === 'MULTIPLE' ? 'Múltiple' : 'Única'}
+                                        </span>
+                                    </div>
                                     <div className="mt-2.5 flex flex-wrap gap-2">
                                         {q.options.map((o, oi) => (
                                             <span
@@ -273,10 +344,24 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                 )}
             </div>
 
-            <Button className="rounded-full" onClick={openNew}>
-                <Plus size={16} />
-                Agregar pregunta
-            </Button>
+            <div className="flex flex-wrap gap-2">
+                <Button className="rounded-full" onClick={openNew}>
+                    <Plus size={16} />
+                    Agregar pregunta
+                </Button>
+                <Button variant="outline" className="rounded-full" onClick={() => setIsImportOpen(true)}>
+                    <Upload size={16} />
+                    Importar preguntas
+                </Button>
+            </div>
+
+            {/* Import dialog */}
+            <ImportQuestionsDialog
+                slug={slug}
+                examId={exam.id}
+                open={isImportOpen}
+                onOpenChange={setIsImportOpen}
+            />
 
             {/* Question create/edit dialog */}
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -293,10 +378,11 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                             </p>
                         )}
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-foreground text-sm font-medium">
+                            <label htmlFor="question-text" className="text-foreground text-sm font-medium">
                                 Texto de la pregunta
                             </label>
                             <Input
+                                id="question-text"
                                 placeholder="Ej: ¿Cuál es la capital de Chile?"
                                 value={draft?.text ?? ''}
                                 onChange={(e) => setDraftText(e.target.value)}
@@ -307,16 +393,51 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                 <p className="text-destructive text-xs">{qErrors.text}</p>
                             )}
                         </div>
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-foreground text-sm font-medium">Puntos</label>
-                            <Input
-                                type="number"
-                                min={1}
-                                max={100}
-                                value={String(draft?.points ?? 1)}
-                                onChange={(e) => setDraftPoints(Number(e.target.value) || 1)}
-                                className="max-w-[120px]"
-                            />
+
+                        <div className="flex gap-6">
+                            <div className="flex flex-col gap-1.5">
+                                <label htmlFor="question-points" className="text-foreground text-sm font-medium">Puntos</label>
+                                <Input
+                                    id="question-points"
+                                    type="number"
+                                    min={1}
+                                    max={100}
+                                    value={String(draft?.points ?? 1)}
+                                    onChange={(e) => setDraftPoints(Number(e.target.value) || 1)}
+                                    className="max-w-[120px]"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <span className="text-foreground text-sm font-medium">
+                                    Tipo de pregunta
+                                </span>
+                                <div className="border-border flex overflow-hidden rounded-lg border">
+                                    <button
+                                        type="button"
+                                        onClick={() => setDraftType('UNICA')}
+                                        className={cn(
+                                            'px-4 py-2 text-sm font-medium transition-colors',
+                                            draft?.questionType === 'UNICA'
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'text-muted-foreground hover:bg-muted/50',
+                                        )}
+                                    >
+                                        Única
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setDraftType('MULTIPLE')}
+                                        className={cn(
+                                            'border-border border-l px-4 py-2 text-sm font-medium transition-colors',
+                                            draft?.questionType === 'MULTIPLE'
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'text-muted-foreground hover:bg-muted/50',
+                                        )}
+                                    >
+                                        Múltiple
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <div>
@@ -324,7 +445,9 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                 <p className="text-foreground text-sm font-medium">
                                     Opciones{' '}
                                     <span className="text-muted-foreground font-normal">
-                                        (hacé clic en la letra para marcar la correcta)
+                                        {isMultiple
+                                            ? '(hacé clic en la letra para marcar las correctas)'
+                                            : '(hacé clic en la letra para marcar la correcta)'}
                                     </span>
                                 </p>
                                 {(draft?.options.length ?? 0) < 6 && (
@@ -347,13 +470,19 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                     <div key={opt._key} className="flex items-center gap-3">
                                         <button
                                             type="button"
-                                            onClick={() => setCorrect(i)}
-                                            title="Marcar como correcta"
-                                            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-all ${
+                                            onClick={() => handleCorrectClick(i)}
+                                            title={
+                                                isMultiple
+                                                    ? 'Marcar/desmarcar como correcta'
+                                                    : 'Marcar como correcta'
+                                            }
+                                            className={cn(
+                                                'flex h-7 w-7 shrink-0 items-center justify-center border-2 text-xs font-bold transition-all',
+                                                isMultiple ? 'rounded-md' : 'rounded-full',
                                                 opt.isCorrect
                                                     ? 'border-success bg-success text-white shadow-sm'
-                                                    : 'border-border text-muted-foreground hover:border-success/60 hover:text-success'
-                                            }`}
+                                                    : 'border-border text-muted-foreground hover:border-success/60 hover:text-success',
+                                            )}
                                         >
                                             {LETTERS[i]}
                                         </button>
@@ -375,6 +504,11 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                     </div>
                                 ))}
                             </div>
+                            {isMultiple && (
+                                <p className="text-muted-foreground mt-2 text-[12px]">
+                                    Opción múltiple: marcá al menos 2 respuestas correctas.
+                                </p>
+                            )}
                         </div>
                     </div>
                     <DialogFooter>

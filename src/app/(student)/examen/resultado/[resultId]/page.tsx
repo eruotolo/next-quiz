@@ -65,7 +65,13 @@ export default async function ResultadoPage({ params }: PageProps) {
 
     const arcColor = passing ? 'stroke-success' : 'stroke-destructive';
 
-    const answerMap = result.answers as Record<string, string>;
+    const answerMap = result.answers as Record<string, string[] | string>;
+
+    // Normalize old string format (before multi-select) and new string[] format
+    function getSelectedIds(val: string[] | string | undefined): string[] {
+        if (!val) return [];
+        return Array.isArray(val) ? val : [val];
+    }
 
     return (
         <div className="flex min-h-screen flex-col bg-[linear-gradient(135deg,#e6f1fe_0%,#ffffff_50%,#f0f7ff_100%)] print:bg-white">
@@ -182,10 +188,15 @@ export default async function ResultadoPage({ params }: PageProps) {
                 </h2>
                 <div className="flex flex-col gap-2.5">
                     {result.exam.questions.map((q, idx) => {
-                        const selectedId = answerMap[q.id];
-                        const correctOption = q.options.find((o) => o.isCorrect);
-                        const selectedOption = q.options.find((o) => o.id === selectedId);
-                        const isCorrect = selectedId === correctOption?.id;
+                        const selectedIds = getSelectedIds(answerMap[q.id]);
+                        const correctOptions = q.options.filter((o) => o.isCorrect);
+                        const correctSet = new Set(correctOptions.map((o) => o.id));
+                        const selectedSet = new Set(selectedIds);
+                        const isCorrect =
+                            selectedSet.size > 0 &&
+                            correctSet.size === selectedSet.size &&
+                            [...correctSet].every((id) => selectedSet.has(id));
+                        const selectedOptions = q.options.filter((o) => selectedIds.includes(o.id));
 
                         return (
                             <div
@@ -218,11 +229,17 @@ export default async function ResultadoPage({ params }: PageProps) {
                                     <div className="mt-2 ml-8 flex flex-col gap-1 text-[13px]">
                                         <p className="text-destructive">
                                             <span className="font-semibold">Tu respuesta:</span>{' '}
-                                            {selectedOption?.text ?? 'Sin respuesta'}
+                                            {selectedOptions.length > 0
+                                                ? selectedOptions.map((o) => o.text).join(', ')
+                                                : 'Sin respuesta'}
                                         </p>
                                         <p className="text-success">
-                                            <span className="font-semibold">Correcta:</span>{' '}
-                                            {correctOption?.text}
+                                            <span className="font-semibold">
+                                                {correctOptions.length > 1
+                                                    ? 'Correctas:'
+                                                    : 'Correcta:'}
+                                            </span>{' '}
+                                            {correctOptions.map((o) => o.text).join(', ')}
                                         </p>
                                     </div>
                                 )}
