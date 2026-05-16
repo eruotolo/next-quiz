@@ -1,7 +1,9 @@
 import { ExamCarousel } from '@/features/exam-session/components/ExamCarousel';
-import { prisma } from '@/shared/lib/prisma';
+import { buildQuestionSeed, seededShuffle } from '@/features/exam-session/lib/shuffle';
 import { getStudentSession } from '@/features/exam-session/lib/session';
-import type { SafeExam } from '@/features/exam-session/types/exam.types';
+import type { SafeExam, SafeQuestion } from '@/features/exam-session/types/exam.types';
+import { prisma } from '@/shared/lib/prisma';
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 interface PageProps {
@@ -21,7 +23,12 @@ export default async function ExamPage({ params }: PageProps) {
         include: {
             questions: {
                 orderBy: { order: 'asc' },
-                include: {
+                select: {
+                    id: true,
+                    text: true,
+                    points: true,
+                    order: true,
+                    questionType: true,
                     options: {
                         select: { id: true, text: true },
                         orderBy: { createdAt: 'asc' },
@@ -33,20 +40,42 @@ export default async function ExamPage({ params }: PageProps) {
 
     if (!exam) redirect('/examen/login');
 
+    // oneAttempt: redirect to existing result if student already completed this exam
+    if (exam.oneAttempt) {
+        const existingResult = await prisma.result.findUnique({
+            where: { studentId_examId: { studentId: session.studentId, examId } },
+            select: { id: true },
+        });
+        if (existingResult) redirect(`/examen/resultado/${existingResult.id}`);
+    }
+
+    // uniqueIp: block if another student already answered from the same IP
+    if (exam.uniqueIp) {
+        const requestHeaders = await headers();
+        const clientIp =
+            requestHeaders.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+            requestHeaders.get('x-real-ip') ??
+            null;
+        if (clientIp) {
+            const ipConflict = await prisma.answer.findFirst({
+                where: { examId, ip: clientIp, NOT: { studentId: session.studentId } },
+                select: { id: true },
+            });
+            if (ipConflict) redirect('/examen/login');
+        }
+    }
+
+    const orderedQuestions: SafeQuestion[] = exam.randomizeQuestions
+        ? seededShuffle(exam.questions, buildQuestionSeed(session.attemptKey, exam.id))
+        : exam.questions;
+
     const safeExam: SafeExam = {
         id: exam.id,
         title: exam.title,
         timeLimit: exam.timeLimit,
-        questionType: exam.questionType,
         antiCheatEnabled: exam.antiCheatEnabled,
-        questions: exam.questions.map((q) => ({
-            id: q.id,
-            text: q.text,
-            points: q.points,
-            order: q.order,
-            questionType: q.questionType,
-            options: q.options,
-        })),
+        lockTabSwitch: exam.lockTabSwitch,
+        questions: orderedQuestions,
     };
 
     const remainingSeconds = Math.max(0, Math.ceil((session.endsAt - Date.now()) / 1000));

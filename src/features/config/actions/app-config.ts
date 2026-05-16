@@ -26,6 +26,10 @@ export async function getAppConfig(): Promise<AppConfigMap> {
         [APP_CONFIG_KEY.BREVO_API_KEY]: '',
         [APP_CONFIG_KEY.BREVO_SENDER_EMAIL]: '',
         [APP_CONFIG_KEY.BREVO_SENDER_NAME]: '',
+        [APP_CONFIG_KEY.SEO_GLOBAL_TITLE]: '',
+        [APP_CONFIG_KEY.SEO_GLOBAL_DESCRIPTION]: '',
+        [APP_CONFIG_KEY.SEO_GLOBAL_KEYWORDS]: '',
+        [APP_CONFIG_KEY.SEO_GLOBAL_OG_IMAGE]: '',
     };
     for (const c of configs) {
         if (c.key in defaults) {
@@ -36,7 +40,15 @@ export async function getAppConfig(): Promise<AppConfigMap> {
 }
 
 const saveSchema = z.object({
-    key: z.enum([APP_CONFIG_KEY.BREVO_API_KEY, APP_CONFIG_KEY.BREVO_SENDER_EMAIL, APP_CONFIG_KEY.BREVO_SENDER_NAME]),
+    key: z.enum([
+        APP_CONFIG_KEY.BREVO_API_KEY,
+        APP_CONFIG_KEY.BREVO_SENDER_EMAIL,
+        APP_CONFIG_KEY.BREVO_SENDER_NAME,
+        APP_CONFIG_KEY.SEO_GLOBAL_TITLE,
+        APP_CONFIG_KEY.SEO_GLOBAL_DESCRIPTION,
+        APP_CONFIG_KEY.SEO_GLOBAL_KEYWORDS,
+        APP_CONFIG_KEY.SEO_GLOBAL_OG_IMAGE,
+    ]),
     value: z.string(),
 });
 

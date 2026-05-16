@@ -22,7 +22,6 @@ describe('QuestionCard', () => {
         render(
             <QuestionCard
                 question={mockQuestion}
-                examQuestionType="UNICA"
                 questionNumber={1}
                 totalQuestions={5}
                 selectedOptionIds={[]}
@@ -36,7 +35,6 @@ describe('QuestionCard', () => {
         render(
             <QuestionCard
                 question={mockQuestion}
-                examQuestionType="UNICA"
                 questionNumber={2}
                 totalQuestions={10}
                 selectedOptionIds={[]}
@@ -50,7 +48,6 @@ describe('QuestionCard', () => {
         render(
             <QuestionCard
                 question={mockQuestion}
-                examQuestionType="UNICA"
                 questionNumber={1}
                 totalQuestions={3}
                 selectedOptionIds={[]}
@@ -66,7 +63,6 @@ describe('QuestionCard', () => {
         render(
             <QuestionCard
                 question={mockQuestion}
-                examQuestionType="UNICA"
                 questionNumber={1}
                 totalQuestions={3}
                 selectedOptionIds={[]}
@@ -83,7 +79,6 @@ describe('QuestionCard', () => {
         render(
             <QuestionCard
                 question={mockQuestion}
-                examQuestionType="UNICA"
                 questionNumber={1}
                 totalQuestions={3}
                 selectedOptionIds={[]}
@@ -98,7 +93,6 @@ describe('QuestionCard', () => {
         const { getAllByRole } = render(
             <QuestionCard
                 question={mockQuestion}
-                examQuestionType="UNICA"
                 questionNumber={1}
                 totalQuestions={3}
                 selectedOptionIds={['opt-b']}
@@ -114,7 +108,6 @@ describe('QuestionCard', () => {
         render(
             <QuestionCard
                 question={mockQuestion}
-                examQuestionType="UNICA"
                 questionNumber={1}
                 totalQuestions={3}
                 selectedOptionIds={['opt-a']}
@@ -131,7 +124,6 @@ describe('QuestionCard', () => {
         render(
             <QuestionCard
                 question={mockQuestion}
-                examQuestionType="UNICA"
                 questionNumber={1}
                 totalQuestions={3}
                 selectedOptionIds={[]}
@@ -143,31 +135,30 @@ describe('QuestionCard', () => {
         for (const btn of buttons) expect(btn).toBeDisabled()
     })
 
-    it('shows multi-select hint for MULTIPLE exam type', () => {
+    it('shows "Respuesta múltiple" for MULTIPLE question type', () => {
+        const multipleQuestion = { ...mockQuestion, questionType: 'MULTIPLE' as const }
         render(
             <QuestionCard
-                question={mockQuestion}
-                examQuestionType="MULTIPLE"
+                question={multipleQuestion}
                 questionNumber={1}
                 totalQuestions={3}
                 selectedOptionIds={[]}
                 onSelect={vi.fn()}
             />,
         )
-        expect(screen.getByText('Seleccioná todas las que correspondan')).toBeInTheDocument()
+        expect(screen.getByText('Respuesta múltiple')).toBeInTheDocument()
     })
 
-    it('does not show multi-select hint for UNICA exam type', () => {
+    it('shows "Respuesta simple" for UNICA question type', () => {
         render(
             <QuestionCard
                 question={mockQuestion}
-                examQuestionType="UNICA"
                 questionNumber={1}
                 totalQuestions={3}
                 selectedOptionIds={[]}
                 onSelect={vi.fn()}
             />,
         )
-        expect(screen.queryByText('Seleccioná todas las que correspondan')).not.toBeInTheDocument()
+        expect(screen.getByText('Respuesta simple')).toBeInTheDocument()
     })
 })

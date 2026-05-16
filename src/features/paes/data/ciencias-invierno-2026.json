@@ -1,0 +1,2271 @@
+{
+  "subject": "ciencias",
+  "title": "Ciencias (Electivo Biología)",
+  "source": "DEMRE — PAES Invierno 2026",
+  "sourceUrl": "https://demre.cl/publicaciones/2026/pruebas-oficiales-paes-invierno-p2026",
+  "timeLimitMinutes": 160,
+  "questions": [
+    {
+      "id": "ci-01",
+      "number": 1,
+      "statement": "Una investigación comprobó que al mutar genéticamente una estructura de la bacteria E. coli, esta le permite adherirse a ciertas superficies y mantenerse rotando constantemente como una hélice. En este contexto, se propone que formar un nanodispositivo con dichas bacterias, dispuestas de forma alineada por el interior de la superficie de un tubo, facilitaría el desplazamiento de fluidos viscosos o difíciles de mover. A continuación, se presenta el esquema de un corte longitudinal de un tubo que se utilizaría en este sistema: En relación con la información anterior, ¿cuál de las siguientes opciones señala correctamente la estructura bacteriana que se manipuló para conformar este nanodispositivo?",
+      "options": [
+        {
+          "id": "ci-01-a",
+          "text": "El flagelo.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-01-b",
+          "text": "La cápsula.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-01-c",
+          "text": "La pared celular.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-01-d",
+          "text": "La membrana plasmática.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-02",
+      "number": 2,
+      "statement": "Un estudio en hepatocitos de rata muestra que existen intensidades de radiación infrarroja que generan un efecto sobre la función del retículo endoplásmico liso (REL) de estas células. Para esto, los hepatocitos de distintas ratas son estimulados durante 15 días consecutivos con distintas intensidades de radiación infrarroja, lo que causa modificaciones en el volumen del REL. Al respecto, ¿cuál de las siguientes opciones corresponde a una variable dependiente de este experimento?",
+      "options": [
+        {
+          "id": "ci-02-a",
+          "text": "La intensidad de radiación infrarroja.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-02-b",
+          "text": "El tiempo de irradiación.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-02-c",
+          "text": "El volumen del REL.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-02-d",
+          "text": "La línea celular utilizada.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-03",
+      "number": 3,
+      "statement": "Una patología que afecta a las células β pancreáticas es la diabetes tipo 2 (D2), que se caracteriza por una deficiencia en la secreción de insulina, generando un aumento de glucosa en la sangre. Por otra parte, varios estudios han identificado alteraciones estructurales y funcionales de las células  en personas con D2, las cuales aumentan la secreción de somatostatina, hormona que incrementa el déficit de insulina. Considerando estos antecedentes, un equipo médico plantea un “análisis morfológico de células  en humanos, en los cuales se aplicarán técnicas de detección de insulina y somatostatina en secciones del páncreas de individuos diabéticos y no diabéticos”. Considerando este caso de estudio, ¿a qué componente de la investigación científica corresponde el texto entre comillas?",
+      "options": [
+        {
+          "id": "ci-03-a",
+          "text": "Al objetivo.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-03-b",
+          "text": "Al marco conceptual.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-03-c",
+          "text": "Al diseño experimental.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-03-d",
+          "text": "Al procedimiento experimental.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-04",
+      "number": 4,
+      "statement": "En los individuos machos de una especie en peligro de extinción, se ha descrito que existen anomalías en el contenido del acrosoma de sus espermatozoides. Ante esta situación, un grupo de científicas realizó un estudio en donde se probó un nuevo fármaco en uno de estos individuos, resultando en una mejora del contenido acrosomal. Sin embargo, la comisión que revisó el protocolo experimental implementado rechazó la utilización de este fármaco, indicando que dicho protocolo presentaba una baja confiabilidad. En relación con el contexto planteado, ¿cuál de las siguientes opciones presenta una acción que permite superar la deficiencia por la que se rechazó este estudio?",
+      "options": [
+        {
+          "id": "ci-04-a",
+          "text": "Evaluar el fármaco en individuos de distintas especies.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-04-b",
+          "text": "Evaluar el fármaco en individuos sin problemas acrosomales.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-04-c",
+          "text": "Evaluar el fármaco en individuos sin problemas de conservación biológica.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-04-d",
+          "text": "Evaluar el fármaco en un número mayor de individuos de la misma especie.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-05",
+      "number": 5,
+      "statement": "Un grupo de científicos pretende estudiar el efecto de una droga X sobre la viabilidad de los gametos femeninos. Se sabe que si los ovocitos se exponen a una cierta concentración de X, experimentan una alteración de sus componentes celulares, lo que provoca la fecundación por más de un espermatozoide. A partir de lo anterior, ¿cuál de las siguientes opciones propone un mecanismo de acción correcto para la droga X?",
+      "options": [
+        {
+          "id": "ci-05-a",
+          "text": "La exposición del ovocito a X provoca la desintegración de la zona pelúcida.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-05-b",
+          "text": "La exposición del ovocito a X provoca el engrosamiento de la corona radiada.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-05-c",
+          "text": "La exposición del ovocito a X impide la liberación del contenido del acrosoma del espermatozoide.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-05-d",
+          "text": "La exposición del ovocito a X inhibe la fusión de la membrana plasmática del ovocito con la del espermatozoide.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-06",
+      "number": 6,
+      "statement": "Un grupo de investigación está llevando a cabo ensayos clínicos con elagolix, un fármaco propuesto para mejorar la regularidad del ciclo menstrual en mujeres con síndrome de ovario poliquístico (SOP). Para su estudio, seleccionaron un total de 100 mujeres con SOP, divididas en distintos grupos, a los cuales se les administró distintas dosis de elagolix, evaluando posteriormente la aparición del folículo dominante (el que terminará madurando) durante el ciclo, así como la duración de este. En sus resultados, un 3 % de las mujeres presentaron una mejora en la regulación del ciclo menstrual, las cuales correspondían al grupo al que se le administró una dosis de 300 mg/día, mientras que el resto de ellas mantuvo sus periodos irregulares. Considerando estos antecedentes, ¿cuál de las siguientes opciones presenta el objetivo de investigación?",
+      "options": [
+        {
+          "id": "ci-06-a",
+          "text": "Determinar la dosis óptima de elagolix para promover la ovulación en mujeres con SOP.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-06-b",
+          "text": "Investigar el efecto de elagolix sobre el tamaño del folículo dominante en mujeres con SOP.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-06-c",
+          "text": "Conocer los efectos secundarios asociados con el uso de elagolix en mujeres que presentan SOP.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-06-d",
+          "text": "Evaluar la eficacia de elagolix en el aumento de la tasa de fecundación en mujeres que muestran anovulación crónica.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-07",
+      "number": 7,
+      "statement": "La Organización Mundial de la Salud realizó recientemente un estudio, a través de encuestas personales e informes clínicos, que busca evaluar la capacidad protectora de los preservativos contra las infecciones de transmisión sexual (ITS). Los resultados obtenidos se indican en la siguiente tabla: ITS Porcentaje de protección VIH/SIDA >90 Hepatitis B >90 Gonorrea 80 Sífilis 50 - 80 Herpes 10 - 50 En relación con los datos del estudio, ¿cuál de las siguientes conclusiones es correcta?",
+      "options": [
+        {
+          "id": "ci-07-a",
+          "text": "Los preservativos son más efectivos para impedir la propagación de patógenos de mayor tamaño.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-07-b",
+          "text": "Los preservativos son menos efectivos para impedir la propagación de ITS con tiempos de incubación prolongados.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-07-c",
+          "text": "Los preservativos son más efectivos para impedir la propagación de los patógenos bacterianos que de los virales.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-07-d",
+          "text": "Los preservativos son menos efectivos para impedir la propagación de ITS que producen lesiones que liberan secreción.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-08",
+      "number": 8,
+      "statement": "En la década de 1770, un investigador se dedicó a experimentar con muestras seminales, exponiéndolas a diferentes medios como ácido acético, bicarbonato de sodio y distintos alcoholes. El investigador concluyó que, al exponer las células sexuales a distintas concentraciones de estos medios, disminuía e incluso se inhibía la capacidad de fertilización. En este contexto, ¿cuál de las siguientes opciones indica un método anticonceptivo que pudo haber tenido como base el experimento descrito?",
+      "options": [
+        {
+          "id": "ci-08-a",
+          "text": "Preservativo.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-08-b",
+          "text": "Espermicida.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-08-c",
+          "text": "Vasectomía.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-08-d",
+          "text": "Diafragma.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-09",
+      "number": 9,
+      "statement": "Un hospital estadounidense informó de un caso de posible cura de VIH, correspondiente a una persona VIH+ quien además tenía leucemia. Esta persona estaba en tratamiento convencional para controlar el VIH (antiretrovirales) y además recibió un trasplante de células madres como parte del tratamiento contra la leucemia. Las células de este trasplante provenían del cordón umbilical de un donante que presentaba una mutación genética específica, lo que impedía a estas células ser infectadas por el virus del VIH. Al respecto, ¿cuál de las siguientes opciones corresponde a una evidencia que permitiría corroborar la efectividad del trasplante de células madres como tratamiento para el VIH?",
+      "options": [
+        {
+          "id": "ci-09-a",
+          "text": "Una disminución similar de la carga viral tanto con el tratamiento convencional como con el trasplante.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-09-b",
+          "text": "Una disminución de la carga viral volviéndola prácticamente indetectable postrasplante sin usar el tratamiento convencional.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-09-c",
+          "text": "Una disminución sostenida de la carga viral usando el tratamiento convencional luego del trasplante.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-09-d",
+          "text": "Una disminución de la carga viral antes del trasplante usando el tratamiento convencional.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-10",
+      "number": 10,
+      "statement": "En un laboratorio se ha descubierto una molécula fluorescente que se intercala en el ADN, lo que permite realizar estudios sobre los grados de compactación del material genético. Cuando esta molécula es excitada, emite una señal luminosa cuya intensidad depende de la proximidad entre estas moléculas. Una investigadora decide agregar una pequeña cantidad de esta molécula a células en cultivo, para luego observar la intensidad de la señal luminosa a lo largo de su ciclo celular, tal como se representa en el siguiente gráfico: Con base en lo anterior, ¿cuál de las siguientes opciones corresponde a la pregunta de investigación que pudo haber guiado este estudio?",
+      "options": [
+        {
+          "id": "ci-10-a",
+          "text": "¿Cuál es el mecanismo por el cual la molécula fluorescente se intercala en el ADN durante el ciclo celular?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-10-b",
+          "text": "¿Cómo se degrada la molécula fluorescente a lo largo del ciclo celular?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-10-c",
+          "text": "¿Cómo la molécula fluorescente modifica los grados de compactación del ADN durante el ciclo celular?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-10-d",
+          "text": "¿Cuál es el grado de compactación del ADN a lo largo del ciclo celular?",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-11",
+      "number": 11,
+      "statement": "Un grupo de investigación quiere determinar la mínima concentración a la cual dos nuevos fármacos (X e Y) presentan actividad antiproliferativa, como una nueva estrategia terapéutica antitumoral. Para cumplir con el objetivo, poseen cultivos con la misma cantidad de células tumorales, a los cuales agregan diferentes concentraciones de ambos fármacos en estudio. A pesar de repetir el experimento cuatro veces, bajo las mismas condiciones, los resultados no logran ser concluyentes. Con respecto al protocolo descrito, ¿cuál es un error de procedimiento que impide cumplir con el objetivo de la investigación?",
+      "options": [
+        {
+          "id": "ci-11-a",
+          "text": "Variar la concentración de los fármacos.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-11-b",
+          "text": "Utilizar en un mismo cultivo ambos fármacos al mismo tiempo.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-11-c",
+          "text": "Utilizar la misma cantidad inicial de células tumorales.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-11-d",
+          "text": "Realizar réplicas del experimento bajo las mismas condiciones.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-12",
+      "number": 12,
+      "statement": "Los complejos sinaptonémicos (CS) son estructuras proteicas específicas que aparecen durante la profase I. En una investigación, se estudió la relación entre estas estructuras con el apareamiento de los cromosomas y la ocurrencia de recombinación genética en meiosis. La correspondencia de estos conceptos en distintas especies animales se resume en la siguiente tabla: Apareamiento Recombinación genética Especie CS cromosomas 1 – + – 2 + + + 3 – + – 4 + + – 5 + + + (+): presencia (–): ausencia En relación con el análisis de los resultados de este estudio, ¿cuál de las siguientes opciones es una inferencia correcta?",
+      "options": [
+        {
+          "id": "ci-12-a",
+          "text": "Para que se produzca la recombinación genética, se requiere la presencia del CS y el apareamiento de cromosomas durante la profase I.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-12-b",
+          "text": "La presencia de CS es uno de los factores que se necesitan para producir la recombinación genética.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-12-c",
+          "text": "Las proteínas del CS son indispensables para que ocurra recombinación genética y apareamiento de cromosomas.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-12-d",
+          "text": "En profase I, la presencia del CS es una condición imprescindible para la ocurrencia del apareamiento cromosómico.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-13",
+      "number": 13,
+      "statement": "Una investigación se ha centrado en el estudio sobre la aneuploidía (número anormal de cromosomas) en gametos provenientes de personas adultas y su relación con una proteína. En particular, se extrajeron ovocitos de mujeres mayores de 35 años y se determinó la cantidad de la proteína SCC1, cuya función es mantener la cohesión entre las cromátidas hermanas durante la meiosis. En relación con lo anterior, ¿cuál de las siguientes opciones corresponde a la hipótesis que guio el estudio?",
+      "options": [
+        {
+          "id": "ci-13-a",
+          "text": "Los ovocitos con un número anormal de cromosomas en mujeres de edad reproductiva avanzada tienen una mayor actividad de la proteína SCC1.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-13-b",
+          "text": "La dotación cromosómica de los gametos de humanos mayores a 35 años se ve afectada por la disminución de la proteína SCC1.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-13-c",
+          "text": "Las aneuploidías en los ovocitos de mujeres de edad reproductiva avanzada se relacionan con la disminución en la cantidad de proteína SCC1.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-13-d",
+          "text": "Las aneuploidías presentes en gametos de humanos mayores a 35 años son causadas por la disminución de la función de la proteína SCC1.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-14",
+      "number": 14,
+      "statement": "En una investigación se propuso obtener evidencia embriológica a favor del parentesco evolutivo entre dos especies de mamíferos (1 y 2) de hábitat cordillerano, separadas por una barrera geográfica. Para tal efecto, se examinaron embriones de ambas especies durante su gestación y se registró el momento exacto en que una estructura corporal X, derivada del mismo grupo celular en ambas especies, aparece en los respectivos embriones. A partir de lo anterior, ¿cuál de las siguientes opciones identifica correctamente las variables de esta investigación? Variable independiente Variable dependiente",
+      "options": [
+        {
+          "id": "ci-14-a",
+          "text": "Grado de parentesco Tiempo de aparición de la evolutivo estructura X",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-14-b",
+          "text": "Tamaño de la barrera Grado de parentesco geográfica evolutivo",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-14-c",
+          "text": "Especie respectiva de Grado de parentesco mamífero cordillerano evolutivo",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-14-d",
+          "text": "Especie respectiva de Tiempo de aparición de la mamífero cordillerano estructura X",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-15",
+      "number": 15,
+      "statement": "Una investigadora se encuentra estudiando la historia biológica y geológica de un sector del litoral central de nuestro país. Para eso, en una columna de estratos, observa los restos fósiles de diferentes especies ya extintas comparando las diferentes profundidades en las que se encuentra cada fósil. Los resultados se presentan en el siguiente modelo: A partir de lo anterior, ¿cuál de las siguientes preguntas de investigación se podría responder directamente con estos resultados?",
+      "options": [
+        {
+          "id": "ci-15-a",
+          "text": "¿Cuál de las especies encontradas en la columna es la más antigua y la más reciente?",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-15-b",
+          "text": "¿Cuál de las especies encontradas en la columna estaría adaptada al ambiente actual?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-15-c",
+          "text": "¿Cuál es la causa por la que las especies encontradas en la columna se extinguieron?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-15-d",
+          "text": "¿Cuál es la condición que favoreció la fosilización de las especies encontradas en la columna?",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-16",
+      "number": 16,
+      "statement": "El proceso de la fotosíntesis se resume en la siguiente ecuación: CO2 + H2O C6H12O6 + O2 Considerando esta ecuación, dos estudiantes evalúan por separado la fotosíntesis, sin embargo, no lograban ponerse de acuerdo sobre el origen del O 2 producido. Mientras el primero postulaba que provenía del CO2, el otro situaba su origen en la molécula de H2O. Según estos antecedentes, ¿cuál de los siguientes procedimientos de investigación contribuye a resolver la problemática entre ambos estudiantes?",
+      "options": [
+        {
+          "id": "ci-16-a",
+          "text": "Utilizar dos grupos de plantas, ambos expuestos a abundante luz, y tratarlas con C6H12O6 radiactiva y H2O normal, para luego analizar la presencia de O2 radiactivo.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-16-b",
+          "text": "Utilizar dos grupos de plantas y tratarlas simultáneamente con moléculas radiactivas de CO2 y H2O, para luego evaluar la presencia de O2 radiactivo en el medio.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-16-c",
+          "text": "Utilizar dos grupos de plantas, uno tratado con CO 2 radiactivo y H2O normal, y otro con H2O radiactivo y CO2 normal, y luego evaluar la presencia de O2 radiactivo en cada grupo.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-16-d",
+          "text": "Utilizar dos grupos de plantas, uno tratado con H2O radiactivo y O2 normal, y el otro con H2O normal y C6H12O6 radiactivo, y luego evaluar la presencia de O2 radiactivo de ambos grupos.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-17",
+      "number": 17,
+      "statement": "La fotosíntesis es un proceso que se ve influido por la temperatura, debido a que ciertas enzimas fotosintéticas son sensibles a este parámetro. Para una determinada alga, el rango óptimo es entre 15 °C y 20 °C, y cuando la temperatura desciende bajo los 10 °C o aumenta por sobre los 40 °C, estas enzimas pierden su funcionalidad. En este contexto, un grupo de científicas realizó un experimento para cuantificar la tasa fotosintética de esta alga, ubicándola en una cámara de vidrio con agua a temperatura ambiente (18 °C) y luego midió la cantidad de O2 producido. Si un segundo grupo de científicas realizó el experimento mencionado, pero el alga usada no generó O2, ¿cuál de las siguientes opciones corresponde a una posible explicación de la diferencia entre ambos experimentos?",
+      "options": [
+        {
+          "id": "ci-17-a",
+          "text": "Las algas del segundo experimento fueron sometidas a una temperatura de 14 °C.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-17-b",
+          "text": "Las algas del segundo experimento fueron sometidas a una temperatura de 19 °C.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-17-c",
+          "text": "Las algas del segundo experimento fueron sometidas a una temperatura de 8 °C.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-17-d",
+          "text": "Las algas del segundo experimento fueron sometidas a una temperatura de 23 °C.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-18",
+      "number": 18,
+      "statement": "Una estudiante se encuentra estudiando un diagrama que corresponde al modelo de flujo de energía, medida en Joule (J), en el cual se muestra el ingreso de energía a un ecosistema terrestre, proveniente de tres especies vegetales (E1, E2, E3). A partir de la energía entrante, se produce biomasa vegetal, la que luego es utilizada en la respiración por parte de los organismos de las distintas cadenas tróficas de este ecosistema: Según la evidencia presentada, ¿cuál de las siguientes conclusiones es correcta?",
+      "options": [
+        {
+          "id": "ci-18-a",
+          "text": "La eficiencia en la fijación de energía en las tres especies vegetales es similar.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-18-b",
+          "text": "El mayor gasto energético del ecosistema se debe a la producción de biomasa vegetal.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-18-c",
+          "text": "La principal vía de aporte energético al ecosistema es la respiración realizada por los organismos.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-18-d",
+          "text": "La cantidad de energía en el ecosistema se conserva durante las transformaciones.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-19",
+      "number": 19,
+      "statement": "Un grupo de estudiantes hace incidir un rayo luminoso desde el aire hacia el vidrio y mide la frecuencia del rayo incidente, reflejado y refractado, los cuales se representan en la siguiente figura: A partir de lo anterior, ¿cuál de los siguientes objetivos de investigación se relaciona directamente con el procedimiento realizado?",
+      "options": [
+        {
+          "id": "ci-19-a",
+          "text": "Comprobar si en el instante de la incidencia hay reflexión y refracción simultáneamente.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-19-b",
+          "text": "Comprobar si en el instante de la incidencia hay absorción de color del rayo incidente.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-19-c",
+          "text": "Comprobar si los rayos incidente, reflejado y refractado, están en mismo plano.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-19-d",
+          "text": "Comprobar si los rayos incidente, reflejado y refractado, tienen el mismo color.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-20",
+      "number": 20,
+      "statement": "Una investigación reciente demostró que un nuevo material, diseñado específicamente para bloquear un espectro muy amplio de ondas electromagnéticas, logró una eficiencia del 99,9 %. Al respecto, ¿qué producto tecnológico podría diseñarse a partir de este material?",
+      "options": [
+        {
+          "id": "ci-20-a",
+          "text": "Un recubrimiento para trajes de astronautas",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-20-b",
+          "text": "Un recubrimiento para antenas parabólicas",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-20-c",
+          "text": "Un aislante para materiales de construcción",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-20-d",
+          "text": "Un amplificador de señal para dispositivos inalámbricos",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-21",
+      "number": 21,
+      "statement": "Un grupo de estudiantes encuentra, en el informe de 2021 del Ministerio del Medio Ambiente, la siguiente información sobre las características de dos tipos de luz led con sus respectivos colores: A partir del análisis de los gráficos, ¿cuál de las siguientes conclusiones es correcta?",
+      "options": [
+        {
+          "id": "ci-21-a",
+          "text": "La intensidad relativa para longitudes de onda de 550 nm es mayor en luces led de mayor temperatura.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-21-b",
+          "text": "La intensidad relativa para longitudes de onda de 450 nm es menor en luces led de menor temperatura.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-21-c",
+          "text": "La intensidad relativa es directamente proporcional a la longitud de onda en ambos tipos de luz led.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-21-d",
+          "text": "La intensidad relativa de la luz determina la temperatura y el color de la luz led.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-22",
+      "number": 22,
+      "statement": "Cuatro jóvenes se encuentran estudiando el perfil de tres ondas electromagnéticas (onda X, Y y Z) que se propagan en un mismo medio, graficados todos a una misma escala, tal como se representa en la siguiente figura: Considerando el análisis de los perfiles de las ondas X, Y y Z, ¿cuál de las siguientes conclusiones es correcta?",
+      "options": [
+        {
+          "id": "ci-22-a",
+          "text": "El periodo de las ondas X, Y y Z es el mismo.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-22-b",
+          "text": "La longitud de onda de las ondas X, Y y Z es la misma.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-22-c",
+          "text": "La velocidad de la onda Y es mayor que la velocidad de la onda Z.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-22-d",
+          "text": "La frecuencia de la onda X es mayor que la frecuencia de la onda Z.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-23",
+      "number": 23,
+      "statement": "Durante una actividad experimental, un grupo de estudiantes observa las imágenes que distintos tipos de espejos forman de un mismo objeto, manteniendo fija la distancia entre el objeto y cada espejo. Luego, registran los cambios de altura y orientación observadas en las imágenes respecto al objeto, tal como se indica en la siguiente tabla: Altura de la imagen con Orientación vertical de la Espejo respecto al objeto imagen con respecto al objeto 1 Igual Derecha 2 Más grande Derecha 3 Igual Invertida 4 Más pequeña Derecha A partir de la información de la tabla, ¿cuál de las siguientes inferencias es correcta?",
+      "options": [
+        {
+          "id": "ci-23-a",
+          "text": "Los espejos 1 y 4 corresponden a espejos curvos con idéntica distancia focal.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-23-b",
+          "text": "Los espejos 1 y 3 corresponden a espejos planos con las mismas dimensiones.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-23-c",
+          "text": "Los espejos 2 y 3 corresponden a un mismo tipo de espejo curvo con diferente distancia focal.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-23-d",
+          "text": "Los espejos 1 y 2 corresponden a un mismo tipo de espejo curvo con la misma distancia focal.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-24",
+      "number": 24,
+      "statement": "Un grupo de estudiantes desea determinar experimentalmente si el tamaño de una imagen generada por una lente divergente está relacionado con el radio de curvatura del lente. Parte del procedimiento consiste en ubicar el objeto frente a una lente y detrás de ella una cámara digital, con la cual toman una foto y luego con una regla miden el tamaño de la imagen en la pantalla de su cámara. A partir de lo anterior, ¿cuál de las siguientes acciones complementa de mejor forma el procedimiento experimental realizado por el grupo de estudiantes para lograr el objetivo planteado?",
+      "options": [
+        {
+          "id": "ci-24-a",
+          "text": "Reemplazar la lente por otra diferente y volver a tomar una foto.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-24-b",
+          "text": "Reemplazar el objeto por otro diferente y volver a tomar una foto.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-24-c",
+          "text": "Ubicar la cámara entre la lente y el objeto, y volver a tomar una foto.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-24-d",
+          "text": "Aumentar la distancia entre la lente y el objeto, y volver a tomar una foto.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-25",
+      "number": 25,
+      "statement": "Durante una actividad experimental, una estudiante fija un globo desinflado a los bordes de un plato hondo, cubriéndolo completamente hasta dejar tenso el globo, simulando una cama elástica. Luego deja caer, desde cierta altura, una canica sobre el globo tenso, observando que el globo se hunde levemente y que la canica rebota. Al respecto, ¿cuál de los siguientes hechos explica correctamente lo observado por la estudiante?",
+      "options": [
+        {
+          "id": "ci-25-a",
+          "text": "La fuerza que la canica ejerce sobre el globo es proporcional a la altura desde donde se suelta la canica.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-25-b",
+          "text": "La fuerza que ejerce la canica sobre el globo depende de cuan tenso esté el globo en la superficie del plato.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-25-c",
+          "text": "La canica ejerce una fuerza sobre el globo en sentido contrario a la fuerza que el globo ejerce sobre la misma.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-25-d",
+          "text": "La altura que alcanza la canica luego de rebotar sobre el globo se relaciona directamente con la tensión que el globo tiene en el plato.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-26",
+      "number": 26,
+      "statement": "A un bloque que se encuentra inicialmente en reposo sobre una superficie horizontal rugosa se le aplica una fuerza de manera horizontal variable. El gráfico I muestra cómo varía la fuerza de roce en función de la fuerza aplicada, por otra parte el gráfico II muestra cómo varía su rapidez mientras se le aplica dicha fuerza. En relación con el análisis de los gráficos, ¿cuál de las siguientes opciones es una conclusión correcta respecto al movimiento del bloque?",
+      "options": [
+        {
+          "id": "ci-26-a",
+          "text": "Entre P y Q, el cuerpo se encuentra en reposo dado que la fuerza aplicada tiene la misma magnitud que la fuerza de roce.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-26-b",
+          "text": "Entre Q y R, el cuerpo se encuentra en reposo dado que la fuerza de roce es siempre la misma.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-26-c",
+          "text": "Entre Q y R, el cuerpo se encuentra en movimiento bajo roce estático dado que la fuerza de roce es siempre la misma.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-26-d",
+          "text": "Entre P y Q, el cuerpo se encuentra en movimiento bajo roce cinético dado que, a medida que aumenta la fuerza aplicada, aumenta también la fuerza de roce.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-27",
+      "number": 27,
+      "statement": "Un grupo de estudiantes forma un sistema de dos bloques de masas idénticas unidos entre sí, y los ubica sobre una superficie horizontal. Unen un dinamómetro a uno de estos bloques para registrar la fuerza que se aplica al sistema, mientras son arrastrados con una rapidez constante, tal como se representa en la siguiente figura: Una vez obtenidos los resultados, el mismo grupo de estudiantes repite el procedimiento, pero esta vez superponiendo el bloque 2 sobre el bloque 1. Finalmente, comparan los resultados de las fuerzas aplicadas para ambos experimentos, observando que existe una diferencia despreciable entre los resultados obtenidos. En su informe, los estudiantes señalan que “la magnitud de la fuerza de roce es independiente del área de contacto entre los bloques y la superficie”. Al respecto, ¿a qué componente de la investigación científica corresponde lo señalado por el grupo de estudiantes en su informe?",
+      "options": [
+        {
+          "id": "ci-27-a",
+          "text": "A un marco conceptual.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-27-b",
+          "text": "A un procedimiento.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-27-c",
+          "text": "A una conclusión.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-27-d",
+          "text": "A una predicción.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-28",
+      "number": 28,
+      "statement": "Una persona plantea que la magnitud de la fuerza transmitida por una cuerda depende del lugar de la cuerda donde esta fuerza se mida. Para probar su hipótesis, cuelga del techo un bloque grande, del cual se cuelgan otros dos bloques pequeños, utilizando tres trozos de cuerda inextensibles y de masa despreciable (1, 2 y 3). El sistema se representa en la siguiente figura: A continuación, para probar su hipótesis, la persona va a intercalar un mismo dinamómetro en el sistema en dos ocasiones, ¿dónde debe intercalar el dinamómetro en cada ocasión?",
+      "options": [
+        {
+          "id": "ci-28-a",
+          "text": "Primero en la unión del techo con la cuerda 1 y luego, en la unión de la cuerda 3 con el bloque pequeño.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-28-b",
+          "text": "Primero en la unión de la cuerda 2 con el bloque grande y luego, en la unión de la cuerda 2 con el bloque pequeño.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-28-c",
+          "text": "Primero en la unión de la cuerda 3 con el bloque grande y luego, en la unión de la cuerda 2 con el bloque grande.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-28-d",
+          "text": "Primero en la unión de la cuerda 1 con el bloque grande y luego, nuevamente en la unión de la cuerda 1 con el bloque grande.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-29",
+      "number": 29,
+      "statement": "Una persona estudia la presión que ejercen los líquidos. Para ello, llena una botella con agua, que tiene pequeños orificios en diferentes posiciones, como se representa en la figura. Luego, registra el alcance del agua que sale por cada orificio. Si otra persona desea replicar los resultados de las mediciones realizadas, pero no posee la misma botella, ¿qué precaución debe tener al repetir el procedimiento?",
+      "options": [
+        {
+          "id": "ci-29-a",
+          "text": "Que los orificios se encuentren a las mismas profundidades que en la botella original, por debajo del nivel del agua.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-29-b",
+          "text": "Que el recipiente a utilizar tenga el mismo volumen que la botella original, aunque su forma sea diferente.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-29-c",
+          "text": "Que el agua contenida en el recipiente a utilizar llegue hasta la misma altura que en la botella original.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-29-d",
+          "text": "Que el área basal del recipiente a utilizar sea igual al área basal de la botella original.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-30",
+      "number": 30,
+      "statement": "Un grupo de estudiantes que investiga respecto a la presión, cuenta con un recipiente cilíndrico que contiene un líquido de densidad conocida y está provisto de un émbolo. En el costado del cilindro realizan tres orificios de igual diámetro, a diferente profundidad, y en cada uno de ellos conectan un tubo en forma de U por el cual asciende una pequeña cantidad del líquido hasta una cierta altura en función de h. Luego, presionan el émbolo y observan que el líquido en los tubos con forma de U aumenta su altura. La siguiente figura representa el experimento realizado por el grupo de estudiantes, en la tabla se muestra la altura del líquido en los tubos antes y después de presionar el émbolo: Altura Altura antes después Tubo 1 1,0 h 1,5 h Tubo 2 2,0 h 2,5 h Tubo 3 3,0 h 3,5 h Considerando el procedimiento y mediciones realizadas por los estudiantes, ¿cuál de las siguientes preguntas de investigación se buscaba responder?",
+      "options": [
+        {
+          "id": "ci-30-a",
+          "text": "¿Cuál es la relación que existe entre la densidad de un líquido y la presión que ejerce?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-30-b",
+          "text": "¿Cuál es la relación que existe entre la presión que ejerce un líquido y el área donde la ejerce?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-30-c",
+          "text": "¿Cómo cambia la presión en diferentes puntos de un líquido cuando se varía la densidad del mismo?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-30-d",
+          "text": "¿Cómo cambia la presión en diferentes puntos de un líquido cuando se varía la presión sobre su superficie?",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-31",
+      "number": 31,
+      "statement": "En un océano que no presenta fosas oceánicas, pero que sí tiene una dorsal oceánica que pasa por su centro, existen dos islas que se ubican en sus costas opuestas. Al respecto, ¿cuál de las siguientes opciones es una predicción consistente con lo planteado por la Teoría de Tectónica de Placas?",
+      "options": [
+        {
+          "id": "ci-31-a",
+          "text": "Ambas islas se debiesen estar alejando entre sí.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-31-b",
+          "text": "Nuevas islas debiesen surgir en el océano.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-31-c",
+          "text": "Debiese existir una gran sismicidad en ambas islas.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-31-d",
+          "text": "Ambas islas debiesen mantenerse en la misma posición.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-32",
+      "number": 32,
+      "statement": "Un grupo de estudiantes de meteorología desean estudiar las posibles relaciones entre presión atmosférica, temperatura, densidad del aire y altura por sobre el nivel del mar. Para esto, utilizan un globo meteorológico con un instrumento que registra los datos que se presentan en la siguiente tabla: Presión atmosférica Densidad del aire Altitud (km) Temperatura (°C) (mbar) (kg/m3) 0 1013 17 1,23 2,5 746 -1 0,96 5,0 540 -18 0,71 7,5 382 -34 0,54 10,0 264 -50 0,42 A partir de lo anterior, ¿cuál de las siguientes opciones presenta una conclusión correcta?",
+      "options": [
+        {
+          "id": "ci-32-a",
+          "text": "La temperatura aumenta cuando la altitud disminuye.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-32-b",
+          "text": "La densidad del aire disminuye cuando la altitud disminuye.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-32-c",
+          "text": "La temperatura aumenta cuando la densidad del aire disminuye.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-32-d",
+          "text": "La presión atmosférica disminuye cuando la temperatura aumenta.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-33",
+      "number": 33,
+      "statement": "Habitualmente, se habla de una ola de calor cuando en un periodo de al menos tres días seguidos la temperatura alcanza valores anormalmente altos, comparados con el promedio de las temperaturas máximas del lugar para el mismo periodo. Si una persona piensa que efectivamente durante la semana anterior hubo una ola de calor, conociendo el promedio de la temperatura máxima del lugar, ¿qué información necesita para corroborarlo?",
+      "options": [
+        {
+          "id": "ci-33-a",
+          "text": "El promedio de las temperaturas máximas y mínimas en los días más calurosos de la semana.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-33-b",
+          "text": "El promedio de la temperatura máxima alcanzada durante la misma semana del año anterior.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-33-c",
+          "text": "La variación de la temperatura promedio de la misma semana del año anterior.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-33-d",
+          "text": "La temperatura promedio de cada día de la semana por el periodo de un año.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-34",
+      "number": 34,
+      "statement": "Si un grupo de personas construye un circuito conectando dos resistencias en paralelo a una batería, ¿cuál de las siguientes opciones es coherente con la ley de Ohm y la configuración del circuito, al comparar la diferencia de potencial y la intensidad de corriente eléctrica en cada resistencia con la suministrada por la batería? Intensidad de corriente Diferencia de potencial eléctrica",
+      "options": [
+        {
+          "id": "ci-34-a",
+          "text": "Es menor Es igual",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-34-b",
+          "text": "Es igual Es menor",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-34-c",
+          "text": "Es menor Es mayor",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-34-d",
+          "text": "Es igual Es mayor",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-35",
+      "number": 35,
+      "statement": "Un estudiante construye un circuito eléctrico utilizando una pila, un amperímetro, una ampolleta y un interruptor conectados en serie. A continuación, cierra el circuito usando el interruptor y comienza a registrar, cada cinco minutos durante media hora, el valor de la intensidad de corriente medida por el amperímetro. A partir del procedimiento realizado por el estudiante, ¿cuál de las siguientes preguntas de investigación guio el procedimiento descrito?",
+      "options": [
+        {
+          "id": "ci-35-a",
+          "text": "¿Qué relación existe entre la diferencia de potencial de la pila y la intensidad de corriente del circuito?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-35-b",
+          "text": "¿Qué relación existe entre la diferencia de potencial de la pila y el tiempo de funcionamiento del circuito?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-35-c",
+          "text": "¿Cómo se relaciona el funcionamiento del interruptor con la intensidad de corriente del circuito?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-35-d",
+          "text": "¿Cómo se relaciona la intensidad de corriente con el tiempo de funcionamiento del circuito?",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-36",
+      "number": 36,
+      "statement": "Una persona está construyendo una cabaña y, para instalar su sistema eléctrico ha comprado cables de cobre, enchufes, interruptores y un medidor eléctrico. Al respecto, ¿cuál de los elementos mencionados anteriormente le permitiría conocer el consumo eléctrico de los artefactos eléctricos que usará en su cabaña?",
+      "options": [
+        {
+          "id": "ci-36-a",
+          "text": "Los enchufes.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-36-b",
+          "text": "Los interruptores.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-36-c",
+          "text": "El medidor eléctrico.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-36-d",
+          "text": "Los cables de cobre.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Química",
+      "isPilot": true
+    },
+    {
+      "id": "ci-37",
+      "number": 37,
+      "statement": "Con respecto a los cambios químicos y físicos ocurridos en la vida cotidiana, ¿cuál de las siguientes opciones corresponde a una situación que se fundamenta en un cambio físico?",
+      "options": [
+        {
+          "id": "ci-37-a",
+          "text": "Cuando una señal metálica en la carretera se torna rojiza en el tiempo.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-37-b",
+          "text": "Cuando se exhala sobre un espejo empañándolo y se forman minúsculas gotas de agua.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-37-c",
+          "text": "Cuando se retira la cáscara de una manzana y esta al cabo de unos minutos se torna de color marrón.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-37-d",
+          "text": "Cuando se agrega unas gotas de limón a una pequeña cantidad de bicarbonato de sodio y se produce un burbujeo intenso.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-38",
+      "number": 38,
+      "statement": "A comienzos del siglo XX, un científico propuso un modelo atómico formado por un núcleo y electrones girando a su alrededor. Este modelo surgió de experimentos donde hizo colisionar partículas positivas alfa contra una lámina delgada de oro, encontrando que la gran mayoría de las partículas alfa que colisionaron con la lámina no modificaron su trayectoria original. Sumado a lo anterior, una cantidad de una en cien mil partículas alfa no logró atravesar la lámina de oro, desviándose en dirección opuesta, y una cantidad aún menor de partículas alfa cambiaron su trayectoria al atravesar la lámina. De acuerdo con lo descrito anteriormente, ¿cuál de las siguientes inferencias es correcta?",
+      "options": [
+        {
+          "id": "ci-38-a",
+          "text": "El átomo está formado principalmente por espacio vacío.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-38-b",
+          "text": "El átomo tiene un núcleo que ocupa todo el volumen atómico.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-38-c",
+          "text": "El átomo tiene electrones que se repelen con las partículas alfa.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-38-d",
+          "text": "El átomo tiene partículas en su núcleo de carga contraria a las partículas alfa.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-39",
+      "number": 39,
+      "statement": "En la primera clase de química de Fernando, su profesor le pide elaborar una representación de un átomo neutro con cinco protones, según el conocimiento que ha adquirido previamente. El modelo de Fernando se presenta a continuación: Cuando el profesor observó la representación, notó que era incorrecta. Al respecto, ¿cuál de las siguientes opciones indica el error?",
+      "options": [
+        {
+          "id": "ci-39-a",
+          "text": "La ausencia de orbitales.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-39-b",
+          "text": "La cantidad de neutrones totales.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-39-c",
+          "text": "La cantidad de electrones totales.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-39-d",
+          "text": "El salto de electrones entre diferentes niveles.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Química",
+      "isPilot": false
+    },
+    {
+      "id": "ci-40",
+      "number": 40,
+      "statement": "Con respecto a los núcleos de los átomos X, Y y Z, simbolizados por: 60 56 59 27 X 26 Y 27 Z ¿Cuál de las siguientes opciones es correcta?",
+      "options": [
+        {
+          "id": "ci-40-a",
+          "text": "X e Y tienen distinto número de neutrones",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-40-b",
+          "text": "Y y Z tienen igual número de neutrones",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-40-c",
+          "text": "X y Z son elementos diferentes",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-40-d",
+          "text": "X e Y son elementos iguales",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Química",
+      "isPilot": false
+    },
+    {
+      "id": "ci-41",
+      "number": 41,
+      "statement": "Una estudiante de educación media quiere saber si existe una relación entre la hibridación del átomo de carbono (C) en un compuesto orgánico y su temperatura de ebullición. Para ello, se controlaron dos probables efectos: la longitud de la cadena de C y la presencia de elementos distintos a C e hidrógeno (H). A partir de lo anterior, ¿cuál de los siguientes procedimientos resumidos es adecuado para que la estudiante logre su objetivo?",
+      "options": [
+        {
+          "id": "ci-41-a",
+          "text": "Determinar la temperatura de ebullición de tres hidrocarburos formados por una cadena de dos átomos de C, uno que presente un enlace simple, otro un enlace doble y otro un enlace triple.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-41-b",
+          "text": "Determinar la temperatura de ebullición de tres hidrocarburos, uno formado por dos átomos de C y enlaces simples, otro por tres átomos de C y un enlace doble, y otro por cuatro átomos de C y un enlace triple.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-41-c",
+          "text": "Determinar la temperatura de ebullición de un hidrocarburo formado únicamente por átomos de C e H, y que presente por lo menos un enlace doble y un enlace triple.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-41-d",
+          "text": "Determinar la temperatura de ebullición de tres hidrocarburos, uno que presente solo átomos de C con hibridación sp 2 y otro que presente un átomo de C con hibridación sp.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Química",
+      "isPilot": false
+    },
+    {
+      "id": "ci-43",
+      "number": 43,
+      "statement": "Para una investigación universitaria, un agrónomo se propuso realizar una plantación de especies frutales que generen frutos con una gran cantidad de vitamina C. Para ello, controló las condiciones de humedad y tipo de suelo. Luego de su investigación, hizo un análisis de sus frutos y procedió a la producción de un solo tipo de especie. En la siguiente tabla se presentan algunos de los datos obtenidos por el agrónomo. Masa de fruta Cantidad de Fruto Número de utilizada vitamina C analizado frutas (g) (mg) Naranja 4 500 256 Papaya 1 500 320 Kiwi 10 500 465 Con base en los datos recopilados, ¿cuál es la pregunta de investigación correcta que pudo haber guiado esta investigación?",
+      "options": [
+        {
+          "id": "ci-43-a",
+          "text": "¿En qué estructura de la especie frutal hay mayor cantidad de vitamina C?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-43-b",
+          "text": "¿Cómo varía la cantidad de vitamina C presente en diversos tipos de frutas?",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-43-c",
+          "text": "¿Qué factores determinan la cantidad de vitamina C presente en diversos tipos de frutas?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-43-d",
+          "text": "¿Cuáles son las condiciones de humedad y tipo de suelo para producir frutos con gran cantidad de vitamina C?",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-44",
+      "number": 44,
+      "statement": "El siguiente compuesto orgánico, H3C — O — CH2 — CH3 presenta el grupo funcional",
+      "options": [
+        {
+          "id": "ci-44-a",
+          "text": "cetona.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-44-b",
+          "text": "alcohol.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-44-c",
+          "text": "éter.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-44-d",
+          "text": "éster. E) aldehído.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Química",
+      "isPilot": false
+    },
+    {
+      "id": "ci-45",
+      "number": 45,
+      "statement": "Un grupo de estudiantes se encuentra investigando el comportamiento de un gas que se genera como consecuencia de la descomposición de cierto material orgánico. Mediante ensayos determinan que una cantidad de sustancia fija de este gas, a presión constante, mantiene un comportamiento directamente proporcional entre su volumen y la temperatura a la que es sometido. Al respecto, ¿cuál de los siguientes materiales permitió medir la variable dependiente de este experimento?",
+      "options": [
+        {
+          "id": "ci-45-a",
+          "text": "Un termómetro que registra la temperatura a la que se somete el gas.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-45-b",
+          "text": "Una balanza analítica que mide con precisión y exactitud la masa del gas.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-45-c",
+          "text": "Un barómetro que mide la presión en tiempo real a la que fue sometido el gas.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-45-d",
+          "text": "Un cilindro graduado con un émbolo móvil que se ajusta al volumen del gas.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-46",
+      "number": 46,
+      "statement": "Un grupo de investigación realizó un estudio en una muestra de personas que se encontraban en estado de reposo y a nivel del mar, en donde se determinaron los niveles de hemoglobina carboxilada después de exposiciones a determinadas concentraciones de CO ambientales durante diferentes períodos de tiempo. Los resultados obtenidos se presentan en la siguiente tabla: Porcentaje promedio Porcentaje promedio de CO en el de carboxihemoglobina carboxihemoglobina ambiente al cabo de 1 hora al cabo de 8 horas (mg/m3) (%) (%) 12 0,4 1,4 23 0,8 2,8 35 1,3 4,1 58 2,5 7,5 115 3,5 11,3 En relación con lo anterior, ¿cuál de las siguientes conclusiones es correcta?",
+      "options": [
+        {
+          "id": "ci-46-a",
+          "text": "A medida que aumenta el porcentaje de hemoglobina carboxilada, aumentan los signos y síntomas de las personas expuestas al CO ambiental.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-46-b",
+          "text": "A medida que aumenta la concentración de CO ambiental, aumenta el porcentaje de hemoglobina carboxilada en los dos tiempos estudiados.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-46-c",
+          "text": "A medida que aumenta el tiempo de exposición de las personas al CO ambiental, la unión de este gas a la hemoglobina se hace irreversible.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-46-d",
+          "text": "A medida que aumenta la concentración de O 2 a nivel del mar, el porcentaje de hemoglobina carboxilada en las personas disminuye en los dos tiempos estudiados.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Física",
+      "isPilot": false
+    },
+    {
+      "id": "ci-47",
+      "number": 47,
+      "statement": "En una clase de química, una estudiante está analizando la reacción de síntesis de ácido nítrico, HNO3, a partir de óxido de nitrógeno (V), N2O5, y agua, H2O. Como desafío, la profesora le pide a la estudiante calcular la cantidad de N 2O5 necesario para obtener 4,0 mol de HNO3, suponiendo que se tiene la cantidad suficiente de agua. Al respecto, ¿cuál es la respuesta correcta que debe entregar la estudiante?",
+      "options": [
+        {
+          "id": "ci-47-a",
+          "text": "0,5 mol.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-47-b",
+          "text": "2,0 mol.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-47-c",
+          "text": "4,0 mol.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-47-d",
+          "text": "8,0 mol.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Química",
+      "isPilot": false
+    },
+    {
+      "id": "ci-48",
+      "number": 48,
+      "statement": "Se ha demostrado que la administración conjunta de ciertas duplas de fármacos contra el cáncer puede mejorar la eficiencia en la muerte de células cancerosas, con respecto a la administración de cada uno por separado. Teniendo esto en cuenta, un grupo de investigadores del área de química farmacológica ha estudiado la administración de una nueva combinación entre los fármacos Dox y Cur, en células sanas y cancerosas, provenientes de una misma línea celular estomacal. Parte de los resultados se muestran en la siguiente tabla: Muerte de células Muerte de células Masa de Masa de Relación entre cancerosas de sanas de Dox (mg) Cur (mg) Dox/Cur (mol/mol) estómago (%) estómago (%) 0,8 1,1 1:2 50,5 26,6 1,0 0,7 1:1 62,2 16,5 1,5 0,5 2:1 80,1 10,1 3,0 1,0 2:1 80,0 15,7 4,5 1,5 2:1 81,0 25,9 Basado en los resultados informados anteriormente, ¿qué alcance científico puede tener esta investigación para la creación de una nueva terapia farmacológica?",
+      "options": [
+        {
+          "id": "ci-48-a",
+          "text": "Usar una dosis combinada de Dox y Cur permitirá una terapia más efectiva contra diferentes tipos de cáncer.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-48-b",
+          "text": "Aumentar la masa de ambos fármacos en la dosis aplicada permitirá una terapia más efectiva contra el cáncer de estómago.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-48-c",
+          "text": "Disminuir la masa de Cur en la dosis aplicada podría disminuir la muerte de células sanas en pacientes enfermos de cáncer.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-48-d",
+          "text": "Aplicar una dosis con el doble, en cantidad de sustancia, de Dox en relación a Cur podría mejorar el tratamiento en pacientes con cáncer de estómago.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-49",
+      "number": 49,
+      "statement": "En el contexto de un estudio para verificar las proporciones en que se unen los elementos X e Y para formar dos compuestos, se hacen reaccionar distintas masas del elemento Y con una misma masa del elemento X, a una temperatura de 25 °C y 1 atm de presión. Los resultados del estudio se muestran en la tabla siguiente: Masa del elemento X Masa del elemento Y Masa de compuesto (g) (g) (g) 2 1,5 3,5 2 3 5 ¿Cuál de las siguientes opciones identifica correctamente las variables de este estudio? Variable dependiente Variable independiente",
+      "options": [
+        {
+          "id": "ci-49-a",
+          "text": "Masa del elemento X Masa del elemento Y",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-49-b",
+          "text": "Masa del compuesto Masa del elemento X",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-49-c",
+          "text": "Masa del compuesto Masa del elemento Y",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-49-d",
+          "text": "Masa del elemento Y Masa del elemento X",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Química",
+      "isPilot": false
+    },
+    {
+      "id": "ci-50",
+      "number": 50,
+      "statement": "Dos sustancias, X e Y, reaccionan para formar el compuesto Z, de acuerdo a las siguientes condiciones: Masas iniciales Masas finales Masa de X (g) Masa de Y (g) Masa Z (g) Exceso 28 6 34 0 14 6 17 3 g de Y 30 6 34 2 g de X A partir de los datos anteriores, ¿cuál de las siguientes opciones es correcta?",
+      "options": [
+        {
+          "id": "ci-50-a",
+          "text": "Las masas iniciales de las sustancias X e Y son iguales a la masa final de Z.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-50-b",
+          "text": "7 g de la sustancia X reaccionan exactamente con 2,5 g de la sustancia Y.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-50-c",
+          "text": "Para formar Z, las sustancias X e Y se unen en una proporción en masa de 14:3.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-50-d",
+          "text": "30 g de la sustancia X reaccionan exactamente con 6 g de la sustancia Y.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Química",
+      "isPilot": false
+    },
+    {
+      "id": "ci-51",
+      "number": 51,
+      "statement": "Un grupo de estudiantes se encuentra analizando una reacción de precipitación representada mediante la siguiente ecuación: BaCl2 (ac) + Na2SO4 (ac) 2 NaCl (ac) + BaSO4 (s) Para llevar a cabo la reacción, utilizaron una gradilla donde colocaron 5 tubos de ensayo y agregaron a cada uno un determinado volumen de BaCl 2 y Na2SO4, calculando la cantidad de sustancia agregada para ambos reactivos. Luego, determinaron la cantidad en mol de precipitado (BaSO4) formado en cada uno de los tubos de ensayo. Los resultados se muestran en la siguiente tabla: Tubo de Cantidad de Cantidad de Cantidad de ensayo BaCl2 (mol) Na2SO4 (mol) BaSO4 (mol) 1 0,0001 0,0009 0,0001 2 0,0002 0,0008 0,0002 3 0,0003 0,0007 0,0003 4 0,0004 0,0006 0,0004 5 0,0005 0,0005 0,0005 En relación con el análisis de estos resultados, ¿cuál de las siguientes conclusiones es correcta sobre la cantidad en mol obtenida de precipitado?",
+      "options": [
+        {
+          "id": "ci-51-a",
+          "text": "La cantidad depende del reactivo en exceso, que corresponde al BaCl2",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-51-b",
+          "text": "La cantidad depende del reactivo en exceso, que corresponde al Na2SO4",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-51-c",
+          "text": "La cantidad depende del reactivo limitante, que corresponde al Na2SO4",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-51-d",
+          "text": "La cantidad depende del reactivo limitante, que corresponde al BaCl2",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-52",
+      "number": 52,
+      "statement": "Para ayudar a combatir una epidemia provocada por un virus, un grupo de investigadores en microbiología desea evaluar el poder desinfectante de soluciones que puedan ser fácilmente preparadas en el hogar. Para cumplir con esto, extraen un cierto volumen de un recipiente que contiene una solución de cloro comercial y agregan agua destilada hasta alcanzar un determinado volumen de solución. Los volúmenes utilizados se muestran en la siguiente tabla: Volumen de solución comercial Volumen de solución final (mL) (mL) 2,0 20 2,0 100 0,1 100 Considerando el procedimiento realizado por los investigadores, ¿cuál de las siguientes opciones corresponde a una variable fija?",
+      "options": [
+        {
+          "id": "ci-52-a",
+          "text": "El volumen de solución final.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-52-b",
+          "text": "El volumen de solución comercial.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-52-c",
+          "text": "La concentración de cloro en la solución final.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-52-d",
+          "text": "La concentración de cloro en la solución comercial.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-53",
+      "number": 53,
+      "statement": "Realizando una investigación sobre la química del vino, un grupo de estudiantes recopiló la siguiente información:  Estudiante 1: la escala Brix, creada en el siglo XIX por el matemático e ingeniero alemán Adolf Brix, se usa hasta el día de hoy en la industria alimentaria para medir el contenido aproximado de azúcar presente en alimentos como frutas y hortalizas.  Estudiante 2: un grado Brix (°Bx) corresponde a un gramo de azúcar disuelto en 100 gramos de solución.  Estudiante 3: en la industria del vino, los grados Brix se miden antes de la cosecha de la uva para determinar el contenido de azúcar del jugo de uva y, por lo tanto, el contenido de alcohol que tendría el vino una vez fermentado el azúcar.  Estudiante 4: durante la etapa de fermentación, se deben medir los grados Brix al menos una vez al día, y ajustarlo si es necesario, para obtener una densidad aproximada de 1 g/mL y un valor de 18 a 24 °Bx. Con respecto a la información recopilada, ¿qué opción clasifica correctamente el componente de la investigación descrito por los estudiantes?",
+      "options": [
+        {
+          "id": "ci-53-a",
+          "text": "El estudiante 1 informó una hipótesis.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-53-b",
+          "text": "El estudiante 2 informó una conclusión.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-53-c",
+          "text": "El estudiante 3 informó un modelo.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-53-d",
+          "text": "El estudiante 4 informó un procedimiento.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-54",
+      "number": 54,
+      "statement": "Se mezclan las siguientes disoluciones acuosas de HCl: 10,0 mL de HCl 1,00 mol/L. 20,0 mL de HCl 0,50 mol/L. 50,0 mL de HCl 0,20 mol/L. ¿Cuál es la concentración de la disolución resultante?",
+      "options": [
+        {
+          "id": "ci-54-a",
+          "text": "0,250 mol/L",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-54-b",
+          "text": "0,300 mol/L",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-54-c",
+          "text": "0,375 mol/L",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-54-d",
+          "text": "1,700 mol/L E) 2,670 mol/L",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-55",
+      "number": 55,
+      "statement": "Una científica que estudiaba las características físicas de una célula animal, luego de examinar diversos antecedentes, propuso lo siguiente: “la célula responderá frente a cambios de presión mecánica causados por la exposición a fuerzas externas, modificando la distribución de componentes que le otorgan estabilidad a su estructura”. Para poner a prueba experimentalmente lo propuesto, ¿cuál de los siguientes componentes celulares debería evaluar la científica?",
+      "options": [
+        {
+          "id": "ci-55-a",
+          "text": "Retículo endoplasmático rugoso.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-55-b",
+          "text": "Complejo de Golgi.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-55-c",
+          "text": "Envoltura nuclear.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-55-d",
+          "text": "Citoesqueleto.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-56",
+      "number": 56,
+      "statement": "Unos investigadores descubrieron que una dieta alta en NaCl puede alterar la respuesta inmunológica de las personas. Para profundizar en sus hallazgos, realizaron un experimento utilizando dos grupos de animales (1 y 2). A ambos grupos le suministraron una dieta base idéntica, con 1,0 mg de NaCl al día durante dos semanas; sin embargo, al grupo 2 le administraron 6,0 mg de NaCl adicionales. Los investigadores reportaron que los fagocitos analizados del grupo 2 presentaron un menor consumo de oxígeno y una menor producción de energía química, en comparación con los fagocitos del grupo 1. De acuerdo con la evidencia descrita, ¿cuál de los siguientes organelos fue afectado directamente por la dieta alta en NaCl?",
+      "options": [
+        {
+          "id": "ci-56-a",
+          "text": "Lisosoma.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-56-b",
+          "text": "Mitocondria.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-56-c",
+          "text": "Complejo de Golgi.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-56-d",
+          "text": "Retículo endoplasmático.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-57",
+      "number": 57,
+      "statement": "A finales del siglo XIX y comienzos del XX, no había evidencia concluyente que validara la existencia de las neuronas. Por esto, la comunidad científica estaba dividida entre quienes apoyaban la teoría reticularista, según la cual el tejido nervioso consistía en un continuo citoplasmático con múltiples núcleos, y quienes postulaban que estaba constituido por células. En el contexto de esta disyuntiva, ¿qué opción presenta un aspecto procedimental que explicaría las limitaciones en la investigación de aquella época?",
+      "options": [
+        {
+          "id": "ci-57-a",
+          "text": "La ausencia de una teoría que abordara la existencia de estas células.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-57-b",
+          "text": "El desconocimiento acerca de las funciones del sistema nervioso.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-57-c",
+          "text": "La insuficiencia de las técnicas relacionadas con la microscopía.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-57-d",
+          "text": "El conocimiento inexacto de los órganos del sistema nervioso.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-58",
+      "number": 58,
+      "statement": "Un grupo de estudiantes necesitaba investigar experimentalmente la función celular de los nucléolos. Al planificar su estudio, decidieron bloquear enzimas involucradas específicamente en la síntesis de ácidos nucleicos de la zona nucleolar, para luego, analizar los efectos de este tratamiento. De acuerdo con estos antecedentes, ¿cuál de las siguientes opciones correspondería a un efecto directo del procedimiento planteado por los estudiantes?",
+      "options": [
+        {
+          "id": "ci-58-a",
+          "text": "Se impedirá la síntesis de vesículas lisosomales.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-58-b",
+          "text": "Se impedirá la síntesis de subunidades ribosomales.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-58-c",
+          "text": "Se generará acumulación de proteínas en el citoplasma.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-58-d",
+          "text": "Se generará acumulación de sustancias tóxicas en el citoplasma.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-59",
+      "number": 59,
+      "statement": "Un docente de biología solicitó a sus estudiantes identificar cuatro tipos celulares diferentes (1, 2, 3 y 4), basándose en las descripciones que les entregó en la siguiente tabla: Tipo Descripción celular Célula de forma alargada, presenta muchos núcleos que se 1 sitúan periféricamente en el citoplasma y un retículo endoplasmático liso abundante. Célula que presenta microvellosidades en su parte apical, 2 numerosas mitocondrias en su base, un retículo endoplasmático y un complejo de Golgi muy abundantes. Célula de forma piramidal truncada, que tiene un retículo 3 endoplasmático rugoso y un complejo de Golgi muy abundantes. Célula dividida en tres dominios celulares: soma, dendritas y 4 axón, y presenta numerosas mitocondrias. Según lo anterior, ¿cuál de las inferencias generadas por los estudiantes es correcta acerca de la identidad de las células descritas?",
+      "options": [
+        {
+          "id": "ci-59-a",
+          "text": "El tipo celular 1 corresponde a una neurona.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-59-b",
+          "text": "El tipo celular 2 corresponde a un enterocito.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-59-c",
+          "text": "El tipo celular 3 corresponde a un leucocito.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-59-d",
+          "text": "El tipo celular 4 corresponde a un miocito.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-60",
+      "number": 60,
+      "statement": "Un grupo de estudiantes universitarios debe realizar una investigación referida a alteraciones de mecanismos celulares implicados directamente en la síntesis del ATP en organismos que se encuentran bajo condiciones nutricionales óptimas, y cómo dichas alteraciones pueden provocar enfermedades. Para focalizar de forma eficiente su investigación, ¿qué información deberían revisar inicialmente estos estudiantes?",
+      "options": [
+        {
+          "id": "ci-60-a",
+          "text": "Antecedentes de procesos moleculares vinculados con la síntesis citoplasmática de proteínas.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-60-b",
+          "text": "Antecedentes de procesos moleculares vinculados con la síntesis celular de glucosa.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-60-c",
+          "text": "Antecedentes de procesos bioquímicos vinculados con la funcionalidad del citoesqueleto.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-60-d",
+          "text": "Antecedentes de procesos bioquímicos vinculados con la respiración a nivel celular.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-61",
+      "number": 61,
+      "statement": "Durante los últimos siglos, se pensaba que el contagio de la sífilis era un resultado directo de la actividad sexual, desconociendo los mecanismos biológicos subyacentes a la infección. Sin embargo, gracias al trabajo colaborativo de un zoólogo y un dermatólogo, en 1905 se logró identificar al microorganismo causante de esta ITS, lo que permitió el desarrollo de estrategias de tratamiento. Considerando lo anterior, ¿cuál de las siguientes opciones es una razón que justifica el uso de antibióticos como tratamiento para la sífilis?",
+      "options": [
+        {
+          "id": "ci-61-a",
+          "text": "La naturaleza bacteriana del agente infeccioso.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-61-b",
+          "text": "La naturaleza viral del agente infeccioso.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-61-c",
+          "text": "La naturaleza micótica del agente infeccioso.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-61-d",
+          "text": "La naturaleza parasitaria del agente infeccioso.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-62",
+      "number": 62,
+      "statement": "En una comunidad se presentaron brotes epidémicos de influenza los últimos cinco inviernos. Por este motivo, se inició una campaña de vacunación, logrando inocular al 50 % del grupo de riesgo. Sin embargo, la Organización Mundial de la Salud plantea que, para evitar brotes epidémicos, se debe vacunar al menos al 90 % de la población objetivo. Dado lo anterior, las autoridades presumen que “la comunidad enfrentará un nuevo brote epidémico durante el próximo invierno”. En el contexto anterior, ¿a qué componente de la investigación científica corresponde la oración entre comillas?",
+      "options": [
+        {
+          "id": "ci-62-a",
+          "text": "A una observación.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-62-b",
+          "text": "A una evidencia.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-62-c",
+          "text": "A una inferencia.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-62-d",
+          "text": "A una conclusión.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-63",
+      "number": 63,
+      "statement": "En un laboratorio de biotecnología se está desarrollando un fármaco que actúa impidiendo la reacción acrosómica. Con el propósito de evaluar la efectividad anticonceptiva de este fármaco, se planea realizar un estudio en dos grupos de individuos de la misma especie, uno experimental y otro control. Considerando que ambos grupos estarán constituidos por una cantidad equivalente de parejas y permanecerán bajo condiciones ambientales controladas durante el estudio, ¿cuál de los siguientes datos aportaría evidencia suficiente acerca de la efectividad del fármaco?",
+      "options": [
+        {
+          "id": "ci-63-a",
+          "text": "La cantidad promedio de embriones viables en ambos grupos.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-63-b",
+          "text": "El porcentaje relativo de cigotos formados en el grupo experimental.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-63-c",
+          "text": "El porcentaje relativo de motilidad espermática en el grupo experimental.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-63-d",
+          "text": "La cantidad promedio de interacciones sexuales por pareja en ambos grupos.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-64",
+      "number": 64,
+      "statement": "Los esquemas de vacunación generalmente consideran dosis de refuerzo, que se administran después de que una persona ha recibido la vacuna original, llamada dosis primaria. Como ejemplo de lo mencionado, a continuación se presenta un esquema de vacunación contra la hepatitis B: Considerando la información anterior, ¿cuál es el propósito de administrar vacunas de refuerzo contra un determinado patógeno?",
+      "options": [
+        {
+          "id": "ci-64-a",
+          "text": "Inducir un nivel seguro de protección inmunológica de larga duración",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-64-b",
+          "text": "Fortalecer las barreras inmunológicas primarias a lo largo del tiempo",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-64-c",
+          "text": "Intensificar la respuesta inmunológica innata en los primeros años de vida",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-64-d",
+          "text": "Promover protección contra patógenos mediante inmunización pasiva",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-65",
+      "number": 65,
+      "statement": "Las evidencias indican que los trasplantes de córnea no requieren tratamiento inmunosupresor, ya que no se genera una respuesta de rechazo en las personas receptoras. Lo anterior se debe, entre otros factores, a que la córnea es un tejido avascular (sin irrigación sanguínea ni linfática). Por otra parte, hay evidencias de que al producirse un traumatismo penetrante en un ojo, se genera una respuesta autoinmune inflamatoria. Considerando estos antecedentes, ¿por qué las respuestas inmunológicas son diferentes en los dos casos descritos?",
+      "options": [
+        {
+          "id": "ci-65-a",
+          "text": "Porque un traumatismo penetrante activa una respuesta inmunológica innata ante antígenos inespecíficos, a diferencia del trasplante de córnea.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-65-b",
+          "text": "Porque los antígenos externos que pueden afectar la córnea ante un traumatismo penetrante difieren de aquellos que pueden afectar al resto del tejido ocular.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-65-c",
+          "text": "Porque la córnea se encuentra aislada de antígenos, sean propios o externos, a diferencia del resto del tejido ocular.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-65-d",
+          "text": "Porque la córnea se encuentra incomunicada con elementos del sistema inmunológico, a diferencia del resto del tejido ocular.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-66",
+      "number": 66,
+      "statement": "Como parte de un estudio, un equipo científico consiguió producir gran cantidad de la proteína humana llamada interleucina 37 (IL-37), en plantas de tabaco. La molécula IL-37 presenta propiedades antiinflamatorias e inmunodepresoras, por lo que ofrece un potencial tratamiento para una serie de trastornos inflamatorios. Considerando lo anterior, ¿cuál de las siguientes preguntas de investigación pudo ser la que condujo al logro mencionado?",
+      "options": [
+        {
+          "id": "ci-66-a",
+          "text": "¿Qué efecto tiene la proteína IL-37 sobre el crecimiento de plantas de tabaco?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-66-b",
+          "text": "¿Qué técnica hace posible expresar proteínas humanas en plantas de tabaco?",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-66-c",
+          "text": "¿Qué tipo de trastornos pueden tratarse mediante el uso de plantas de tabaco?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-66-d",
+          "text": "¿Qué propiedades antiinflamatorias e inmunodepresoras presenta el tabaco?",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": true
+    },
+    {
+      "id": "ci-67",
+      "number": 67,
+      "statement": "Las células troncales se encuentran generalmente en organismos multicelulares, y tienen la capacidad de renovarse a sí mismas. Además, estas células pueden realizar divisiones sucesivas y pueden diferenciarse en distintos tipos de células. A continuación, se presenta un esquema en donde los números (1, 2, 3, 4 y 5) indican procesos involucrados en la división y en la diferenciación a partir de células troncales: 4 5 Célula troncal 1 2 3 De acuerdo con el esquema, ¿cuál(es) de los siguientes procesos ocurre(n) mediante mitosis?",
+      "options": [
+        {
+          "id": "ci-67-a",
+          "text": "Solo 1",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-67-b",
+          "text": "Solo 3 y 5",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-67-c",
+          "text": "Solo 1, 2 y 4",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-67-d",
+          "text": "Solo 2, 3, 4 y 5",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-68",
+      "number": 68,
+      "statement": "Trofim Lysenko fue un agrónomo extremadamente influyente en la Unión Soviética entre los años 1930 y 1950. Como un modo de combatir la escasez de alimentos, buscó extender el cultivo de cereales a las zonas más frías y, además, prolongar la temporada de cultivo hasta el invierno. Con estos objetivos, diseñó un procedimiento para adaptar las semillas al frío, conocido como “vernalización”. Este consistía en múltiples ciclos de inmersión de las semillas en agua progresivamente más fría. Se postulaba que, tras la “vernalización”, las plantas resultantes de las semillas tratadas serían resistentes al frío y que esta característica sería transmitida a las siguientes generaciones. De acuerdo con lo anterior, en un contexto evolutivo, ¿cuál es el fundamento teórico en que se basó el procedimiento aplicado por Lysenko?",
+      "options": [
+        {
+          "id": "ci-68-a",
+          "text": "Mutabilidad de los caracteres.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-68-b",
+          "text": "Herencia de caracteres adquiridos.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-68-c",
+          "text": "Evolución por selección natural.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-68-d",
+          "text": "Transformismo de las especies.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-69",
+      "number": 69,
+      "statement": "El pato moteado (Spatula cyanoptera) es un tipo de ave de los Andes que, a diferencia de otras especies de patos, puede habitar en áreas de gran altitud. Considerando este hecho, un grupo de investigadores realizó un estudio en el que comparó la secuencia de aminoácidos de la proteína hemoglobina de S. cyanoptera con la de otras dos especies de patos, X y Z, las que habitan a mediana y baja altitud, respectivamente. Los resultados preliminares del estudio indicaron lo siguiente: la menor diferencia se observa entre las especies X y Z, mientras que S. cyanoptera presenta menor diferencia con X que con Z. A partir de estos antecedentes, ¿cuál de las siguientes opciones corresponde a una utilidad de la información aportada por el estudio?",
+      "options": [
+        {
+          "id": "ci-69-a",
+          "text": "Permite estimar el orden cronológico en que aparecen las tres especies.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-69-b",
+          "text": "Permite determinar la existencia de homologías entre las tres especies.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-69-c",
+          "text": "Permite establecer la presencia de analogías entre las tres especies.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-69-d",
+          "text": "Permite inferir relaciones de parentesco entre las tres especies.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-70",
+      "number": 70,
+      "statement": "Rosa hizo un experimento utilizando moscas de la fruta (Drosophila sp.) a las que cortó las alas, para luego criarlas sobre un sustrato formado por una papilla de plátano. La mayor parte de las moscas sobrevivió y se reprodujo, poniendo abundantes huevos. Tras un tiempo, de estos huevos emergió una nueva generación de moscas, todas aladas. Rosa repitió este procedimiento por varias generaciones, obteniendo siempre moscas aladas. Si se considera que los siguientes pasos forman parte del procedimiento de este experimento, ¿cuál de estos incluye la variable dependiente?",
+      "options": [
+        {
+          "id": "ci-70-a",
+          "text": "Cuantificar el porcentaje de moscas que sobreviven y se reproducen.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-70-b",
+          "text": "Registrar el desarrollo de las alas en las sucesivas generaciones.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-70-c",
+          "text": "Repetir sistemáticamente el corte de las alas en cada generación.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-70-d",
+          "text": "Preparar papilla de plátano como sustrato para la crianza de moscas.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-71",
+      "number": 71,
+      "statement": "En el contexto de un estudio acerca del cáncer, un grupo de investigación cultivó células del mismo tipo, bajo dos condiciones diferentes: en presencia y en ausencia de un fármaco. Tras el experimento, el grupo comunicó sus resultados en el siguiente esquema, que presenta los porcentajes de células diferenciadas y en distintas etapas del ciclo celular, para cada condición: Sin fármaco Porcentaje de células Con fármaco Células G1 S G2/M diferenciadas Según estos datos, ¿cuál de las siguientes inferencias es correcta con respecto al efecto de este fármaco?",
+      "options": [
+        {
+          "id": "ci-71-a",
+          "text": "Induce la proliferación de las células.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-71-b",
+          "text": "Ralentiza el avance del ciclo celular.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-71-c",
+          "text": "Promueve la especialización celular.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-71-d",
+          "text": "Evita el crecimiento de las células.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-72",
+      "number": 72,
+      "statement": "Durante un experimento, se preparó un cultivo de células provenientes de un tejido vegetal, con el propósito de cuantificar la duración de las principales etapas involucradas en el ciclo celular. La siguiente tabla presenta los datos obtenidos: Etapa del ciclo Duración (minutos) Anafase 5 Telofase 22 Interfase 1356 Profase 126 Metafase 24 A partir de la interpretación de estos datos, ¿qué etapa, correspondiente a la mitosis, es la más extensa?",
+      "options": [
+        {
+          "id": "ci-72-a",
+          "text": "Aquella en que se individualizan dos células hijas.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-72-b",
+          "text": "Aquella en que se descondensan los cromosomas.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-72-c",
+          "text": "Aquella en que se separan las cromátidas hermanas.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-72-d",
+          "text": "Aquella en que se desorganiza la envoltura nuclear.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-73",
+      "number": 73,
+      "statement": "Unos estudiantes observaban al microscopio muestras extraídas de la gónada de un insecto, con el propósito de dibujar algunas células en meiosis y caracterizarlas. A continuación, se presenta el dibujo que realizó un estudiante: Respecto de la célula dibujada, ¿qué opción establece correctamente la etapa en que esta se encuentra y la dotación cromosómica de los gametos que se formarán al finalizar la meiosis?",
+      "options": [
+        {
+          "id": "ci-73-a",
+          "text": "Anafase II – 3 cromosomas",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-73-b",
+          "text": "Anafase I – 6 cromosomas",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-73-c",
+          "text": "Anafase I – 3 cromosomas",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-73-d",
+          "text": "Anafase II – 6 cromosomas",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": true
+    },
+    {
+      "id": "ci-74",
+      "number": 74,
+      "statement": "Entre las aplicaciones de la manipulación genética se encuentra la generación de alimentos transgénicos. Considerando esto, un grupo científico quiso incorporar en una planta de papa los genes que contienen la información para la síntesis de la toxina Bt, que es un insecticida natural obtenido de la bacteria Bacillus thuringiensis. Considerando lo anterior, ¿cuál de los siguientes pasos es indispensable para obtener esta planta de papa transgénica?",
+      "options": [
+        {
+          "id": "ci-74-a",
+          "text": "Reproducir bacterias en un medio de cultivo con la toxina Bt.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-74-b",
+          "text": "Insertar los genes que codifican la toxina Bt en un plásmido.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-74-c",
+          "text": "Incorporar la toxina Bt en un plásmido presente en la planta.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-74-d",
+          "text": "Introducir el genoma de Bacillus thuringiensis en células de la planta.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-75",
+      "number": 75,
+      "statement": "Durante el ciclo celular se espera que las células modifiquen su cantidad de ADN y conserven su ploidía. Considerando esto, en un laboratorio se monitoreó el cambio de la cantidad de ADN en distintos puntos del ciclo en un cultivo de células sincronizadas, tal como se resume en el siguiente esquema, donde los números (1 y 2) corresponden a eventos del ciclo celular: Cantidad de ADN (c) 1 2 Tiempo (u.a.) A partir del análisis de la información anterior, ¿cuál de las siguientes opciones relaciona correctamente el número del esquema con un evento del ciclo celular correspondiente?",
+      "options": [
+        {
+          "id": "ci-75-a",
+          "text": "1 = Inicio de la profase.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-75-b",
+          "text": "2 = Aumento del volumen celular.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-75-c",
+          "text": "1 = Alineación de cromosomas.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-75-d",
+          "text": "2 = Síntesis de ácidos nucleicos.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": true
+    },
+    {
+      "id": "ci-76",
+      "number": 76,
+      "statement": "La oxigenación deficiente debida a la ausencia de una vascularización adecuada, es uno de los principales factores que provoca fallas en la cicatrización de las heridas crónicas, constituyendo un problema para la medicina regenerativa. Entre los enfoques actuales de la investigación biomédica destaca la implantación de células fotosintetizadoras en tejidos animales, método alternativo que presenta un gran potencial, pues permite la administración de oxígeno de manera local y controlada. En este contexto, un equipo de investigación reportó un efecto favorable en la aplicación de parches con microalgas para el tratamiento de heridas, bajo condiciones de alternancia de iluminación, es decir, 5 minutos de oscuridad seguidos de 5 minutos bajo luz. A partir de lo anterior, ¿cuál de los siguientes procesos fotosintéticos se traduce en un beneficio utilizado en la regeneración de tejidos?",
+      "options": [
+        {
+          "id": "ci-76-a",
+          "text": "La fotólisis de las moléculas de H2O.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-76-b",
+          "text": "La fijación de carbono a partir de CO2.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-76-c",
+          "text": "La excitación de las moléculas de clorofila.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-76-d",
+          "text": "La síntesis de celulosa a partir de glucosa.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-78",
+      "number": 78,
+      "statement": "En el contexto de una evaluación de productos de la fotosíntesis con fines alimentarios, un grupo de investigación cultivó tejidos fotosintéticamente activos, en los cuales midió la producción de hidratos de carbono bajo diferentes tratamientos. Al analizar los resultados, se constató que en uno de estos cultivos experimentales hubo una disminución en la magnitud de la variable dependiente. ¿Cuál podría ser el tratamiento asociado con este resultado?",
+      "options": [
+        {
+          "id": "ci-78-a",
+          "text": "Baja disponibilidad de luz",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-78-b",
+          "text": "Alta concentración de CO2",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-78-c",
+          "text": "Baja concentración de O2",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-78-d",
+          "text": "Alta humedad ambiental",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-79",
+      "number": 79,
+      "statement": "Un grupo de estudiantes pretendía demostrar que el CO 2 es indispensable en la producción fotosintética de hidratos de carbono. Para esto, diseñaron un experimento en el que bloquearon totalmente los estomas de algunas hojas de una planta (hojas tratadas), y mantuvieron controlada la exposición a la radiación lumínica y a la humedad, lo que les permitió realizar comparaciones con hojas de la misma planta sin tratamiento. Dado este diseño, ¿cuál de los siguientes resultados correspondería a una evidencia que apoya lo propuesto por el grupo de estudiantes?",
+      "options": [
+        {
+          "id": "ci-79-a",
+          "text": "Al cuantificar la concentración de almidón en las hojas tratadas, se constató que era menor respecto de las hojas sin tratamiento.",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-79-b",
+          "text": "Al cuantificar el volumen de O2 producido por las hojas tratadas, se constató que presentaba variaciones respecto de las hojas sin tratamiento.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-79-c",
+          "text": "Al cuantificar el volumen de CO2 captado por las hojas tratadas, se constató que era menor al captado por las hojas sin tratamiento.",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-79-d",
+          "text": "Al cuantificar la clorofila de las hojas tratadas, se constató que los niveles de esta molécula variaban de la misma forma que en las hojas sin tratamiento.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    },
+    {
+      "id": "ci-80",
+      "number": 80,
+      "statement": "En los humedales, el aumento en la erosión del suelo está asociado a un incremento de sólidos en suspensión, lo que provoca turbidez del agua y puede gatillar bruscas alteraciones en estos ecosistemas. Considerando lo anterior, un grupo de investigación estudió la vegetación acuática de los humedales, llegando a demostrar que el aumento de sólidos en suspensión provoca una disminución de los productos generados en la membrana tilacoidal de los cloroplastos en las plantas acuáticas. De acuerdo con estos antecedentes, ¿cuál de las siguientes preguntas de investigación podría ser la que guio este estudio?",
+      "options": [
+        {
+          "id": "ci-80-a",
+          "text": "¿Cómo afecta la disponibilidad de luz a la producción de O 2 en la vegetación acuática de los humedales?",
+          "isCorrect": true
+        },
+        {
+          "id": "ci-80-b",
+          "text": "¿Cómo afecta la disminución de luz al ciclo de Calvin en la vegetación acuática de los humedales?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-80-c",
+          "text": "¿Cómo influye la disminución de O2 en los humedales sobre la reducción de su vegetación acuática?",
+          "isCorrect": false
+        },
+        {
+          "id": "ci-80-d",
+          "text": "¿Cómo influye la disponibilidad de CO2 en los humedales sobre la biodiversidad de su vegetación acuática? IMPORTANTE ■ Este folleto está protegido bajo Registro de Propiedad Intelectual de la Universidad de Chile. ■ Está prohibida la reproducción, transmisión total o parcial de este folleto, por cualquier medio o método. ■ Es obligatorio devolver íntegramente este folleto antes de abandonar la sala. ■ Es obligatorio devolver la hoja de respuestas antes de abandonar la sala. Proceso de Admisión 2 0 2 6",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Biología",
+      "isPilot": false
+    }
+  ]
+}

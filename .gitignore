@@ -77,5 +77,3 @@ design.html
 extract_html.js
 parse_html.js
 
-# Local Netlify folder
-.netlify

@@ -28,14 +28,14 @@ async function main(): Promise<void> {
         update: {
             name: process.env.ADMIN_NAME ?? 'Edgardo',
             lastname: process.env.ADMIN_LASTNAME ?? 'Ruotolo',
-            email: process.env.ADMIN_EMAIL ?? 'edgardo.ruotolo@ulagos.cl',
+            email: process.env.ADMIN_EMAIL ?? 'edgardoruotolo@gmail.cl',
             password: adminPassword,
             userRoleId: superAdminRole.id,
         },
         create: {
             name: process.env.ADMIN_NAME ?? 'Edgardo',
             lastname: process.env.ADMIN_LASTNAME ?? 'Ruotolo',
-            email: process.env.ADMIN_EMAIL ?? 'edgardo.ruotolo@ulagos.cl',
+            email: process.env.ADMIN_EMAIL ?? 'edgardoruotolo@gmail.cl',
             rut: process.env.ADMIN_RUT ?? '270396356',
             password: adminPassword,
             userRoleId: superAdminRole.id,

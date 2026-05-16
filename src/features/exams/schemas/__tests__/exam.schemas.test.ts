@@ -108,7 +108,6 @@ describe('examSchema', () => {
         title: 'Examen de Matemáticas',
         timeLimit: 60,
         active: false,
-        questionType: 'UNICA' as const,
         antiCheatEnabled: false,
         groupIds: ['550e8400-e29b-41d4-a716-446655440000'],
         maxGrade: 7,

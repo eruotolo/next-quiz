@@ -1,31 +1,86 @@
 'use client';
 
 import type * as React from 'react';
+import Image from 'next/image';
 import { Avatar as AvatarPrimitive } from 'radix-ui';
 
 import { cn } from '@/shared/lib/utils';
 
-function Avatar({
-    className,
-    size = 'default',
-    ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Root> & {
-    size?: 'default' | 'sm' | 'lg';
-}) {
+// ── Aulika-native Avatar ───────────────────────────────────────────────────
+const AVATAR_PALETTE = [
+    '#1f2eff', // primary
+    '#7c5cff', // iris
+    '#ff5a4d', // coral
+    '#0f7c4a', // success
+    '#b7791f', // warning
+    '#0b0b11', // ink
+] as const;
+
+function hashName(name: string): number {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = ((hash * 31) + name.charCodeAt(i)) >>> 0;
+    }
+    return hash;
+}
+
+function getInitials(name: string): string {
+    return name
+        .split(' ')
+        .map((n) => n[0])
+        .filter(Boolean)
+        .slice(0, 2)
+        .join('')
+        .toUpperCase();
+}
+
+interface AvatarProps {
+    name?: string;
+    src?: string;
+    size?: number;
+    color?: string;
+    className?: string;
+}
+
+function Avatar({ name = '', src, size = 36, color, className }: AvatarProps): React.JSX.Element {
+    const idx = hashName(name) % AVATAR_PALETTE.length;
+    const bg = color ?? AVATAR_PALETTE[idx];
+    const initials = getInitials(name) || '?';
+    const fontSize = Math.round(size * 0.36);
+
+    if (src) {
+        return (
+            <Image
+                src={src}
+                alt={name}
+                width={size}
+                height={size}
+                className={cn('shrink-0 rounded-full object-cover', className)}
+            />
+        );
+    }
+
     return (
-        <AvatarPrimitive.Root
+        <div
             data-slot="avatar"
-            data-size={size}
+            role="img"
+            aria-label={name}
             className={cn(
-                'group/avatar relative flex size-8 shrink-0 overflow-hidden rounded-full select-none data-[size=lg]:size-10 data-[size=sm]:size-6',
+                'inline-flex shrink-0 select-none items-center justify-center rounded-full font-mono font-semibold text-white',
                 className,
             )}
-            {...props}
-        />
+            style={{ width: size, height: size, background: bg, fontSize }}
+        >
+            {initials}
+        </div>
     );
 }
 
-function AvatarImage({ className, ...props }: React.ComponentProps<typeof AvatarPrimitive.Image>) {
+// ── Backward-compat sub-components (radix pattern) ────────────────────────
+function AvatarImage({
+    className,
+    ...props
+}: React.ComponentProps<typeof AvatarPrimitive.Image>): React.JSX.Element {
     return (
         <AvatarPrimitive.Image
             data-slot="avatar-image"
@@ -38,12 +93,12 @@ function AvatarImage({ className, ...props }: React.ComponentProps<typeof Avatar
 function AvatarFallback({
     className,
     ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
+}: React.ComponentProps<typeof AvatarPrimitive.Fallback>): React.JSX.Element {
     return (
         <AvatarPrimitive.Fallback
             data-slot="avatar-fallback"
             className={cn(
-                'bg-muted text-muted-foreground flex size-full items-center justify-center rounded-full text-sm group-data-[size=sm]/avatar:text-xs',
+                'bg-paper-warm text-ink-dim flex size-full items-center justify-center rounded-full font-mono text-sm font-medium',
                 className,
             )}
             {...props}
@@ -51,15 +106,12 @@ function AvatarFallback({
     );
 }
 
-function AvatarBadge({ className, ...props }: React.ComponentProps<'span'>) {
+function AvatarBadge({ className, ...props }: React.ComponentProps<'span'>): React.JSX.Element {
     return (
         <span
             data-slot="avatar-badge"
             className={cn(
-                'bg-primary text-primary-foreground ring-background absolute right-0 bottom-0 z-10 inline-flex items-center justify-center rounded-full ring-2 select-none',
-                'group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden',
-                'group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2',
-                'group-data-[size=lg]/avatar:size-3 group-data-[size=lg]/avatar:[&>svg]:size-2',
+                'ring-background bg-primary absolute right-0 bottom-0 z-10 inline-flex size-2.5 items-center justify-center rounded-full ring-2 select-none',
                 className,
             )}
             {...props}
@@ -67,25 +119,22 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<'span'>) {
     );
 }
 
-function AvatarGroup({ className, ...props }: React.ComponentProps<'div'>) {
+function AvatarGroup({ className, ...props }: React.ComponentProps<'div'>): React.JSX.Element {
     return (
         <div
             data-slot="avatar-group"
-            className={cn(
-                'group/avatar-group *:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2',
-                className,
-            )}
+            className={cn('flex -space-x-2', className)}
             {...props}
         />
     );
 }
 
-function AvatarGroupCount({ className, ...props }: React.ComponentProps<'div'>) {
+function AvatarGroupCount({ className, ...props }: React.ComponentProps<'div'>): React.JSX.Element {
     return (
         <div
             data-slot="avatar-group-count"
             className={cn(
-                'bg-muted text-muted-foreground ring-background relative flex size-8 shrink-0 items-center justify-center rounded-full text-sm ring-2 group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&>svg]:size-4 group-has-data-[size=lg]/avatar-group:[&>svg]:size-5 group-has-data-[size=sm]/avatar-group:[&>svg]:size-3',
+                'ring-background bg-paper-warm text-ink-dim relative flex size-9 shrink-0 items-center justify-center rounded-full font-mono text-xs font-medium ring-2',
                 className,
             )}
             {...props}

@@ -18,7 +18,7 @@ export default async function ExamsPage() {
                 : undefined,
             include: {
                 groups: true,
-                _count: { select: { questions: true } },
+                _count: { select: { questions: true, results: true } },
             },
             orderBy: { createdAt: 'desc' },
         }),

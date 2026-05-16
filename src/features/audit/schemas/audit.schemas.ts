@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const auditQuerySchema = z.object({
     page: z.coerce.number().int().positive().default(1),
-    perPage: z.coerce.number().int().positive().max(100).default(50),
+    perPage: z.coerce.number().int().positive().max(100).default(10),
     q: z.string().optional(),
     action: z.string().optional(),
     institutionId: z.string().optional(),

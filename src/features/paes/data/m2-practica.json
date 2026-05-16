@@ -1,0 +1,190 @@
+{
+    "_info": "Preguntas de práctica originales — Alineadas al temario oficial DEMRE Matemática M2. NO son ítems oficiales de la PAES.",
+    "subject": "m2",
+    "title": "Matemática M2",
+    "source": "Banco de práctica — EduNext Quiz",
+    "sourceUrl": "https://demre.cl/la-prueba/pruebas-y-temarios/presentacion-pruebas-temarios-paes-regular",
+    "timeLimitMinutes": 140,
+    "questions": [
+        {
+            "id": "m2-01",
+            "number": 1,
+            "statement": "Si f(x) = x² − 4x + 3, ¿para qué valores de x se anula f(x)?",
+            "options": [
+                { "id": "m2-01-a", "text": "x = 1 y x = 3", "isCorrect": true },
+                { "id": "m2-01-b", "text": "x = −1 y x = −3", "isCorrect": false },
+                { "id": "m2-01-c", "text": "x = 2 y x = −2", "isCorrect": false },
+                { "id": "m2-01-d", "text": "x = 0 y x = 4", "isCorrect": false }
+            ],
+            "eje": "Funciones"
+        },
+        {
+            "id": "m2-02",
+            "number": 2,
+            "statement": "¿Cuál es la pendiente de la recta que pasa por los puntos (2, 5) y (4, 9)?",
+            "options": [
+                { "id": "m2-02-a", "text": "1", "isCorrect": false },
+                { "id": "m2-02-b", "text": "2", "isCorrect": true },
+                { "id": "m2-02-c", "text": "3", "isCorrect": false },
+                { "id": "m2-02-d", "text": "4", "isCorrect": false }
+            ],
+            "eje": "Geometría analítica"
+        },
+        {
+            "id": "m2-03",
+            "number": 3,
+            "statement": "Resuelve el sistema: x + y = 5 y x − y = 1. El valor de x es",
+            "options": [
+                { "id": "m2-03-a", "text": "2", "isCorrect": false },
+                { "id": "m2-03-b", "text": "3", "isCorrect": true },
+                { "id": "m2-03-c", "text": "4", "isCorrect": false },
+                { "id": "m2-03-d", "text": "5", "isCorrect": false }
+            ],
+            "eje": "Álgebra"
+        },
+        {
+            "id": "m2-04",
+            "number": 4,
+            "statement": "La distancia entre los puntos A(1, 2) y B(4, 6) es",
+            "options": [
+                { "id": "m2-04-a", "text": "√7", "isCorrect": false },
+                { "id": "m2-04-b", "text": "5", "isCorrect": true },
+                { "id": "m2-04-c", "text": "7", "isCorrect": false },
+                { "id": "m2-04-d", "text": "√25", "isCorrect": false }
+            ],
+            "eje": "Geometría analítica"
+        },
+        {
+            "id": "m2-05",
+            "number": 5,
+            "statement": "Si log₂(8) = k, ¿cuánto vale k?",
+            "options": [
+                { "id": "m2-05-a", "text": "2", "isCorrect": false },
+                { "id": "m2-05-b", "text": "4", "isCorrect": false },
+                { "id": "m2-05-c", "text": "3", "isCorrect": true },
+                { "id": "m2-05-d", "text": "8", "isCorrect": false }
+            ],
+            "eje": "Álgebra"
+        },
+        {
+            "id": "m2-06",
+            "number": 6,
+            "statement": "¿Cuál es el dominio de la función f(x) = √(x − 2)?",
+            "options": [
+                { "id": "m2-06-a", "text": "x > 2", "isCorrect": false },
+                { "id": "m2-06-b", "text": "x ≥ 2", "isCorrect": true },
+                { "id": "m2-06-c", "text": "x ∈ ℝ", "isCorrect": false },
+                { "id": "m2-06-d", "text": "x ≤ 2", "isCorrect": false }
+            ],
+            "eje": "Funciones"
+        },
+        {
+            "id": "m2-07",
+            "number": 7,
+            "statement": "La ecuación de una circunferencia con centro en el origen y radio 4 es",
+            "options": [
+                { "id": "m2-07-a", "text": "x + y = 4", "isCorrect": false },
+                { "id": "m2-07-b", "text": "x² + y² = 16", "isCorrect": true },
+                { "id": "m2-07-c", "text": "x² + y² = 4", "isCorrect": false },
+                { "id": "m2-07-d", "text": "(x + y)² = 16", "isCorrect": false }
+            ],
+            "eje": "Geometría analítica"
+        },
+        {
+            "id": "m2-08",
+            "number": 8,
+            "statement": "Si 2^x = 32, ¿cuánto vale x?",
+            "options": [
+                { "id": "m2-08-a", "text": "4", "isCorrect": false },
+                { "id": "m2-08-b", "text": "5", "isCorrect": true },
+                { "id": "m2-08-c", "text": "6", "isCorrect": false },
+                { "id": "m2-08-d", "text": "16", "isCorrect": false }
+            ],
+            "eje": "Álgebra"
+        },
+        {
+            "id": "m2-09",
+            "number": 9,
+            "statement": "¿Cuál es el valor de sen(30°)?",
+            "options": [
+                { "id": "m2-09-a", "text": "√3/2", "isCorrect": false },
+                { "id": "m2-09-b", "text": "1/2", "isCorrect": true },
+                { "id": "m2-09-c", "text": "√2/2", "isCorrect": false },
+                { "id": "m2-09-d", "text": "1", "isCorrect": false }
+            ],
+            "eje": "Geometría analítica"
+        },
+        {
+            "id": "m2-10",
+            "number": 10,
+            "statement": "Una función lineal pasa por (0, 2) y tiene pendiente 3. Su ecuación es",
+            "options": [
+                { "id": "m2-10-a", "text": "y = 2x + 3", "isCorrect": false },
+                { "id": "m2-10-b", "text": "y = 3x − 2", "isCorrect": false },
+                { "id": "m2-10-c", "text": "y = 3x + 2", "isCorrect": true },
+                { "id": "m2-10-d", "text": "y = x + 3", "isCorrect": false }
+            ],
+            "eje": "Funciones"
+        },
+        {
+            "id": "m2-11",
+            "number": 11,
+            "statement": "¿Cuántas permutaciones existen de las letras A, B, C tomadas de a 2?",
+            "options": [
+                { "id": "m2-11-a", "text": "3", "isCorrect": false },
+                { "id": "m2-11-b", "text": "6", "isCorrect": true },
+                { "id": "m2-11-c", "text": "9", "isCorrect": false },
+                { "id": "m2-11-d", "text": "2", "isCorrect": false }
+            ],
+            "eje": "Probabilidad y estadística"
+        },
+        {
+            "id": "m2-12",
+            "number": 12,
+            "statement": "¿Cuál es el vértice de la parábola f(x) = (x − 2)² + 3?",
+            "options": [
+                { "id": "m2-12-a", "text": "(−2, 3)", "isCorrect": false },
+                { "id": "m2-12-b", "text": "(2, 3)", "isCorrect": true },
+                { "id": "m2-12-c", "text": "(2, −3)", "isCorrect": false },
+                { "id": "m2-12-d", "text": "(3, 2)", "isCorrect": false }
+            ],
+            "eje": "Funciones"
+        },
+        {
+            "id": "m2-13",
+            "number": 13,
+            "statement": "Simplifica: (a³ · a²) / a⁴",
+            "options": [
+                { "id": "m2-13-a", "text": "a⁴", "isCorrect": false },
+                { "id": "m2-13-b", "text": "a", "isCorrect": true },
+                { "id": "m2-13-c", "text": "a²", "isCorrect": false },
+                { "id": "m2-13-d", "text": "a³", "isCorrect": false }
+            ],
+            "eje": "Álgebra"
+        },
+        {
+            "id": "m2-14",
+            "number": 14,
+            "statement": "El punto medio del segmento entre A(0, 0) y B(6, 4) es",
+            "options": [
+                { "id": "m2-14-a", "text": "(3, 4)", "isCorrect": false },
+                { "id": "m2-14-b", "text": "(6, 2)", "isCorrect": false },
+                { "id": "m2-14-c", "text": "(3, 2)", "isCorrect": true },
+                { "id": "m2-14-d", "text": "(2, 3)", "isCorrect": false }
+            ],
+            "eje": "Geometría analítica"
+        },
+        {
+            "id": "m2-15",
+            "number": 15,
+            "statement": "¿Cuántas combinaciones de 2 elementos existen en un conjunto de 5 elementos?",
+            "options": [
+                { "id": "m2-15-a", "text": "10", "isCorrect": true },
+                { "id": "m2-15-b", "text": "20", "isCorrect": false },
+                { "id": "m2-15-c", "text": "5", "isCorrect": false },
+                { "id": "m2-15-d", "text": "25", "isCorrect": false }
+            ],
+            "eje": "Probabilidad y estadística"
+        }
+    ]
+}

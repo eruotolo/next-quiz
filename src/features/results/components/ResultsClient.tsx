@@ -4,7 +4,9 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { deleteResult } from '@/features/results/actions/mutations';
+import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
+import { Card } from '@/shared/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -12,10 +14,18 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/shared/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import { Tag } from '@/shared/components/ui/badge';
 import { calcGrade } from '@/features/results/lib/grade';
 import { formatRut } from '@/shared/lib/rut';
 import { cn } from '@/shared/lib/utils';
-import { BarChart3, CheckCircle, Eye, Trash2, Users, XCircle } from 'lucide-react';
+import { BarChart3, CheckCircle, Eye, Loader2, Trash2, Users, XCircle, MoreHorizontal, Download } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/shared/components/ui/dropdown-menu';
 
 interface QuestionOption {
     id: string;
@@ -80,172 +90,184 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
         });
     }
 
-    if (totalCount === 0) {
-        return (
-            <div className="border-border flex flex-col items-center justify-center rounded-2xl border border-dashed bg-white py-20">
-                <BarChart3 size={40} className="text-muted-foreground/40 mb-3" />
-                <p className="text-muted-foreground font-medium">Todavía no hay resultados</p>
-                <p className="text-muted-foreground/70 mt-1 text-sm">
-                    Los resultados aparecerán aquí cuando los alumnos completen exámenes.
-                </p>
-            </div>
-        );
-    }
+    // Compute summary stats
+    const allResults = examGroups.flatMap((eg) =>
+        eg.results.map((r) => ({
+            grade: calcGrade(r.score, r.maxScore, eg.maxGrade, eg.passingGrade, eg.passingPercentage),
+            passingGrade: eg.passingGrade,
+        })),
+    );
+    const avgGrade =
+        allResults.length > 0
+            ? allResults.reduce((s, r) => s + r.grade, 0) / allResults.length
+            : 0;
+    const passingCount = allResults.filter((r) => r.grade >= r.passingGrade).length;
+    const passingRate = allResults.length > 0 ? Math.round((passingCount / allResults.length) * 100) : 0;
 
     return (
-        <>
-            <div className="space-y-6">
-                {examGroups.map((data) => (
-                    <div
-                        key={data.examId}
-                        className="border-border overflow-hidden rounded-2xl border bg-white shadow-sm"
-                    >
-                        <div className="border-border bg-muted/50 border-b px-6 py-4">
-                            <h2 className="text-foreground font-semibold">{data.title}</h2>
-                            <p className="text-muted-foreground mt-0.5 flex items-center gap-1 text-sm">
-                                <Users size={13} />
-                                {data.groupNames} · {data.results.length} alumno
-                                {data.results.length !== 1 ? 's' : ''} · Nota máx {data.maxGrade}{' '}
-                                (aprobación: {data.passingGrade} con {data.passingPercentage}%)
+        <div className="flex flex-col min-h-screen bg-paper">
+            {/* Header */}
+            <AdminTopBar
+                breadcrumb={['Colegio Antártica', 'Resultados']}
+                title="Historial de Resultados"
+                subtitle={`${totalCount} evaluaciones completadas y procesadas`}
+                actions={
+                    <Button variant="ink" size="md" className="gap-2">
+                        <Download size={16} />
+                        Exportar Reporte
+                    </Button>
+                }
+            />
+
+            <main className="flex-1 p-8 space-y-8 overflow-auto">
+                {/* Global Stats */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    {[
+                        { label: 'Total Entregas', value: String(totalCount), icon: Users, color: '#1F2EFF' },
+                        {
+                            label: 'Promedio General',
+                            value: avgGrade.toFixed(1),
+                            icon: BarChart3,
+                            color: '#7C5CFF',
+                        },
+                        {
+                            label: 'Tasa Aprobación',
+                            value: `${passingRate}%`,
+                            icon: CheckCircle,
+                            color: '#22C55E',
+                        },
+                    ].map((tile) => (
+                        <Card key={tile.label} className="p-6 bg-white border-border shadow-sm">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="size-8 rounded-[8px] flex items-center justify-center border border-border bg-paper-warm" style={{ color: tile.color }}>
+                                    <tile.icon size={16} />
+                                </div>
+                                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-mute">{tile.label}</span>
+                            </div>
+                            <p className="font-display text-[32px] font-bold leading-none tracking-tight text-ink">
+                                {tile.value}
                             </p>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead className="border-border border-b">
-                                    <tr>
-                                        <th className="text-muted-foreground px-6 py-3 text-left text-xs font-semibold tracking-wide uppercase">
-                                            Alumno
-                                        </th>
-                                        <th className="text-muted-foreground px-6 py-3 text-left text-xs font-semibold tracking-wide uppercase">
-                                            RUT
-                                        </th>
-                                        <th className="text-muted-foreground px-6 py-3 text-center text-xs font-semibold tracking-wide uppercase">
-                                            Puntaje
-                                        </th>
-                                        <th className="text-muted-foreground px-6 py-3 text-center text-xs font-semibold tracking-wide uppercase">
-                                            Nota
-                                        </th>
-                                        <th className="text-muted-foreground px-6 py-3 text-right text-xs font-semibold tracking-wide uppercase">
-                                            Entregado
-                                        </th>
-                                        <th className="text-muted-foreground px-6 py-3 text-right text-xs font-semibold tracking-wide uppercase">
-                                            Acciones
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-border divide-y">
-                                    {data.results.map((r) => {
-                                        const grade = calcGrade(
-                                            r.score,
-                                            r.maxScore,
-                                            data.maxGrade,
-                                            data.passingGrade,
-                                            data.passingPercentage,
-                                        );
-                                        const passing = grade >= data.passingGrade;
-                                        return (
-                                            <tr
-                                                key={r.id}
-                                                className="hover:bg-muted/30 transition-colors"
-                                            >
-                                                <td className="text-foreground px-6 py-4 font-medium">
-                                                    {r.studentName}
-                                                </td>
-                                                <td className="text-muted-foreground px-6 py-4 font-mono text-sm">
-                                                    {formatRut(r.studentRut)}
-                                                </td>
-                                                <td className="text-foreground px-6 py-4 text-center text-sm font-semibold">
-                                                    {r.score}/{r.maxScore}
-                                                </td>
-                                                <td className="px-6 py-4 text-center">
-                                                    <span
-                                                        className={cn(
-                                                            'inline-flex items-center justify-center rounded-full px-3 py-0.5 text-xs font-bold',
-                                                            passing
-                                                                ? 'bg-success/10 text-success'
-                                                                : 'bg-destructive/10 text-destructive',
-                                                        )}
-                                                    >
-                                                        {grade.toFixed(1)}
-                                                    </span>
-                                                </td>
-                                                <td
-                                                    suppressHydrationWarning
-                                                    className="text-muted-foreground px-6 py-4 text-right text-sm"
-                                                >
-                                                    {new Date(r.completedAt).toLocaleDateString(
-                                                        'es-CL',
-                                                        {
-                                                            day: '2-digit',
-                                                            month: 'short',
-                                                            hour: '2-digit',
-                                                            minute: '2-digit',
-                                                        },
-                                                    )}
-                                                </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <div className="flex items-center justify-end gap-1">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="text-muted-foreground hover:text-foreground h-8 w-8"
-                                                            onClick={() =>
-                                                                setViewTarget({
-                                                                    result: r,
-                                                                    exam: data,
-                                                                })
-                                                            }
-                                                        >
-                                                            <Eye size={15} />
-                                                        </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="text-muted-foreground hover:text-destructive h-8 w-8"
-                                                            onClick={() =>
-                                                                setDeleteTarget({
-                                                                    id: r.id,
-                                                                    studentName: r.studentName,
-                                                                })
-                                                            }
-                                                        >
-                                                            <Trash2 size={15} />
-                                                        </Button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
+                        </Card>
+                    ))}
+                </div>
+
+                {totalCount === 0 ? (
+                    <Card className="flex flex-col items-center justify-center border-dashed py-24">
+                        <BarChart3 size={48} className="mb-4 text-mute/20" />
+                        <p className="text-lg font-medium text-ink">Todavía no hay resultados</p>
+                        <p className="mt-1 text-sm text-mute">Los resultados aparecerán aquí cuando los alumnos completen exámenes.</p>
+                    </Card>
+                ) : (
+                    <div className="space-y-10">
+                        {examGroups.map((data) => (
+                            <div key={data.examId} className="space-y-4">
+                                <div className="flex items-end justify-between px-2">
+                                    <div>
+                                        <h2 className="font-display text-[22px] font-bold text-ink tracking-tight">{data.title}</h2>
+                                        <div className="mt-1 flex items-center gap-2 text-mute">
+                                            <Tag tone="outline" className="bg-paper-warm/50 border-border font-mono text-[10px] h-5">{data.groupNames}</Tag>
+                                            <span className="text-[12px] font-medium">· {data.results.length} alumnos evaluados</span>
+                                        </div>
+                                    </div>
+                                    <div className="font-mono text-[10px] font-bold text-mute uppercase tracking-widest bg-white border border-border px-3 py-1 rounded-full">
+                                        Escala: {data.passingGrade} ({data.passingPercentage}%)
+                                    </div>
+                                </div>
+
+                                <Card className="p-0 overflow-visible border-border shadow-sm">
+                                    <Table>
+                                        <TableHeader className="bg-paper">
+                                            <TableRow className="hover:bg-transparent border-b border-border">
+                                                <TableHead>Estudiante</TableHead>
+                                                <TableHead className="w-[160px]">RUT</TableHead>
+                                                <TableHead className="w-[140px] text-center">Puntaje</TableHead>
+                                                <TableHead className="w-[120px] text-center">Nota</TableHead>
+                                                <TableHead className="w-[180px] text-right">Fecha de Entrega</TableHead>
+                                                <TableHead className="w-12" />
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {data.results.map((r) => {
+                                                const grade = calcGrade(
+                                                    r.score,
+                                                    r.maxScore,
+                                                    data.maxGrade,
+                                                    data.passingGrade,
+                                                    data.passingPercentage,
+                                                );
+                                                const passing = grade >= data.passingGrade;
+                                                return (
+                                                    <TableRow key={r.id} className="group h-16 border-b border-border last:border-0">
+                                                        <TableCell>
+                                                            <span className="text-[13.5px] font-bold text-ink">{r.studentName}</span>
+                                                        </TableCell>
+                                                        <TableCell className="font-mono text-[12px] text-mute">
+                                                            {formatRut(r.studentRut)}
+                                                        </TableCell>
+                                                        <TableCell className="text-center font-mono text-[13px] font-bold text-ink-dim">
+                                                            {r.score} / {r.maxScore}
+                                                        </TableCell>
+                                                        <TableCell className="text-center">
+                                                            <Tag
+                                                                tone={passing ? "success" : "danger"}
+                                                                className="font-display font-bold text-[14px] h-7 px-3 rounded-full"
+                                                            >
+                                                                {grade.toFixed(1)}
+                                                            </Tag>
+                                                        </TableCell>
+                                                        <TableCell className="text-right font-mono text-[11px] font-bold text-mute uppercase">
+                                                            {new Date(r.completedAt).toLocaleDateString('es-CL', {
+                                                                day: '2-digit',
+                                                                month: 'short',
+                                                                hour: '2-digit',
+                                                                minute: '2-digit',
+                                                            })}
+                                                        </TableCell>
+                                                        <TableCell className="text-right">
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <Button variant="ghost" size="icon-sm" className="h-9 w-9">
+                                                                        <MoreHorizontal size={18} className="text-mute" />
+                                                                    </Button>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent align="end" className="rounded-xl border-border shadow-xl w-44">
+                                                                    <DropdownMenuItem onClick={() => setViewTarget({ result: r, exam: data })} className="gap-2 py-2.5 cursor-pointer">
+                                                                        <Eye size={14} /> Revisar respuestas
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => setDeleteTarget({ id: r.id, studentName: r.studentName })} className="text-destructive gap-2 py-2.5 cursor-pointer focus:bg-danger-wash focus:text-destructive">
+                                                                        <Trash2 size={14} /> Eliminar registro
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            })}
+                                        </TableBody>
+                                    </Table>
+                                </Card>
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
+                )}
+            </main>
 
             {/* Delete confirmation */}
             <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-                <DialogContent className="sm:max-w-sm">
+                <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
                     <DialogHeader>
-                        <DialogTitle>Eliminar resultado</DialogTitle>
+                        <DialogTitle className="font-display text-2xl text-destructive">Eliminar registro</DialogTitle>
                     </DialogHeader>
-                    <p className="text-muted-foreground text-sm">
-                        ¿Estás seguro de que querés eliminar el resultado de{' '}
-                        <span className="text-foreground font-semibold">
-                            {deleteTarget?.studentName}
-                        </span>
-                        ? Esta acción no se puede deshacer.
-                    </p>
-                    <DialogFooter>
-                        <Button
-                            variant="outline"
-                            onClick={() => setDeleteTarget(null)}
-                            disabled={isPending}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button variant="destructive" onClick={handleDelete} disabled={isPending}>
-                            {isPending ? 'Eliminando…' : 'Eliminar'}
+                    <div className="py-2">
+                        <p className="text-[14px] leading-relaxed text-ink-dim">
+                            ¿Estás seguro de eliminar el resultado de <strong className="text-ink">{deleteTarget?.studentName}</strong>? Esta acción no se puede deshacer.
+                        </p>
+                    </div>
+                    <DialogFooter className="gap-2 sm:justify-end mt-2">
+                        <Button variant="ghost" size="md" onClick={() => setDeleteTarget(null)} disabled={isPending}>Cancelar</Button>
+                        <Button variant="danger" size="md" onClick={handleDelete} disabled={isPending}>
+                            {isPending && <Loader2 className="animate-spin mr-2" />}
+                            Eliminar
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -253,17 +275,22 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
 
             {/* Answers review */}
             <Dialog open={!!viewTarget} onOpenChange={(open) => !open && setViewTarget(null)}>
-                <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg">
-                    <DialogHeader className="shrink-0">
-                        <DialogTitle>{viewTarget?.result.studentName}</DialogTitle>
-                        <p className="text-muted-foreground text-sm">{viewTarget?.exam.title}</p>
-                    </DialogHeader>
-                    {viewTarget && (
-                        <AnswersReview result={viewTarget.result} exam={viewTarget.exam} />
-                    )}
+                <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
+                    <div className="px-6 py-5 border-b border-border bg-paper">
+                        <DialogTitle className="font-display text-xl text-ink">{viewTarget?.result.studentName}</DialogTitle>
+                        <p className="text-[12px] font-bold text-mute uppercase tracking-widest mt-1">{viewTarget?.exam.title}</p>
+                    </div>
+                    <div className="flex-1 overflow-hidden">
+                        {viewTarget && (
+                            <AnswersReview result={viewTarget.result} exam={viewTarget.exam} />
+                        )}
+                    </div>
+                    <div className="px-6 py-4 border-t border-border flex justify-end bg-white">
+                        <Button variant="ink" size="md" onClick={() => setViewTarget(null)}>Cerrar revisión</Button>
+                    </div>
                 </DialogContent>
             </Dialog>
-        </>
+        </div>
     );
 }
 
@@ -282,65 +309,63 @@ function AnswersReview({
     }
 
     return (
-        <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="space-y-2 pr-1 pb-2">
-                {exam.questions.map((q, idx) => {
-                    const selectedIds = getSelectedIds(answerMap[q.id]);
-                    const correctOptions = q.options.filter((o) => o.isCorrect);
-                    const correctSet = new Set(correctOptions.map((o) => o.id));
-                    const selectedSet = new Set(selectedIds);
-                    const isCorrect =
-                        selectedSet.size > 0 &&
-                        correctSet.size === selectedSet.size &&
-                        [...correctSet].every((id) => selectedSet.has(id));
-                    const selectedOptions = q.options.filter((o) => selectedIds.includes(o.id));
+        <div className="h-full overflow-y-auto px-6 py-6 space-y-4">
+            {exam.questions.map((q, idx) => {
+                const selectedIds = getSelectedIds(answerMap[q.id]);
+                const correctOptions = q.options.filter((o) => o.isCorrect);
+                const correctSet = new Set(correctOptions.map((o) => o.id));
+                const selectedSet = new Set(selectedIds);
+                const isCorrect =
+                    selectedSet.size > 0 &&
+                    correctSet.size === selectedSet.size &&
+                    [...correctSet].every((id) => selectedSet.has(id));
+                const selectedOptions = q.options.filter((o) => selectedIds.includes(o.id));
 
-                    return (
-                        <div
-                            key={q.id}
-                            className={cn(
-                                'rounded-[14px] border-2 p-[14px]',
-                                isCorrect
-                                    ? 'border-success/30 bg-success/10'
-                                    : 'border-destructive/30 bg-destructive/10',
-                            )}
-                        >
-                            <div className="flex items-start gap-2.5">
-                                {isCorrect ? (
-                                    <CheckCircle
-                                        size={18}
-                                        className="text-success mt-[2px] shrink-0"
-                                    />
-                                ) : (
-                                    <XCircle
-                                        size={18}
-                                        className="text-destructive mt-[2px] shrink-0"
-                                    />
-                                )}
-                                <p className="text-foreground text-sm leading-snug font-medium">
+                return (
+                    <div
+                        key={q.id}
+                        className={cn(
+                            'rounded-[14px] border p-4 transition-all',
+                            isCorrect
+                                ? 'border-success/20 bg-success/5'
+                                : 'border-destructive/20 bg-danger-wash/50',
+                        )}
+                    >
+                        <div className="flex items-start gap-3">
+                            <div className={cn(
+                                "size-6 rounded-full flex items-center justify-center shrink-0 mt-0.5",
+                                isCorrect ? "bg-success text-white" : "bg-destructive text-white"
+                            )}>
+                                {isCorrect ? <CheckCircle size={14} /> : <XCircle size={14} />}
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-[14px] font-bold leading-tight text-ink">
                                     {idx + 1}. {q.text}
                                 </p>
+                                
+                                {!isCorrect && (
+                                    <div className="mt-3 space-y-2">
+                                        <div className="rounded-[8px] bg-white/60 p-2 border border-destructive/10">
+                                            <p className="text-[11px] font-bold text-destructive uppercase tracking-wider mb-1">Respuesta del alumno</p>
+                                            <p className="text-[13px] text-ink-dim">
+                                                {selectedOptions.length > 0
+                                                    ? selectedOptions.map((o) => o.text).join(', ')
+                                                    : 'Sin respuesta'}
+                                            </p>
+                                        </div>
+                                        <div className="rounded-[8px] bg-success/10 p-2 border border-success/10">
+                                            <p className="text-[11px] font-bold text-success uppercase tracking-wider mb-1">Respuesta correcta</p>
+                                            <p className="text-[13px] text-ink">
+                                                {correctOptions.map((o) => o.text).join(', ')}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                            {!isCorrect && (
-                                <div className="mt-1.5 ml-7 flex flex-col gap-0.5 text-[13px]">
-                                    <p className="text-destructive">
-                                        <span className="font-semibold">Respuesta:</span>{' '}
-                                        {selectedOptions.length > 0
-                                            ? selectedOptions.map((o) => o.text).join(', ')
-                                            : 'Sin respuesta'}
-                                    </p>
-                                    <p className="text-success">
-                                        <span className="font-semibold">
-                                            {correctOptions.length > 1 ? 'Correctas:' : 'Correcta:'}
-                                        </span>{' '}
-                                        {correctOptions.map((o) => o.text).join(', ')}
-                                    </p>
-                                </div>
-                            )}
                         </div>
-                    );
-                })}
-            </div>
+                    </div>
+                );
+            })}
         </div>
     );
 }

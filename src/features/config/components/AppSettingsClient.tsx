@@ -111,6 +111,38 @@ export function AppSettingsClient({ config }: Props): React.JSX.Element {
                 </CardContent>
             </Card>
 
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-base">SEO Global & IA</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-6">
+                    <SettingField
+                        label="Título Global"
+                        description="Título base de la plataforma para buscadores e IAs."
+                        configKey={APP_CONFIG_KEY.SEO_GLOBAL_TITLE}
+                        value={config[APP_CONFIG_KEY.SEO_GLOBAL_TITLE]}
+                    />
+                    <SettingField
+                        label="Descripción Global"
+                        description="Descripción por defecto de la plataforma (máx. 160 caracteres)."
+                        configKey={APP_CONFIG_KEY.SEO_GLOBAL_DESCRIPTION}
+                        value={config[APP_CONFIG_KEY.SEO_GLOBAL_DESCRIPTION]}
+                    />
+                    <SettingField
+                        label="Palabras Clave"
+                        description="Palabras clave globales separadas por comas."
+                        configKey={APP_CONFIG_KEY.SEO_GLOBAL_KEYWORDS}
+                        value={config[APP_CONFIG_KEY.SEO_GLOBAL_KEYWORDS]}
+                    />
+                    <SettingField
+                        label="Imagen OpenGraph (URL)"
+                        description="URL de la imagen que aparece al compartir el sitio en redes sociales."
+                        configKey={APP_CONFIG_KEY.SEO_GLOBAL_OG_IMAGE}
+                        value={config[APP_CONFIG_KEY.SEO_GLOBAL_OG_IMAGE]}
+                    />
+                </CardContent>
+            </Card>
+
             <Card className="opacity-60">
                 <CardHeader>
                     <CardTitle className="text-base">Inteligencia Artificial (próximamente)</CardTitle>
