@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "skills": {
+    "database": {
+      "source": "miles990/claude-software-skills",
+      "sourceType": "github",
+      "skillPath": "development-stacks/database/SKILL.md",
+      "computedHash": "79d18bb37235877041920f2f09280bdd1bfffb2f887af1129f178fdab804da1c"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "computedHash": "9e1c8b3103f92fa8092568a44fe64858de7c5c9dc65ce4bea8f168080e889cfd"
+    },
+    "git-workflow": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "skillPath": "git-workflow/SKILL.md",
+      "computedHash": "2a9b62a28e13449834f72f94f0d889049f931ce362c9830ffa7237ed4a344c6d"
+    },
+    "nextjs-data-fetching": {
+      "source": "giuseppe-trisciuoglio/developer-kit",
+      "sourceType": "github",
+      "skillPath": "plugins/developer-kit-typescript/skills/nextjs-data-fetching/SKILL.md",
+      "computedHash": "3a82ef614a13d4ae78321e6834f8fc334510e20f8e605a7b542bfba2e9be9dab"
+    },
+    "nextjs-shadcn": {
+      "source": "laguagu/claude-code-nextjs-skills",
+      "sourceType": "github",
+      "skillPath": "skills/nextjs-shadcn/SKILL.md",
+      "computedHash": "5233a2071d20d2d9964ac9aeda41d658af7f641766f99d7fa895c896010e35c4"
+    },
+    "prisma-patterns": {
+      "source": "ashchupliak/dream-team",
+      "sourceType": "github",
+      "skillPath": "skills/prisma-patterns/SKILL.md",
+      "computedHash": "0e4b9d4523701d7b05a019409ebeece029a7017641c8b685c7f5605e8ad7def7"
+    },
+    "react-best-practices": {
+      "source": "0xbigboss/claude-code",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/react-best-practices/SKILL.md",
+      "computedHash": "aee15f49f1782b4602ece026533564db85d7c20a1efb1f79b028aa21da3f177a"
+    },
+    "server-actions": {
+      "source": "davepoon/buildwithclaude",
+      "sourceType": "github",
+      "skillPath": "plugins/nextjs-expert/skills/server-actions/SKILL.md",
+      "computedHash": "beb8383b05d1c0a2d11590e6924a5994d30b0c13a4ba8dd64eba4a1ae5e4bc8b"
+    }
+  }
+}

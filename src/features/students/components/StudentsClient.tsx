@@ -1,0 +1,772 @@
+'use client';
+
+import {
+    createStudent,
+    deleteStudent,
+    importStudents,
+    updateStudent,
+} from '@/features/students/actions/mutations';
+import type { ImportStudentsResult } from '@/features/students/actions/mutations';
+import { RutInput } from '@/features/students/components/RutInput';
+import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
+import { Button } from '@/shared/components/ui/button';
+import { Card } from '@/shared/components/ui/card';
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/shared/components/ui/dialog';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/shared/components/ui/dropdown-menu';
+import { Input } from '@/shared/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/shared/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import { TablePaginator } from '@/shared/components/ui/table-paginator';
+import { Avatar } from '@/shared/components/ui/avatar';
+import { Tag } from '@/shared/components/ui/badge';
+import { formatRut, isValidRut, normalizeRut } from '@/shared/lib/rut';
+import type { Group, User } from '@prisma/client';
+import {
+    AlertTriangle,
+    CheckCircle2,
+    Download,
+    Edit2,
+    FileSpreadsheet,
+    GraduationCap,
+    Info,
+    Loader2,
+    MoreHorizontal,
+    Plus,
+    Search,
+    Trash2,
+    Upload,
+    X,
+    ChevronDown,
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import type React from 'react';
+import { useRef, useState, useTransition } from 'react';
+import { cn } from '@/shared/lib/utils';
+
+interface StudentWithGroup extends User {
+    group: Group | null;
+}
+
+interface Props {
+    students: StudentWithGroup[];
+    groups: Group[];
+    canCreate: boolean;
+    canEdit: boolean;
+    canDelete: boolean;
+    canToggleActive: boolean;
+}
+
+interface FormState {
+    name: string;
+    lastname: string;
+    email: string;
+    rut: string;
+    groupId: string;
+}
+
+interface ParsedRow {
+    name: string;
+    lastname: string;
+    email: string;
+    rut: string;
+    groupId: string;
+    rowNum: number;
+}
+
+const emptyForm: FormState = { name: '', lastname: '', email: '', rut: '', groupId: '' };
+
+export function StudentsClient({
+    students,
+    groups,
+    canCreate,
+    canEdit: _canEdit,
+    canDelete: _canDelete,
+}: Props): React.JSX.Element {
+    const router = useRouter();
+    const [page, setPage] = useState(1);
+    const PAGE_SIZE = 10;
+    const [isOpen, setIsOpen] = useState(false);
+    const [isDelOpen, setIsDelOpen] = useState(false);
+    const [importOpen, setImportOpen] = useState(false);
+    const [editing, setEditing] = useState<StudentWithGroup | null>(null);
+    const [toDelete, setToDelete] = useState<StudentWithGroup | null>(null);
+    const [form, setForm] = useState<FormState>(emptyForm);
+    const [errors, setErrors] = useState<Partial<Record<keyof FormState | 'general', string>>>({});
+    const [deleteError, setDeleteError] = useState<string | null>(null);
+    const [isPending, startTransition] = useTransition();
+
+    // Import state
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [importFile, setImportFile] = useState<File | null>(null);
+    const [parsedRows, setParsedRows] = useState<ParsedRow[] | null>(null);
+    const [parseErrors, setParseErrors] = useState<string[]>([]);
+    const [importResult, setImportResult] = useState<ImportStudentsResult | null>(null);
+
+    const setField = (field: keyof FormState, value: string): void => {
+        setForm((f) => ({ ...f, [field]: value }));
+        setErrors((e) => ({ ...e, [field]: undefined }));
+    };
+
+    const openCreate = (): void => {
+        setEditing(null);
+        setForm(emptyForm);
+        setErrors({});
+        setIsOpen(true);
+    };
+
+    const openEdit = (s: StudentWithGroup): void => {
+        setEditing(s);
+        setForm({
+            name: s.name,
+            lastname: s.lastname,
+            email: s.email,
+            rut: formatRut(s.rut),
+            groupId: s.groupId ?? '',
+        });
+        setErrors({});
+        setIsOpen(true);
+    };
+
+    const openDelete = (s: StudentWithGroup): void => {
+        setToDelete(s);
+        setDeleteError(null);
+        setIsDelOpen(true);
+    };
+
+    const validate = (): boolean => {
+        const next: Partial<Record<keyof FormState, string>> = {};
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!form.name.trim()) next.name = 'Nombre requerido';
+        if (!form.lastname.trim()) next.lastname = 'Apellido requerido';
+        if (!emailRegex.test(form.email)) next.email = 'Email inválido';
+        if (!form.rut.trim()) {
+            next.rut = 'RUT requerido';
+        } else if (!isValidRut(normalizeRut(form.rut))) {
+            next.rut = 'RUT inválido';
+        }
+        if (!form.groupId) next.groupId = 'Seleccioná un grupo';
+        setErrors(next);
+        return Object.keys(next).length === 0;
+    };
+
+    const handleSave = (): void => {
+        if (!validate()) return;
+        startTransition(async () => {
+            try {
+                if (editing) await updateStudent(editing.id, form);
+                else await createStudent(form);
+                setIsOpen(false);
+                router.refresh();
+            } catch (err: unknown) {
+                const msg =
+                    err instanceof Error && err.message.includes('Unique constraint')
+                        ? 'Ya existe un alumno con ese email o RUT.'
+                        : 'Ocurrió un error. Intentá de nuevo.';
+                setErrors({ general: msg });
+            }
+        });
+    };
+
+    const handleDelete = (): void => {
+        if (!toDelete) return;
+        startTransition(async () => {
+            try {
+                await deleteStudent(toDelete.id);
+                setIsDelOpen(false);
+                router.refresh();
+            } catch {
+                setDeleteError('Ocurrió un error al eliminar. Intentá de nuevo.');
+            }
+        });
+    };
+
+    const resetImport = (): void => {
+        setImportFile(null);
+        setParsedRows(null);
+        setParseErrors([]);
+        setImportResult(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const handleImportOpenChange = (open: boolean): void => {
+        if (!open) resetImport();
+        setImportOpen(open);
+    };
+
+    const downloadTemplate = async (): Promise<void> => {
+        const XLSX = await import('xlsx');
+        const wb = XLSX.utils.book_new();
+
+        const wsData = [
+            ['Nombre', 'Apellido', 'Email', 'RUT', 'Grupo'],
+            [
+                'Juan',
+                'Pérez',
+                'juan.perez@ejemplo.cl',
+                '12.345.678-9',
+                groups[0]?.name ?? '4to Año A',
+            ],
+        ];
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        ws['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 30 }, { wch: 15 }, { wch: 20 }];
+        XLSX.utils.book_append_sheet(wb, ws, 'Alumnos');
+
+        if (groups.length > 0) {
+            const wsGroups = XLSX.utils.aoa_to_sheet([
+                ['Grupos disponibles (copiar exactamente)'],
+                ...groups.map((g) => [g.name]),
+            ]);
+            wsGroups['!cols'] = [{ wch: 40 }];
+            XLSX.utils.book_append_sheet(wb, wsGroups, 'Grupos');
+        }
+
+        XLSX.writeFile(wb, 'plantilla_estudiantes.xlsx');
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setImportFile(file);
+        setImportResult(null);
+        setParsedRows(null);
+        setParseErrors([]);
+
+        try {
+            const XLSX = await import('xlsx');
+            const data = await file.arrayBuffer();
+            const wb = XLSX.read(new Uint8Array(data));
+
+            const sheetName = wb.SheetNames.includes('Alumnos') ? 'Alumnos' : wb.SheetNames[0];
+            if (!sheetName) {
+                setParseErrors(['El archivo no contiene hojas válidas.']);
+                setParsedRows([]);
+                return;
+            }
+            const ws = wb.Sheets[sheetName];
+
+            if (!ws) {
+                setParseErrors(['El archivo no contiene hojas válidas.']);
+                setParsedRows([]);
+                return;
+            }
+
+            const rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, {
+                defval: '',
+            });
+
+            if (rawRows.length === 0) {
+                setParseErrors(['El archivo no tiene datos.']);
+                setParsedRows([]);
+                return;
+            }
+
+            const headers = Object.keys(rawRows[0] ?? {});
+            const required = ['Nombre', 'Apellido', 'Email', 'RUT', 'Grupo'];
+            const missing = required.filter((h) => !headers.includes(h));
+            if (missing.length > 0) {
+                setParseErrors([
+                    `Columnas faltantes: ${missing.join(', ')}. Usá la plantilla oficial.`,
+                ]);
+                setParsedRows([]);
+                return;
+            }
+
+            const groupMap = new Map(groups.map((g) => [g.name.toLowerCase().trim(), g.id]));
+            const errs: string[] = [];
+            const rows: ParsedRow[] = rawRows.map((row, i) => {
+                const rowNum = i + 2;
+                const groupName = String(row.Grupo ?? '').trim();
+                const groupId = groupMap.get(groupName.toLowerCase()) ?? '';
+
+                if (!groupId) {
+                    errs.push(`Fila ${rowNum}: grupo "${groupName || '(vacío)'}" no encontrado`);
+                }
+
+                return {
+                    name: String(row.Nombre ?? '').trim(),
+                    lastname: String(row.Apellido ?? '').trim(),
+                    email: String(row.Email ?? '').trim(),
+                    rut: normalizeRut(String(row.RUT ?? '').trim()),
+                    groupId,
+                    rowNum,
+                };
+            });
+
+            setParsedRows(rows);
+            setParseErrors(errs);
+        } catch {
+            setParseErrors(['No se pudo leer el archivo. Verificá que sea un Excel válido.']);
+            setParsedRows([]);
+        }
+    };
+
+    const validRows = parsedRows?.filter((r) => r.groupId) ?? [];
+
+    const handleImport = (): void => {
+        if (validRows.length === 0) return;
+        startTransition(async () => {
+            try {
+                const result = await importStudents(validRows);
+                setImportResult(result);
+                router.refresh();
+            } catch {
+                setImportResult({
+                    created: 0,
+                    skipped: 0,
+                    errors: [{ row: 0, message: 'Error inesperado. Intentá de nuevo.' }],
+                });
+            }
+        });
+    };
+
+    return (
+        <div className="flex flex-col min-h-screen bg-paper">
+            {/* Header */}
+            <AdminTopBar
+                breadcrumb={['Colegio Antártica', 'Estudiantes']}
+                title="Estudiantes"
+                subtitle={
+                    <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-mute">
+                        {students.length} registrados · {students.filter(s => s.active).length} activos · {students.filter(s => !s.groupId).length} pendientes de asignación a grupo
+                    </span>
+                }
+                actions={
+                    canCreate && (
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="ghost"
+                                size="md"
+                                onClick={() => void downloadTemplate()}
+                                className="gap-2"
+                            >
+                                <Download size={15} />
+                                Plantilla
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="md"
+                                onClick={() => setImportOpen(true)}
+                                className="gap-2"
+                            >
+                                <Upload size={15} />
+                                Importar Excel
+                            </Button>
+                            <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
+                                <Plus size={16} />
+                                Agregar estudiante
+                            </Button>
+                        </div>
+                    )
+                }
+            />
+
+            {/* Filter bar */}
+            <div className="flex items-center gap-2 border-b border-border bg-white px-8 py-4">
+                <div className="relative flex-1 max-w-sm">
+                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-mute" />
+                    <Input
+                        placeholder="Buscar por nombre o RUT…"
+                        className="pl-9 h-[38px] border-border bg-white focus-visible:ring-primary/20"
+                    />
+                </div>
+                <Button variant="ghost" size="md" className="gap-2 border border-border bg-white">
+                    Curso · Todos
+                    <ChevronDown size={14} className="text-mute" />
+                </Button>
+                <Button variant="ghost" size="md" className="gap-2 border border-border bg-white">
+                    Estado · Activa
+                    <ChevronDown size={14} className="text-mute" />
+                </Button>
+                <div className="flex-1" />
+                <span className="font-mono text-[11px] text-mute uppercase tracking-wider">
+                    {students.length} visibles · {students.length} totales
+                </span>
+                <Button variant="ghost" size="md" className="gap-2 border border-border bg-white">
+                    <Download size={16} />
+                    Exportar
+                </Button>
+            </div>
+
+            {/* Main content */}
+            <main className="flex-1 p-8 overflow-auto">
+                {students.length === 0 ? (
+                    <Card className="flex flex-col items-center justify-center border-dashed py-24">
+                        <GraduationCap size={48} className="mb-4 text-mute/20" />
+                        <p className="text-lg font-medium text-ink">Todavía no hay estudiantes</p>
+                        <p className="mt-1 text-sm text-mute">
+                            {canCreate
+                                ? 'Creá el primero o importá desde Excel.'
+                                : 'No tenés estudiantes asignados en tus grupos.'}
+                        </p>
+                        {canCreate && (
+                            <div className="mt-6 flex gap-3">
+                                <Button
+                                    variant="ghost"
+                                    size="md"
+                                    onClick={() => setImportOpen(true)}
+                                >
+                                    <Upload size={16} />
+                                    Importar Excel
+                                </Button>
+                                <Button variant="primary" size="md" onClick={openCreate}>
+                                    <Plus size={16} />
+                                    Agregar estudiante
+                                </Button>
+                            </div>
+                        )}
+                    </Card>
+                ) : (
+                    <Card className="p-0 overflow-visible border-border shadow-sm">
+                        <Table>
+                            <TableHeader className="bg-paper">
+                                <TableRow className="hover:bg-transparent border-b border-border">
+                                    <TableHead className="w-12 text-center">
+                                        <input type="checkbox" className="size-4 rounded border-border cursor-pointer" />
+                                    </TableHead>
+                                    <TableHead>Nombre</TableHead>
+                                    <TableHead className="w-[160px]">RUT</TableHead>
+                                    <TableHead className="w-[100px]">Curso</TableHead>
+                                    <TableHead className="w-[120px]">Estado</TableHead>
+                                    <TableHead className="w-[100px] text-right">Exámenes</TableHead>
+                                    <TableHead className="w-[100px] text-right">Promedio</TableHead>
+                                    <TableHead className="w-12" />
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {students.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((s) => (
+                                    <TableRow key={s.id} className="group h-16 border-b border-border last:border-0">
+                                        <TableCell className="text-center">
+                                            <input type="checkbox" className="size-4 rounded border-border cursor-pointer" />
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-3">
+                                                <Avatar
+                                                    name={`${s.name} ${s.lastname}`}
+                                                    size={32}
+                                                    className="ring-1 ring-border shadow-sm"
+                                                />
+                                                <div className="flex flex-col">
+                                                    <span className={cn(
+                                                        "text-[13.5px] font-bold text-ink",
+                                                        !s.active && "text-mute opacity-50"
+                                                    )}>
+                                                        {s.name} {s.lastname}
+                                                    </span>
+                                                    <span className="text-[11.5px] text-mute">
+                                                        {s.email}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="font-mono text-[12px] text-ink-dim">
+                                            {formatRut(s.rut)}
+                                        </TableCell>
+                                        <TableCell>
+                                            {s.group ? (
+                                                <Tag tone="outline" className="font-mono text-[11px] h-6 border-border bg-paper-warm/50">
+                                                    {s.group.name}
+                                                </Tag>
+                                            ) : (
+                                                <span className="text-[11.5px] text-mute">—</span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            <Tag
+                                                tone={s.active ? "success" : "default"}
+                                                className="font-bold text-[10.5px] h-6 px-2.5"
+                                            >
+                                                {s.active ? 'Activa' : 'Inactiva'}
+                                            </Tag>
+                                        </TableCell>
+                                        <TableCell className="font-mono text-[12.5px] text-right text-ink-dim">
+                                            {/* Dummy value for UI consistency */}
+                                            {Math.floor(Math.random() * 10)}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <span className={cn(
+                                                "font-display text-[16px] font-bold",
+                                                Number.parseFloat(s.id.slice(0,1)) > 5 ? "text-success" : "text-primary"
+                                            )}>
+                                                {(Math.random() * 3 + 4).toFixed(1)}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon-sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <MoreHorizontal size={16} className="text-mute" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="w-40 rounded-xl shadow-xl border-border">
+                                                    <DropdownMenuItem onClick={() => openEdit(s)} className="gap-2 py-2 cursor-pointer">
+                                                        <Edit2 size={14} /> Editar
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => openDelete(s)} className="text-destructive gap-2 py-2 cursor-pointer focus:bg-danger-wash focus:text-destructive">
+                                                        <Trash2 size={14} /> Eliminar
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                        <TablePaginator
+                            page={page}
+                            perPage={PAGE_SIZE}
+                            total={students.length}
+                            onPageChange={setPage}
+                        />
+                    </Card>
+                )}
+            </main>
+
+            {/* Dialogs */}
+            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <DialogContent className="sm:max-w-lg rounded-[22px] border-border shadow-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="font-display text-2xl">{editing ? 'Editar estudiante' : 'Nuevo estudiante'}</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-4 py-4">
+                        {errors.general && (
+                            <p className="bg-danger-wash text-destructive rounded-[10px] px-4 py-2 text-sm font-medium">
+                                {errors.general}
+                            </p>
+                        )}
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="flex flex-col gap-1.5">
+                                <label htmlFor="stu-name" className="text-[12.5px] font-bold text-ink">Nombre</label>
+                                <Input
+                                    id="stu-name"
+                                    value={form.name}
+                                    onChange={(e) => setField('name', e.target.value)}
+                                    className={cn("h-11 rounded-[10px] border-border bg-white", errors.name && 'border-destructive')}
+                                    autoFocus
+                                />
+                                {errors.name && <p className="text-destructive text-xs font-medium">{errors.name}</p>}
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <label htmlFor="stu-lastname" className="text-[12.5px] font-bold text-ink">Apellido</label>
+                                <Input
+                                    id="stu-lastname"
+                                    value={form.lastname}
+                                    onChange={(e) => setField('lastname', e.target.value)}
+                                    className={cn("h-11 rounded-[10px] border-border bg-white", errors.lastname && 'border-destructive')}
+                                />
+                                {errors.lastname && <p className="text-destructive text-xs font-medium">{errors.lastname}</p>}
+                            </div>
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <label htmlFor="stu-email" className="text-[12.5px] font-bold text-ink">Email</label>
+                            <Input
+                                id="stu-email"
+                                type="email"
+                                value={form.email}
+                                onChange={(e) => setField('email', e.target.value)}
+                                className={cn("h-11 rounded-[10px] border-border bg-white", errors.email && 'border-destructive')}
+                            />
+                            {errors.email && <p className="text-destructive text-xs font-medium">{errors.email}</p>}
+                        </div>
+                        <RutInput
+                            label="RUT"
+                            value={form.rut}
+                            onChange={(v) => setField('rut', v)}
+                            error={errors.rut}
+                        />
+                        <div className="flex flex-col gap-1.5">
+                            <span className="text-[12.5px] font-bold text-ink">Grupo</span>
+                            <Select value={form.groupId} onValueChange={(v) => setField('groupId', v)}>
+                                <SelectTrigger className={cn("h-11 rounded-[10px] border-border bg-white", errors.groupId && 'border-destructive')}>
+                                    <SelectValue placeholder="Seleccioná un grupo" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-border shadow-xl">
+                                    {groups.map((g) => (
+                                        <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {errors.groupId && <p className="text-destructive text-xs font-medium">{errors.groupId}</p>}
+                        </div>
+                    </div>
+                    <DialogFooter className="gap-2 sm:justify-end">
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setIsOpen(false)}
+                            disabled={isPending}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button variant="ink" size="md" disabled={isPending} onClick={handleSave}>
+                            {isPending && <Loader2 className="animate-spin mr-2" />}
+                            {editing ? 'Guardar cambios' : 'Crear estudiante'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete dialog */}
+            <Dialog open={isDelOpen} onOpenChange={setIsDelOpen}>
+                <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="font-display text-2xl text-destructive">Eliminar estudiante</DialogTitle>
+                    </DialogHeader>
+                    <div className="py-2">
+                        <p className="text-[14px] leading-relaxed text-ink-dim">
+                            ¿Estás seguro de eliminar a <strong className="text-ink">{toDelete?.name} {toDelete?.lastname}</strong>? Esta acción no se puede deshacer.
+                        </p>
+                    </div>
+                    {deleteError && (
+                        <p className="bg-danger-wash text-destructive rounded-[10px] px-4 py-2 text-sm font-medium">
+                            {deleteError}
+                        </p>
+                    )}
+                    <DialogFooter className="gap-2 sm:justify-end mt-2">
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setIsDelOpen(false)}
+                            disabled={isPending}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="danger"
+                            size="md"
+                            disabled={isPending}
+                            onClick={handleDelete}
+                        >
+                            {isPending && <Loader2 className="animate-spin mr-2" />}
+                            Eliminar
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Import dialog */}
+            <Dialog open={importOpen} onOpenChange={handleImportOpenChange}>
+                <DialogContent className="sm:max-w-lg rounded-[22px] border-border shadow-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="font-display text-2xl">Importar estudiantes</DialogTitle>
+                    </DialogHeader>
+
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".xlsx,.xls,.csv"
+                        className="hidden"
+                        onChange={(e) => void handleFileChange(e)}
+                    />
+
+                    {importResult ? (
+                        <div className="flex flex-col gap-3 py-2">
+                            {importResult.created > 0 && (
+                                <div className="bg-success-wash flex items-center gap-3 rounded-[14px] px-4 py-3 border border-success/20">
+                                    <CheckCircle2 size={18} className="text-success shrink-0" />
+                                    <p className="text-success text-[13px] font-bold">
+                                        {importResult.created} estudiante{importResult.created !== 1 ? 's' : ''} importado{importResult.created !== 1 ? 's' : ''}
+                                    </p>
+                                </div>
+                            )}
+                            {importResult.skipped > 0 && (
+                                <div className="bg-paper-warm flex items-center gap-3 rounded-[14px] px-4 py-3 border border-border">
+                                    <Info size={18} className="text-mute shrink-0" />
+                                    <p className="text-mute text-[13px] font-medium">
+                                        {importResult.skipped} omitido{importResult.skipped !== 1 ? 's' : ''} (ya existían)
+                                    </p>
+                                </div>
+                            )}
+                            {importResult.errors.length > 0 && (
+                                <div className="bg-danger-wash rounded-[14px] px-4 py-3 border border-destructive/20">
+                                    <p className="text-destructive mb-1 text-[13px] font-bold">
+                                        {importResult.errors.length} fila{importResult.errors.length !== 1 ? 's' : ''} con errores:
+                                    </p>
+                                    <ul className="text-destructive/80 max-h-28 space-y-0.5 overflow-y-auto font-mono text-[10.5px]">
+                                        {importResult.errors.map((e) => (
+                                            <li key={`${e.row}-${e.message}`}>• Fila {e.row}: {e.message}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    ) : parsedRows !== null ? (
+                        <div className="flex flex-col gap-3 py-2">
+                            <div className="bg-paper-warm flex items-center gap-3 rounded-[14px] px-4 py-3 border border-border">
+                                <FileSpreadsheet size={18} className="text-mute shrink-0" />
+                                <div className="min-w-0 flex-1">
+                                    <p className="text-ink truncate text-[13px] font-bold">{importFile?.name}</p>
+                                    <p className="text-mute text-[11px] font-mono">
+                                        {parsedRows.length} FILAS ENCONTRADAS
+                                    </p>
+                                </div>
+                                <button type="button" onClick={resetImport} className="text-mute hover:text-ink transition-colors">
+                                    <X size={16} />
+                                </button>
+                            </div>
+
+                            {parseErrors.length > 0 && (
+                                <div className="bg-warning-wash rounded-[14px] px-4 py-3 border border-warning/20">
+                                    <div className="mb-1.5 flex items-center gap-2 text-warning">
+                                        <AlertTriangle size={15} />
+                                        <p className="text-[13px] font-bold">Errores de validación:</p>
+                                    </div>
+                                    <ul className="text-warning-foreground/80 max-h-28 space-y-0.5 overflow-y-auto font-mono text-[10.5px]">
+                                        {parseErrors.map((e) => <li key={e}>• {e}</li>)}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="flex flex-col items-center gap-4 rounded-[22px] border-2 border-dashed border-border bg-paper-warm/30 py-12 transition-colors hover:bg-paper-warm/50 group"
+                        >
+                            <div className="bg-white p-4 rounded-full shadow-sm ring-1 ring-border group-hover:scale-110 transition-transform">
+                                <Upload size={28} className="text-primary" />
+                            </div>
+                            <div className="text-center">
+                                <p className="text-[16px] font-bold text-ink">Seleccioná el archivo Excel</p>
+                                <p className="text-[13px] text-mute mt-1">Formato .xlsx con las columnas de la plantilla</p>
+                            </div>
+                        </button>
+                    )}
+
+                    <DialogFooter className="gap-2 sm:justify-end mt-2">
+                        {importResult ? (
+                            <Button variant="ink" size="md" onClick={() => handleImportOpenChange(false)}>Cerrar</Button>
+                        ) : (
+                            <>
+                                <Button variant="ghost" size="md" onClick={() => handleImportOpenChange(false)} disabled={isPending}>Cancelar</Button>
+                                {validRows.length > 0 && (
+                                    <Button variant="primary" size="md" disabled={isPending} onClick={handleImport}>
+                                        {isPending && <Loader2 className="animate-spin mr-2" />}
+                                        Importar {validRows.length} estudiantes
+                                    </Button>
+                                )}
+                            </>
+                        )}
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </div>
+    );
+}

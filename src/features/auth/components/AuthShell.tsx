@@ -1,0 +1,64 @@
+import type * as React from 'react';
+import { LogoMark, LogoWordmark } from '@/shared/components/branding/logo';
+
+interface AuthShellProps {
+    children: React.ReactNode;
+    side?: React.ReactNode;
+}
+
+export function AuthShell({ children, side }: AuthShellProps): React.JSX.Element {
+    return (
+        <div className="grid min-h-screen lg:grid-cols-[0.9fr_1.1fr]">
+            {/* Left — ink panel with radial gradients */}
+            <aside
+                className="relative hidden flex-col justify-between p-12 lg:flex"
+                style={{
+                    background: [
+                        'radial-gradient(ellipse at 22% 22%, rgba(31,46,255,0.38) 0%, transparent 55%)',
+                        'radial-gradient(ellipse at 78% 78%, rgba(214,255,31,0.14) 0%, transparent 50%)',
+                        '#0b0b11',
+                    ].join(', '),
+                }}
+            >
+                {/* Logo */}
+                <div className="flex items-center gap-3">
+                    <LogoMark size={34} variant="tinta" />
+                    <LogoWordmark size={22} color="#ffffff" />
+                </div>
+
+                {/* Optional side content */}
+                {side ? (
+                    <div className="flex-1 flex items-center py-12">{side}</div>
+                ) : (
+                    <div className="flex-1 flex flex-col justify-center py-12 space-y-4">
+                        <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/30">
+                            Plataforma educativa
+                        </p>
+                        <h2 className="font-display text-[44px] font-semibold leading-tight tracking-[-0.035em] text-white">
+                            Crea, aplica y corrige exámenes en minutos.
+                        </h2>
+                        <p className="text-[15px] leading-relaxed text-white/50">
+                            Para colegios, preuniversitarios e instituciones de educación superior chilenas.
+                        </p>
+                    </div>
+                )}
+
+                {/* Footer */}
+                <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/25">
+                    © 2026 Aulika · Todos los derechos reservados
+                </p>
+            </aside>
+
+            {/* Right — paper form area */}
+            <main className="flex flex-col items-center justify-center bg-paper px-8 py-12">
+                {/* Mobile logo */}
+                <div className="mb-8 flex items-center gap-2.5 lg:hidden">
+                    <LogoMark size={30} />
+                    <LogoWordmark size={20} color="#0b0b11" />
+                </div>
+
+                <div className="w-full max-w-[400px]">{children}</div>
+            </main>
+        </div>
+    );
+}

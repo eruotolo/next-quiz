@@ -32,6 +32,10 @@ lerna-debug.log*
 # ─── Testing ─────────────────────────────────────────────────────────────────
 coverage/
 .nyc_output/
+test-results/
+playwright-report/
+playwright/.cache/
+vitest.config.*.timestamp*
 
 # ─── OS ──────────────────────────────────────────────────────────────────────
 .DS_Store
@@ -73,5 +77,9 @@ design.html
 extract_html.js
 parse_html.js
 
-# Local Netlify folder
-.netlify
+# ─── Local / Dev tooling ─────────────────────────────────────────────────────
+.claude/
+.agents/
+.doc/
+.seeders/
+

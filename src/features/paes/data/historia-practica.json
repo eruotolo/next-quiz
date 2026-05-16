@@ -1,0 +1,190 @@
+{
+    "_info": "Preguntas de práctica originales — Alineadas al temario oficial DEMRE Historia y Ciencias Sociales. NO son ítems oficiales de la PAES.",
+    "subject": "historia",
+    "title": "Historia y Ciencias Sociales",
+    "source": "Banco de práctica — EduNext Quiz",
+    "sourceUrl": "https://demre.cl/la-prueba/pruebas-y-temarios/presentacion-pruebas-temarios-paes-regular",
+    "timeLimitMinutes": 120,
+    "questions": [
+        {
+            "id": "hi-01",
+            "number": 1,
+            "statement": "¿En qué año Chile declaró su Independencia formalmente?",
+            "options": [
+                { "id": "hi-01-a", "text": "1810", "isCorrect": false },
+                { "id": "hi-01-b", "text": "1818", "isCorrect": true },
+                { "id": "hi-01-c", "text": "1823", "isCorrect": false },
+                { "id": "hi-01-d", "text": "1830", "isCorrect": false }
+            ],
+            "eje": "Historia de Chile"
+        },
+        {
+            "id": "hi-02",
+            "number": 2,
+            "statement": "¿Cuál fue el principal resultado político de la Revolución Francesa (1789)?",
+            "options": [
+                { "id": "hi-02-a", "text": "El fortalecimiento de la monarquía absoluta en Europa.", "isCorrect": false },
+                { "id": "hi-02-b", "text": "La expansión del Imperio Romano.", "isCorrect": false },
+                { "id": "hi-02-c", "text": "El cuestionamiento del absolutismo y la proclamación de los derechos del hombre.", "isCorrect": true },
+                { "id": "hi-02-d", "text": "La creación de la Organización de Naciones Unidas.", "isCorrect": false }
+            ],
+            "eje": "Historia universal"
+        },
+        {
+            "id": "hi-03",
+            "number": 3,
+            "statement": "¿Qué organización es responsable de garantizar la paz y seguridad internacional tras la Segunda Guerra Mundial?",
+            "options": [
+                { "id": "hi-03-a", "text": "La Liga de las Naciones", "isCorrect": false },
+                { "id": "hi-03-b", "text": "La Organización de Naciones Unidas (ONU)", "isCorrect": true },
+                { "id": "hi-03-c", "text": "La Unión Europea", "isCorrect": false },
+                { "id": "hi-03-d", "text": "El Fondo Monetario Internacional", "isCorrect": false }
+            ],
+            "eje": "Educación cívica"
+        },
+        {
+            "id": "hi-04",
+            "number": 4,
+            "statement": "El Desierto de Atacama se ubica en la zona",
+            "options": [
+                { "id": "hi-04-a", "text": "Sur de Chile", "isCorrect": false },
+                { "id": "hi-04-b", "text": "Centro de Chile", "isCorrect": false },
+                { "id": "hi-04-c", "text": "Norte de Chile", "isCorrect": true },
+                { "id": "hi-04-d", "text": "Extremo sur de Chile", "isCorrect": false }
+            ],
+            "eje": "Geografía"
+        },
+        {
+            "id": "hi-05",
+            "number": 5,
+            "statement": "¿Cuál fue el período histórico conocido como «Parlamentarismo» en Chile?",
+            "options": [
+                { "id": "hi-05-a", "text": "1810–1833", "isCorrect": false },
+                { "id": "hi-05-b", "text": "1833–1891", "isCorrect": false },
+                { "id": "hi-05-c", "text": "1891–1925", "isCorrect": true },
+                { "id": "hi-05-d", "text": "1925–1973", "isCorrect": false }
+            ],
+            "eje": "Historia de Chile"
+        },
+        {
+            "id": "hi-06",
+            "number": 6,
+            "statement": "¿Cuántos poderes del Estado contempla la Constitución Política de Chile?",
+            "options": [
+                { "id": "hi-06-a", "text": "Dos", "isCorrect": false },
+                { "id": "hi-06-b", "text": "Tres", "isCorrect": true },
+                { "id": "hi-06-c", "text": "Cuatro", "isCorrect": false },
+                { "id": "hi-06-d", "text": "Cinco", "isCorrect": false }
+            ],
+            "eje": "Educación cívica"
+        },
+        {
+            "id": "hi-07",
+            "number": 7,
+            "statement": "La Primera Guerra Mundial (1914-1918) fue desencadenada principalmente por",
+            "options": [
+                { "id": "hi-07-a", "text": "La invasión alemana a Polonia.", "isCorrect": false },
+                { "id": "hi-07-b", "text": "El asesinato del Archiduque Francisco Fernando en Sarajevo.", "isCorrect": true },
+                { "id": "hi-07-c", "text": "La Revolución Rusa de 1917.", "isCorrect": false },
+                { "id": "hi-07-d", "text": "El hundimiento del Lusitania.", "isCorrect": false }
+            ],
+            "eje": "Historia universal"
+        },
+        {
+            "id": "hi-08",
+            "number": 8,
+            "statement": "¿Cuál es el tipo de clima predominante en la Zona Central de Chile (Santiago y alrededores)?",
+            "options": [
+                { "id": "hi-08-a", "text": "Clima desértico", "isCorrect": false },
+                { "id": "hi-08-b", "text": "Clima mediterráneo", "isCorrect": true },
+                { "id": "hi-08-c", "text": "Clima templado oceánico", "isCorrect": false },
+                { "id": "hi-08-d", "text": "Clima polar", "isCorrect": false }
+            ],
+            "eje": "Geografía"
+        },
+        {
+            "id": "hi-09",
+            "number": 9,
+            "statement": "¿Quién fue el primer presidente de la República de Chile tras la aprobación de la Constitución de 1833?",
+            "options": [
+                { "id": "hi-09-a", "text": "Bernardo O'Higgins", "isCorrect": false },
+                { "id": "hi-09-b", "text": "José Joaquín Prieto", "isCorrect": false },
+                { "id": "hi-09-c", "text": "Diego Portales", "isCorrect": false },
+                { "id": "hi-09-d", "text": "Joaquín Prieto (bajo la Constitución vigente)", "isCorrect": true }
+            ],
+            "eje": "Historia de Chile"
+        },
+        {
+            "id": "hi-10",
+            "number": 10,
+            "statement": "El concepto de «soberanía popular» indica que el poder político proviene de",
+            "options": [
+                { "id": "hi-10-a", "text": "La voluntad de Dios expresada por la Iglesia.", "isCorrect": false },
+                { "id": "hi-10-b", "text": "El pueblo, que delega su representación a las autoridades.", "isCorrect": true },
+                { "id": "hi-10-c", "text": "El ejército y las fuerzas armadas del Estado.", "isCorrect": false },
+                { "id": "hi-10-d", "text": "La aristocracia y las élites económicas dominantes.", "isCorrect": false }
+            ],
+            "eje": "Educación cívica"
+        },
+        {
+            "id": "hi-11",
+            "number": 11,
+            "statement": "¿Qué proceso se denomina «Reconquista» en la historia de la América colonial?",
+            "options": [
+                { "id": "hi-11-a", "text": "La recuperación española del control de las colonias tras los movimientos independentistas de 1810.", "isCorrect": true },
+                { "id": "hi-11-b", "text": "La conquista de territorios indígenas por parte de los colonizadores europeos.", "isCorrect": false },
+                { "id": "hi-11-c", "text": "La rebelión de los pueblos originarios contra el dominio español.", "isCorrect": false },
+                { "id": "hi-11-d", "text": "El proceso de colonización de América del Sur por España.", "isCorrect": false }
+            ],
+            "eje": "Historia de Chile"
+        },
+        {
+            "id": "hi-12",
+            "number": 12,
+            "statement": "¿Cuál es la cordillera que recorre Chile de norte a sur en su límite oriental?",
+            "options": [
+                { "id": "hi-12-a", "text": "Cordillera de la Costa", "isCorrect": false },
+                { "id": "hi-12-b", "text": "Cordillera de los Andes", "isCorrect": true },
+                { "id": "hi-12-c", "text": "Sierra Madre", "isCorrect": false },
+                { "id": "hi-12-d", "text": "Cordillera Patagónica", "isCorrect": false }
+            ],
+            "eje": "Geografía"
+        },
+        {
+            "id": "hi-13",
+            "number": 13,
+            "statement": "¿Qué acontecimiento marcó el fin de la Segunda Guerra Mundial en Europa?",
+            "options": [
+                { "id": "hi-13-a", "text": "El bombardeo atómico de Hiroshima (1945)", "isCorrect": false },
+                { "id": "hi-13-b", "text": "La rendición incondicional de Alemania en mayo de 1945", "isCorrect": true },
+                { "id": "hi-13-c", "text": "El Desembarco de Normandía (1944)", "isCorrect": false },
+                { "id": "hi-13-d", "text": "La batalla de Stalingrado (1943)", "isCorrect": false }
+            ],
+            "eje": "Historia universal"
+        },
+        {
+            "id": "hi-14",
+            "number": 14,
+            "statement": "El sufragio femenino en Chile fue establecido por primera vez para elecciones municipales en",
+            "options": [
+                { "id": "hi-14-a", "text": "1925", "isCorrect": false },
+                { "id": "hi-14-b", "text": "1934", "isCorrect": true },
+                { "id": "hi-14-c", "text": "1949", "isCorrect": false },
+                { "id": "hi-14-d", "text": "1952", "isCorrect": false }
+            ],
+            "eje": "Historia de Chile"
+        },
+        {
+            "id": "hi-15",
+            "number": 15,
+            "statement": "¿Qué institución ejerce el control constitucional preventivo de las leyes en Chile?",
+            "options": [
+                { "id": "hi-15-a", "text": "La Corte Suprema", "isCorrect": false },
+                { "id": "hi-15-b", "text": "El Senado", "isCorrect": false },
+                { "id": "hi-15-c", "text": "El Tribunal Constitucional", "isCorrect": true },
+                { "id": "hi-15-d", "text": "La Contraloría General de la República", "isCorrect": false }
+            ],
+            "eje": "Educación cívica"
+        }
+    ]
+}

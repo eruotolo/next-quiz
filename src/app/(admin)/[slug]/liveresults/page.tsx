@@ -1,0 +1,156 @@
+import { calcGrade } from '@/features/results/lib/grade';
+import { prisma } from '@/shared/lib/prisma';
+import {
+    LiveResultsClient,
+    type ExamOption,
+    type LiveExamData,
+    type LiveResultRow,
+} from '@/features/results/components/LiveResultsClient';
+
+interface PageProps {
+    searchParams: Promise<{ examId?: string }>;
+}
+
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
+export default async function LiveResultsPage({
+    searchParams,
+}: PageProps): Promise<React.JSX.Element> {
+    const { examId: paramExamId } = await searchParams;
+
+    const activeExams = await prisma.exam.findMany({
+        where: { active: true },
+        select: { id: true, title: true, active: true },
+        orderBy: { createdAt: 'desc' },
+    });
+
+    const examOptions: ExamOption[] = activeExams;
+
+    const validParamId = activeExams.some((e) => e.id === paramExamId) ? paramExamId : undefined;
+    const examId = validParamId ?? activeExams[0]?.id;
+
+    let examData: LiveExamData | null = null;
+
+    if (examId) {
+        const [exam, inProgressAnswers, completedResults] = await Promise.all([
+            prisma.exam.findUnique({
+                where: { id: examId },
+                select: {
+                    id: true,
+                    title: true,
+                    maxGrade: true,
+                    passingGrade: true,
+                    passingPercentage: true,
+                    questions: {
+                        orderBy: { order: 'asc' },
+                        select: {
+                            id: true,
+                            order: true,
+                            text: true,
+                            points: true,
+                            options: { select: { id: true, text: true, isCorrect: true } },
+                        },
+                    },
+                },
+            }),
+            prisma.answer.findMany({
+                where: { examId },
+                select: {
+                    studentId: true,
+                    questionId: true,
+                    optionId: true,
+                    student: { select: { name: true, lastname: true } },
+                },
+            }),
+            prisma.result.findMany({
+                where: { examId },
+                select: {
+                    studentId: true,
+                    score: true,
+                    maxScore: true,
+                    answers: true,
+                    student: { select: { name: true, lastname: true } },
+                },
+                orderBy: { completedAt: 'asc' },
+            }),
+        ]);
+
+        if (exam) {
+            const completedStudentIds = new Set(completedResults.map((r) => r.studentId));
+            const inProgressMap = new Map<
+                string,
+                { name: string; answers: Record<string, string> }
+            >();
+
+            for (const a of inProgressAnswers) {
+                if (completedStudentIds.has(a.studentId)) continue;
+                if (!inProgressMap.has(a.studentId)) {
+                    inProgressMap.set(a.studentId, {
+                        name: `${a.student.name} ${a.student.lastname}`,
+                        answers: {},
+                    });
+                }
+                const entry = inProgressMap.get(a.studentId);
+                if (entry) entry.answers[a.questionId] = a.optionId;
+            }
+
+            const rows: LiveResultRow[] = [];
+
+            for (const [studentId, data] of inProgressMap) {
+                rows.push({
+                    studentId,
+                    studentName: data.name,
+                    score: null,
+                    maxScore: null,
+                    grade: null,
+                    passing: null,
+                    status: 'in-progress',
+                    answers: data.answers,
+                });
+            }
+            rows.sort((a, b) => {
+                if (a.status !== 'completed' && b.status !== 'completed') {
+                    return Object.keys(b.answers).length - Object.keys(a.answers).length;
+                }
+                return 0;
+            });
+
+            for (const r of completedResults) {
+                const grade = calcGrade(
+                    r.score,
+                    r.maxScore,
+                    exam.maxGrade,
+                    exam.passingGrade,
+                    exam.passingPercentage,
+                );
+                rows.push({
+                    studentId: r.studentId,
+                    studentName: `${r.student.name} ${r.student.lastname}`,
+                    score: r.score,
+                    maxScore: r.maxScore,
+                    grade,
+                    passing: grade >= exam.passingGrade,
+                    status: 'completed',
+                    answers: r.answers as Record<string, string>,
+                });
+            }
+
+            examData = {
+                examId: exam.id,
+                title: exam.title,
+                maxGrade: exam.maxGrade,
+                passingGrade: exam.passingGrade,
+                passingPercentage: exam.passingPercentage,
+                questions: exam.questions,
+                results: rows,
+            };
+        }
+    }
+
+    return (
+        <LiveResultsClient
+            allExams={examOptions}
+            selectedExamId={examId ?? null}
+            examData={examData}
+        />
+    );
+}

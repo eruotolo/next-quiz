@@ -1,0 +1,458 @@
+{
+    "_info": "Preguntas de práctica originales — Alineadas al temario oficial DEMRE. NO son ítems oficiales de la PAES. Reemplazar con preguntas reales al parsear los PDFs de DEMRE.",
+    "subject": "lectora",
+    "title": "Competencia Lectora",
+    "source": "Banco de práctica — EduNext Quiz",
+    "sourceUrl": "https://demre.cl/la-prueba/pruebas-y-temarios/presentacion-pruebas-temarios-paes-regular",
+    "timeLimitMinutes": 150,
+    "questions": [
+        {
+            "id": "cl-01",
+            "number": 1,
+            "contextTitle": "Texto 1",
+            "context": "La novela es el arte de la prosa que busca iluminar la vida humana en su complejidad esencial. A diferencia de otros géneros, la novela no exige un único punto de vista: puede contener mundos contradictorios, personajes moralmente ambiguos y situaciones sin resolución clara. Esta apertura formal refleja la apertura del mundo mismo: en la realidad no todo se resuelve, no todo tiene sentido, y la novela honesta asume esa condición. El lector que se acerca a la gran novela no busca respuestas definitivas, sino una comprensión más honda de las preguntas.",
+            "statement": "¿Cuál es la idea central del texto?",
+            "options": [
+                {
+                    "id": "cl-01-a",
+                    "text": "La novela es superior a otros géneros literarios por su extensión y complejidad.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-01-b",
+                    "text": "La novela refleja la complejidad de la vida humana al aceptar la ambigüedad y la falta de resolución.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "cl-01-c",
+                    "text": "Los lectores de novelas buscan encontrar respuestas definitivas a sus preguntas existenciales.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-01-d",
+                    "text": "La prosa es la única forma literaria capaz de capturar la realidad humana.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Relacionar e interpretar"
+        },
+        {
+            "id": "cl-02",
+            "number": 2,
+            "contextTitle": "Texto 1",
+            "context": "La novela es el arte de la prosa que busca iluminar la vida humana en su complejidad esencial. A diferencia de otros géneros, la novela no exige un único punto de vista: puede contener mundos contradictorios, personajes moralmente ambiguos y situaciones sin resolución clara. Esta apertura formal refleja la apertura del mundo mismo: en la realidad no todo se resuelve, no todo tiene sentido, y la novela honesta asume esa condición. El lector que se acerca a la gran novela no busca respuestas definitivas, sino una comprensión más honda de las preguntas.",
+            "statement": "Según el texto, ¿qué característica distingue a la novela de otros géneros literarios?",
+            "options": [
+                {
+                    "id": "cl-02-a",
+                    "text": "Usa exclusivamente la prosa para narrar historias de larga extensión.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-02-b",
+                    "text": "Exige que sus personajes tengan una moral clara y ejemplar.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-02-c",
+                    "text": "Puede contener perspectivas contradictorias y situaciones sin resolución.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "cl-02-d",
+                    "text": "Siempre termina con una conclusión filosófica sobre la condición humana.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Localizar y recuperar información"
+        },
+        {
+            "id": "cl-03",
+            "number": 3,
+            "contextTitle": "Texto 1",
+            "context": "La novela es el arte de la prosa que busca iluminar la vida humana en su complejidad esencial. A diferencia de otros géneros, la novela no exige un único punto de vista: puede contener mundos contradictorios, personajes moralmente ambiguos y situaciones sin resolución clara. Esta apertura formal refleja la apertura del mundo mismo: en la realidad no todo se resuelve, no todo tiene sentido, y la novela honesta asume esa condición. El lector que se acerca a la gran novela no busca respuestas definitivas, sino una comprensión más honda de las preguntas.",
+            "statement": "La expresión \"apertura formal\" en el texto se refiere a",
+            "options": [
+                {
+                    "id": "cl-03-a",
+                    "text": "la capacidad de la novela para publicarse en múltiples formatos y ediciones.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-03-b",
+                    "text": "la flexibilidad estructural de la novela para admitir puntos de vista y situaciones diversas.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "cl-03-c",
+                    "text": "el acceso libre que tiene el público general a las obras novelísticas.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-03-d",
+                    "text": "la longitud indefinida que caracteriza al género novelístico.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Relacionar e interpretar"
+        },
+        {
+            "id": "cl-04",
+            "number": 4,
+            "contextTitle": "Texto 2",
+            "context": "Durante décadas, los científicos creyeron que la memoria funcionaba como un grabador: al recordar algo, simplemente reproducíamos una copia fiel del pasado. Investigaciones recientes demuestran lo contrario: cada vez que recordamos, reconstruimos activamente ese recuerdo, y en el proceso podemos modificarlo. Factores como el estado emocional, las expectativas y la información recibida después del evento pueden alterar lo que creemos recordar con certeza. Este fenómeno tiene implicancias profundas en ámbitos como la justicia penal, donde el testimonio ocular ha sido históricamente considerado una prueba confiable.",
+            "statement": "¿Cuál es el propósito comunicativo principal del texto?",
+            "options": [
+                {
+                    "id": "cl-04-a",
+                    "text": "Narrar la historia del estudio científico de la memoria humana.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-04-b",
+                    "text": "Refutar una creencia establecida sobre el funcionamiento de la memoria y señalar sus consecuencias.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "cl-04-c",
+                    "text": "Proponer una nueva metodología para evaluar la confiabilidad de los testimonios.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-04-d",
+                    "text": "Advertir sobre los peligros de confiar en la memoria en situaciones cotidianas.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Relacionar e interpretar"
+        },
+        {
+            "id": "cl-05",
+            "number": 5,
+            "contextTitle": "Texto 2",
+            "context": "Durante décadas, los científicos creyeron que la memoria funcionaba como un grabador: al recordar algo, simplemente reproducíamos una copia fiel del pasado. Investigaciones recientes demuestran lo contrario: cada vez que recordamos, reconstruimos activamente ese recuerdo, y en el proceso podemos modificarlo. Factores como el estado emocional, las expectativas y la información recibida después del evento pueden alterar lo que creemos recordar con certeza. Este fenómeno tiene implicancias profundas en ámbitos como la justicia penal, donde el testimonio ocular ha sido históricamente considerado una prueba confiable.",
+            "statement": "Según el texto, ¿qué factores pueden modificar un recuerdo al momento de recordarlo?",
+            "options": [
+                {
+                    "id": "cl-05-a",
+                    "text": "La duración y la frecuencia con que se ha repetido el recuerdo a lo largo del tiempo.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-05-b",
+                    "text": "El estado emocional, las expectativas y la información posterior al evento.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "cl-05-c",
+                    "text": "La edad de la persona y su capacidad para verbalizar los recuerdos con precisión.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-05-d",
+                    "text": "La tecnología disponible para registrar eventos en el momento en que ocurren.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Localizar y recuperar información"
+        },
+        {
+            "id": "cl-06",
+            "number": 6,
+            "contextTitle": "Texto 2",
+            "context": "Durante décadas, los científicos creyeron que la memoria funcionaba como un grabador: al recordar algo, simplemente reproducíamos una copia fiel del pasado. Investigaciones recientes demuestran lo contrario: cada vez que recordamos, reconstruimos activamente ese recuerdo, y en el proceso podemos modificarlo. Factores como el estado emocional, las expectativas y la información recibida después del evento pueden alterar lo que creemos recordar con certeza. Este fenómeno tiene implicancias profundas en ámbitos como la justicia penal, donde el testimonio ocular ha sido históricamente considerado una prueba confiable.",
+            "statement": "La mención de la justicia penal al final del texto tiene como función",
+            "options": [
+                {
+                    "id": "cl-06-a",
+                    "text": "demostrar que el sistema judicial chileno no utiliza testimonios como prueba.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-06-b",
+                    "text": "criticar la forma en que los jueces valoran la evidencia en los juicios.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-06-c",
+                    "text": "ilustrar una consecuencia práctica y relevante del fenómeno descrito.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "cl-06-d",
+                    "text": "introducir un nuevo tema que se desarrollará en el párrafo siguiente.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Reflexionar y evaluar"
+        },
+        {
+            "id": "cl-07",
+            "number": 7,
+            "contextTitle": "Texto 3",
+            "context": "El silencio de Antonia no era cobardía sino estrategia. Había aprendido en años de reuniones interminables que quien habla primero entrega el poder. Así que esperó, con los ojos fijos en el contrato sobre la mesa, mientras los demás llenaban el aire de palabras ansiosas. Cuando finalmente habló, su voz fue baja pero no titubeó: «Acepto, con una condición». Todos inclinaron sus cabezas.",
+            "statement": "¿Qué revela el comportamiento de Antonia sobre su carácter?",
+            "options": [
+                {
+                    "id": "cl-07-a",
+                    "text": "Es una persona introvertida que prefiere evitar los conflictos laborales.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-07-b",
+                    "text": "Es una negociadora experimentada que usa el silencio como herramienta de poder.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "cl-07-c",
+                    "text": "Es alguien inseguro que necesita tiempo antes de expresar sus opiniones.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-07-d",
+                    "text": "Es una persona desinteresada en el resultado de la negociación.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Relacionar e interpretar"
+        },
+        {
+            "id": "cl-08",
+            "number": 8,
+            "contextTitle": "Texto 3",
+            "context": "El silencio de Antonia no era cobardía sino estrategia. Había aprendido en años de reuniones interminables que quien habla primero entrega el poder. Así que esperó, con los ojos fijos en el contrato sobre la mesa, mientras los demás llenaban el aire de palabras ansiosas. Cuando finalmente habló, su voz fue baja pero no titubeó: «Acepto, con una condición». Todos inclinaron sus cabezas.",
+            "statement": "¿Qué efecto busca producir la última oración del fragmento?",
+            "options": [
+                {
+                    "id": "cl-08-a",
+                    "text": "Mostrar que los demás personajes estaban cansados después de una larga reunión.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-08-b",
+                    "text": "Indicar que todos aceptaron la condición de Antonia sin cuestionarla.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "cl-08-c",
+                    "text": "Describir la postura física de los personajes durante la firma del contrato.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-08-d",
+                    "text": "Sugerir que los personajes no comprendieron lo que Antonia había dicho.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Reflexionar y evaluar"
+        },
+        {
+            "id": "cl-09",
+            "number": 9,
+            "contextTitle": "Texto 4",
+            "context": "El agua cubre el 71% de la superficie terrestre, pero solo el 2,5% es dulce, y de ese porcentaje, la mayor parte está atrapada en glaciares y capas de hielo. El agua subterránea, que abastece a millones de personas en todo el mundo, está siendo extraída en muchas regiones a una velocidad mayor que la que tarda en reponerse naturalmente. Este desbalance entre consumo y recarga pone en riesgo la disponibilidad futura del recurso, especialmente en zonas áridas como el norte de Chile.",
+            "statement": "¿Cuál es el problema central que plantea el texto?",
+            "options": [
+                {
+                    "id": "cl-09-a",
+                    "text": "La distribución desigual del agua entre los países desarrollados y en vías de desarrollo.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-09-b",
+                    "text": "El agotamiento potencial del agua subterránea debido a su extracción excesiva.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "cl-09-c",
+                    "text": "La contaminación del agua dulce por el uso intensivo de pesticidas agrícolas.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-09-d",
+                    "text": "El derretimiento acelerado de los glaciares por el cambio climático global.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Relacionar e interpretar"
+        },
+        {
+            "id": "cl-10",
+            "number": 10,
+            "contextTitle": "Texto 4",
+            "context": "El agua cubre el 71% de la superficie terrestre, pero solo el 2,5% es dulce, y de ese porcentaje, la mayor parte está atrapada en glaciares y capas de hielo. El agua subterránea, que abastece a millones de personas en todo el mundo, está siendo extraída en muchas regiones a una velocidad mayor que la que tarda en reponerse naturalmente. Este desbalance entre consumo y recarga pone en riesgo la disponibilidad futura del recurso, especialmente en zonas áridas como el norte de Chile.",
+            "statement": "Según el texto, ¿qué porcentaje del agua terrestre es de tipo dulce?",
+            "options": [
+                {
+                    "id": "cl-10-a",
+                    "text": "71%",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-10-b",
+                    "text": "2,5%",
+                    "isCorrect": true
+                },
+                {
+                    "id": "cl-10-c",
+                    "text": "28,5%",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-10-d",
+                    "text": "Menos del 1%",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Localizar y recuperar información"
+        },
+        {
+            "id": "cl-11",
+            "number": 11,
+            "contextTitle": "Texto 4",
+            "context": "El agua cubre el 71% de la superficie terrestre, pero solo el 2,5% es dulce, y de ese porcentaje, la mayor parte está atrapada en glaciares y capas de hielo. El agua subterránea, que abastece a millones de personas en todo el mundo, está siendo extraída en muchas regiones a una velocidad mayor que la que tarda en reponerse naturalmente. Este desbalance entre consumo y recarga pone en riesgo la disponibilidad futura del recurso, especialmente en zonas áridas como el norte de Chile.",
+            "statement": "La mención específica del «norte de Chile» al final del texto cumple la función de",
+            "options": [
+                {
+                    "id": "cl-11-a",
+                    "text": "limitar el alcance del problema solo a la realidad chilena.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-11-b",
+                    "text": "ejemplificar con un caso local una problemática de alcance mundial.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "cl-11-c",
+                    "text": "criticar las políticas de gestión del agua del gobierno de Chile.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-11-d",
+                    "text": "contrastar la situación de Chile con la de otros países del mundo.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Reflexionar y evaluar"
+        },
+        {
+            "id": "cl-12",
+            "number": 12,
+            "contextTitle": "Texto 5",
+            "context": "Sostenía Spinoza que una emoción negativa solo puede ser superada por otra emoción, más fuerte y de signo contrario. No basta con conocer racionalmente que algo es dañino: el miedo no desaparece con argumentos, sino cuando otra experiencia —el amor, la esperanza, la indignación— lo reemplaza. Esta idea anticipa en siglos lo que la neurociencia contemporánea confirma: los circuitos emocionales y racionales del cerebro operan en gran medida de forma independiente, y el conocimiento intelectual rara vez puede doblegar por sí solo a una emoción intensa.",
+            "statement": "¿Qué relación se establece entre la filosofía de Spinoza y la neurociencia contemporánea en el texto?",
+            "options": [
+                {
+                    "id": "cl-12-a",
+                    "text": "La neurociencia refuta los postulados filosóficos de Spinoza sobre las emociones.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-12-b",
+                    "text": "La neurociencia confirma empíricamente una intuición filosófica que Spinoza ya había formulado.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "cl-12-c",
+                    "text": "Ambas disciplinas llegan a conclusiones opuestas sobre el papel de la razón en el control emocional.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-12-d",
+                    "text": "La neurociencia complementa la filosofía de Spinoza sin confirmarla ni contradecirla.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Relacionar e interpretar"
+        },
+        {
+            "id": "cl-13",
+            "number": 13,
+            "contextTitle": "Texto 5",
+            "context": "Sostenía Spinoza que una emoción negativa solo puede ser superada por otra emoción, más fuerte y de signo contrario. No basta con conocer racionalmente que algo es dañino: el miedo no desaparece con argumentos, sino cuando otra experiencia —el amor, la esperanza, la indignación— lo reemplaza. Esta idea anticipa en siglos lo que la neurociencia contemporánea confirma: los circuitos emocionales y racionales del cerebro operan en gran medida de forma independiente, y el conocimiento intelectual rara vez puede doblegar por sí solo a una emoción intensa.",
+            "statement": "La palabra «anticipa» en el texto indica que la idea de Spinoza",
+            "options": [
+                {
+                    "id": "cl-13-a",
+                    "text": "fue influenciada por investigaciones científicas anteriores a la neurociencia.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-13-b",
+                    "text": "surgió antes de que la ciencia dispusiera de evidencia para demostrarla.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "cl-13-c",
+                    "text": "predijo exactamente qué métodos usaría la neurociencia para estudiar el cerebro.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-13-d",
+                    "text": "fue considerada errónea por los científicos de su época.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Localizar y recuperar información"
+        },
+        {
+            "id": "cl-14",
+            "number": 14,
+            "contextTitle": "Texto 5",
+            "context": "Sostenía Spinoza que una emoción negativa solo puede ser superada por otra emoción, más fuerte y de signo contrario. No basta con conocer racionalmente que algo es dañino: el miedo no desaparece con argumentos, sino cuando otra experiencia —el amor, la esperanza, la indignación— lo reemplaza. Esta idea anticipa en siglos lo que la neurociencia contemporánea confirma: los circuitos emocionales y racionales del cerebro operan en gran medida de forma independiente, y el conocimiento intelectual rara vez puede doblegar por sí solo a una emoción intensa.",
+            "statement": "¿Cuál de las siguientes situaciones ilustra mejor el planteamiento central del texto?",
+            "options": [
+                {
+                    "id": "cl-14-a",
+                    "text": "Una persona deja de fumar después de leer un informe médico sobre los daños del tabaco.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-14-b",
+                    "text": "Un estudiante supera el miedo a hablar en público gracias a la entusiasta reacción del público.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "cl-14-c",
+                    "text": "Un científico modifica su hipótesis tras revisar los datos obtenidos en el laboratorio.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-14-d",
+                    "text": "Una persona recuerda sus emociones pasadas con mayor claridad que sus recuerdos racionales.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Reflexionar y evaluar"
+        },
+        {
+            "id": "cl-15",
+            "number": 15,
+            "statement": "Lee la siguiente oración: «Su discurso fue convincente pero carente de rigor». ¿Cuál de las siguientes opciones es un sinónimo adecuado de «rigor» en este contexto?",
+            "options": [
+                {
+                    "id": "cl-15-a",
+                    "text": "Severidad",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-15-b",
+                    "text": "Exactitud",
+                    "isCorrect": true
+                },
+                {
+                    "id": "cl-15-c",
+                    "text": "Dureza",
+                    "isCorrect": false
+                },
+                {
+                    "id": "cl-15-d",
+                    "text": "Extensión",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Localizar y recuperar información"
+        }
+    ]
+}

@@ -2,126 +2,260 @@
 // All IDs use PostgreSQL native UUID. See docs in src/lib/rut.ts for RUT normalization.
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  STUDENT
+// ─── Catálogos ───────────────────────────────────────────────────────────────
+
+model UserRole {
+    id        String   @id @default(uuid()) @db.Uuid
+    name      String   @unique
+    users     User[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model AcademicInstitution {
+    id                   String     @id @default(uuid()) @db.Uuid
+    name                 String     @unique
+    slug                 String     @unique
+    phone                String
+    address              String
+    city                 String
+    campus               String?
+    country              String
+    email                String?
+    active               Boolean    @default(true)
+    plan                 String?
+    activatedAt          DateTime?
+    allowedEmailDomains  String[]   @default([])
+    // SEO
+    seoTitle             String?
+    seoDescription       String?
+    seoKeywords          String[]   @default([])
+    users                User[]
+    auditLogs            AuditLog[]
+    createdAt            DateTime   @default(now())
+    updatedAt            DateTime   @updatedAt
+}
+
+// ─── Users & Groups ──────────────────────────────────────────────────────────
+
+model Group {
+    id         String   @id @default(uuid()) @db.Uuid
+    name       String
+    stream     String?
+    tutorId    String?  @db.Uuid
+    tutor      User?    @relation("GroupTutor", fields: [tutorId], references: [id], onDelete: SetNull)
+    users      User[]
+    professors User[]   @relation("ProfessorGroups")
+    exams      Exam[]
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    @@index([tutorId])
 }
 
 model User {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String
-  lastname  String
-  email     String   @unique
-  rut       String   @unique
-  password  String?
-  role      Role     @default(STUDENT)
-  groupId   String?  @db.Uuid
-  group     Group?   @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  results   Result[]
-  answers   Answer[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    id                    String               @id @default(uuid()) @db.Uuid
+    name                  String
+    lastname              String
+    email                 String               @unique
+    rut                   String               @unique
+    phone                 String?              @unique
+    password              String?
+    userRoleId            String?              @db.Uuid
+    userRole              UserRole?            @relation(fields: [userRoleId], references: [id], onDelete: SetNull)
+    academicInstitutionId String?              @db.Uuid
+    academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
+    groupId               String?              @db.Uuid
+    group                 Group?               @relation(fields: [groupId], references: [id], onDelete: SetNull)
+    professorGroups       Group[]              @relation("ProfessorGroups")
+    tutorOfGroups         Group[]              @relation("GroupTutor")
+    active                Boolean              @default(true)
+    results               Result[]
+    answers               Answer[]
+    auditLogs             AuditLog[]
+    createdAt             DateTime             @default(now())
+    updatedAt             DateTime             @updatedAt
 
-  @@index([groupId])
-  @@index([role])
+    @@index([userRoleId])
+    @@index([academicInstitutionId])
+    @@index([groupId])
 }
 
-model Group {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String
-  users     User[]
-  exams     Exam[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum QuestionType {
+    UNICA
+    MULTIPLE
 }
+
+enum QuestionDifficulty {
+    FACIL
+    MEDIA
+    DIFICIL
+}
+
+// ─── Exams ───────────────────────────────────────────────────────────────────
 
 model Exam {
-  id                String     @id @default(uuid()) @db.Uuid
-  title             String
-  timeLimit         Int
-  active            Boolean    @default(false)
-  maxGrade          Float      @default(7)
-  passingGrade      Float      @default(4)
-  passingPercentage Int        @default(60)
-  antiCheatEnabled  Boolean    @default(false)
-  groups            Group[]
-  questions         Question[]
-  results           Result[]
-  answers           Answer[]
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+    id                String     @id @default(uuid()) @db.Uuid
+    title             String
+    timeLimit         Int
+    active            Boolean    @default(false)
+    maxGrade          Float      @default(7)
+    passingGrade      Float      @default(4)
+    passingPercentage Int        @default(60)
+    antiCheatEnabled  Boolean    @default(false)
+    subject           String?
+    unit              String?
+    scheduledAt       DateTime?
+    closesAt          DateTime?
+    randomizeOptions   Boolean    @default(false)
+    randomizeQuestions Boolean    @default(false)
+    lockTabSwitch      Boolean    @default(false)
+    oneAttempt        Boolean    @default(true)
+    uniqueIp          Boolean    @default(false)
+    groups            Group[]
+    questions         Question[]
+    results           Result[]
+    answers           Answer[]
+    createdAt         DateTime   @default(now())
+    updatedAt         DateTime   @updatedAt
 
-  @@index([active])
+    @@index([active])
 }
 
 model Question {
-  id        String   @id @default(uuid()) @db.Uuid
-  text      String
-  points    Int      @default(1)
-  order     Int      @default(0)
-  examId    String   @db.Uuid
-  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
-  options   Option[]
-  answers   Answer[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+    id           String             @id @default(uuid()) @db.Uuid
+    text         String
+    points       Int                @default(1)
+    order        Int                @default(0)
+    questionType QuestionType       @default(UNICA)
+    subject      String?
+    unit         String?
+    difficulty   QuestionDifficulty @default(MEDIA)
+    tags         String[]           @default([])
+    usageCount   Int                @default(0)
+    feedback     String?
+    examId       String             @db.Uuid
+    exam         Exam               @relation(fields: [examId], references: [id], onDelete: Cascade)
+    options      Option[]
+    answers      Answer[]
+    createdAt    DateTime           @default(now())
+    updatedAt    DateTime           @updatedAt
 
-  @@index([examId])
+    @@index([examId])
+    @@index([subject, unit])
+    @@index([difficulty])
 }
 
 model Option {
-  id         String   @id @default(uuid()) @db.Uuid
-  text       String
-  isCorrect  Boolean  @default(false)
-  questionId String   @db.Uuid
-  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  answers    Answer[]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+    id         String   @id @default(uuid()) @db.Uuid
+    text       String
+    isCorrect  Boolean  @default(false)
+    questionId String   @db.Uuid
+    question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+    answers    Answer[]
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
 
-  @@index([questionId])
+    @@index([questionId])
 }
 
-model Answer {
-  id         String   @id @default(uuid()) @db.Uuid
-  attemptKey String
-  studentId  String   @db.Uuid
-  student    User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  examId     String   @db.Uuid
-  exam       Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
-  questionId String   @db.Uuid
-  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  optionId   String   @db.Uuid
-  option     Option   @relation(fields: [optionId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+// ─── Results & Answers ───────────────────────────────────────────────────────
 
-  @@unique([attemptKey, questionId])
-  @@index([attemptKey])
-  @@index([studentId])
-  @@index([examId])
+model Answer {
+    id               String    @id @default(uuid()) @db.Uuid
+    attemptKey       String
+    studentId        String    @db.Uuid
+    student          User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+    examId           String    @db.Uuid
+    exam             Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
+    questionId       String    @db.Uuid
+    question         Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+    optionId         String    @db.Uuid
+    option           Option    @relation(fields: [optionId], references: [id], onDelete: Cascade)
+    ip               String?
+    markedForReview  Boolean   @default(false)
+    timeSpentMs      Int?
+    answeredAt       DateTime?
+    createdAt        DateTime  @default(now())
+    updatedAt        DateTime  @updatedAt
+
+    @@unique([attemptKey, questionId, optionId])
+    @@index([attemptKey])
+    @@index([studentId])
+    @@index([examId])
+}
+
+model TabSwitchEvent {
+    id         String   @id @default(uuid()) @db.Uuid
+    attemptKey String
+    studentId  String   @db.Uuid
+    examId     String   @db.Uuid
+    durationMs Int
+    createdAt  DateTime @default(now())
+
+    @@index([attemptKey])
+    @@index([examId])
 }
 
 model Result {
-  id          String   @id @default(uuid()) @db.Uuid
-  studentId   String   @db.Uuid
-  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  examId      String   @db.Uuid
-  exam        Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
-  score       Int
-  maxScore    Int
-  answers     Json
-  completedAt DateTime @default(now())
+    id          String   @id @default(uuid()) @db.Uuid
+    studentId   String   @db.Uuid
+    student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+    examId      String   @db.Uuid
+    exam        Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+    score       Int
+    maxScore    Int
+    answers     Json
+    completedAt DateTime @default(now())
 
-  @@unique([studentId, examId])
-  @@index([studentId])
-  @@index([examId])
+    @@unique([studentId, examId])
+    @@index([studentId])
+    @@index([examId])
+}
+
+// ─── Audit ───────────────────────────────────────────────────────────────────
+
+model AuditLog {
+    id                    String   @id @default(uuid()) @db.Uuid
+    action                String
+    entity                String?
+    entityId              String?  @db.Uuid
+    actorId               String?  @db.Uuid
+    actorEmail            String?
+    actorRole             String?
+    academicInstitutionId String?  @db.Uuid
+    status                String
+    ip                    String?
+    userAgent             String?
+    metadata              Json?
+    createdAt             DateTime @default(now())
+
+    actor       User?                @relation(fields: [actorId], references: [id], onDelete: SetNull)
+    institution AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
+
+    @@index([createdAt])
+    @@index([action])
+    @@index([actorId])
+    @@index([academicInstitutionId])
+    @@index([entity, entityId])
+}
+
+// ─── App Config ───────────────────────────────────────────────────────────────
+
+model AppConfig {
+    id        String   @id @default(uuid()) @db.Uuid
+    key       String   @unique
+    value     String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
