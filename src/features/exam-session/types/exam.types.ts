@@ -18,7 +18,7 @@ export interface SafeExam {
     id: string;
     title: string;
     timeLimit: number;
-    questionType: 'UNICA' | 'MULTIPLE';
     antiCheatEnabled: boolean;
+    lockTabSwitch: boolean;
     questions: SafeQuestion[];
 }

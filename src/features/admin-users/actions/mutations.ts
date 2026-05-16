@@ -54,7 +54,7 @@ export async function createAdminUser(
         const { sent, error: emailError } = await sendEmail({
             to: parsed.data.email,
             toName: `${parsed.data.name} ${parsed.data.lastname}`,
-            subject: 'Bienvenido/a a EduNext Quiz — Tus credenciales',
+            subject: 'Bienvenido/a a Aulika — Tus credenciales',
             htmlContent: buildAdminWelcomeEmail(parsed.data.name, parsed.data.email, rawPassword),
         });
 

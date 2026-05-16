@@ -1,0 +1,190 @@
+{
+    "_info": "Preguntas de práctica originales — Alineadas al temario oficial DEMRE Ciencias. NO son ítems oficiales de la PAES.",
+    "subject": "ciencias",
+    "title": "Ciencias",
+    "source": "Banco de práctica — EduNext Quiz",
+    "sourceUrl": "https://demre.cl/la-prueba/pruebas-y-temarios/presentacion-pruebas-temarios-paes-regular",
+    "timeLimitMinutes": 160,
+    "questions": [
+        {
+            "id": "ci-01",
+            "number": 1,
+            "statement": "¿Cuál es la unidad básica de los seres vivos?",
+            "options": [
+                { "id": "ci-01-a", "text": "El tejido", "isCorrect": false },
+                { "id": "ci-01-b", "text": "El átomo", "isCorrect": false },
+                { "id": "ci-01-c", "text": "La célula", "isCorrect": true },
+                { "id": "ci-01-d", "text": "El órgano", "isCorrect": false }
+            ],
+            "eje": "Biología"
+        },
+        {
+            "id": "ci-02",
+            "number": 2,
+            "statement": "¿Cuál es el símbolo químico del sodio?",
+            "options": [
+                { "id": "ci-02-a", "text": "So", "isCorrect": false },
+                { "id": "ci-02-b", "text": "Sd", "isCorrect": false },
+                { "id": "ci-02-c", "text": "Na", "isCorrect": true },
+                { "id": "ci-02-d", "text": "Sn", "isCorrect": false }
+            ],
+            "eje": "Química"
+        },
+        {
+            "id": "ci-03",
+            "number": 3,
+            "statement": "Un cuerpo en caída libre aumenta su velocidad porque",
+            "options": [
+                { "id": "ci-03-a", "text": "la fricción del aire lo impulsa hacia abajo.", "isCorrect": false },
+                { "id": "ci-03-b", "text": "la gravedad ejerce una fuerza constante hacia abajo.", "isCorrect": true },
+                { "id": "ci-03-c", "text": "su masa disminuye a medida que cae.", "isCorrect": false },
+                { "id": "ci-03-d", "text": "el aire caliente lo empuja hacia el suelo.", "isCorrect": false }
+            ],
+            "eje": "Física"
+        },
+        {
+            "id": "ci-04",
+            "number": 4,
+            "statement": "¿Cuál de los siguientes procesos convierte glucosa en energía utilizando oxígeno?",
+            "options": [
+                { "id": "ci-04-a", "text": "Fotosíntesis", "isCorrect": false },
+                { "id": "ci-04-b", "text": "Fermentación", "isCorrect": false },
+                { "id": "ci-04-c", "text": "Respiración aeróbica", "isCorrect": true },
+                { "id": "ci-04-d", "text": "Digestión", "isCorrect": false }
+            ],
+            "eje": "Biología"
+        },
+        {
+            "id": "ci-05",
+            "number": 5,
+            "statement": "¿Cuántos electrones tiene el átomo de carbono (número atómico 6) en su estado natural?",
+            "options": [
+                { "id": "ci-05-a", "text": "4", "isCorrect": false },
+                { "id": "ci-05-b", "text": "6", "isCorrect": true },
+                { "id": "ci-05-c", "text": "12", "isCorrect": false },
+                { "id": "ci-05-d", "text": "2", "isCorrect": false }
+            ],
+            "eje": "Química"
+        },
+        {
+            "id": "ci-06",
+            "number": 6,
+            "statement": "La ley de Newton que enuncia que «a toda acción corresponde una reacción igual y de sentido contrario» es",
+            "options": [
+                { "id": "ci-06-a", "text": "Primera ley (inercia)", "isCorrect": false },
+                { "id": "ci-06-b", "text": "Segunda ley (F = m·a)", "isCorrect": false },
+                { "id": "ci-06-c", "text": "Tercera ley (acción-reacción)", "isCorrect": true },
+                { "id": "ci-06-d", "text": "Ley de gravitación universal", "isCorrect": false }
+            ],
+            "eje": "Física"
+        },
+        {
+            "id": "ci-07",
+            "number": 7,
+            "statement": "¿Qué molécula transporta el oxígeno en la sangre humana?",
+            "options": [
+                { "id": "ci-07-a", "text": "Glucosa", "isCorrect": false },
+                { "id": "ci-07-b", "text": "Hemoglobina", "isCorrect": true },
+                { "id": "ci-07-c", "text": "Albúmina", "isCorrect": false },
+                { "id": "ci-07-d", "text": "Insulina", "isCorrect": false }
+            ],
+            "eje": "Biología"
+        },
+        {
+            "id": "ci-08",
+            "number": 8,
+            "statement": "¿Cuál es el pH de una solución neutra a 25°C?",
+            "options": [
+                { "id": "ci-08-a", "text": "0", "isCorrect": false },
+                { "id": "ci-08-b", "text": "7", "isCorrect": true },
+                { "id": "ci-08-c", "text": "14", "isCorrect": false },
+                { "id": "ci-08-d", "text": "10", "isCorrect": false }
+            ],
+            "eje": "Química"
+        },
+        {
+            "id": "ci-09",
+            "number": 9,
+            "statement": "Si una fuerza de 10 N actúa sobre un objeto de 2 kg, ¿cuál es su aceleración?",
+            "options": [
+                { "id": "ci-09-a", "text": "20 m/s²", "isCorrect": false },
+                { "id": "ci-09-b", "text": "5 m/s²", "isCorrect": true },
+                { "id": "ci-09-c", "text": "2 m/s²", "isCorrect": false },
+                { "id": "ci-09-d", "text": "10 m/s²", "isCorrect": false }
+            ],
+            "eje": "Física"
+        },
+        {
+            "id": "ci-10",
+            "number": 10,
+            "statement": "¿Cuál de los siguientes organelos celulares es responsable de la fotosíntesis?",
+            "options": [
+                { "id": "ci-10-a", "text": "Mitocondria", "isCorrect": false },
+                { "id": "ci-10-b", "text": "Ribosoma", "isCorrect": false },
+                { "id": "ci-10-c", "text": "Cloroplasto", "isCorrect": true },
+                { "id": "ci-10-d", "text": "Núcleo", "isCorrect": false }
+            ],
+            "eje": "Biología"
+        },
+        {
+            "id": "ci-11",
+            "number": 11,
+            "statement": "En una reacción química, la fórmula del agua es",
+            "options": [
+                { "id": "ci-11-a", "text": "HO₂", "isCorrect": false },
+                { "id": "ci-11-b", "text": "H₂O", "isCorrect": true },
+                { "id": "ci-11-c", "text": "OH₂", "isCorrect": false },
+                { "id": "ci-11-d", "text": "H₂O₂", "isCorrect": false }
+            ],
+            "eje": "Química"
+        },
+        {
+            "id": "ci-12",
+            "number": 12,
+            "statement": "¿Cuál es la unidad de medida de la corriente eléctrica en el Sistema Internacional?",
+            "options": [
+                { "id": "ci-12-a", "text": "Volt (V)", "isCorrect": false },
+                { "id": "ci-12-b", "text": "Ampere (A)", "isCorrect": true },
+                { "id": "ci-12-c", "text": "Ohm (Ω)", "isCorrect": false },
+                { "id": "ci-12-d", "text": "Watt (W)", "isCorrect": false }
+            ],
+            "eje": "Física"
+        },
+        {
+            "id": "ci-13",
+            "number": 13,
+            "statement": "¿Qué tipo de reproducción permite la máxima variabilidad genética en los seres vivos?",
+            "options": [
+                { "id": "ci-13-a", "text": "Reproducción asexual por fisión binaria.", "isCorrect": false },
+                { "id": "ci-13-b", "text": "Reproducción asexual por gemación.", "isCorrect": false },
+                { "id": "ci-13-c", "text": "Reproducción sexual con meiosis y fecundación.", "isCorrect": true },
+                { "id": "ci-13-d", "text": "Reproducción vegetativa en plantas.", "isCorrect": false }
+            ],
+            "eje": "Biología"
+        },
+        {
+            "id": "ci-14",
+            "number": 14,
+            "statement": "¿Cuántos estados de la materia existen convencionalmente?",
+            "options": [
+                { "id": "ci-14-a", "text": "2", "isCorrect": false },
+                { "id": "ci-14-b", "text": "3", "isCorrect": true },
+                { "id": "ci-14-c", "text": "4", "isCorrect": false },
+                { "id": "ci-14-d", "text": "5", "isCorrect": false }
+            ],
+            "eje": "Química"
+        },
+        {
+            "id": "ci-15",
+            "number": 15,
+            "statement": "Un objeto a 100 m de altura tiene energía potencial gravitacional de 1000 J. Si cae libremente, al llegar al suelo su energía cinética será aproximadamente",
+            "options": [
+                { "id": "ci-15-a", "text": "500 J", "isCorrect": false },
+                { "id": "ci-15-b", "text": "0 J", "isCorrect": false },
+                { "id": "ci-15-c", "text": "1000 J", "isCorrect": true },
+                { "id": "ci-15-d", "text": "2000 J", "isCorrect": false }
+            ],
+            "eje": "Física"
+        }
+    ]
+}

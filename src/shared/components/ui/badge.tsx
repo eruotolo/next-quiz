@@ -4,24 +4,67 @@ import { Slot } from 'radix-ui';
 
 import { cn } from '@/shared/lib/utils';
 
-const badgeVariants = cva(
-    'inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3',
+// ── Tag (Aulika native) ───────────────────────────────────────────────────
+const tagVariants = cva(
+    'inline-flex w-fit shrink-0 items-center gap-1.5 rounded-full font-mono font-medium whitespace-nowrap tracking-[0.04em] transition-colors [&>svg]:pointer-events-none [&>svg]:size-3',
     {
         variants: {
-            variant: {
-                default: 'bg-primary text-primary-foreground [a&]:hover:bg-primary/90',
-                secondary: 'bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90',
-                destructive:
-                    'bg-destructive text-white focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40 [a&]:hover:bg-destructive/90',
-                outline:
-                    'border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
-                ghost: '[a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
-                link: 'text-primary underline-offset-4 [a&]:hover:underline',
+            tone: {
+                default: 'bg-paper-warm text-ink',
+                primary: 'bg-primary-wash text-primary',
+                lime: 'bg-lime text-ink',
+                ink: 'bg-ink text-white',
+                success: 'bg-success-wash text-success',
+                warning: 'bg-warning-wash text-warning',
+                danger: 'bg-danger-wash text-destructive',
+                outline: 'bg-transparent text-ink-dim border border-border',
+            },
+            size: {
+                sm: 'px-2 py-0.5 text-[10px]',
+                md: 'px-2.5 py-[5px] text-[11px]',
+                lg: 'px-3 py-1.5 text-[12px]',
             },
         },
         defaultVariants: {
-            variant: 'default',
+            tone: 'default',
+            size: 'md',
         },
+    },
+);
+
+function Tag({
+    className,
+    tone = 'default',
+    size = 'md',
+    asChild = false,
+    ...props
+}: React.ComponentProps<'span'> &
+    VariantProps<typeof tagVariants> & { asChild?: boolean }) {
+    const Comp = asChild ? Slot.Root : 'span';
+    return (
+        <Comp
+            data-slot="tag"
+            className={cn(tagVariants({ tone, size, className }))}
+            {...props}
+        />
+    );
+}
+
+// ── Badge (shadcn compat — maps to Tag under the hood) ────────────────────
+const badgeVariants = cva(
+    'inline-flex w-fit shrink-0 items-center gap-1 rounded-full font-mono font-medium whitespace-nowrap tracking-[0.04em] transition-colors [&>svg]:pointer-events-none [&>svg]:size-3',
+    {
+        variants: {
+            variant: {
+                default: 'bg-primary-wash text-primary px-2.5 py-[5px] text-[11px]',
+                secondary: 'bg-paper-warm text-ink px-2.5 py-[5px] text-[11px]',
+                destructive: 'bg-danger-wash text-destructive px-2.5 py-[5px] text-[11px]',
+                outline: 'bg-transparent text-ink-dim border border-border px-2.5 py-[5px] text-[11px]',
+                success: 'bg-success-wash text-success px-2.5 py-[5px] text-[11px]',
+                warning: 'bg-warning-wash text-warning px-2.5 py-[5px] text-[11px]',
+            },
+        },
+        defaultVariants: { variant: 'default' },
     },
 );
 
@@ -30,17 +73,16 @@ function Badge({
     variant = 'default',
     asChild = false,
     ...props
-}: React.ComponentProps<'span'> & VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
+}: React.ComponentProps<'span'> &
+    VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
     const Comp = asChild ? Slot.Root : 'span';
-
     return (
         <Comp
             data-slot="badge"
-            data-variant={variant}
             className={cn(badgeVariants({ variant }), className)}
             {...props}
         />
     );
 }
 
-export { Badge, badgeVariants };
+export { Tag, tagVariants, Badge, badgeVariants };

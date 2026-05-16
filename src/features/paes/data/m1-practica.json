@@ -1,0 +1,190 @@
+{
+    "_info": "Preguntas de práctica originales — Alineadas al temario oficial DEMRE Matemática M1. NO son ítems oficiales de la PAES.",
+    "subject": "m1",
+    "title": "Matemática M1",
+    "source": "Banco de práctica — EduNext Quiz",
+    "sourceUrl": "https://demre.cl/la-prueba/pruebas-y-temarios/presentacion-pruebas-temarios-paes-regular",
+    "timeLimitMinutes": 140,
+    "questions": [
+        {
+            "id": "m1-01",
+            "number": 1,
+            "statement": "¿Cuál es el valor de la expresión 3² + 4² − 5?",
+            "options": [
+                { "id": "m1-01-a", "text": "12", "isCorrect": false },
+                { "id": "m1-01-b", "text": "20", "isCorrect": true },
+                { "id": "m1-01-c", "text": "16", "isCorrect": false },
+                { "id": "m1-01-d", "text": "25", "isCorrect": false }
+            ],
+            "eje": "Números"
+        },
+        {
+            "id": "m1-02",
+            "number": 2,
+            "statement": "Si x − 3 = 7, entonces 2x + 1 es igual a",
+            "options": [
+                { "id": "m1-02-a", "text": "19", "isCorrect": false },
+                { "id": "m1-02-b", "text": "21", "isCorrect": true },
+                { "id": "m1-02-c", "text": "23", "isCorrect": false },
+                { "id": "m1-02-d", "text": "25", "isCorrect": false }
+            ],
+            "eje": "Álgebra y funciones"
+        },
+        {
+            "id": "m1-03",
+            "number": 3,
+            "statement": "¿Cuál de las siguientes fracciones es equivalente a 0,75?",
+            "options": [
+                { "id": "m1-03-a", "text": "3/5", "isCorrect": false },
+                { "id": "m1-03-b", "text": "7/10", "isCorrect": false },
+                { "id": "m1-03-c", "text": "3/4", "isCorrect": true },
+                { "id": "m1-03-d", "text": "2/3", "isCorrect": false }
+            ],
+            "eje": "Números"
+        },
+        {
+            "id": "m1-04",
+            "number": 4,
+            "statement": "Un rectángulo tiene largo 8 cm y ancho 5 cm. ¿Cuánto mide su perímetro?",
+            "options": [
+                { "id": "m1-04-a", "text": "26 cm", "isCorrect": true },
+                { "id": "m1-04-b", "text": "40 cm", "isCorrect": false },
+                { "id": "m1-04-c", "text": "13 cm", "isCorrect": false },
+                { "id": "m1-04-d", "text": "52 cm", "isCorrect": false }
+            ],
+            "eje": "Geometría"
+        },
+        {
+            "id": "m1-05",
+            "number": 5,
+            "statement": "En una clase de 30 estudiantes, 18 son mujeres. ¿Qué porcentaje son hombres?",
+            "options": [
+                { "id": "m1-05-a", "text": "40%", "isCorrect": true },
+                { "id": "m1-05-b", "text": "60%", "isCorrect": false },
+                { "id": "m1-05-c", "text": "18%", "isCorrect": false },
+                { "id": "m1-05-d", "text": "30%", "isCorrect": false }
+            ],
+            "eje": "Probabilidad y estadística"
+        },
+        {
+            "id": "m1-06",
+            "number": 6,
+            "statement": "Si f(x) = 2x − 3, ¿cuál es el valor de f(5)?",
+            "options": [
+                { "id": "m1-06-a", "text": "5", "isCorrect": false },
+                { "id": "m1-06-b", "text": "7", "isCorrect": true },
+                { "id": "m1-06-c", "text": "10", "isCorrect": false },
+                { "id": "m1-06-d", "text": "12", "isCorrect": false }
+            ],
+            "eje": "Álgebra y funciones"
+        },
+        {
+            "id": "m1-07",
+            "number": 7,
+            "statement": "¿Cuál es el mínimo común múltiplo (mcm) de 4 y 6?",
+            "options": [
+                { "id": "m1-07-a", "text": "6", "isCorrect": false },
+                { "id": "m1-07-b", "text": "12", "isCorrect": true },
+                { "id": "m1-07-c", "text": "24", "isCorrect": false },
+                { "id": "m1-07-d", "text": "2", "isCorrect": false }
+            ],
+            "eje": "Números"
+        },
+        {
+            "id": "m1-08",
+            "number": 8,
+            "statement": "Un triángulo rectángulo tiene catetos de 3 cm y 4 cm. ¿Cuánto mide su hipotenusa?",
+            "options": [
+                { "id": "m1-08-a", "text": "7 cm", "isCorrect": false },
+                { "id": "m1-08-b", "text": "5 cm", "isCorrect": true },
+                { "id": "m1-08-c", "text": "6 cm", "isCorrect": false },
+                { "id": "m1-08-d", "text": "√7 cm", "isCorrect": false }
+            ],
+            "eje": "Geometría"
+        },
+        {
+            "id": "m1-09",
+            "number": 9,
+            "statement": "Se lanza un dado de seis caras. ¿Cuál es la probabilidad de obtener un número par?",
+            "options": [
+                { "id": "m1-09-a", "text": "1/6", "isCorrect": false },
+                { "id": "m1-09-b", "text": "1/3", "isCorrect": false },
+                { "id": "m1-09-c", "text": "1/2", "isCorrect": true },
+                { "id": "m1-09-d", "text": "2/3", "isCorrect": false }
+            ],
+            "eje": "Probabilidad y estadística"
+        },
+        {
+            "id": "m1-10",
+            "number": 10,
+            "statement": "¿Cuál es la solución de la ecuación 2x + 6 = 0?",
+            "options": [
+                { "id": "m1-10-a", "text": "x = 3", "isCorrect": false },
+                { "id": "m1-10-b", "text": "x = −6", "isCorrect": false },
+                { "id": "m1-10-c", "text": "x = −3", "isCorrect": true },
+                { "id": "m1-10-d", "text": "x = 6", "isCorrect": false }
+            ],
+            "eje": "Álgebra y funciones"
+        },
+        {
+            "id": "m1-11",
+            "number": 11,
+            "statement": "¿Cuántos ejes de simetría tiene un cuadrado?",
+            "options": [
+                { "id": "m1-11-a", "text": "2", "isCorrect": false },
+                { "id": "m1-11-b", "text": "3", "isCorrect": false },
+                { "id": "m1-11-c", "text": "4", "isCorrect": true },
+                { "id": "m1-11-d", "text": "1", "isCorrect": false }
+            ],
+            "eje": "Geometría"
+        },
+        {
+            "id": "m1-12",
+            "number": 12,
+            "statement": "Las notas de 5 estudiantes son: 4, 5, 6, 7, 3. ¿Cuál es el promedio?",
+            "options": [
+                { "id": "m1-12-a", "text": "4,5", "isCorrect": false },
+                { "id": "m1-12-b", "text": "5,0", "isCorrect": true },
+                { "id": "m1-12-c", "text": "5,5", "isCorrect": false },
+                { "id": "m1-12-d", "text": "6,0", "isCorrect": false }
+            ],
+            "eje": "Probabilidad y estadística"
+        },
+        {
+            "id": "m1-13",
+            "number": 13,
+            "statement": "Simplifica la expresión: (x² − 9) / (x + 3), para x ≠ −3.",
+            "options": [
+                { "id": "m1-13-a", "text": "x + 3", "isCorrect": false },
+                { "id": "m1-13-b", "text": "x − 3", "isCorrect": true },
+                { "id": "m1-13-c", "text": "x² − 3", "isCorrect": false },
+                { "id": "m1-13-d", "text": "x − 9", "isCorrect": false }
+            ],
+            "eje": "Álgebra y funciones"
+        },
+        {
+            "id": "m1-14",
+            "number": 14,
+            "statement": "El área de un círculo de radio 3 cm es",
+            "options": [
+                { "id": "m1-14-a", "text": "6π cm²", "isCorrect": false },
+                { "id": "m1-14-b", "text": "3π cm²", "isCorrect": false },
+                { "id": "m1-14-c", "text": "9π cm²", "isCorrect": true },
+                { "id": "m1-14-d", "text": "12π cm²", "isCorrect": false }
+            ],
+            "eje": "Geometría"
+        },
+        {
+            "id": "m1-15",
+            "number": 15,
+            "statement": "¿Cuál es el rango del conjunto de datos {2, 5, 8, 3, 9, 1}?",
+            "options": [
+                { "id": "m1-15-a", "text": "7", "isCorrect": false },
+                { "id": "m1-15-b", "text": "9", "isCorrect": false },
+                { "id": "m1-15-c", "text": "8", "isCorrect": true },
+                { "id": "m1-15-d", "text": "6", "isCorrect": false }
+            ],
+            "eje": "Probabilidad y estadística"
+        }
+    ]
+}

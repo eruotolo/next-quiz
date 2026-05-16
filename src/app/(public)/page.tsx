@@ -1,48 +1,43 @@
-import { LogoMark } from '@/shared/components/branding/logo';
-import Link from 'next/link';
+import type { Metadata } from 'next';
 
-export default function MarketingPage() {
+import { L3Hero } from '@/features/landing/components/L3Hero';
+import { L3Trust } from '@/features/landing/components/L3Trust';
+import { L3Walkthrough } from '@/features/landing/components/L3Walkthrough';
+import { L3Comparison } from '@/features/landing/components/L3Comparison';
+import { L3Segments } from '@/features/landing/components/L3Segments';
+import { L3Security } from '@/features/landing/components/L3Security';
+import { L3Stats } from '@/features/landing/components/L3Stats';
+import { L3Testimonials } from '@/features/landing/components/L3Testimonials';
+import { L3Pricing } from '@/features/landing/components/L3Pricing';
+import { L3FAQ } from '@/features/landing/components/L3FAQ';
+import { L3CTA } from '@/features/landing/components/L3CTA';
+import { L3Footer } from '@/features/landing/components/L3Footer';
+
+export const metadata: Metadata = {
+    title: 'Ensayos PAES Online · Gestión de Exámenes para Instituciones',
+    description:
+        'La plataforma líder en Chile para crear, aplicar y corregir ensayos PAES y exámenes institucionales. Sin papel, con resultados en tiempo real y análisis avanzado por IA.',
+    openGraph: {
+        title: 'EduNext Quiz · La evolución del examen de aula',
+        description: 'Digitaliza tus evaluaciones con corrección automática y analítica instantánea. Diseñado para colegios y preuniversitarios de Chile.',
+        type: 'website',
+    },
+};
+
+export default function MarketingPage(): React.JSX.Element {
     return (
-        <div className="flex min-h-screen flex-col bg-[linear-gradient(135deg,#0f172a_0%,#001731_50%,#0f172a_100%)]">
-            {/* Top bar */}
-            <header className="flex items-center justify-between px-6 py-4">
-                <div className="flex items-center gap-2.5">
-                    <LogoMark size={32} />
-                    <span className="font-bold text-white">EduNext Quiz</span>
-                </div>
-                <nav className="flex items-center gap-2">
-                    <Link
-                        href="/examen/login"
-                        className="rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/10"
-                    >
-                        Acceso Alumnos
-                    </Link>
-                    <Link
-                        href="/login"
-                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-500"
-                    >
-                        Acceso Administrador
-                    </Link>
-                </nav>
-            </header>
-
-            {/* Coming soon */}
-            <main className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-400">
-                    Muy pronto
-                </p>
-                <h1 className="text-5xl font-extrabold tracking-tight text-white">
-                    EduNext Quiz
-                </h1>
-                <p className="max-w-sm text-slate-400">
-                    La plataforma de exámenes en línea para instituciones educativas. Estamos
-                    preparando algo especial.
-                </p>
-            </main>
-
-            <footer className="py-6 text-center text-[11px] text-slate-600">
-                © {new Date().getFullYear()} EduNext · Crow Advance
-            </footer>
-        </div>
+        <>
+            <L3Hero />
+            <L3Trust />
+            <L3Walkthrough />
+            <L3Comparison />
+            <L3Segments />
+            <L3Security />
+            <L3Stats />
+            <L3Testimonials />
+            <L3Pricing />
+            <L3FAQ />
+            <L3CTA />
+        </>
     );
 }

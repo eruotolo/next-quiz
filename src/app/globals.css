@@ -4,90 +4,151 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0.01 240);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0.01 240);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0.01 240);
-    --primary: oklch(0.578 0.21 256);
-    --primary-foreground: oklch(1 0 0);
-    --secondary: oklch(0.97 0.005 240);
-    --secondary-foreground: oklch(0.2 0.01 240);
-    --muted: oklch(0.97 0.005 240);
-    --muted-foreground: oklch(0.55 0.015 240);
-    --accent: oklch(0.97 0.005 240);
-    --accent-foreground: oklch(0.2 0.01 240);
-    --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: oklch(1 0 0);
-    --success: oklch(0.65 0.18 145);
-    --success-foreground: oklch(1 0 0);
-    --warning: oklch(0.76 0.165 75);
-    --warning-foreground: oklch(0.3 0.05 60);
-    --border: oklch(0.92 0.005 240);
-    --input: oklch(0.92 0.005 240);
-    --ring: oklch(0.578 0.21 256);
-    --radius: 0.75rem;
+    /* Canvas */
+    --background: #fafaf7;
+    --foreground: #0b0b11;
+    --paper: #fafaf7;
+    --paper-warm: #efebe0;
+    --surface: #ffffff;
+
+    /* Ink scale */
+    --ink: #0b0b11;
+    --ink-dim: #3c3d45;
+    --mute: #75716b;
+
+    /* Borders */
+    --border: #e5e2dc;
+    --input: #e5e2dc;
+
+    /* Primary — cobalt */
+    --primary: #1f2eff;
+    --primary-hover: #172ae6;
+    --primary-foreground: #ffffff;
+    --primary-wash: #e8eaff;
+
+    /* Accents */
+    --lime: #d6ff1f;
+    --coral: #ff5a4d;
+    --iris: #7c5cff;
+
+    /* Semantic states */
+    --success: #0f7c4a;
+    --success-foreground: #ffffff;
+    --success-wash: #e6f4ed;
+    --warning: #b7791f;
+    --warning-foreground: #ffffff;
+    --warning-wash: #fff2d4;
+    --destructive: #d5301f;
+    --destructive-foreground: #ffffff;
+    --danger-wash: #fce4e1;
+
+    /* shadcn/ui compat aliases */
+    --card: #ffffff;
+    --card-foreground: #0b0b11;
+    --popover: #ffffff;
+    --popover-foreground: #0b0b11;
+    --secondary: #efebe0;
+    --secondary-foreground: #0b0b11;
+    --muted: #f5f4f0;
+    --muted-foreground: #75716b;
+    --accent: #efebe0;
+    --accent-foreground: #0b0b11;
+    --ring: #1f2eff;
+
+    /* Radius base */
+    --radius: 14px;
 }
 
 .dark {
-    --background: oklch(0.145 0.01 240);
-    --foreground: oklch(0.97 0.005 240);
-    --card: oklch(0.2 0.01 240);
-    --card-foreground: oklch(0.97 0.005 240);
-    --popover: oklch(0.2 0.01 240);
-    --popover-foreground: oklch(0.97 0.005 240);
-    --primary: oklch(0.578 0.21 256);
-    --primary-foreground: oklch(1 0 0);
-    --secondary: oklch(0.27 0.01 240);
-    --secondary-foreground: oklch(0.97 0.005 240);
-    --muted: oklch(0.27 0.01 240);
-    --muted-foreground: oklch(0.65 0.015 240);
-    --accent: oklch(0.27 0.01 240);
-    --accent-foreground: oklch(0.97 0.005 240);
-    --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: oklch(1 0 0);
-    --success: oklch(0.65 0.18 145);
-    --success-foreground: oklch(1 0 0);
-    --warning: oklch(0.76 0.165 75);
-    --warning-foreground: oklch(0.3 0.05 60);
-    --border: oklch(0.3 0.01 240);
-    --input: oklch(0.3 0.01 240);
-    --ring: oklch(0.578 0.21 256);
+    --background: #fafaf7;
+    --foreground: #0b0b11;
+    --card: #ffffff;
+    --card-foreground: #0b0b11;
+    --popover: #ffffff;
+    --popover-foreground: #0b0b11;
+    --primary: #1f2eff;
+    --primary-foreground: #ffffff;
+    --secondary: #efebe0;
+    --secondary-foreground: #0b0b11;
+    --muted: #f5f4f0;
+    --muted-foreground: #75716b;
+    --accent: #efebe0;
+    --accent-foreground: #0b0b11;
+    --destructive: #d5301f;
+    --destructive-foreground: #ffffff;
+    --border: #e5e2dc;
+    --input: #e5e2dc;
+    --ring: #1f2eff;
 }
 
 @theme inline {
+    /* Canvas tokens */
     --color-background: var(--background);
     --color-foreground: var(--foreground);
+    --color-paper: var(--paper);
+    --color-paper-warm: var(--paper-warm);
+    --color-surface: var(--surface);
+
+    /* Ink scale */
+    --color-ink: var(--ink);
+    --color-ink-dim: var(--ink-dim);
+    --color-mute: var(--mute);
+
+    /* Borders */
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    /* Primary */
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary-wash: var(--primary-wash);
+
+    /* Accents */
+    --color-lime: var(--lime);
+    --color-coral: var(--coral);
+    --color-iris: var(--iris);
+
+    /* Semantic */
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+    --color-success-wash: var(--success-wash);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+    --color-warning-wash: var(--warning-wash);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-danger-wash: var(--danger-wash);
+
+    /* shadcn/ui compat */
     --color-card: var(--card);
     --color-card-foreground: var(--card-foreground);
     --color-popover: var(--popover);
     --color-popover-foreground: var(--popover-foreground);
-    --color-primary: var(--primary);
-    --color-primary-foreground: var(--primary-foreground);
     --color-secondary: var(--secondary);
     --color-secondary-foreground: var(--secondary-foreground);
     --color-muted: var(--muted);
     --color-muted-foreground: var(--muted-foreground);
     --color-accent: var(--accent);
     --color-accent-foreground: var(--accent-foreground);
-    --color-destructive: var(--destructive);
-    --color-destructive-foreground: var(--destructive-foreground);
-    --color-success: var(--success);
-    --color-success-foreground: var(--success-foreground);
-    --color-warning: var(--warning);
-    --color-warning-foreground: var(--warning-foreground);
-    --color-border: var(--border);
-    --color-input: var(--input);
-    --color-ring: var(--ring);
-    --radius-sm: calc(var(--radius) - 4px);
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) + 4px);
-    --radius-2xl: calc(var(--radius) + 8px);
+
+    /* Radius — Aulika scale: sm=8 md=14 lg=22 pill=9999 */
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 22px;
+    --radius-xl: 22px;
+    --radius-2xl: 9999px;
+
+    /* Fonts */
+    --font-display: var(--font-bricolage);
+    --font-sans: var(--font-geist);
+    --font-mono: var(--font-geist-mono);
 }
 
 @layer base {
+    html {
+        scroll-behavior: smooth;
+    }
     * {
         @apply border-border;
     }

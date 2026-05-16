@@ -2,6 +2,7 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { createResultSession, getStudentSession } from '@/features/exam-session/lib/session';
+import { headers } from 'next/headers';
 import {
     type SubmitAnswerInput,
     submitAnswerSchema,
@@ -24,6 +25,12 @@ export async function submitAnswer(input: SubmitAnswerInput): Promise<void> {
     if (!question) throw new Error('Pregunta no encontrada.');
     if (options.length !== optionIds.length) throw new Error('Una o más opciones no son válidas.');
 
+    const requestHeaders = await headers();
+    const ip =
+        requestHeaders.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+        requestHeaders.get('x-real-ip') ??
+        undefined;
+
     await prisma.$transaction([
         prisma.answer.deleteMany({
             where: { attemptKey: session.attemptKey, questionId },
@@ -35,6 +42,7 @@ export async function submitAnswer(input: SubmitAnswerInput): Promise<void> {
                 examId: session.examId,
                 questionId,
                 optionId,
+                ip,
             })),
         }),
     ]);
@@ -46,6 +54,46 @@ export async function finishExam(): Promise<{ resultId: string }> {
 
 export async function autoSubmit(): Promise<{ resultId: string }> {
     return computeAndSave();
+}
+
+export async function toggleMarkQuestion(questionId: string): Promise<void> {
+    const session = await getStudentSession();
+    if (!session) return;
+
+    const existing = await prisma.answer.findFirst({
+        where: { attemptKey: session.attemptKey, questionId },
+        select: { markedForReview: true },
+    });
+    if (!existing) return;
+
+    await prisma.answer.updateMany({
+        where: { attemptKey: session.attemptKey, questionId },
+        data: { markedForReview: !existing.markedForReview },
+    });
+}
+
+export async function recordTabSwitch(durationMs: number): Promise<void> {
+    const session = await getStudentSession();
+    if (!session) return;
+
+    await prisma.tabSwitchEvent.create({
+        data: {
+            attemptKey: session.attemptKey,
+            studentId: session.studentId,
+            examId: session.examId,
+            durationMs,
+        },
+    });
+}
+
+export async function recordAnswerTiming(questionId: string, ms: number): Promise<void> {
+    const session = await getStudentSession();
+    if (!session) return;
+
+    await prisma.answer.updateMany({
+        where: { attemptKey: session.attemptKey, questionId },
+        data: { timeSpentMs: ms, answeredAt: new Date() },
+    });
 }
 
 async function computeAndSave(): Promise<{ resultId: string }> {

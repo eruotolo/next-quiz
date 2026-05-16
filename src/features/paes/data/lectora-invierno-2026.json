@@ -1,0 +1,1894 @@
+{
+  "subject": "lectora",
+  "title": "Competencia Lectora",
+  "source": "DEMRE — PAES Invierno 2026",
+  "sourceUrl": "https://demre.cl/publicaciones/2026/pruebas-oficiales-paes-invierno-p2026",
+  "timeLimitMinutes": 150,
+  "questions": [
+    {
+      "id": "cl-01",
+      "number": 1,
+      "statement": "Con respecto al análisis demográfico, ¿cuál es la relación establecida entre el primer y segundo párrafo?",
+      "options": [
+        {
+          "id": "cl-01-a",
+          "text": "El primero presenta el problema del envejecimiento de la población; el segundo muestra formas de medir su alcance.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-01-b",
+          "text": "El primero explica las tasas de crecimiento poblacional de Europa; el segundo las compara con las de América Latina.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-01-c",
+          "text": "El primero define la transición demográfica; el segundo plantea los indicadores que permiten observarla en un territorio.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-01-d",
+          "text": "El primero categoriza los factores de medición demográfica; el segundo explica las razones por las que estos han sido reemplazados.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-02",
+      "number": 2,
+      "statement": "A diferencia de Miró, ¿qué indicador considera la CEPAL al definir las etapas de transición demográfica?",
+      "options": [
+        {
+          "id": "cl-02-a",
+          "text": "La estructura por edades.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-02-b",
+          "text": "La tasa de fecundidad.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-02-c",
+          "text": "La tasa de mortalidad.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-02-d",
+          "text": "La esperanza de vida. FORMA 101  2026",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Localizar y recuperar información",
+      "isPilot": false
+    },
+    {
+      "id": "cl-03",
+      "number": 3,
+      "statement": "¿Cuál es una de las características de la etapa incipiente de la transición demográfica?",
+      "options": [
+        {
+          "id": "cl-03-a",
+          "text": "Alta mortalidad infantil.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-03-b",
+          "text": "Aumento de la esperanza de vida.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-03-c",
+          "text": "Acelerado crecimiento de la población.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-03-d",
+          "text": "Bajo índice de fecundidad.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-04",
+      "number": 4,
+      "statement": "A partir de la lectura, ¿qué implica el “bono demográfico” para una sociedad?",
+      "options": [
+        {
+          "id": "cl-04-a",
+          "text": "Que aumenta su población en edad laboral.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-04-b",
+          "text": "Que entrega incentivos para aumentar la natalidad.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-04-c",
+          "text": "Que impulsa el incremento de la esperanza de vida.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-04-d",
+          "text": "Que intenta frenar el envejecimiento de la población. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-05",
+      "number": 5,
+      "statement": "Según la lectura, ¿en cuál de las etapas de transición demográfica la economía se ve beneficiada por el tamaño de la población económicamente activa?",
+      "options": [
+        {
+          "id": "cl-05-a",
+          "text": "En la etapa plena.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-05-b",
+          "text": "En la etapa incipiente.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-05-c",
+          "text": "En la etapa avanzada.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-05-d",
+          "text": "En la etapa moderada.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-06",
+      "number": 6,
+      "statement": "De acuerdo con la lectura, ¿en qué etapa de transición demográfica la esperanza de vida comienza a superar los 75 años?",
+      "options": [
+        {
+          "id": "cl-06-a",
+          "text": "En la etapa muy avanzada.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-06-b",
+          "text": "En la etapa moderada.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-06-c",
+          "text": "En la etapa avanzada.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-06-d",
+          "text": "En la etapa plena. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-07",
+      "number": 7,
+      "statement": "¿Cuál es una característica de la etapa avanzada de la transición demográfica?",
+      "options": [
+        {
+          "id": "cl-07-a",
+          "text": "El aumento de las tasas de fecundidad.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-07-b",
+          "text": "El estancamiento de la estructura etaria.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-07-c",
+          "text": "El incremento del reemplazo generacional.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-07-d",
+          "text": "El envejecimiento de las cohortes dominantes.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-08",
+      "number": 8,
+      "statement": "¿De qué manera se organiza la información respecto de las etapas de transición demográfica?",
+      "options": [
+        {
+          "id": "cl-08-a",
+          "text": "Se expone una discusión teórica acerca de las etapas propuestas por la CEPAL y luego se ejemplifican estas etapas con la situación demográfica de América Latina.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-08-b",
+          "text": "Se explican los criterios que definen las etapas propuestas por la CEPAL y luego se detallan las características demográficas de dichas etapas.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-08-c",
+          "text": "Se contrastan distintas definiciones de las etapas de transición demográfica y luego se presenta el informe elaborado por la CEPAL.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-08-d",
+          "text": "Se presenta la evolución en la concepción de las etapas demográficas y luego se establece la visión actual propuesta por la CEPAL. FORMA 101  2026 Lectura 2: preguntas 9 a 17 Artículo periodístico escrito por José Manuel Sánchez, publicado en el diario El Español el año 2021. ¿Memoria corta? El historiador de la ciencia y académico pone en valor la importancia de conocer los grandes nombres de la investigación. JOSÉ MANUEL SÁNCHEZ 3 de mayo, 2021 En una entrevista reciente, Claudio Magris (El País, 18 de abril de 2021), el autor de El Danubio, recordaba la anécdota –en realidad, mucho más– de que cuando hace quince años enseñaba en un college3 de Estados Unidos, “solo cinco o seis estudiantes en una clase de 36 sabían quién fue Stalin”. Y añadía que ese tipo de ignorancia, desconocer sucesos o personajes que marcaron épocas del pasado, se estaba acentuando. Que le impresionaba esa “memoria corta”. Aunque no se trate de Stalin y pertenezca a una dimensión más específica, yo tengo en mi frágil memoria otra situación parecida. No la puedo datar con seguridad, pero probablemente también tuvo lugar en el mismo entorno temporal que el de Magris. Fue en uno de los cursos anuales de Historia de la Ciencia que desarrollaba en la Facultad de Ciencias de la Universidad Autónoma de Madrid, en el que se matriculaban estudiantes de cualquier facultad. Yo tenía la costumbre de preguntar al principio del curso cuál era la procedencia académica de los alumnos. Resultó que los había de diferentes áreas, no solo de ciencias, pero predominaban los que estudiaban Física o Matemáticas. En un momento del curso, estaba explicando algo que involucraba al francés Henri Poincaré (1854-1912), una de las figuras cumbres de la matemática de finales del siglo XIX y primera década del XX; se ha dicho que el XIX comenzó bajo la sombra de un gigante, Carl Friedrich Gauss, y terminó con el dominio de un genio de magnitud similar, Poincaré. En opinión de Jean Dieudonné, un matemático notable él mismo, “ambos eran matemáticos universales en el sentido supremo, y ambos realizaron contribuciones importantes a la astronomía y la física matemática. Si los descubrimientos de Poincaré en la teoría de números no son iguales a los de Gauss, sus logros en la teoría de funciones son al menos del mismo nivel. Poincaré es la figura más importante en la teoría de las ecuaciones diferenciales y es el matemático que, después de Newton, efectuó el trabajo más destacado en mecánica celeste”. 3 Institución de educación superior que proporciona enseñanza especialmente enfocada en un área. FORMA 101  2026 Como digo, Poincaré apareció en mi curso, y yo, consciente de que su nombre seguramente sería desconocido por los alumnos que procedían de Filosofía, Derecho, Economía o Psicología, acaso también de los de Física, a pesar de las notables aportaciones de aquel a la mecánica celeste o a la relatividad especial, dije algo así como: “A vosotros su nombre no os dirá nada, pero sí a los que estáis estudiando Matemáticas”. Entonces miré las caras de estos y, ¡ay!, comprendí que el nombre de Poincaré les resultaba totalmente ajeno. Y esto sucedía en Matemáticas, la disciplina en la que posiblemente perduren más, tengan más presencia, sean de más permanente actualidad grandes nombres del pasado que forjaron problemas, ramas de la matemática, conjeturas que no han perdido contemporaneidad; los Euclides, Fermat, Goldbach, Gauss, Riemann, Lie, Hilbert… o Poincaré. Por el contrario, muchos de los grandes nombres del pasado en física o en biología forman parte de su historia, de la cultura que las nutre y enriquece, pero en general sus logros han sido mejorados sustancialmente, en ocasiones hasta el punto de ser irreconocibles: Newton dejó paso a Einstein, Ptolomeo a Copérnico y este a Hubble, Mendel a Watson y Crick… En un viejo libro mío, Diccionario de la ciencia, conté una de esas historias, verídica en mi caso, que me gusta narrar. La de un amigo, uno de los mejores poetas españoles de su generación, que cuando le dije que estaba preparando una edición de escritos de Maxwell me comentó: “¿Maxwell, quién fue Maxwell?”. Y yo, sorprendido, le contesté: “Es como si me estuvieses hablando de Homero, y yo te dijese: ¿Homero, quién fue Homero?”. Desde entonces he constatado que hay muchas personas –algunas auténticos “faros culturales”–, acaso la mayoría de entre aquellas que no han recibido una formación científica, que no saben quién fue James Clerk Maxwell (1831-1879), al que yo considero, junto a Michael Faraday, tras Newton y Einstein, el tercero en una hipotética y siempre personal escala de grandes de la física. Sus logros, la teoría del electromagnetismo, en la que consiguió unificar en un mismo sistema electricidad, magnetismo y luz (óptica), transformaron el mundo. A lo largo de la historia van cambiando las modas, los conocimientos, los valores, las maneras de relacionarse… Es natural, mucho más en un mundo como el actual condicionado por las posibilidades tecnológicas. Y eso, inevitablemente, produce un cierto distanciamiento entre las viejas y nuevas generaciones. En cierta ocasión, el eminente historiador y crítico de arte, magnífico escritor, tristemente ya desaparecido, Francisco Calvo Serraller, me comentó algo que muchos profesores de cierta edad habrán advertido: “Lo peor es cuando haces un chiste y no se dan cuenta de que lo es”. Es cierto e inevitable. FORMA 101  2026 Para comunicarse hace falta una cierta cultura común, que sirva de eslabón entre generaciones y que permita conservar lo mejor del pasado. Si se ignora quién fue Stalin, que condicionó –masacró y aterrorizó– la vida de millones de personas, no sabremos que la crueldad y el terror pueden aparecer entre nosotros. Si ni siquiera quienes pertenecen, o pretenden pertenecer, a disciplinas científicas pueden reconocer los nombres de lo más granado del pasado y se contentan con recurrir a un buscador de Internet, seremos como embarcaciones a la deriva en un océano dominado por instrumentos sin alma ni propósito. Sánchez, J. (3 de mayo de 2021). ¿Memoria corta? El Español. https://www.elespanol.com/el- cultural/ciencia/20210503/memoria-corta/578443567_0.html FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Localizar y recuperar información",
+      "isPilot": false
+    },
+    {
+      "id": "cl-09",
+      "number": 9,
+      "statement": "Una estudiante afirma que el artículo ofrece la idea de que el conocimiento es una construcción colectiva. ¿Qué cita del artículo permite justificar esta apreciación?",
+      "options": [
+        {
+          "id": "cl-09-a",
+          "text": "«Poincaré es la figura más importante en la teoría de las ecuaciones diferenciales y es el matemático que, después de Newton, efectuó el trabajo más destacado en mecánica celeste».",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-09-b",
+          "text": "«En opinión de Jean Dieudonné, un matemático notable él mismo, “ambos eran matemáticos universales en el sentido supremo, y ambos realizaron contribuciones importantes a la astronomía y física matemática…”».",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-09-c",
+          "text": "«pero en general sus logros han sido mejorados sustancialmente, en ocasiones hasta el punto de ser irreconocibles: Newton dejó paso a Einstein, Ptolomeo a Copérnico y este a Hubble, Mendel a Watson y Crick…».",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-09-d",
+          "text": "«Desde entonces he constatado que hay muchas personas –algunos auténticos “faros culturales”–, acaso la mayoría de entre aquellas que no han recibido una formación científica, que no saben quién fue James Clerk Maxwell…».",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-10",
+      "number": 10,
+      "statement": "¿Cuál es la actitud del emisor en relación con el problema de la “memoria corta”?",
+      "options": [
+        {
+          "id": "cl-10-a",
+          "text": "Crítica, pues considera que los intelectuales incumplen el rol de modelos culturales para la sociedad actual.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-10-b",
+          "text": "Controversial, pues cree que hay áreas disciplinares menospreciadas en el contexto del desarrollo científico.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-10-c",
+          "text": "Cuestionadora, pues cree que la educación carece de una perspectiva integradora de los acontecimientos pasados.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-10-d",
+          "text": "Pesimista, pues considera que el sistema educativo tiene limitaciones para abordar los referentes históricos centrales. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": true
+    },
+    {
+      "id": "cl-11",
+      "number": 11,
+      "statement": "Considerando la información del artículo, ¿a quién le podría resultar útil su lectura?",
+      "options": [
+        {
+          "id": "cl-11-a",
+          "text": "A una persona que busca mejorar la enseñanza de la ciencia en el sistema educativo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-11-b",
+          "text": "A una persona que busca conocer los aportes de los principales exponentes de las ciencias.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-11-c",
+          "text": "A una persona que busca comprender los hitos más relevantes de la matemática.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-11-d",
+          "text": "A una persona que busca justificar la importancia del conocimiento histórico de una disciplina.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Localizar y recuperar información",
+      "isPilot": false
+    },
+    {
+      "id": "cl-12",
+      "number": 12,
+      "statement": "¿Para qué se menciona la anécdota de Magris en el primer párrafo?",
+      "options": [
+        {
+          "id": "cl-12-a",
+          "text": "Para cuestionar la escasa profundización del discurso educativo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-12-b",
+          "text": "Para criticar el desinterés intelectual de las nuevas generaciones.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-12-c",
+          "text": "Para ejemplificar los vacíos académicos del sistema educativo actual.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-12-d",
+          "text": "Para ilustrar el desconocimiento juvenil de acontecimientos históricos. FORMA 101  2026",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Localizar y recuperar información",
+      "isPilot": false
+    },
+    {
+      "id": "cl-13",
+      "number": 13,
+      "statement": "Según la opinión de Dieudonné, ¿en qué área del conocimiento científico Gauss supera a Poincaré?",
+      "options": [
+        {
+          "id": "cl-13-a",
+          "text": "En las ecuaciones diferenciales.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-13-b",
+          "text": "En la teoría de las funciones.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-13-c",
+          "text": "En la teoría de los números.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-13-d",
+          "text": "En la mecánica celeste.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-14",
+      "number": 14,
+      "statement": "¿Con qué finalidad el emisor cuenta la anécdota sobre Poincaré, ocurrida en una de sus clases?",
+      "options": [
+        {
+          "id": "cl-14-a",
+          "text": "Para criticar el escaso interés de las nuevas generaciones por conocer a quienes marcaron un precedente en sus áreas de estudio.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-14-b",
+          "text": "Para evidenciar las razones por las que es necesario que las nuevas generaciones conozcan a quienes transformaron el mundo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-14-c",
+          "text": "Para argumentar que la educación debe reconocer los logros de algunas figuras que han sido olvidadas por las nuevas generaciones.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-14-d",
+          "text": "Para demostrar que existen figuras fundamentales en el desarrollo de las ciencias que resultan desconocidas para las nuevas generaciones. FORMA 101  2026",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-15",
+      "number": 15,
+      "statement": "En el cuarto párrafo, ¿por qué el emisor señala la importancia de reconocer el aporte de matemáticos relevantes?",
+      "options": [
+        {
+          "id": "cl-15-a",
+          "text": "Porque sus trabajos permiten la aplicación de enfoques multidisciplinarios.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-15-b",
+          "text": "Porque sus contribuciones son útiles para abordar problemáticas vigentes.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-15-c",
+          "text": "Porque sus teorías enriquecen el razonamiento lógico de los estudiantes.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-15-d",
+          "text": "Porque sus modelos contribuyen al desarrollo de otras áreas científicas.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Localizar y recuperar información",
+      "isPilot": false
+    },
+    {
+      "id": "cl-16",
+      "number": 16,
+      "statement": "Según la lectura, ¿quién mejoró los logros de Copérnico?",
+      "options": [
+        {
+          "id": "cl-16-a",
+          "text": "Ptolomeo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-16-b",
+          "text": "Watson.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-16-c",
+          "text": "Mendel.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-16-d",
+          "text": "Hubble. FORMA 101  2026",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-17",
+      "number": 17,
+      "statement": "Según el emisor, ¿en qué se diferencian los logros de la matemática de los logros de la biología?",
+      "options": [
+        {
+          "id": "cl-17-a",
+          "text": "En que los logros de la matemática son aplicables a otras disciplinas, mientras que los de la biología están restringidos a su área.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-17-b",
+          "text": "En que los logros de la matemática siguen siendo empleados a pesar del paso de los años, mientras que los de la biología se transforman con el tiempo.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-17-c",
+          "text": "En que los logros de la matemática son valorados por quienes pertenecen a dicha área, mientras que los de la biología son reconocidos universalmente.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-17-d",
+          "text": "En que los logros de la matemática permiten comprender contextos abstractos, mientras que los de la biología explican contextos concretos. FORMA 101  2026 Lectura 3: preguntas 18 a 26 Fragmento de la presentación del libro El orden del tiempo escrito por Carlo Rovelli, publicado originalmente el año 2017. Quizá el mayor misterio sea el tiempo Hasta las palabras que ahora pronunciamos el tiempo en su furia se las ha llevado ya y nada retorna. (Odas, Horacio) El tiempo es familiar e íntimo. Su furia nos lleva. Su apresurada sucesión de segundos, horas, años, nos lanza hacia la vida, luego nos arrastra hacia la nada... Lo habitamos como los peces habitan el agua. Nuestro ser es ser en el tiempo. Su arrullo nos alimenta, nos abre al mundo, nos turba, nos asusta, nos mece. […] Pero las cosas son más complejas. La realidad suele ser distinta de lo que parece: la Tierra parece plana, y sin embargo es una esfera; el Sol parece girar a nuestro alrededor en el cielo, y en cambio somos nosotros quienes giramos en torno a él. Tampoco la estructura del tiempo es la que parece: es diversa de ese uniforme fluir universal. Lo descubrí con estupor en los libros de física, en la universidad. El tiempo funciona de manera distinta de como se nos presenta. En aquellos mismos libros descubrí también que todavía ignoramos cómo funciona de verdad el tiempo. Probablemente, su naturaleza sigue siendo el mayor de los misterios. Extraños hilos lo ligan a otros grandes misterios aún por resolver: la naturaleza de la mente, el origen del universo, el destino de los agujeros negros, el funcionamiento de la vida... Hay algo esencial que sigue remitiendo a la naturaleza del tiempo. La capacidad de asombro es la fuente de nuestro deseo de saber (Aristóteles, Metafísica) y descubrir que el tiempo no es como pensábamos plantea mil preguntas. La naturaleza del tiempo ha sido el centro de mi trabajo de investigación en física teórica durante toda mi vida. En las páginas que siguen explico lo que hemos aprendido del tiempo, las vías que estamos siguiendo para intentar comprenderlo mejor, lo que todavía no entendemos y lo que personalmente me parece intuir. ¿Por qué recordamos el pasado y no el futuro? ¿Somos nosotros quienes existimos en el tiempo, o el tiempo el que existe en nosotros? ¿Qué significa realmente que el tiempo “transcurre”? ¿Qué vincula el tiempo a nuestra naturaleza como sujetos? ¿Qué escucho cuando escucho el discurrir del tiempo? FORMA 101  2026 Este libro está dividido en tres partes distintas. En la primera resumo lo que la física moderna ha llegado a comprender del tiempo. Es como tener en las manos un copo de nieve: mientras lo estudiamos se nos derrite entre los dedos hasta desaparecer. Normalmente concebimos el tiempo como algo sencillo, fundamental, que discurre de manera uniforme, indiferente a todo, desde el pasado hacia el futuro, medido por los relojes. En el curso del tiempo se suceden en orden los acontecimientos del universo: pasados, presentes, futuros. El pasado es fijo; el futuro, abierto... Bueno, pues todo esto se ha revelado falso. Los aspectos característicos del tiempo, uno tras otro, han resultado ser aproximaciones, errores debidos a la perspectiva, como la forma plana de la Tierra o la rotación del Sol. El incremento de nuestro saber se ha traducido en una lenta disgregación del concepto de tiempo. Lo que llamamos “tiempo” es una compleja colección de estructuras, de estratos. Al estudiarlo cada vez con mayor profundidad, el tiempo ha ido perdiendo esos estratos, esos fragmentos, uno tras otro. La primera parte del libro es el relato de esa disgregación del tiempo. La segunda parte describe lo que queda al final. Un paisaje vacío y azotado por el viento que parece haber perdido casi cualquier rastro de temporalidad. Un mundo extraño, ajeno; pero que es el nuestro. Es como llegar a lo alto de una montaña, donde solo hay nieve, roca y cielo. O como debió de ser para Armstrong y Aldrin aventurarse en la arena inmóvil de la Luna. Un mundo esencial que resplandece con una belleza árida, límpida e inquietante. La física en la que yo trabajo, la gravedad cuántica, es el esfuerzo por comprender y dar sentido coherente a este paisaje extremo y hermosísimo: el mundo sin tiempo. La tercera parte del libro es la más difícil, pero también la más viva y la más próxima a nosotros. En el mundo sin tiempo debe de haber algo que en cualquier caso dé origen al tiempo que conocemos, con su orden, su pasado distinto del futuro y su tranquilo fluir. De algún modo, nuestro tiempo tiene que emerger a nuestro alrededor, a nuestra escala, para nosotros. Este es el viaje de vuelta, hacia el tiempo perdido en la primera parte del libro al seguir la gramática elemental del mundo. Como en una novela policíaca, aquí iremos en busca del culpable que ha engendrado el tiempo. Encontraremos una a una las piezas de las que se compone el tiempo con el que estamos familiarizados, no como estructuras elementales de la realidad, sino como aproximaciones útiles para esas criaturas torpes que somos nosotros los mortales, aspectos de nuestra perspectiva, y puede que también aspectos –determinantes– de lo que somos. Ahí el libro se convierte en un magma candente de ideas, a veces luminosas, a veces confusas; si el lector me sigue, lo llevaré a donde yo creo que llega nuestro saber actual sobre el tiempo, hasta el gran océano nocturno y estrellado de lo que todavía ignoramos. Rovelli, C. (2021). El orden del tiempo. Anagrama. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-18",
+      "number": 18,
+      "statement": "¿Qué descubrió el emisor en los libros de física?",
+      "options": [
+        {
+          "id": "cl-18-a",
+          "text": "Que la naturaleza del tiempo es un uniforme fluir universal.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-18-b",
+          "text": "Que la actividad de la Tierra es diferente de como se percibe.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-18-c",
+          "text": "Que el tiempo funciona de manera distinta a como se enseña.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-18-d",
+          "text": "Que el universo encierra misterios que aún deben ser resueltos.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-19",
+      "number": 19,
+      "statement": "¿Qué función tienen las siguientes preguntas que aparecen en la lectura? «¿Por qué recordamos el pasado y no el futuro? ¿Somos nosotros quienes existimos en el tiempo, o el tiempo el que existe en nosotros? ¿Qué significa realmente que el tiempo “transcurre”? ¿Qué vincula el tiempo a nuestra naturaleza como sujetos?».",
+      "options": [
+        {
+          "id": "cl-19-a",
+          "text": "Presentar cuestionamientos sobre el tiempo que se invalidan en la lectura.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-19-b",
+          "text": "Introducir la problematización sobre el tiempo que se propone en la lectura.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-19-c",
+          "text": "Invalidar críticas a la noción de tiempo que se confirma en la lectura.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-19-d",
+          "text": "Plantear incógnitas sobre el tiempo que se responden en la lectura. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-20",
+      "number": 20,
+      "statement": "¿Con qué intención el emisor incluye las siguientes comparaciones “lo habitamos como los peces habitan el agua” y “es como tener en las manos un copo de nieve”?",
+      "options": [
+        {
+          "id": "cl-20-a",
+          "text": "Para motivar al lector a explorar contenidos complejos por medio de la observación de fenómenos naturales.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-20-b",
+          "text": "Para atraer al lector hacia un tema lejano por medio de la alusión a experiencias familiares.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-20-c",
+          "text": "Para involucrar al lector en la práctica científica a través del análisis de ejemplos cotidianos.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-20-d",
+          "text": "Para ayudar al lector a entender una idea abstracta a través de la representación de imágenes concretas.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-21",
+      "number": 21,
+      "statement": "¿Cuál es uno de los propósitos de la física en el que trabaja el emisor?",
+      "options": [
+        {
+          "id": "cl-21-a",
+          "text": "Ordenar linealmente un mundo atemporal.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-21-b",
+          "text": "Caracterizar el avance uniforme del tiempo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-21-c",
+          "text": "Alcanzar la comprensión del mundo sin tiempo.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-21-d",
+          "text": "Descifrar las causas de la disgregación del tiempo. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-22",
+      "number": 22,
+      "statement": "¿Para qué se menciona la aventura de Armstrong y Aldrin en la Luna?",
+      "options": [
+        {
+          "id": "cl-22-a",
+          "text": "Para asemejarla con la experiencia de estar en un mundo sin tiempo.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-22-b",
+          "text": "Para relacionarla con los recientes aportes de la gravedad cuántica.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-22-c",
+          "text": "Para destacar lo difícil de comprender la realidad para los científicos.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-22-d",
+          "text": "Para ejemplificar lo inhóspito de los paisajes sin rastro temporal.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Localizar y recuperar información",
+      "isPilot": true
+    },
+    {
+      "id": "cl-23",
+      "number": 23,
+      "statement": "Según la lectura, ¿con qué se encontrará el lector en la tercera parte del libro?",
+      "options": [
+        {
+          "id": "cl-23-a",
+          "text": "Con una explicación sobre la disgregación del tiempo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-23-b",
+          "text": "Con una selección de errores sobre el tiempo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-23-c",
+          "text": "Con una concepción actualizada del tiempo.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-23-d",
+          "text": "Con una descripción del mundo sin tiempo.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": true
+    },
+    {
+      "id": "cl-24",
+      "number": 24,
+      "statement": "De acuerdo con el sentido global de la lectura, ¿qué característica se puede inferir del tiempo?",
+      "options": [
+        {
+          "id": "cl-24-a",
+          "text": "Su variabilidad, que restringe el análisis de su funcionamiento.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-24-b",
+          "text": "Su ambigüedad, que imposibilita ordenar los acontecimientos.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-24-c",
+          "text": "Su complejidad, que impide comprenderlo con exactitud.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-24-d",
+          "text": "Su inestabilidad, que dificulta establecer su origen. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-25",
+      "number": 25,
+      "statement": "¿Qué actitud asume el emisor con respecto al estudio del tiempo?",
+      "options": [
+        {
+          "id": "cl-25-a",
+          "text": "Controversial, ya que lo define desde diferentes perspectivas.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-25-b",
+          "text": "Reflexiva, ya que lo aborda desde la curiosidad científica.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-25-c",
+          "text": "Analítica, ya que lo examina considerando su estructura.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-25-d",
+          "text": "Didáctica, ya que lo simplifica a pesar de su dificultad.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-26",
+      "number": 26,
+      "statement": "¿Con qué propósito el emisor menciona el contenido de las partes del libro?",
+      "options": [
+        {
+          "id": "cl-26-a",
+          "text": "Para anticipar al lector la manera en que se irá modificando la noción del tiempo a lo largo del libro.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-26-b",
+          "text": "Para guiar al lector en la secuencia histórica con que se han realizado los hallazgos sobre el tiempo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-26-c",
+          "text": "Para mostrar al lector las distintas formas en que se pueden organizar las concepciones del tiempo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-26-d",
+          "text": "Para informar al lector de las distintas investigaciones sobre el tiempo que se abordarán en el libro. FORMA 101  2026 Lectura 4: preguntas 27 a 37 Cuento de Pía Barros incluido en la antología Mujeres de palabras, publicado el año 2009. Diva Nada volvió a ser lo mismo después de su fugaz paso por nuestras tierras. Algunos recuerdan que solo el doctor Welzer fue a recibirla a la estación de trenes, arrepintiéndose ellos de no haber también estado allí. Y desde que pisó el andén, todo comenzó a ser diferente. Kurt, que entonces era el niño que acarreaba las maletas de fortuitos visitantes, dice que la vio pasar tan cerca de él, que la punta de su falda le rozó el rostro. Estaba sentado, más bien acurrucado, acota, y ante sus ojos, estaban los zapatos negros, de gamuza, con piel ribeteándole los tobillos. La falda roja se movía apenas, lo suficiente como para acercarse a su rostro, acurrucado como estaba en la espera utópica de algún turista. Él jura que le habló en una lengua extraña y que sintió por primera vez lo que años más tarde, cuando fuese un hombre, sentiría por esas mujeres inalcanzables; ese vacío en la boca del estómago, ese crepitar en los oídos, ese acalambrarse de muslos, unido a una intensa punzada en el pecho. Kurt se puso de pie como pudo y la siguió a corta distancia. El vigilante se le unió, cerrando los ojos, y respirando ese olor a lugares exóticos que emanaba de su pelo. Antes de que hubieran llegado a las puertas del hotel, una hilera de jóvenes, viejos, casados y solteros, la escoltaban. Cada ojo que topaba con su figura no podía contener el cuerpo que la seguía silencioso, fuera de toda voluntad. En las cinco cuadras que duró el trayecto, se detuvieron los escasos autos, las bicicletas, y enmudecieron los relojes, los vendedores de frutas y los balcones. Desde las gradas del hotel, ella se volvió con esos ojos lejanos y les sonrió triste, murmurando palabras sonoras y suaves que nadie comprendió. Luego, hizo adiós con un gesto leve de su mano y se adentró en la recepción, acompañada por un devotísimo doctor Welzer, que no se extrañó de que la recepcionista le extendiera, en un impulso irresistible, las llaves de la habitación nupcial. La misma muchacha dice que tenía un halo a sagrado, aunque no se puede confiar mucho en su información, porque padeció siempre alucinaciones místicas y murió en un asilo para dementes años más tarde, por lo que las crónicas consignan sus declaraciones, aunque con algunas notas al margen. FORMA 101  2026 La voz de su llegada se corrió más rápido que el anuncio de la primera guerra, por lo que a su lectura se acercaban decenas de curiosos, empujando por lograr una buena ubicación, seis horas antes de que la lectura empezara. Llegaron en largas filas silenciosas, sacaron su ticket de entrada en riguroso orden y ni siquiera hubo peleas. Parecía, según dicen los que recuerdan, que todos querían compartirla. Las mujeres asistieron por una curiosidad punzante, dispuestas a encontrarla fea, mal vestida o por lo menos, decir que no era para tanto. Pero al ver sus ojos tristes, sus botas oscuras, la falda roja y el pelo derramado sobre la espalda, enmudecieron de gozo y de tristeza por no ser ella. Cuando comenzó a recitar en una lengua distinta, a otra distancia y otro continente de nuestras tierras, los ojos se llenaron de aguas y las bocas sostuvieron en las comisuras una nostalgia brava por lo desconocido. Cada sonido nos fue impregnando y aunque no entendimos palabra, no pensamos que fuese necesario, porque el mensaje estaba en nuestra piel y cada vibración de su voz enronquecida nos iba tatuando una memoria en la que las palabras eran santuarios que se alejaban de lo esencial. Cuando terminó, ni un sonido ajeno vibraba en la sala. La expectación dio paso a una ovación conmovida y cerrada que colmó sus ojos de lágrimas, en lo que los periodistas del único matutino llamarían “de plenitud y agradecimiento”. Yo fui la más pequeña de ese auditorio y la que continúa viva, atesorando un programa de esa época, humilde, ribeteado de viñetas, con su nombre escrito. Recuerdo que esa noche, todos los hombres durmieron a la intemperie en las puertas de su hotel, mientras la nieve caía a raudales silenciosos. Las mujeres abarrotamos los pasillos esperando que nos contagiara algo de su aliento. Por la mañana abandonó el hotel, con su cuaderno de poemas y el mutismo escoltante del doctor Welzer y de todo el pueblo. Con un pie en la escalerilla del tren, nos hizo adiós con la mano y los ojos derramaron una lágrima que nos hizo llorar a todos como niños hasta largas horas después de que la silueta del tren se hubiera perdido en la lejanía. Desde entonces, han pasado cincuenta años y otra guerra que se mantuvo a discreta y amenazadora distancia. No nos importa. Porque desde que ella se deslizó por Roshkastashe, todo fue distinto. FORMA 101  2026 Las madres educan a sus niños en el recuerdo. El escultor le erigió la más bella estatua, orgullo de la ciudad, donde se la ve caminar contra el viento con su pequeño cuaderno, su falda de bronce donde aún se pone Kurt, el anciano, para que le acaricie el rostro, las tardes en que la nostalgia le tuerce los pasos. El gobierno del país no nos deja cambiarle el nombre a la ciudad, alegando problemas de mapas y algo de un muro que se edificó y que derribaron dividiendo el continente sin que nos diéramos cuenta. Seguimos año a año enviando cartas que no sabemos si llegan, para cambiarlo por el de Etelvina González, aunque nos cueste pronunciarlo y aunque haya que reescribir todos los mapas del mundo. No nos daremos por vencidos. El país sabe que somos la ciudad de su memoria, y por aquí ni siquiera pasó la guerra, los bombardeos se cuidaron mucho de tocarnos, quedándose lejos, porque sabían que éramos los guardianes de su recuerdo. El único museo de nuestro pueblo está dedicado a ella. Las sábanas que usó para dormir se conservan en vitrinas custodiadas, no vaya a ser que un enamorado fogoso las robe para la herejía de dormir sobre ellas. Algunos donaron ropas que usaron el día de su recital, por si tenían un poco de su mirada. Hubo hasta algunos que quisieron grabar sus suspiros elocuentes al recordarla. Se construyó meticulosamente un cuadernito forrado en género con sus iniciales. Las llaves de la suite nupcial, la toalla, los cortinajes, son parte del inapreciable tesoro, patrimonio que yo cuido fervorosamente. Alguna vez vino alguien de sus tierras que hablaba nuestro idioma y nos dijo que era una poeta fracasada, que allá ni conocían su nombre y que, de seguro, sería ahora una vieja hablando de su único viaje a Europa. Pero no podemos creer eso, es burdo, cruel y no tiene un atisbo de verdad. Valporaiso, creo que se llamaba su país. No importa. Ella vino a traernos el sentido, y amamantamos los hijos custodiando su memoria. Somos su pueblo, porque desde el día de su paso fugaz por nuestras tierras, jamás volvimos a ser los mismos. Y lo agradecemos. Barros, P. (2009). Diva. En Mujeres de palabras (pp. 233-235). MINEDUC. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Localizar y recuperar información",
+      "isPilot": false
+    },
+    {
+      "id": "cl-27",
+      "number": 27,
+      "statement": "¿Qué actitud tiene la narradora con respecto a la diva?",
+      "options": [
+        {
+          "id": "cl-27-a",
+          "text": "De asombro, ya que otorga un poder sobrenatural a la presencia de la diva.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-27-b",
+          "text": "De respeto, ya que la diva compartió con el pueblo una nueva lengua.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-27-c",
+          "text": "De agradecimiento, ya que la diva hizo de su pueblo un lugar especial.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-27-d",
+          "text": "De curiosidad, ya que desea develar el misterio que envuelve a la diva.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-28",
+      "number": 28,
+      "statement": "Una lectora afirma que el cuento transmite un estereotipo sobre la competitividad en el género femenino, ¿en cuál de las siguientes situaciones se fundamenta esta opinión?",
+      "options": [
+        {
+          "id": "cl-28-a",
+          "text": "En la actitud de la recepcionista al atender a la diva en el hotel.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-28-b",
+          "text": "En la motivación de las mujeres para asistir al recital de la diva.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-28-c",
+          "text": "En el afán de la narradora por destacar su diferencia de edad con la diva.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-28-d",
+          "text": "En el hecho de que algunas opinan que la diva es una vieja poeta fracasada. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-29",
+      "number": 29,
+      "statement": "Al final del cuento, la narradora defiende la veracidad de su testimonio ante alguien que cuestiona la imagen de Etelvina como una diva. ¿Cómo se construye lo verdadero en este cuento?",
+      "options": [
+        {
+          "id": "cl-29-a",
+          "text": "A través de la transmisión del recuerdo colectivo sobre la diva.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-29-b",
+          "text": "A través de la alusión a localidades reales donde vivió la diva.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-29-c",
+          "text": "A través del reconocimiento que da la autoridad a la diva.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-29-d",
+          "text": "A través del debate generado sobre el mérito de la diva.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-30",
+      "number": 30,
+      "statement": "En el cuento, ¿cuál de las siguientes características de la diva se asocia a su origen extranjero?",
+      "options": [
+        {
+          "id": "cl-30-a",
+          "text": "Los zapatos negros.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-30-b",
+          "text": "El olor de su pelo.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-30-c",
+          "text": "Sus ojos lejanos.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-30-d",
+          "text": "Su falda roja. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-31",
+      "number": 31,
+      "statement": "Considerando el siguiente fragmento, ¿cuál es el efecto que tuvo en las personas la llegada de la diva? «En las cinco cuadras que duró el trayecto, se detuvieron los escasos autos, las bicicletas, y enmudecieron los relojes, los vendedores de frutas y balcones».",
+      "options": [
+        {
+          "id": "cl-31-a",
+          "text": "Serenidad ante su presencia.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-31-b",
+          "text": "Necesidad de hablar de ella.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-31-c",
+          "text": "Fascinación al mirarla.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-31-d",
+          "text": "Inquietud por su recorrido.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-32",
+      "number": 32,
+      "statement": "¿Por qué al testimonio que entrega la recepcionista del hotel se le hacen “notas al margen”?",
+      "options": [
+        {
+          "id": "cl-32-a",
+          "text": "Porque su relato estaba influido por su juicio alterado.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-32-b",
+          "text": "Porque su recuerdo se había distorsionado con el tiempo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-32-c",
+          "text": "Porque sus impulsos la hacían actuar irresponsablemente.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-32-d",
+          "text": "Porque sus declaraciones fueron modificadas en las crónicas. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-33",
+      "number": 33,
+      "statement": "En el cuento, ¿qué testimonio es poco confiable para reconstruir la visita de la diva?",
+      "options": [
+        {
+          "id": "cl-33-a",
+          "text": "El de Kurt.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-33-b",
+          "text": "El de Welzer.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-33-c",
+          "text": "El del vigilante.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-33-d",
+          "text": "El de la recepcionista.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-34",
+      "number": 34,
+      "statement": "¿Con qué finalidad se menciona la “primera guerra” en el cuento?",
+      "options": [
+        {
+          "id": "cl-34-a",
+          "text": "Para exponer la motivación de la diva para viajar a Europa.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-34-b",
+          "text": "Para fundamentar la necesidad de un evento alegre en el pueblo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-34-c",
+          "text": "Para explicar que el pueblo se ha mantenido igual durante décadas.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-34-d",
+          "text": "Para evidenciar el impacto que tuvo la noticia de la llegada de la diva. FORMA 101  2026",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Localizar y recuperar información",
+      "isPilot": false
+    },
+    {
+      "id": "cl-35",
+      "number": 35,
+      "statement": "Un lector considera que la pasión del pueblo por la diva llega hasta lo irracional. ¿Qué hecho del cuento permite fundamentar esta interpretación?",
+      "options": [
+        {
+          "id": "cl-35-a",
+          "text": "El anhelo de que la ciudad llevara el nombre de la diva.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-35-b",
+          "text": "El cuidado de los objetos de la suite ocupada por la diva.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-35-c",
+          "text": "La preservación de una estatua hecha en honor a la diva.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-35-d",
+          "text": "La donación de ropa que podría conservar la mirada de la diva.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-36",
+      "number": 36,
+      "statement": "¿Cómo es la reacción del gobierno frente a la solicitud del pueblo?",
+      "options": [
+        {
+          "id": "cl-36-a",
+          "text": "Displicente, ya que es indiferente hacia el deseo del pueblo.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-36-b",
+          "text": "Violenta, ya que impone su voluntad ante la del pueblo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-36-c",
+          "text": "Negligente, ya que descuida los derechos del pueblo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-36-d",
+          "text": "Indulgente, ya que perdona las acciones del pueblo.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-37",
+      "number": 37,
+      "statement": "¿Qué tesoro del museo cuida la narradora?",
+      "options": [
+        {
+          "id": "cl-37-a",
+          "text": "Los mapas de las ciudades que recorrió la diva.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-37-b",
+          "text": "Los objetos cotidianos usados por la diva.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-37-c",
+          "text": "La estatua de la figura de la diva.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-37-d",
+          "text": "El cuaderno de poemas que utilizó la diva. FORMA 101  2026 Lectura 5: preguntas 38 a 47 Fragmento del informe Estadísticas Culturales, publicado por el Instituto Nacional de Estadísticas (INE) el año 2020. Fenómeno cultural: problemáticas, definiciones y otros aspectos sobre la medición de las culturas Definir los parámetros de “lo cultural” ha sido el gran desafío para la construcción de indicadores que permitan medir de manera multidimensional el impacto de la cultura en el desarrollo. Es por ello que, ante una compleja labor en constante evaluación y reconstrucción, se ha adoptado la definición de Unesco: La cultura debe ser considerada el conjunto de los rasgos distintivos espirituales y materiales, intelectuales y afectivos que caracterizan a una sociedad o a un grupo social, y que abarca, además de las artes y las letras, los modos de vida, las maneras de vivir juntos, los sistemas de valores, las tradiciones y las creencias (Unesco, 2009, p. 9). De esta definición se desprende que el sector de la cultura, las artes y el patrimonio es amplio, diverso y complejo en sus límites. Aquello, lo vuelve difícil de categorizar, puesto que comprende aspectos variados que pueden ir desde una práctica individual, a un espectáculo o una acción colectiva, hasta bienes materiales e inmateriales. Desde ahí se puede comprender el sector cultural, artístico y patrimonial como un verdadero ecosistema, en el que participan actores de distinta naturaleza –creadores y creadoras, cultoras y cultores, agrupaciones artísticas y patrimoniales, agentes culturales públicos y privados; entidades intermediarias, comunidades y públicos, espacios, prácticas, ciudadanía, visitantes–, cuya “interacción se sustenta en prácticas y hábitos culturales y se expresa en la generación y circulación de creaciones artísticas, experiencias creativas y conocimientos, además de la integración de contenidos simbólicos y herencias culturales que fortalecen la cohesión” (Ministerio de las Culturas, las Artes y el Patrimonio, 2021, p. 24). LOS AGENTES CULTURALES, ARTÍSTICOS Y PATRIMONIALES Como se señaló, en el sector cultural, artístico y patrimonial intervienen distintos actores o agentes culturales, entendidos como toda persona (natural o jurídica) o grupo que realiza labores relacionadas con la cultura, las artes y el patrimonio, siendo, entonces, quienes posibilitan el desarrollo de la actividad cultural, artística o patrimonial, en los distintos dominios culturales. FORMA 101  2026 Desde la mirada económica se busca representar a los agentes culturales con una visión más centrada en el valor agregado, la producción de conocimiento/valor simbólico y el impacto de esta área en la economía de un país (aporte al PIB 4), para lo cual es necesario detallar y explicitar quiénes son, qué producen y en qué etapa de la cadena productiva se encuentran. Sin embargo, esta puede ser una idea muy acotada de lo que significa un agente cultural, ya que su accionar puede también desarrollarse fuera del marco de la economía, en muchos casos enfocado en el desarrollo sociocultural de las personas y las comunidades. Esto es relevante dado que el mercado laboral en cultura se caracteriza por sus altas tasas de informalidad, como lo indican distintos estudios, por lo que esta dimensión resulta compleja de medir e identificar. Como se puede observar, el concepto de “agente cultural” es amplio e inclusivo, con la finalidad de abarcar la totalidad de actores que puedan ser denominados como culturales, artísticos y patrimoniales, a todos quienes hacen posible el ciclo cultural, ya sean personas naturales o jurídicas, o que sus actividades se realicen en la formalidad o en la informalidad. Y, desde esa perspectiva, resulta evidente que la relevancia de los agentes excede el rol operativo que juegan en las fases del ciclo cultural, ya que tienen un impacto social y económico en la comunidad y el territorio donde operan. Desde un punto de vista operacional, se definirán las siguientes categorías para situar el actuar de quienes intervienen como agentes culturales en sus contextos económicos y sociales: • Hecho cultural: responde a la pregunta “¿cuál?”, referida a la acción, evento, práctica, expresión o manifestación que se realiza en el campo de la cultura. • Objeto cultural: responde a la pregunta “¿qué?” del hecho cultural, correspondiendo a los bienes y/o servicios que el agente cultural crea, produce, interpreta, difunde, media, comercializa, promueve, restaura, etc. • Operación: responde a la pregunta “¿para qué?” del hecho cultural, correspondiendo a las posibles acciones sobre el objeto cultural para ofertar, usar, acumular, transmitir, difundir, etc. Además, ellos pueden cumplir distintas funciones (Martinell, 2000), tres de las cuales destacamos: 4 Producto Interno Bruto. FORMA 101  2026 • Los agentes culturales son una plataforma para fomentar la autoorganización de servicios, así como también para la organización de la iniciativa privada y mercantil, a partir del establecimiento de organizaciones propias. • Los agentes culturales ejercen una función prospectiva al descubrir y evidenciar nuevas necesidades o problemáticas de la sociedad y despertar una preocupación en los estamentos oficiales por estos temas. • Los agentes culturales son actores imprescindibles para dinamizar y garantizar el derecho a participar en la vida cultural en democracia. Estos actores se pueden categorizar a grandes rasgos en: Agentes públicos (servicios del Estado, gobiernos regionales, gobiernos comunales), Agentes privados (empresas, asociaciones privadas, profesionales, artistas, cultores y cultoras e industrias culturales) y Agentes del tercer sector (fundaciones, asociaciones, ONG5, organizaciones comunitarias y agrupaciones varias) (INE, 2019). La existencia de una variada red de agentes culturales está relacionada directamente con el desarrollo social, cultural y económico de una comunidad, por lo que tendrá una configuración distinta dependiendo de las características del lugar donde estos agentes operan. Estos, a su vez, pueden ir modificando su comportamiento y condición, lo que implica que “los agentes son una variable dinámica del territorio que va cambiando y evolucionando a lo largo del tiempo de acuerdo con las condiciones de desarrollo y su distribución territorial” (Martinell, 2000, p. 1). Ahora bien, para que los agentes culturales puedan desarrollar toda su potencialidad, necesitan reconocerse mutuamente, entender su complementariedad y planificar su acción; requieren organizarse para poder constituirse como interlocutores ante quienes toman las decisiones (Martinell, 2000). Y para que esto ocurra, la información resulta de primera necesidad. Así, identificar a los agentes culturales, artísticos y patrimoniales permite dimensionar lo que ocurre en el sector: quién interviene y cómo, qué crean o producen, en qué espacio, cómo se organizan, su aporte al territorio, y otras interrogantes de interés para los propios actores en juego, la ciudadanía y el Estado. De esta manera, a partir de la información se podrán elaborar políticas sociales y medir el impacto económico y social del sector cultural. Instituto Nacional de Estadísticas (INE). (2020). Estadísticas culturales, informe anual 2020. https://www.ine.gob.cl/docs/default-source/cultura/publicaciones-y- anuarios/publicaciones/estad%C3%ADsticas-culturales-informe-anual-2020.pdf?sfvrsn=474b6e96_2 5 Organización No Gubernamental. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-38",
+      "number": 38,
+      "statement": "¿Qué problema intenta resolver la definición de cultura de la Unesco?",
+      "options": [
+        {
+          "id": "cl-38-a",
+          "text": "El sesgo que genera un concepto restringido de cultura.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-38-b",
+          "text": "La complejidad que evidencia la aplicación del concepto “cultura”.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-38-c",
+          "text": "La falta de investigaciones centradas en el concepto de cultura.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-38-d",
+          "text": "El fracaso de las políticas públicas en torno al concepto “cultura”.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-39",
+      "number": 39,
+      "statement": "¿Para qué se compara el sector cultural con un ecosistema?",
+      "options": [
+        {
+          "id": "cl-39-a",
+          "text": "Para describir la necesidad de proteger a sus agentes más vulnerables.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-39-b",
+          "text": "Para exponer la ventaja de desarrollar todas sus áreas equitativamente.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-39-c",
+          "text": "Para explicar la dificultad de delimitar sus áreas constitutivas.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-39-d",
+          "text": "Para mostrar la interacción entre sus diversos componentes. FORMA 101  2026",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-40",
+      "number": 40,
+      "statement": "¿Cuál es la relación entre el segundo y el tercer párrafo de la sección “LOS AGENTES CULTURALES, ARTÍSTICOS Y PATRIMONIALES”?",
+      "options": [
+        {
+          "id": "cl-40-a",
+          "text": "El segundo plantea la visión económica sobre los agentes culturales y el tercero expresa las limitaciones de esta visión.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-40-b",
+          "text": "El segundo explica el impacto del valor simbólico en la economía y el tercero describe la invisibilización de este impacto.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-40-c",
+          "text": "El segundo plantea el aporte económico de la cultura al mercado laboral y el tercero revela una falta de consideración de este aporte.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-40-d",
+          "text": "El segundo explica los incentivos económicos que reciben los agentes culturales y el tercero detalla los perjuicios de estos incentivos.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-41",
+      "number": 41,
+      "statement": "Según la lectura, ¿qué característica tiene el mercado laboral en cultura?",
+      "options": [
+        {
+          "id": "cl-41-a",
+          "text": "Es acotado.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-41-b",
+          "text": "Es informal.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-41-c",
+          "text": "Es inclusivo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-41-d",
+          "text": "Es productivo. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-42",
+      "number": 42,
+      "statement": "Respecto del actuar del agente cultural, ¿a qué se refiere la categoría “objeto cultural”?",
+      "options": [
+        {
+          "id": "cl-42-a",
+          "text": "Al servicio que genera.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-42-b",
+          "text": "A la finalidad que persigue.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-42-c",
+          "text": "Al contexto en el que actúa.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-42-d",
+          "text": "A la necesidad que satisface.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-43",
+      "number": 43,
+      "statement": "Una de las municipalidades de la Región del Maule ha decidido organizar un festival de artesanía para la exhibición y promoción de los trabajos de diversos artesanos locales. Desde el punto de vista operacional mencionado en la lectura, ¿a qué acción se asocia esta iniciativa?",
+      "options": [
+        {
+          "id": "cl-43-a",
+          "text": "A las expresiones artísticas que se desarrollan en el campo de la cultura.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-43-b",
+          "text": "A las actividades que se realizan para la difusión del objeto cultural.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-43-c",
+          "text": "A la comercialización de los bienes en el campo de la cultura.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-43-d",
+          "text": "Al ofrecimiento de servicios a partir del objeto cultural. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Localizar y recuperar información",
+      "isPilot": false
+    },
+    {
+      "id": "cl-44",
+      "number": 44,
+      "statement": "¿Cuál es una de las funciones prospectivas de los agentes culturales?",
+      "options": [
+        {
+          "id": "cl-44-a",
+          "text": "Crear las plataformas para la autoorganización de los servicios culturales.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-44-b",
+          "text": "Revelar las necesidades culturales de la sociedad a estamentos oficiales.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-44-c",
+          "text": "Fomentar la participación en las actividades culturales en democracia.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-44-d",
+          "text": "Promover la iniciativa cultural a través de organizaciones propias.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-45",
+      "number": 45,
+      "statement": "Según la lectura, ¿cuál de los siguientes es un agente cultural privado?",
+      "options": [
+        {
+          "id": "cl-45-a",
+          "text": "Cultores.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-45-b",
+          "text": "Fundaciones.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-45-c",
+          "text": "Gobiernos comunales.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-45-d",
+          "text": "Organizaciones comunitarias. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-46",
+      "number": 46,
+      "statement": "Respecto a los agentes culturales, ¿qué pregunta se responde a partir de una síntesis de la información del penúltimo párrafo?",
+      "options": [
+        {
+          "id": "cl-46-a",
+          "text": "¿Quiénes son los interlocutores de los agentes culturales?",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-46-b",
+          "text": "¿Cómo se pueden informar los distintos agentes culturales?",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-46-c",
+          "text": "¿Cómo se organizan entre sí los diferentes agentes culturales?",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-46-d",
+          "text": "¿Qué es relevante para el desarrollo de los agentes culturales?",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Localizar y recuperar información",
+      "isPilot": false
+    },
+    {
+      "id": "cl-47",
+      "number": 47,
+      "statement": "En el contexto de una postulación a un fondo, se le solicita a una agrupación musical explicar la “Operación” que aborda. ¿Cuál de las opciones corresponde a la información requerida?",
+      "options": [
+        {
+          "id": "cl-47-a",
+          "text": "Realizar conciertos en parques públicos.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-47-b",
+          "text": "Crear un álbum de música folclórica infantil.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-47-c",
+          "text": "Acercar el folclor musical chileno a los niños.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-47-d",
+          "text": "Sortear entradas al concierto en redes sociales. FORMA 101  2026 Lectura 6: preguntas 48 a 55 Fragmento del ensayo escrito por Rosario Castellanos, publicado por primera vez el año 1959. El escritor y su público ¿Qué es un escritor? La pregunta puede contestarse con una respuesta obvia: un escritor es una persona que escribe. Una persona que escribe; hela aquí, ante la página en blanco, uno de los abismos a los que en ocasiones nos enfrenta el azar. ¿Escribe? No. Mordisquea la punta del lápiz, se mesa los cabellos6, da vueltas por la habitación como una fiera enjaulada. Vacilaciones, plazos, arrepentimientos. Y, con la decisión de quien se lanza al agua, surge la primera letra. La mano, tan dócil en otros quehaceres, se crispa: el brazo se acalambra; las ideas zumban con la insolencia de la mosca, escapan a los papirotazos7. De un modo o de otro la hoja de papel se llena. ¿Qué ha pasado? Que el suceso que se quería narrar (un suceso vivo, fluyente, cálido) aparece opaco, desabrido, hosco. Alguien ha traicionado a nuestro protagonista y en cada sílaba se advierte el jadeo del esfuerzo, la desobediencia de los músculos, los sobresaltos de la mente. No le queda más alternativa que cerrar, avergonzado, el cuaderno y jurarse no volver a abrirlo más que para la redacción de formularias esquelas de negocios o la consignación de alguna cifra, de algún dato importante. Rectifiquemos entonces. El escritor no es cualquier persona que escribe sino la persona que tiene facilidad para escribir. Alguien que hace un ensalmo, que dice un conjuro y de inmediato suscita la ocurrencia feliz, el razonamiento convincente, la comparación certera. Su actividad tiene la apariencia de un juego, de un acontecimiento que se desarrolla fuera de los ámbitos de este mundo en que la pesadez es una condición y la gravedad, una ley. Aptitud tan gratuita bien puede ser desperdiciada en festejar la ocasión vana, en conmover el sentimiento frívolo, en cosechar el aplauso barato. La mayoría se confunde y acepta como escritor a quien detenta este virtuosismo de recetario, pero nosotros procuraremos no caer en el error. Para el escritor auténtico, escribir es una disposición de la naturaleza a la que se añade un hábito de la voluntad. Y este hábito es una conquista del trabajo arduo, un resultado de la paciencia lúcida. Detrás de cada página tersa, de cada texto ordenado, deleitoso, nítido, se ocultan las infinitas tachaduras, los borrones inconformes, los cestos llenos de papeles desechados. El aprendizaje consume tiempo, exige sacrificios y muy frecuentemente rinde fracasos. 6 Se arranca los cabellos. 7 Golpes dados con las manos. FORMA 101  2026 Porque ¡cuántas veces la aplicación, el esmero, no obtienen más resultado que la obra mediocre o, lo que es peor, ninguna obra! El idioma de que el escritor se sirve, como todo ser viviente, tiene sus caprichos, sus reticencias impredecibles, sus bruscos abandonos. No es una cosa que se nos haya enajenado en propiedad y por la que pagamos un precio; es una persona que se nos entrega en amor. Cada acto de donación amorosa es único y no crea derechos en quien lo recibe. Así ni el mañana es seguro ni el ayer es impositivo. Por eso el escritor está, en relación con su obra, como se dice en el verso de López Velarde: al día y de milagro. ¿De qué modo emplear ese milagro? O más claramente: ¿cómo escribir? ¿Acerca de qué escribir? ¿Para quién escribir? La respuesta, por desgracia, no es una. Hay quienes opinan que lo importante de la escritura es el estilo, el pulimento, la posesión segura de la técnica, el dominio de los recursos. El tema ya es cuestión secundaria y el lector es un iniciado en los secretos del oficio, alguien que comprende el signo, casi imperceptible, que el autor le envía y que lo acoge con una, casi imperceptible también, sonrisa de agrado. Quedamos en que al arte purista le preocupa el “cómo” y no le importa mucho ni el “qué” ni el “para quién” de su trabajo. Es un hombre estético, a diferencia del escritor comprometido, en quien predominan las tendencias morales y prácticas. El escritor comprometido mira el mundo que lo circunda y declara, como era de esperarse, que ese mundo está mal hecho; inmediatamente pone manos a la obra para mejorarlo. Enarbola una teoría cualquiera y se convierte en su propagandista. Un libro es un utensilio, una especie de ladrillo que se usa indistintamente para levantar una casa o para ser arrojado como un proyectil contra la cabeza de alguien o de algo. La literatura comprometida está hecha de pruebas, de alegatos, de refutaciones. Leerla puede no causarnos placer pero nos inclina a asentir o a rechazar. Está cargada […] de elementos dinámicos que inducen a la acción. Se dirige no a la capilla cerrada ni al cenáculo de escogidos, sino a la masa entre la que quiere hacer prosélitos8. ¿Quién de los dos –el arte purista o el escritor comprometido– está en lo justo? En nuestra opinión, ninguno. Al escoger un aspecto de la creación y descuidar los otros, ambos mutilan sus capacidades, cercenan la realidad expresada y excluyen virtuales interlocutores. Y en el escritor auténtico la plenitud debe ser, si no un logro, por lo menos una constante aspiración. 8 Adherentes a una causa, ideología, colectividad, partido político, etc . FORMA 101  2026 Pone en peligro esta aspiración el que se enajena al adherirse a un dogma, afiliarse a un partido o sustentar un “ismo”. Subordinarse así es indispensable en los momentos primeros de la evolución literaria, pues sirve como punto de partida o de apoyo, como base de operaciones. Pero su función se desnaturaliza cuando la subordinación degenera en límite infranqueable, móvil único y último argumento. Desde ese instante el escritor resulta incapaz de considerar como válidos intereses ajenos a los propios ni de admitir otras perspectivas, aunque sean más amplias o más correctas que las suyas. Renuncia también a la plenitud el que cede a la inercia. Es un error muy aceptado suponer que el artista se circunscribe a la zona “sentimental, sensible y sensitiva”. Las emociones –se afirma– lo ponen en contacto con lo trascendente y en un chispazo de intuición le son revelados los misterios. Su instinto atina donde la razón tropieza. El rigor esteriliza lo que toca y es en el ocio donde madura la obra, en la improvisación donde se manifiesta. Postura tal no puede conseguir más que incoherencias. Atisbos geniales, quizá, pero nunca un esqueleto sustentador de propósitos fijos, de ideas esclarecedoras, de referencias identificables. El autor malogra sus facultades, ya no creadoras sino meramente psíquicas. A nadie beneficia la parálisis del juicio crítico, la falta de estímulos para el pensamiento. Y menos que a nadie, al escritor. Porque, a fin de cuentas, la literatura es también una actividad intelectual y por lo tanto opera con un instrumento muy delicado, muy preciso, al que cualquier conmoción desajusta y cualquier presión disloca: la inteligencia. Entendemos aquí, por inteligencia, una instancia superior que orienta, rige y discierne los actos que propiamente pueden llamarse espirituales; que los califica dándoles el rango que les corresponde y que hace todo lo contrario de estorbarlos, castrarlos o torcerlos. ¿Por qué la inteligencia había de menoscabar la imaginación, que es uno de sus agentes? ¿Por qué había de enfriar la pasión, que es una de sus condiciones? La inteligencia también es apetito; convive, compadece, recrea. Tanto inventa con libertad como observa con exactitud. Nunca es pasiva. Y solo cuando su acicate9 nos falta es cuando nos conformamos con el lugar común, con la frase hecha, con el dictamen de segunda mano. 9 Estímulo. FORMA 101  2026 La inteligencia, según el afortunado hallazgo de José Gorostiza, es “soledad en llamas”. Soledad, no aislamiento, ni cerrazón del egoísmo, de la ignorancia, del desdén; sino disponibilidad para el acogimiento de lo esencial. En sus ámbitos, el intelecto entra en comunicación con todo y con todos; fuera de ellos se corrompe. La inteligencia está perdida, dice Simone Weil, desde el momento en que se expresa con la palabra nosotros. Su ejercicio es una responsabilidad estrictamente privada. En el escritor la soledad es estilo, modo peculiar de ver y expresarse. Una adquisición rara. Porque el escritor es un hombre de carne y hueso que nace y se desarrolla y cumple su vocación en circunstancias muy concretas. Castellanos, R. (2017). Juicios Sumarios. Fondo de Cultura Económica. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Localizar y recuperar información",
+      "isPilot": false
+    },
+    {
+      "id": "cl-48",
+      "number": 48,
+      "statement": "Respecto de la acción de escribir, ¿cuál es el propósito de la emisora?",
+      "options": [
+        {
+          "id": "cl-48-a",
+          "text": "Justificar el rol del escritor en la sociedad.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-48-b",
+          "text": "Reflexionar sobre el oficio del escritor.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-48-c",
+          "text": "Proponer un método para la escritura.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-48-d",
+          "text": "Analizar el proceso de escritura.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-49",
+      "number": 49,
+      "statement": "¿Qué recurso utiliza la emisora para involucrar al lector en la temática que aborda?",
+      "options": [
+        {
+          "id": "cl-49-a",
+          "text": "Utiliza ejemplos de la vida cotidiana.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-49-b",
+          "text": "Menciona a algunos escritores de renombre.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-49-c",
+          "text": "Formula preguntas para articular la lectura.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-49-d",
+          "text": "Explica con precisión los conceptos que incorpora. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-50",
+      "number": 50,
+      "statement": "¿Qué postura asume la emisora ante la labor del escritor comprometido?",
+      "options": [
+        {
+          "id": "cl-50-a",
+          "text": "De cuestionamiento, pues advierte los riesgos de escribir desde una ideología.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-50-b",
+          "text": "De desconfianza, pues sospecha de los intereses plasmados en las obras.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-50-c",
+          "text": "De rechazo, pues critica su despreocupación por las tendencias literarias.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-50-d",
+          "text": "De cautela, pues duda de su capacidad de transformar la realidad.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-51",
+      "number": 51,
+      "statement": "En la lectura, ¿qué efecto busca lograr en el lector la incorporación de expresiones como “rectifiquemos”, “procuraremos”, “quedamos” y “entendemos”?",
+      "options": [
+        {
+          "id": "cl-51-a",
+          "text": "Que se incline por una postura sobre los escritores.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-51-b",
+          "text": "Que se involucre en la reflexión acerca de los escritores.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-51-c",
+          "text": "Que se incluya en la tarea de definir la labor de los escritores.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-51-d",
+          "text": "Que se interese por profundizar en el estudio de los escritores. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-52",
+      "number": 52,
+      "statement": "A partir del contenido del tercer párrafo, ¿en qué consiste la “traición” que sufre el escritor?",
+      "options": [
+        {
+          "id": "cl-52-a",
+          "text": "En que quien escribe tiene una idea artística, pero le cuesta materializarla.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-52-b",
+          "text": "En que quien escribe imagina un proyecto creativo, pero elabora un texto utilitario.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-52-c",
+          "text": "En que quien escribe crea un personaje literario, pero está disconforme con el resultado.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-52-d",
+          "text": "En que quien escribe elabora un plan de escritura, pero su cuerpo le impide concretarlo.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": true
+    },
+    {
+      "id": "cl-53",
+      "number": 53,
+      "statement": "En el cuarto párrafo, ¿qué característica le atribuye la emisora al escritor?",
+      "options": [
+        {
+          "id": "cl-53-a",
+          "text": "Destreza, pues posee habilidad para crear mundos propios.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-53-b",
+          "text": "Rigor, pues trabaja con esfuerzo para que la escritura surja.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-53-c",
+          "text": "Lucidez, pues descifra acontecimientos poco convencionales.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-53-d",
+          "text": "Persistencia, pues continúa escribiendo sin obtener resultados. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-54",
+      "number": 54,
+      "statement": "En relación con su obra, ¿por qué se dice que un escritor está “al día y de milagro”?",
+      "options": [
+        {
+          "id": "cl-54-a",
+          "text": "Porque el destino de un escritor puede mejorar repentinamente.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-54-b",
+          "text": "Porque el talento de un escritor carece de una causa perceptible.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-54-c",
+          "text": "Porque el lenguaje de un escritor debe sobrevivir al paso del tiempo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-54-d",
+          "text": "Porque el virtuosismo de un escritor puede desaparecer inesperadamente.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-55",
+      "number": 55,
+      "statement": "Según la emisora, ¿cuál debe ser la aspiración de un escritor auténtico?",
+      "options": [
+        {
+          "id": "cl-55-a",
+          "text": "La justicia.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-55-b",
+          "text": "La estética.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-55-c",
+          "text": "La plenitud.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-55-d",
+          "text": "La trascendencia. FORMA 101  2026 Lectura 7: preguntas 56 a 65 Artículo informativo escrito por Lucía Galotti, publicado en el sitio web Formación IB el año 2020. ¿Cuál es el papel que ocupan la ciencia y la tecnología en la sociedad y la cultura contemporánea? ¿Cuál es la relación entre las ciencias y las tecnologías? ¿Qué se entiende por innovación? ¿Pueden considerarse las ciencias y las tecnologías como pilares del desarrollo local y regional? ¿Qué vínculo tiene la escuela con el desarrollo tecnológico? ¿Cuál es el impacto de los cambios tecnológicos en esta sociedad desigual? Los dos últimos siglos son y han sido testigos de monumentales revoluciones tecnológicas y de los cambios sociales, políticos y económicos que las acompañaron. Tampoco somos ajenos a su incidencia en la concentración y equilibrio de poder en el mundo. El actual siglo XXI, donde el conocimiento y la información son una pieza central del motor de la sociedad, es heredero de la historia de épocas pasadas. La investigación científica y sus aplicaciones tecnológicas no se encuentran aisladas de la sociedad en la que se insertan, lo que genera amplias discusiones sobre el rol social de la ciencia. Ya en el siglo XVII, con Galileo, Kepler o Newton, se puso en marcha la revolución científica moderna y paralelamente uno de los movimientos de innovación tecnológicos más significativos en cuanto a su impacto transformador de la sociedad: la Revolución Industrial. Pero el siglo XX pasado no se quedó atrás, tanto la electricidad, como el motor a explosión, las telecomunicaciones y más próximamente la informática, dieron forma a cambios aún más profundos y acelerados. Ni hablar de la velocidad de las transformaciones acaecidas en este siglo XXI, en el que aparecen nuevas tecnologías que modifican la forma de comunicarnos, de movernos en el mundo, de abordar el tratamiento de enfermedades, o nuevos materiales, solo por mencionar algunos de los más relevantes. ¿En qué momento se dio este punto de inflexión en la historia de la humanidad? ¿Cuándo y cómo el conocimiento y sus aplicaciones pasaron a ser rentables y se constituyeron en factores del poder económico y político? Hasta la Revolución Industrial, la ciencia y la técnica iban por carriles distintos. Los científicos se proponían avanzar en el conocimiento del mundo y la técnica era artesanal, un saber empírico nacido desde la práctica, que se transmitía de maestro a aprendiz, sin preguntarse por los fundamentos teóricos. ¿Había innovaciones? Sí, pero de manera pragmática, para resolver algún problema técnico. Fue de esta forma como nacieron la rueda hidráulica, el molino de viento y hasta la máquina a vapor. Esto se revirtió a partir de FORMA 101  2026 la Revolución Industrial. Los científicos comenzaron a involucrarse en la aplicación de sus conocimientos a la industria y los empresarios se interesaron en ella para obtener mayores ganancias. La ciencia y la tecnología en la actualidad movilizan grandes inversiones, tanto estatales como privadas. Asimismo, se han desvanecido los límites tajantes entre ciencia pura, ciencia aplicada y tecnología. Generalmente, hay equipos de investigación en los que se comparten los conocimientos. Por ejemplo, entre las personas que trabajan en los equipos de investigación y desarrollo, muchas veces es difícil diferenciar por su función, a científicos, ingenieros o técnicos. En los tiempos actuales, los avances científicos y tecnológicos son vertiginosos, lo cual influye en la economía de los pueblos y por supuesto, en la economía mundial. También incide en la calidad de vida. Pero hay que ser cautelosos. ¿Quiénes tienen acceso? ¿Qué efectos provocan en el ambiente? ¿Y en la salud? La carrera tecnológica no debería mantener al margen el incremento sostenido del bienestar de todas las personas de manera de lograr un desarrollo incluyente y sostenible. Al mismo tiempo, el grado de acceso al conocimiento traza una línea entre los países. Los que tienen mayor desarrollo acceden al bienestar y al ejercicio pleno de sus derechos. El resto, que no logra incorporar el conocimiento para innovar y crecer, se expone a un deficiente crecimiento económico y a la pobreza. ¿Qué ocurre en América Latina? Creo que estamos a mitad de camino, ya que no logramos despegar del todo en lo que se refiere a desarrollo científico y tecnológico. Este es el desafío que tienen países como Argentina, para superar el tipo de producción basada en la agricultura y la ganadería e incluir en su matriz productiva otros sectores como la agroindustria, la industria e innovación en los alimentos, en medicamentos, equipamientos médicos, nuevas formas de energía o biotecnología aplicada. ¿Pero qué significa innovar? ¿Inventar algo nuevo? Es más que eso, ya que va desde un conocimiento hasta un producto, un proceso nuevo, una forma distinta y más eficiente de hacer algo, o un nuevo servicio, que llega efectivamente al mercado. Si un nuevo hallazgo no se logra vender, no hay innovación. No necesariamente se necesita una proeza tecnológica. Sí es necesario ser creativo, pensar diferente. El diseño de un producto, los materiales que se utilizan, mejorar la calidad y reducir costos, nuevas formas de venta, por ejemplo la venta a través de la web, son formas de innovación. ¿En Argentina, la educación promueve la creatividad, el pensar diferente, o por el contrario favorece la repetición, conocer lo que ya está dado? ¿Cuáles son los desafíos que debemos enfrentar para educar pensando en el futuro, en los tiempos que vivirán nuestros niños y jóvenes? Es algo que hay que poner en el centro de la discusión cuando se debate qué tipo de educación científica debería promoverse. FORMA 101  2026 ¿Cómo suscitar desarrollos tecnológicos innovadores en Argentina? ¿De qué manera se puede fomentar la innovación tecnológica? Como ya se dijo, habría que hacerlo tanto al nivel de las producciones más sencillas como en aquellas con un mayor impacto económico y social, en el marco de nuestras posibilidades, teniendo en cuenta nuestra realidad. Muchas veces es inútil copiar tajantemente otros modelos. Sí estudiarlos y analizarlos, pero para pensar algo que se ajuste a nuestra peculiaridad. Para ello, es menester favorecer la incorporación de conocimiento en el proceso productivo. Lograrlo requiere de una sociedad en que se incrementen gradualmente los conocimientos de la población. Tanto para generar riqueza como para la reducción de los desequilibrios sociales y la democratización de la sociedad, es imprescindible que quienes producen bienes y servicios tengan conocimientos sofisticados, elevados, que les posibiliten innovar y descubrir nuevos problemas y soluciones. Una sociedad con altos porcentajes y número creciente de personas con acceso a una educación de calidad, más cerca de las mejores prácticas internacionales, capaces de romper con lo que está dado, plantearse desafíos y formas creativas de resolverlos, es una sociedad más libre, más rica y más equilibrada. Como país debemos poner este tema sobre el tapete. Lo urgente no nos permite ver lo importante. Establecer redes entre las universidades, las empresas y el Estado, pensar en cuáles son las inversiones que hay que realizar de manera prioritaria y en qué áreas de la producción, en función de la realidad y las características de nuestro país, sin imitar otros modelos, pero aprendiendo de ellos. Galotti, L. (2020). ¿Cuál es el papel que ocupan la ciencia y la tecnología en la sociedad y la cultura contemporánea? Formación IB. http://formacionib.org/noticias/?Cual-es-el-papel-que-ocupan-la-ciencia-y-la- tecnologia-en-la-sociedad-y-la FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-56",
+      "number": 56,
+      "statement": "Según la lectura, ¿qué elementos movilizan la sociedad del siglo XXI?",
+      "options": [
+        {
+          "id": "cl-56-a",
+          "text": "La información y el conocimiento.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-56-b",
+          "text": "La concentración y el equilibrio de poder.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-56-c",
+          "text": "Las transformaciones políticas y económicas.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-56-d",
+          "text": "Las revoluciones tecnológicas y los cambios sociales.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-57",
+      "number": 57,
+      "statement": "¿Cuál es uno de los ejemplos de avances del siglo XX mencionados en la lectura?",
+      "options": [
+        {
+          "id": "cl-57-a",
+          "text": "La informática.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-57-b",
+          "text": "La máquina a vapor.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-57-c",
+          "text": "La biotecnología aplicada.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-57-d",
+          "text": "El tratamiento de enfermedades. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Localizar y recuperar información",
+      "isPilot": false
+    },
+    {
+      "id": "cl-58",
+      "number": 58,
+      "statement": "¿A qué se refiere el “punto de inflexión” que menciona la emisora en el quinto párrafo?",
+      "options": [
+        {
+          "id": "cl-58-a",
+          "text": "Al impacto transformador de la ciencia en la sociedad.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-58-b",
+          "text": "Al desarrollo de la revolución científica en la época moderna.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-58-c",
+          "text": "A la velocidad de adaptación de la sociedad a los avances tecnológicos.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-58-d",
+          "text": "A la transformación en diferentes ámbitos de la vida producto de la tecnología.",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Localizar y recuperar información",
+      "isPilot": true
+    },
+    {
+      "id": "cl-59",
+      "number": 59,
+      "statement": "A partir de la lectura, ¿cuál es un aspecto común en invenciones como la rueda hidráulica, el molino de viento y la máquina de vapor?",
+      "options": [
+        {
+          "id": "cl-59-a",
+          "text": "Se situaron como ejemplos del avance del conocimiento, sin importar su técnica.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-59-b",
+          "text": "Emergieron como artefactos de uso prolongado en el tiempo, sin que se requiriera reemplazar su técnica.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-59-c",
+          "text": "Se instalaron como grandes innovaciones de su época, sin revelar la técnica utilizada en su desarrollo.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-59-d",
+          "text": "Surgieron como soluciones prácticas a problemas técnicos, sin estar respaldadas por fundamentos teóricos. FORMA 101  2026",
+          "isCorrect": true
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-60",
+      "number": 60,
+      "statement": "¿Qué opción representa el sentido del siguiente párrafo de la lectura? «En los tiempos actuales, los avances científicos y tecnológicos son vertiginosos, lo cual influye en la economía de los pueblos y por supuesto, en la economía mundial. También incide en la calidad de vida. Pero hay que ser cautelosos. ¿Quiénes tienen acceso? ¿Qué efectos provocan en el ambiente? ¿Y en la salud? La carrera tecnológica no debería mantener al margen el incremento sostenido del bienestar de todas las personas de manera de lograr un desarrollo incluyente y sostenible».",
+      "options": [
+        {
+          "id": "cl-60-a",
+          "text": "El deber de impulsar la economía de los pueblos para favorecer los avances científicos y tecnológicos.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-60-b",
+          "text": "La importancia de potenciar los avances científicos para influir de manera positiva en la economía mundial.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-60-c",
+          "text": "La necesidad de regular el desarrollo tecnológico para garantizar el bienestar de las personas.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-60-d",
+          "text": "El compromiso de cuidar el medio ambiente para mejorar la calidad de vida de las personas.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-61",
+      "number": 61,
+      "statement": "A partir de la lectura, ¿qué elemento favorecería el avance científico y tecnológico de América Latina?",
+      "options": [
+        {
+          "id": "cl-61-a",
+          "text": "La competencia con los países desarrollados.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-61-b",
+          "text": "La diversificación de los sectores productivos.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-61-c",
+          "text": "La difusión de los logros de la carrera tecnológica.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-61-d",
+          "text": "La eliminación de la brecha económica con otros países. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-62",
+      "number": 62,
+      "statement": "Según lo propuesto por la emisora, ¿qué caracteriza una educación innovadora?",
+      "options": [
+        {
+          "id": "cl-62-a",
+          "text": "Su carácter reflexivo y creativo, porque favorece el surgimiento de perspectivas diferentes.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-62-b",
+          "text": "Su carácter riguroso y eficiente, porque implementa modelos exitosos en los procesos productivos.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-62-c",
+          "text": "Su carácter estratégico y vanguardista, porque se centra en el impacto económico y social de los avances tecnológicos.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-62-d",
+          "text": "Su carácter inclusivo y mediador, porque establece un consenso en las maneras de entender la educación tecnológica.",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Reflexionar y evaluar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-63",
+      "number": 63,
+      "statement": "En el contexto del último párrafo, ¿qué idea se desprende de la siguiente expresión: “Lo urgente no nos permite ver lo importante”?",
+      "options": [
+        {
+          "id": "cl-63-a",
+          "text": "A pesar de la relevancia del desarrollo científico tecnológico, las necesidades de las personas deben ser prioritarias.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-63-b",
+          "text": "Aunque el país debe velar por el desarrollo económico, este desarrollo tecnológico ha sido postergado.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-63-c",
+          "text": "Si bien el país tiene necesidades inmediatas, el desarrollo científico tecnológico también debe considerarse fundamental.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-63-d",
+          "text": "Pese a que la ciencia y la tecnología son primordiales en la historia de la sociedad, han sido restringidas a ámbitos especializados. FORMA 101  2026",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-64",
+      "number": 64,
+      "statement": "¿Con cuál de las preguntas del primer párrafo se relaciona el siguiente segmento del artículo? «La carrera tecnológica no debería mantener al margen el incremento sostenido del bienestar de todas las personas de manera de lograr un desarrollo incluyente y sostenible».",
+      "options": [
+        {
+          "id": "cl-64-a",
+          "text": "¿Pueden considerarse las ciencias y las tecnologías como pilares del desarrollo local y regional?",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-64-b",
+          "text": "¿Cuál es la relación entre las ciencias y las tecnologías?",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-64-c",
+          "text": "¿Cuál es el impacto de los cambios tecnológicos en esta sociedad desigual?",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-64-d",
+          "text": "¿Qué vínculo tiene la escuela con el desarrollo tecnológico?",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": false
+    },
+    {
+      "id": "cl-65",
+      "number": 65,
+      "statement": "¿Qué función cumplen las preguntas expuestas a lo largo de la lectura?",
+      "options": [
+        {
+          "id": "cl-65-a",
+          "text": "Introducen las causas del escaso desarrollo de la ciencia y la tecnología.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-65-b",
+          "text": "Organizan el razonamiento de los temas relacionados con la ciencia y la tecnología.",
+          "isCorrect": true
+        },
+        {
+          "id": "cl-65-c",
+          "text": "Confrontan las distintas posiciones sobre la importancia de la ciencia y la tecnología.",
+          "isCorrect": false
+        },
+        {
+          "id": "cl-65-d",
+          "text": "Ordenan de manera temporal la información sobre los avances de la ciencia y la tecnología. IMPORTANTE ■ Este folleto está protegido bajo Registro de Propiedad Intelectual de la Universidad de Chile. ■ Está prohibida la reproducción, transmisión total o parcial de este folleto, por cualquier medio o método. ■ Es obligatorio devolver íntegramente este folleto antes de abandonar la sala. ■ Es obligatorio devolver la hoja de respuestas antes de abandonar la sala. Proceso de Admisión 2 0 2 6",
+          "isCorrect": false
+        }
+      ],
+      "eje": "Relacionar e interpretar",
+      "isPilot": false
+    }
+  ]
+}

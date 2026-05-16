@@ -18,7 +18,7 @@ async function getBrevoConfig(): Promise<{ apiKey: string; senderEmail: string; 
     const map = Object.fromEntries(configs.map((c) => [c.key, c.value]));
     const apiKey = map[APP_CONFIG_KEY.BREVO_API_KEY];
     const senderEmail = map[APP_CONFIG_KEY.BREVO_SENDER_EMAIL];
-    const senderName = map[APP_CONFIG_KEY.BREVO_SENDER_NAME] ?? 'EduNext Quiz';
+    const senderName = map[APP_CONFIG_KEY.BREVO_SENDER_NAME] ?? 'Aulika';
 
     if (!apiKey || !senderEmail) return null;
     return { apiKey, senderEmail, senderName };
@@ -52,7 +52,7 @@ export function buildAdminWelcomeEmail(name: string, email: string, password: st
 <!DOCTYPE html>
 <html lang="es">
 <body style="font-family: sans-serif; color: #111; max-width: 560px; margin: 0 auto; padding: 24px;">
-  <h2 style="margin-bottom: 4px;">Bienvenido/a a EduNext Quiz, ${name}</h2>
+  <h2 style="margin-bottom: 4px;">Bienvenido/a a Aulika, ${name}</h2>
   <p style="color: #555; margin-top: 0;">Tu cuenta de Administrador ha sido creada.</p>
   <table style="width:100%; border-collapse:collapse; margin: 24px 0;">
     <tr>

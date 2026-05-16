@@ -18,6 +18,7 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
         where: isProfesor ? { professors: { some: { id: session.user.id } } } : undefined,
         include: {
             _count: { select: { users: true, exams: true } },
+            tutor: { select: { id: true, name: true, lastname: true } },
             users: {
                 where: { userRole: { name: USER_ROLE.STUDENT } },
                 select: { id: true, name: true, lastname: true, rut: true, active: true },

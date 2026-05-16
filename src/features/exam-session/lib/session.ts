@@ -13,6 +13,11 @@ export interface ResultSessionPayload {
     studentId: string;
 }
 
+const STUDENT_COOKIE = 'aulika-student-session';
+const RESULT_COOKIE = 'aulika-result-session';
+const STUDENT_COOKIE_LEGACY = 'student_session';
+const RESULT_COOKIE_LEGACY = 'result_session';
+
 function getSecret(): Uint8Array {
     const secret = process.env.STUDENT_SESSION_SECRET;
     if (!secret) throw new Error('STUDENT_SESSION_SECRET is not set');
@@ -27,7 +32,7 @@ export async function createStudentSession(payload: StudentSessionPayload): Prom
         .sign(getSecret());
 
     const cookieStore = await cookies();
-    cookieStore.set('student_session', token, {
+    cookieStore.set(STUDENT_COOKIE, token, {
         httpOnly: true,
         sameSite: 'lax',
         secure: process.env.NODE_ENV === 'production',
@@ -38,7 +43,9 @@ export async function createStudentSession(payload: StudentSessionPayload): Prom
 
 export async function getStudentSession(): Promise<StudentSessionPayload | null> {
     const cookieStore = await cookies();
-    const token = cookieStore.get('student_session')?.value;
+    const token =
+        cookieStore.get(STUDENT_COOKIE)?.value ??
+        cookieStore.get(STUDENT_COOKIE_LEGACY)?.value;
     if (!token) return null;
 
     try {
@@ -51,7 +58,8 @@ export async function getStudentSession(): Promise<StudentSessionPayload | null>
 
 export async function deleteStudentSession(): Promise<void> {
     const cookieStore = await cookies();
-    cookieStore.delete('student_session');
+    cookieStore.delete(STUDENT_COOKIE);
+    cookieStore.delete(STUDENT_COOKIE_LEGACY);
 }
 
 // Replaces the exam session with a short-lived result session so the student
@@ -63,8 +71,9 @@ export async function createResultSession(resultId: string, studentId: string): 
         .sign(getSecret());
 
     const cookieStore = await cookies();
-    cookieStore.delete('student_session');
-    cookieStore.set('result_session', token, {
+    cookieStore.delete(STUDENT_COOKIE);
+    cookieStore.delete(STUDENT_COOKIE_LEGACY);
+    cookieStore.set(RESULT_COOKIE, token, {
         httpOnly: true,
         sameSite: 'lax',
         secure: process.env.NODE_ENV === 'production',
@@ -75,7 +84,9 @@ export async function createResultSession(resultId: string, studentId: string): 
 
 export async function getResultSession(): Promise<ResultSessionPayload | null> {
     const cookieStore = await cookies();
-    const token = cookieStore.get('result_session')?.value;
+    const token =
+        cookieStore.get(RESULT_COOKIE)?.value ??
+        cookieStore.get(RESULT_COOKIE_LEGACY)?.value;
     if (!token) return null;
 
     try {

@@ -5,28 +5,58 @@ import { Slot } from 'radix-ui';
 import { cn } from '@/shared/lib/utils';
 
 const buttonVariants = cva(
-    "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+    // base
+    "inline-flex shrink-0 items-center justify-center gap-2 rounded-[8px] font-semibold whitespace-nowrap leading-none transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
     {
         variants: {
             variant: {
-                default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+                // Aulika primary
+                primary:
+                    'bg-primary text-white hover:bg-[#172ae6]',
+                // default → alias primary (backward compat)
+                default:
+                    'bg-primary text-white hover:bg-[#172ae6]',
+                // Ink — dark fill
+                ink:
+                    'bg-ink text-white hover:bg-[#1e1f29]',
+                // Lime — energy accent
+                lime:
+                    'bg-lime text-ink font-bold hover:bg-[#c8f000]',
+                // Ghost — border
+                ghost:
+                    'bg-transparent text-ink border border-border hover:bg-paper-warm',
+                // Soft — warm fill
+                soft:
+                    'bg-paper-warm text-ink border-0 hover:bg-[#e5e0d0]',
+                // Danger
+                danger:
+                    'bg-destructive text-white hover:bg-[#b82a17]',
+                // backward compat alias
                 destructive:
-                    'bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40',
+                    'bg-destructive text-white hover:bg-[#b82a17]',
+                // Ghost on dark backgrounds
+                'ghost-dark':
+                    'bg-transparent text-white border border-white/20 hover:bg-white/10',
+                // Outline (shadcn compat)
                 outline:
-                    'border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
-                secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-                ghost: 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
+                    'bg-transparent text-ink border border-border hover:bg-paper-warm',
+                // Secondary (shadcn compat → soft)
+                secondary:
+                    'bg-paper-warm text-ink hover:bg-[#e5e0d0]',
+                // Link
                 link: 'text-primary underline-offset-4 hover:underline',
             },
             size: {
-                default: 'h-9 px-4 py-2 has-[>svg]:px-3',
-                xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-                sm: 'h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5',
-                lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
-                icon: 'size-9',
-                'icon-xs': "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
+                // Aulika sizes: sm=32 md=38 lg=46
+                sm: 'h-8 px-3 text-[12px]',
+                default: 'h-[38px] px-4 text-[13px]',
+                md: 'h-[38px] px-4 text-[13px]',
+                lg: 'h-[46px] px-[22px] text-[14px]',
+                // icon sizes
+                icon: 'size-[38px]',
                 'icon-sm': 'size-8',
-                'icon-lg': 'size-10',
+                'icon-lg': 'size-[46px]',
+                xs: 'h-7 px-2.5 text-[11px]',
             },
         },
         defaultVariants: {

@@ -1,0 +1,129 @@
+'use client';
+
+import type * as React from 'react';
+import { AlertDialog as AlertDialogPrimitive } from 'radix-ui';
+
+import { cn } from '@/shared/lib/utils';
+import { buttonVariants } from '@/shared/components/ui/button';
+
+function AlertDialog({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Root>): React.JSX.Element {
+    return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
+}
+
+function AlertDialogTrigger({
+    ...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>): React.JSX.Element {
+    return <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...props} />;
+}
+
+function AlertDialogPortal({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Portal>): React.JSX.Element {
+    return <AlertDialogPrimitive.Portal {...props} />;
+}
+
+function AlertDialogOverlay({
+    className,
+    ...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Overlay>): React.JSX.Element {
+    return (
+        <AlertDialogPrimitive.Overlay
+            data-slot="alert-dialog-overlay"
+            className={cn(
+                'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm',
+                className,
+            )}
+            {...props}
+        />
+    );
+}
+
+function AlertDialogContent({
+    className,
+    ...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Content>): React.JSX.Element {
+    return (
+        <AlertDialogPortal>
+            <AlertDialogOverlay />
+            <AlertDialogPrimitive.Content
+                data-slot="alert-dialog-content"
+                className={cn(
+                    'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+                    'fixed top-[50%] left-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-[22px] bg-white p-8 shadow-xl outline-none',
+                    className,
+                )}
+                {...props}
+            />
+        </AlertDialogPortal>
+    );
+}
+
+function AlertDialogHeader({ className, ...props }: React.ComponentProps<'div'>): React.JSX.Element {
+    return <div className={cn('flex flex-col gap-2', className)} {...props} />;
+}
+
+function AlertDialogFooter({ className, ...props }: React.ComponentProps<'div'>): React.JSX.Element {
+    return (
+        <div className={cn('mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end', className)} {...props} />
+    );
+}
+
+function AlertDialogTitle({
+    className,
+    ...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Title>): React.JSX.Element {
+    return (
+        <AlertDialogPrimitive.Title
+            data-slot="alert-dialog-title"
+            className={cn('font-display text-[22px] font-semibold text-ink tracking-[-0.02em]', className)}
+            {...props}
+        />
+    );
+}
+
+function AlertDialogDescription({
+    className,
+    ...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Description>): React.JSX.Element {
+    return (
+        <AlertDialogPrimitive.Description
+            data-slot="alert-dialog-description"
+            className={cn('text-[14px] text-ink-dim', className)}
+            {...props}
+        />
+    );
+}
+
+function AlertDialogAction({
+    className,
+    ...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Action>): React.JSX.Element {
+    return (
+        <AlertDialogPrimitive.Action
+            className={cn(buttonVariants({ variant: 'primary' }), className)}
+            {...props}
+        />
+    );
+}
+
+function AlertDialogCancel({
+    className,
+    ...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>): React.JSX.Element {
+    return (
+        <AlertDialogPrimitive.Cancel
+            className={cn(buttonVariants({ variant: 'ghost' }), className)}
+            {...props}
+        />
+    );
+}
+
+export {
+    AlertDialog,
+    AlertDialogTrigger,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogFooter,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogAction,
+    AlertDialogCancel,
+};

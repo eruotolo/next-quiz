@@ -21,19 +21,27 @@ model UserRole {
 }
 
 model AcademicInstitution {
-    id        String     @id @default(uuid()) @db.Uuid
-    name      String     @unique
-    slug      String     @unique
-    phone     String
-    address   String
-    city      String
-    campus    String?
-    country   String
-    active    Boolean    @default(true)
-    users     User[]
-    auditLogs AuditLog[]
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt
+    id                   String     @id @default(uuid()) @db.Uuid
+    name                 String     @unique
+    slug                 String     @unique
+    phone                String
+    address              String
+    city                 String
+    campus               String?
+    country              String
+    email                String?
+    active               Boolean    @default(true)
+    plan                 String?
+    activatedAt          DateTime?
+    allowedEmailDomains  String[]   @default([])
+    // SEO
+    seoTitle             String?
+    seoDescription       String?
+    seoKeywords          String[]   @default([])
+    users                User[]
+    auditLogs            AuditLog[]
+    createdAt            DateTime   @default(now())
+    updatedAt            DateTime   @updatedAt
 }
 
 // ─── Users & Groups ──────────────────────────────────────────────────────────
@@ -41,11 +49,16 @@ model AcademicInstitution {
 model Group {
     id         String   @id @default(uuid()) @db.Uuid
     name       String
+    stream     String?
+    tutorId    String?  @db.Uuid
+    tutor      User?    @relation("GroupTutor", fields: [tutorId], references: [id], onDelete: SetNull)
     users      User[]
     professors User[]   @relation("ProfessorGroups")
     exams      Exam[]
     createdAt  DateTime @default(now())
     updatedAt  DateTime @updatedAt
+
+    @@index([tutorId])
 }
 
 model User {
@@ -63,6 +76,7 @@ model User {
     groupId               String?              @db.Uuid
     group                 Group?               @relation(fields: [groupId], references: [id], onDelete: SetNull)
     professorGroups       Group[]              @relation("ProfessorGroups")
+    tutorOfGroups         Group[]              @relation("GroupTutor")
     active                Boolean              @default(true)
     results               Result[]
     answers               Answer[]
@@ -82,42 +96,64 @@ enum QuestionType {
     MULTIPLE
 }
 
+enum QuestionDifficulty {
+    FACIL
+    MEDIA
+    DIFICIL
+}
+
 // ─── Exams ───────────────────────────────────────────────────────────────────
 
 model Exam {
-    id                String       @id @default(uuid()) @db.Uuid
+    id                String     @id @default(uuid()) @db.Uuid
     title             String
     timeLimit         Int
-    active            Boolean      @default(false)
-    questionType      QuestionType @default(UNICA)
-    maxGrade          Float        @default(7)
-    passingGrade      Float        @default(4)
-    passingPercentage Int          @default(60)
-    antiCheatEnabled  Boolean      @default(false)
+    active            Boolean    @default(false)
+    maxGrade          Float      @default(7)
+    passingGrade      Float      @default(4)
+    passingPercentage Int        @default(60)
+    antiCheatEnabled  Boolean    @default(false)
+    subject           String?
+    unit              String?
+    scheduledAt       DateTime?
+    closesAt          DateTime?
+    randomizeOptions   Boolean    @default(false)
+    randomizeQuestions Boolean    @default(false)
+    lockTabSwitch      Boolean    @default(false)
+    oneAttempt        Boolean    @default(true)
+    uniqueIp          Boolean    @default(false)
     groups            Group[]
     questions         Question[]
     results           Result[]
     answers           Answer[]
-    createdAt         DateTime     @default(now())
-    updatedAt         DateTime     @updatedAt
+    createdAt         DateTime   @default(now())
+    updatedAt         DateTime   @updatedAt
 
     @@index([active])
 }
 
 model Question {
-    id           String       @id @default(uuid()) @db.Uuid
+    id           String             @id @default(uuid()) @db.Uuid
     text         String
-    points       Int          @default(1)
-    order        Int          @default(0)
-    questionType QuestionType @default(UNICA)
-    examId       String       @db.Uuid
-    exam         Exam         @relation(fields: [examId], references: [id], onDelete: Cascade)
+    points       Int                @default(1)
+    order        Int                @default(0)
+    questionType QuestionType       @default(UNICA)
+    subject      String?
+    unit         String?
+    difficulty   QuestionDifficulty @default(MEDIA)
+    tags         String[]           @default([])
+    usageCount   Int                @default(0)
+    feedback     String?
+    examId       String             @db.Uuid
+    exam         Exam               @relation(fields: [examId], references: [id], onDelete: Cascade)
     options      Option[]
     answers      Answer[]
-    createdAt    DateTime     @default(now())
-    updatedAt    DateTime     @updatedAt
+    createdAt    DateTime           @default(now())
+    updatedAt    DateTime           @updatedAt
 
     @@index([examId])
+    @@index([subject, unit])
+    @@index([difficulty])
 }
 
 model Option {
@@ -136,22 +172,38 @@ model Option {
 // ─── Results & Answers ───────────────────────────────────────────────────────
 
 model Answer {
-    id         String   @id @default(uuid()) @db.Uuid
-    attemptKey String
-    studentId  String   @db.Uuid
-    student    User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-    examId     String   @db.Uuid
-    exam       Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
-    questionId String   @db.Uuid
-    question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-    optionId   String   @db.Uuid
-    option     Option   @relation(fields: [optionId], references: [id], onDelete: Cascade)
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
+    id               String    @id @default(uuid()) @db.Uuid
+    attemptKey       String
+    studentId        String    @db.Uuid
+    student          User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+    examId           String    @db.Uuid
+    exam             Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
+    questionId       String    @db.Uuid
+    question         Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+    optionId         String    @db.Uuid
+    option           Option    @relation(fields: [optionId], references: [id], onDelete: Cascade)
+    ip               String?
+    markedForReview  Boolean   @default(false)
+    timeSpentMs      Int?
+    answeredAt       DateTime?
+    createdAt        DateTime  @default(now())
+    updatedAt        DateTime  @updatedAt
 
     @@unique([attemptKey, questionId, optionId])
     @@index([attemptKey])
     @@index([studentId])
+    @@index([examId])
+}
+
+model TabSwitchEvent {
+    id         String   @id @default(uuid()) @db.Uuid
+    attemptKey String
+    studentId  String   @db.Uuid
+    examId     String   @db.Uuid
+    durationMs Int
+    createdAt  DateTime @default(now())
+
+    @@index([attemptKey])
     @@index([examId])
 }
 

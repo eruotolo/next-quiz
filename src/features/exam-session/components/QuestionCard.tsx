@@ -7,7 +7,6 @@ const LABELS = ['A', 'B', 'C', 'D', 'E', 'F'] as const;
 
 interface QuestionCardProps {
     question: SafeQuestion;
-    examQuestionType: 'UNICA' | 'MULTIPLE';
     questionNumber: number;
     totalQuestions: number;
     selectedOptionIds: string[];
@@ -17,14 +16,13 @@ interface QuestionCardProps {
 
 export function QuestionCard({
     question,
-    examQuestionType,
     questionNumber,
     totalQuestions,
     selectedOptionIds,
     onSelect,
     disabled,
 }: QuestionCardProps) {
-    const isMultiple = examQuestionType === 'MULTIPLE';
+    const isMultiple = question.questionType === 'MULTIPLE';
 
     return (
         <div className="flex flex-col gap-[22px]">
@@ -35,11 +33,9 @@ export function QuestionCard({
                 <h2 className="text-foreground text-[26px] leading-[1.3] font-bold tracking-tight">
                     {question.text}
                 </h2>
-                {isMultiple && (
-                    <p className="text-primary text-[13px] font-medium">
-                        Seleccioná todas las que correspondan
-                    </p>
-                )}
+                <p className="text-muted-foreground text-[13px] font-medium">
+                    {isMultiple ? 'Respuesta múltiple' : 'Respuesta simple'}
+                </p>
             </div>
 
             <fieldset

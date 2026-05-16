@@ -5,6 +5,50 @@ import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 import type { PaginatedResult, PaginationParams } from '@/shared/types/pagination';
 
+export interface InstitutionSettings {
+    id: string;
+    slug: string;
+    name: string;
+    phone: string;
+    address: string;
+    city: string;
+    campus: string | null;
+    country: string;
+    email: string | null;
+    seoTitle: string | null;
+    seoDescription: string | null;
+    seoKeywords: string[];
+}
+
+export async function getInstitutionSettings(slug: string): Promise<InstitutionSettings | null> {
+    const session = await auth();
+    if (!session?.user) throw new Error('Unauthorized');
+
+    const isSuperAdmin = session.user.userRoleName === USER_ROLE.SUPER_ADMIN;
+    const isAdmin = session.user.userRoleName === USER_ROLE.ADMIN;
+
+    if (!isSuperAdmin && !isAdmin) throw new Error('Unauthorized');
+    if (isAdmin && session.user.institutionSlug !== slug) throw new Error('Unauthorized');
+
+    return prisma.academicInstitution.findUnique({
+        where: { slug },
+        select: {
+            id: true,
+            slug: true,
+            name: true,
+            phone: true,
+            address: true,
+            city: true,
+            campus: true,
+            country: true,
+            email: true,
+            seoTitle: true,
+            seoDescription: true,
+            seoKeywords: true,
+        },
+    });
+}
+
 export interface InstitutionRow {
     id: string;
     name: string;
