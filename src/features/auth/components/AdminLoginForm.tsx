@@ -173,28 +173,6 @@ export function AdminLoginForm(): React.JSX.Element {
                 </Button>
             </form>
 
-            {/* Divider */}
-            <div className="flex items-center gap-3">
-                <div className="h-px flex-1 bg-border" />
-                <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-mute">O</span>
-                <div className="h-px flex-1 bg-border" />
-            </div>
-
-            {/* Google SSO */}
-            <Button
-                variant="ghost"
-                size="lg"
-                type="button"
-                disabled={isGooglePending}
-                onClick={() => {
-                    void handleGoogle();
-                }}
-                className="w-full"
-            >
-                {isGooglePending ? <Loader2 className="size-4 animate-spin" /> : <GoogleIcon />}
-                Acceso con Google Workspace
-            </Button>
-
             {/* Student link */}
             <div className="rounded-[8px] bg-paper-warm px-4 py-3 text-center">
                 <p className="text-[12px] text-ink-dim">

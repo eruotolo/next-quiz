@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { Bricolage_Grotesque, Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from '@/shared/components/ui/sonner';
@@ -24,20 +24,86 @@ const geistMono = Geist_Mono({
     display: 'swap',
 });
 
+export const viewport: Viewport = {
+    themeColor: [
+        { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+        { media: '(prefers-color-scheme: dark)', color: '#0b0b11' },
+    ],
+    width: 'device-width',
+    initialScale: 1,
+};
+
 export async function generateMetadata(): Promise<Metadata> {
     const seo = await getGlobalSeo();
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
     return {
+        metadataBase: new URL(baseUrl),
         title: {
             default: seo.title,
             template: `%s | ${seo.title}`,
         },
         description: seo.description,
         keywords: seo.keywords,
+        authors: [{ name: 'EduNext Team' }],
+        creator: 'EduNext',
+        publisher: 'EduNext',
+        formatDetection: {
+            email: false,
+            address: false,
+            telephone: false,
+        },
         openGraph: {
             title: seo.title,
             description: seo.description,
-            images: seo.ogImage ? [{ url: seo.ogImage }] : [],
+            url: baseUrl,
+            siteName: seo.title,
+            images: [
+                {
+                    url: '/opengraph-image',
+                    width: 1200,
+                    height: 630,
+                    alt: seo.title,
+                },
+            ],
+            locale: 'es_CL',
             type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: seo.title,
+            description: seo.description,
+            images: ['/opengraph-image'],
+        },
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                'max-video-preview': -1,
+                'max-image-preview': 'large',
+                'max-snippet': -1,
+            },
+        },
+        alternates: {
+            canonical: baseUrl,
+        },
+        icons: {
+            icon: [
+                { url: '/icon', type: 'image/png' },
+                { url: '/icon', sizes: '32x32', type: 'image/png' },
+            ],
+            shortcut: '/icon',
+            apple: [
+                { url: '/icon', sizes: '180x180', type: 'image/png' },
+            ],
+            other: [
+                {
+                    rel: 'apple-touch-icon-precomposed',
+                    url: '/icon',
+                },
+            ],
         },
     };
 }

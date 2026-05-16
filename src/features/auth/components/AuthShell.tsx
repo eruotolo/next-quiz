@@ -1,5 +1,6 @@
 import type * as React from 'react';
 import { LogoMark, LogoWordmark } from '@/shared/components/branding/logo';
+import Link from 'next/link';
 
 interface AuthShellProps {
     children: React.ReactNode;
@@ -21,10 +22,10 @@ export function AuthShell({ children, side }: AuthShellProps): React.JSX.Element
                 }}
             >
                 {/* Logo */}
-                <div className="flex items-center gap-3">
+                <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
                     <LogoMark size={34} variant="tinta" />
                     <LogoWordmark size={22} color="#ffffff" />
-                </div>
+                </Link>
 
                 {/* Optional side content */}
                 {side ? (
@@ -52,10 +53,10 @@ export function AuthShell({ children, side }: AuthShellProps): React.JSX.Element
             {/* Right — paper form area */}
             <main className="flex flex-col items-center justify-center bg-paper px-8 py-12">
                 {/* Mobile logo */}
-                <div className="mb-8 flex items-center gap-2.5 lg:hidden">
+                <Link href="/" className="mb-8 flex items-center gap-2.5 transition-opacity hover:opacity-80 lg:hidden">
                     <LogoMark size={30} />
                     <LogoWordmark size={20} color="#0b0b11" />
-                </div>
+                </Link>
 
                 <div className="w-full max-w-[400px]">{children}</div>
             </main>

@@ -83,3 +83,4 @@ parse_html.js
 .doc/
 .seeders/
 
+.env*.local
