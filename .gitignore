@@ -77,3 +77,9 @@ design.html
 extract_html.js
 parse_html.js
 
+# ─── Local / Dev tooling ─────────────────────────────────────────────────────
+.claude/
+.agents/
+.doc/
+.seeders/
+
