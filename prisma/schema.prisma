@@ -20,6 +20,22 @@ enum Plan {
     INSTITUCIONAL
 }
 
+enum SubscriptionStatus {
+    pending
+    authorized
+    active
+    paused
+    cancelled
+    failed
+}
+
+enum PaymentStatus {
+    APPROVED
+    PENDING
+    REJECTED
+    REFUNDED
+}
+
 // ─── Catálogos ───────────────────────────────────────────────────────────────
 
 model UserRole {
@@ -305,16 +321,54 @@ model Subscription {
     academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
     plan                  Plan
     billing               String               @default("monthly")
-    status                String
+    status                SubscriptionStatus   @default(pending)
     mpSubscriptionId      String?
     mpPlanId              String?
     amount                Float?
     currency              String?              @default("CLP")
     startedAt             DateTime?
     expiresAt             DateTime?
+    cancelledAt           DateTime?
+    pausedAt              DateTime?
     metadata              Json?
+    payments              Payment[]
     createdAt             DateTime             @default(now())
+    updatedAt             DateTime             @updatedAt
 
     @@index([academicInstitutionId])
     @@index([mpSubscriptionId])
+    @@index([status])
+}
+
+model Payment {
+    id             String         @id @default(uuid()) @db.Uuid
+    subscriptionId String         @db.Uuid
+    subscription   Subscription   @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+    mpPaymentId    String?        @unique
+    amount         Float
+    currency       String         @default("CLP")
+    status         PaymentStatus
+    paidAt         DateTime?
+    periodStart    DateTime?
+    periodEnd      DateTime?
+    rawPayload     Json?
+    createdAt      DateTime       @default(now())
+
+    @@index([subscriptionId])
+    @@index([status])
+    @@index([paidAt])
+}
+
+model WebhookEvent {
+    id         String   @id @default(uuid()) @db.Uuid
+    provider   String   @default("mercadopago")
+    topic      String
+    externalId String
+    rawPayload Json
+    processed  Boolean  @default(false)
+    error      String?
+    receivedAt DateTime @default(now())
+
+    @@index([topic, externalId])
+    @@index([receivedAt])
 }

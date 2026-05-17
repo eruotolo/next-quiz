@@ -2,10 +2,12 @@
 
 import type * as React from 'react';
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import {
     ChevronLeft,
     ChevronRight,
     Download,
+    ExternalLink,
     Search,
     XCircle,
 } from 'lucide-react';
@@ -21,22 +23,24 @@ import type {
     PaginatedSubscriptions,
     SubscriptionFilters,
 } from '@/features/admin-plan/actions/mutations';
-import type { Plan } from '@prisma/client';
+import { type Plan, SubscriptionStatus } from '@prisma/client';
 
-const STATUS_LABELS: Record<string, string> = {
-    pending: 'Pendiente',
-    authorized: 'Autorizado',
-    active: 'Activo',
-    cancelled: 'Cancelado',
-    failed: 'Fallido',
+const STATUS_LABELS: Record<SubscriptionStatus, string> = {
+    [SubscriptionStatus.pending]: 'Pendiente',
+    [SubscriptionStatus.authorized]: 'Autorizado',
+    [SubscriptionStatus.active]: 'Activo',
+    [SubscriptionStatus.paused]: 'Pausado',
+    [SubscriptionStatus.cancelled]: 'Cancelado',
+    [SubscriptionStatus.failed]: 'Fallido',
 };
 
-const STATUS_COLORS: Record<string, string> = {
-    pending: 'bg-yellow-100 text-yellow-700',
-    authorized: 'bg-blue-100 text-blue-700',
-    active: 'bg-green-100 text-green-700',
-    cancelled: 'bg-gray-100 text-gray-500',
-    failed: 'bg-red-100 text-red-600',
+const STATUS_COLORS: Record<SubscriptionStatus, string> = {
+    [SubscriptionStatus.pending]: 'bg-yellow-100 text-yellow-700',
+    [SubscriptionStatus.authorized]: 'bg-blue-100 text-blue-700',
+    [SubscriptionStatus.active]: 'bg-green-100 text-green-700',
+    [SubscriptionStatus.paused]: 'bg-orange-100 text-orange-700',
+    [SubscriptionStatus.cancelled]: 'bg-gray-100 text-gray-500',
+    [SubscriptionStatus.failed]: 'bg-red-100 text-red-600',
 };
 
 const PLAN_LABELS: Record<Plan, string> = {
@@ -60,10 +64,11 @@ interface DetailModalProps {
     row: SubscriptionRow;
     onClose: () => void;
     onCancel: (id: string) => void;
+    onViewDetail: (id: string) => void;
     cancelling: boolean;
 }
 
-function DetailModal({ row, onClose, onCancel, cancelling }: DetailModalProps): React.JSX.Element {
+function DetailModal({ row, onClose, onCancel, onViewDetail, cancelling }: DetailModalProps): React.JSX.Element {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <button
@@ -99,7 +104,7 @@ function DetailModal({ row, onClose, onCancel, cancelling }: DetailModalProps): 
                         ['Plan', PLAN_LABELS[row.plan]],
                         ['Modalidad', row.billing === 'monthly' ? 'Mensual' : 'Anual'],
                         ['Monto', formatCLP(row.amount)],
-                        ['Estado', STATUS_LABELS[row.status] ?? row.status],
+                        ['Estado', STATUS_LABELS[row.status]],
                         ['Fecha pago', formatDate(row.createdAt)],
                         ['Inicio', formatDate(row.startedAt)],
                         ['Vencimiento', formatDate(row.expiresAt)],
@@ -112,7 +117,7 @@ function DetailModal({ row, onClose, onCancel, cancelling }: DetailModalProps): 
                     ))}
                 </dl>
                 <div className="mt-6 flex justify-end gap-2">
-                    {row.status !== 'cancelled' && row.status !== 'failed' && (
+                    {row.status !== SubscriptionStatus.cancelled && row.status !== SubscriptionStatus.failed && (
                         <Button
                             variant="ghost"
                             size="sm"
@@ -120,9 +125,18 @@ function DetailModal({ row, onClose, onCancel, cancelling }: DetailModalProps): 
                             onClick={() => onCancel(row.id)}
                             disabled={cancelling}
                         >
-                            Cancelar suscripción
+                            Cancelar
                         </Button>
                     )}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-1.5"
+                        onClick={() => onViewDetail(row.id)}
+                    >
+                        <ExternalLink size={13} />
+                        Ver detalle
+                    </Button>
                     <Button variant="ink" size="sm" onClick={onClose}>Cerrar</Button>
                 </div>
             </div>
@@ -135,6 +149,7 @@ interface Props {
 }
 
 export function SubscriptionsClient({ initial }: Props): React.JSX.Element {
+    const router = useRouter();
     const [data, setData] = useState<PaginatedSubscriptions>(initial);
     const [filters, setFilters] = useState<SubscriptionFilters>({ page: 1 });
     const [search, setSearch] = useState('');
@@ -218,11 +233,11 @@ export function SubscriptionsClient({ initial }: Props): React.JSX.Element {
                     <select
                         className="h-9 rounded-[8px] border border-border bg-white px-3 text-[13px] text-ink outline-none"
                         value={filters.status ?? ''}
-                        onChange={(e) => applyFilters({ ...filters, status: e.target.value || undefined, page: 1 })}
+                        onChange={(e) => applyFilters({ ...filters, status: (e.target.value as SubscriptionStatus) || undefined, page: 1 })}
                     >
                         <option value="">Todos los estados</option>
-                        {Object.entries(STATUS_LABELS).map(([v, l]) => (
-                            <option key={v} value={v}>{l}</option>
+                        {(Object.values(SubscriptionStatus) as SubscriptionStatus[]).map((s) => (
+                            <option key={s} value={s}>{STATUS_LABELS[s]}</option>
                         ))}
                     </select>
 
@@ -286,8 +301,8 @@ export function SubscriptionsClient({ initial }: Props): React.JSX.Element {
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap">{formatCLP(row.amount)}</td>
                                         <td className="px-4 py-3">
-                                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_COLORS[row.status] ?? 'bg-gray-100 text-gray-600'}`}>
-                                                {STATUS_LABELS[row.status] ?? row.status}
+                                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_COLORS[row.status]}`}>
+                                                {STATUS_LABELS[row.status]}
                                             </span>
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap text-mute">{formatDate(row.startedAt)}</td>
@@ -332,6 +347,7 @@ export function SubscriptionsClient({ initial }: Props): React.JSX.Element {
                     row={detail}
                     onClose={() => setDetail(null)}
                     onCancel={(id) => void handleCancel(id)}
+                    onViewDetail={(id) => router.push(`/config/subscriptions/${id}`)}
                     cancelling={cancelling}
                 />
             )}

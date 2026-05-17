@@ -1,6 +1,203 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/shared/lib/prisma';
 import { verifyWebhookSignature } from '@/features/subscriptions/lib/mercadopago';
+import { SubscriptionStatus, PaymentStatus } from '@prisma/client';
+
+async function saveWebhookEvent(
+    topic: string,
+    externalId: string,
+    rawPayload: unknown,
+): Promise<string> {
+    const event = await prisma.webhookEvent.create({
+        data: { topic, externalId, rawPayload: rawPayload as never },
+        select: { id: true },
+    });
+    return event.id;
+}
+
+async function markEventProcessed(id: string, error?: string): Promise<void> {
+    await prisma.webhookEvent.update({
+        where: { id },
+        data: { processed: !error, error: error ?? null },
+    });
+}
+
+async function handlePreapproval(dataId: string, token: string): Promise<void> {
+    const mpRes = await fetch(`https://api.mercadopago.com/preapproval/${dataId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!mpRes.ok) return;
+
+    const preapproval = (await mpRes.json()) as {
+        status?: string;
+        external_reference?: string;
+        next_payment_date?: string;
+    };
+    const mpStatus = preapproval.status;
+
+    const target =
+        (await prisma.subscription.findFirst({
+            where: { mpSubscriptionId: dataId },
+            select: { id: true, status: true },
+        })) ??
+        (preapproval.external_reference
+            ? await prisma.subscription.findUnique({
+                  where: { id: preapproval.external_reference },
+                  select: { id: true, status: true },
+              })
+            : null);
+
+    if (!target || target.status === SubscriptionStatus.active) return;
+
+    const expiresAt = preapproval.next_payment_date
+        ? new Date(preapproval.next_payment_date)
+        : undefined;
+
+    if (mpStatus === 'authorized') {
+        await prisma.subscription.update({
+            where: { id: target.id },
+            data: {
+                status: SubscriptionStatus.authorized,
+                mpSubscriptionId: dataId,
+                ...(expiresAt ? { expiresAt } : {}),
+            },
+        });
+    } else if (mpStatus === 'cancelled') {
+        await prisma.subscription.update({
+            where: { id: target.id },
+            data: {
+                status: SubscriptionStatus.cancelled,
+                cancelledAt: new Date(),
+            },
+        });
+    } else if (mpStatus === 'paused') {
+        await prisma.subscription.update({
+            where: { id: target.id },
+            data: { status: SubscriptionStatus.paused, pausedAt: new Date() },
+        });
+    }
+}
+
+async function handlePayment(dataId: string, token: string): Promise<void> {
+    const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${dataId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!mpRes.ok) return;
+
+    const payment = (await mpRes.json()) as {
+        status?: string;
+        transaction_amount?: number;
+        currency_id?: string;
+        date_approved?: string;
+        date_created?: string;
+        external_reference?: string;
+        metadata?: { preapproval_id?: string };
+    };
+
+    const mpStatus = payment.status;
+    const mpPreapprovalId = payment.metadata?.preapproval_id ?? payment.external_reference;
+    if (!mpPreapprovalId) return;
+
+    const sub = await prisma.subscription.findFirst({
+        where: { mpSubscriptionId: mpPreapprovalId },
+        select: { id: true },
+    });
+    if (!sub) return;
+
+    const existing = await prisma.payment.findUnique({
+        where: { mpPaymentId: dataId },
+        select: { id: true },
+    });
+    if (existing) return;
+
+    const statusMap: Record<string, PaymentStatus> = {
+        approved: PaymentStatus.APPROVED,
+        pending: PaymentStatus.PENDING,
+        rejected: PaymentStatus.REJECTED,
+        refunded: PaymentStatus.REFUNDED,
+    };
+    const payStatus = statusMap[mpStatus ?? ''] ?? PaymentStatus.PENDING;
+
+    await prisma.payment.create({
+        data: {
+            subscriptionId: sub.id,
+            mpPaymentId: dataId,
+            amount: payment.transaction_amount ?? 0,
+            currency: payment.currency_id ?? 'CLP',
+            status: payStatus,
+            paidAt: payment.date_approved ? new Date(payment.date_approved) : null,
+            rawPayload: payment as never,
+        },
+    });
+}
+
+async function handleAuthorizedPayment(dataId: string, token: string): Promise<void> {
+    const mpRes = await fetch(
+        `https://api.mercadopago.com/authorized_payments/${dataId}`,
+        { headers: { Authorization: `Bearer ${token}` } },
+    );
+    if (!mpRes.ok) return;
+
+    const ap = (await mpRes.json()) as {
+        status?: string;
+        transaction_amount?: number;
+        currency_id?: string;
+        date_approved?: string;
+        preapproval_id?: string;
+        payment_period?: { start_date?: string; end_date?: string };
+    };
+
+    const mpPreapprovalId = ap.preapproval_id;
+    if (!mpPreapprovalId) return;
+
+    const sub = await prisma.subscription.findFirst({
+        where: { mpSubscriptionId: mpPreapprovalId },
+        select: { id: true },
+    });
+    if (!sub) return;
+
+    const existing = await prisma.payment.findUnique({
+        where: { mpPaymentId: dataId },
+        select: { id: true },
+    });
+    if (existing) return;
+
+    const statusMap: Record<string, PaymentStatus> = {
+        approved: PaymentStatus.APPROVED,
+        pending: PaymentStatus.PENDING,
+        rejected: PaymentStatus.REJECTED,
+    };
+    const payStatus = statusMap[ap.status ?? ''] ?? PaymentStatus.PENDING;
+
+    await prisma.payment.create({
+        data: {
+            subscriptionId: sub.id,
+            mpPaymentId: dataId,
+            amount: ap.transaction_amount ?? 0,
+            currency: ap.currency_id ?? 'CLP',
+            status: payStatus,
+            paidAt: ap.date_approved ? new Date(ap.date_approved) : null,
+            periodStart: ap.payment_period?.start_date
+                ? new Date(ap.payment_period.start_date)
+                : null,
+            periodEnd: ap.payment_period?.end_date
+                ? new Date(ap.payment_period.end_date)
+                : null,
+            rawPayload: ap as never,
+        },
+    });
+
+    if (payStatus === PaymentStatus.APPROVED) {
+        await prisma.subscription.update({
+            where: { id: sub.id },
+            data: {
+                ...(ap.payment_period?.end_date
+                    ? { expiresAt: new Date(ap.payment_period.end_date) }
+                    : {}),
+            },
+        });
+    }
+}
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
@@ -22,7 +219,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
         }
 
-        if (topic !== 'preapproval') {
+        if (!['preapproval', 'payment', 'subscription_authorized_payment'].includes(topic)) {
             return NextResponse.json({ received: true });
         }
 
@@ -35,45 +232,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             return NextResponse.json({ error: 'MP not configured' }, { status: 500 });
         }
 
-        const mpRes = await fetch(`https://api.mercadopago.com/preapproval/${dataId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
+        const eventId = await saveWebhookEvent(topic, dataId, payload);
 
-        if (!mpRes.ok) {
-            return NextResponse.json({ error: 'Failed to fetch preapproval' }, { status: 502 });
-        }
-
-        const preapproval = (await mpRes.json()) as {
-            status?: string;
-            external_reference?: string;
-        };
-        const mpStatus = preapproval.status;
-
-        // Find subscription by MP ID first, fall back to external_reference
-        const target =
-            (await prisma.subscription.findFirst({
-                where: { mpSubscriptionId: dataId },
-                select: { id: true, status: true },
-            })) ??
-            (preapproval.external_reference
-                ? await prisma.subscription.findUnique({
-                      where: { id: preapproval.external_reference },
-                      select: { id: true, status: true },
-                  })
-                : null);
-
-        if (!target || target.status === 'active') return NextResponse.json({ received: true });
-
-        if (mpStatus === 'authorized') {
-            await prisma.subscription.update({
-                where: { id: target.id },
-                data: { status: 'authorized', mpSubscriptionId: dataId },
-            });
-        } else if (mpStatus === 'cancelled' || mpStatus === 'paused') {
-            await prisma.subscription.update({
-                where: { id: target.id },
-                data: { status: 'failed' },
-            });
+        try {
+            if (topic === 'preapproval') {
+                await handlePreapproval(dataId, token);
+            } else if (topic === 'payment') {
+                await handlePayment(dataId, token);
+            } else if (topic === 'subscription_authorized_payment') {
+                await handleAuthorizedPayment(dataId, token);
+            }
+            await markEventProcessed(eventId);
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : 'Unknown error';
+            await markEventProcessed(eventId, msg);
         }
 
         return NextResponse.json({ received: true });

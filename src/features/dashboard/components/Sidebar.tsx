@@ -9,15 +9,19 @@ import {
     BookOpen,
     Building2,
     ChevronDown,
+    CreditCard,
     Globe,
     GraduationCap,
     Home,
+    Layers,
     LogOut,
+    Receipt,
     ScrollText,
     Search,
     Settings,
     UserCog,
     Users,
+    Wallet,
 } from 'lucide-react';
 import { LogoMark } from '@/shared/components/branding/logo';
 import { Avatar } from '@/shared/components/ui/avatar';
@@ -49,6 +53,10 @@ const ADMIN_NAV: NavItem[] = [
 const SUPER_NAV: NavItem[] = [
     { path: '/config', label: 'Panel', icon: Home, exact: true },
     { path: '/config/institutions', label: 'Instituciones', icon: Building2, countKey: 'institutions' },
+    { path: '/config/billing', label: 'Facturación', icon: CreditCard },
+    { path: '/config/subscriptions', label: 'Suscripciones', icon: Receipt },
+    { path: '/config/payments', label: 'Pagos', icon: Wallet },
+    { path: '/config/plan-limits', label: 'Planes', icon: Layers },
     { path: '/config/admins', label: 'Administradores', icon: UserCog, countKey: 'admins' },
     { path: '/config/students', label: 'Alumnos', icon: GraduationCap, countKey: 'students' },
     { path: '/config/auditoria', label: 'Auditoría', icon: ScrollText },

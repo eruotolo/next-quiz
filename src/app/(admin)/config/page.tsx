@@ -97,10 +97,18 @@ export default async function ConfigPage() {
             wash: '#EFEBE0',
         },
         {
+            href: '/config/billing',
+            label: 'Facturación',
+            sub: 'Dashboard de MRR, ingresos y métricas de suscripciones',
+            icon: CreditCard,
+            color: '#1F2EFF',
+            wash: '#E8EAFF',
+        },
+        {
             href: '/config/subscriptions',
             label: 'Suscripciones',
             sub: 'Registro de pagos, pagadores e instituciones por plan',
-            icon: CreditCard,
+            icon: Sliders,
             color: '#0F7C4A',
             wash: '#E6F4ED',
         },
@@ -108,9 +116,9 @@ export default async function ConfigPage() {
             href: '/config/plan-limits',
             label: 'Límites de planes',
             sub: 'Configurar recursos máximos por plan FREE, Docente y Colegio',
-            icon: Sliders,
-            color: '#1F2EFF',
-            wash: '#E8EAFF',
+            icon: Zap,
+            color: '#B7791F',
+            wash: '#FFF2D4',
         },
     ];
 
