@@ -28,7 +28,7 @@ export default function MarketingPage(): React.JSX.Element {
     return (
         <>
             <L3Hero />
-            <L3Trust />
+            {/*<L3Trust />*/}
             <L3Walkthrough />
             <L3Comparison />
             <L3Segments />
