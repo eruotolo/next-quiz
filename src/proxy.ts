@@ -9,6 +9,7 @@ const PUBLIC_PREFIXES = [
     '/_next', '/api', '/favicon.ico',
     '/examen', '/demo', '/login', '/paes',
     '/audiencias', '/empresa', '/recursos',
+    '/registro',
 ];
 
 export default auth((req: NextAuthRequest) => {

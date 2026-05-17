@@ -9,6 +9,7 @@ import {
 import { logAudit } from '@/shared/lib/audit';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
+import { assertQuota } from '@/features/subscriptions/lib/quota';
 import type { Session } from 'next-auth';
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
@@ -57,6 +58,8 @@ export async function createProfessor(data: unknown, institutionSlug?: string): 
         throw new Error('Forbidden');
     }
     const { slug, institutionId } = await resolveSlugAndInstitution(session, institutionSlug);
+
+    await assertQuota(institutionId, 'professor', session.user.userRoleName);
 
     const { groupIds, roleName, password, ...rest } = createProfessorSchema.parse(data);
     const hashedPassword = await bcrypt.hash(password, 10);

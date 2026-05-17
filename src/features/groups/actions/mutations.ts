@@ -6,6 +6,7 @@ import { logAudit } from '@/shared/lib/audit';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
 import { groupSchema } from '@/features/groups/schemas/group.schemas';
 import { USER_ROLE } from '@/shared/lib/roles';
+import { assertQuota } from '@/features/subscriptions/lib/quota';
 import { revalidatePath } from 'next/cache';
 
 async function getSessionUser() {
@@ -28,7 +29,13 @@ async function getSessionUser() {
 export async function createGroup(data: unknown): Promise<void> {
     const { slug, userId, userEmail, userRole, institutionId } = await getSessionUser();
     const parsed = groupSchema.parse(data);
-    const group = await prisma.group.create({ data: parsed, select: { id: true } });
+
+    await assertQuota(institutionId, 'group', userRole);
+
+    const group = await prisma.group.create({
+        data: { ...parsed, academicInstitutionId: institutionId ?? undefined },
+        select: { id: true },
+    });
     await logAudit({
         action: AUDIT_ACTION.GROUP_CREATE,
         actorId: userId,

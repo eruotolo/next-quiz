@@ -12,6 +12,8 @@ import {
     Users,
     Activity,
     Zap,
+    CreditCard,
+    Sliders,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -93,6 +95,22 @@ export default async function ConfigPage() {
             icon: Settings,
             color: '#75716B',
             wash: '#EFEBE0',
+        },
+        {
+            href: '/config/subscriptions',
+            label: 'Suscripciones',
+            sub: 'Registro de pagos, pagadores e instituciones por plan',
+            icon: CreditCard,
+            color: '#0F7C4A',
+            wash: '#E6F4ED',
+        },
+        {
+            href: '/config/plan-limits',
+            label: 'Límites de planes',
+            sub: 'Configurar recursos máximos por plan FREE, Docente y Colegio',
+            icon: Sliders,
+            color: '#1F2EFF',
+            wash: '#E8EAFF',
         },
     ];
 

@@ -1,5 +1,7 @@
 import { auth } from '@/features/auth/auth';
 import { Sidebar } from '@/features/dashboard/components/Sidebar';
+import { PlanUsageBanner } from '@/features/subscriptions/components/PlanUsageBanner';
+import { getQuotaUsage } from '@/features/subscriptions/lib/quota';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { getInstitutionSeo } from '@/shared/lib/seo';
@@ -44,7 +46,7 @@ export default async function InstitutionLayout({ children, params }: Props): Pr
         session.user.academicInstitutionId ??
         await getInstitutionId(slug);
 
-    const [students, groups, exams, institutionList] = institutionId
+    const [students, groups, exams, institutionList, quotaUsage] = institutionId
         ? await Promise.all([
               prisma.user.count({
                   where: { academicInstitutionId: institutionId, userRole: { name: USER_ROLE.STUDENT } },
@@ -58,8 +60,9 @@ export default async function InstitutionLayout({ children, params }: Props): Pr
               isSuperAdmin
                   ? prisma.academicInstitution.findMany({ select: { name: true, slug: true }, orderBy: { name: 'asc' } })
                   : Promise.resolve([]),
+              isSuperAdmin ? Promise.resolve([]) : getQuotaUsage(institutionId),
           ])
-        : [undefined, undefined, undefined, []];
+        : [undefined, undefined, undefined, [], []];
 
     return (
         <div className="flex min-h-screen bg-paper">
@@ -72,6 +75,9 @@ export default async function InstitutionLayout({ children, params }: Props): Pr
                 institutionList={institutionList as { name: string; slug: string }[]}
             />
             <main className="ml-60 flex-1 overflow-y-auto">
+                {quotaUsage && quotaUsage.length > 0 && (
+                    <PlanUsageBanner usage={quotaUsage} />
+                )}
                 {children}
             </main>
         </div>

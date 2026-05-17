@@ -32,7 +32,11 @@ function GoogleIcon(): React.JSX.Element {
     );
 }
 
-export function AdminLoginForm(): React.JSX.Element {
+interface AdminLoginFormProps {
+    googleError?: string;
+}
+
+export function AdminLoginForm({ googleError }: AdminLoginFormProps): React.JSX.Element {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -75,6 +79,8 @@ export function AdminLoginForm(): React.JSX.Element {
         await signIn('google', { callbackUrl: '/login' });
     };
 
+    const isGoogleDenied = googleError === 'AccessDenied';
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -89,6 +95,18 @@ export function AdminLoginForm(): React.JSX.Element {
                     Ingresá con tus credenciales para acceder al panel.
                 </p>
             </div>
+
+            {/* Google error from OAuth callback */}
+            {isGoogleDenied && (
+                <div className="flex items-start gap-2 rounded-[8px] bg-danger-wash px-4 py-3 text-[13px] text-destructive">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-destructive text-[11px] font-bold text-white">
+                        !
+                    </span>
+                    <span>
+                        Tu cuenta de Google no está registrada en la plataforma. Adquirí un plan para continuar.
+                    </span>
+                </div>
+            )}
 
             {/* Credentials form */}
             <form
@@ -161,7 +179,7 @@ export function AdminLoginForm(): React.JSX.Element {
                 )}
 
                 {/* Submit */}
-                <Button variant="ink" size="lg" type="submit" disabled={isPending} className="w-full mt-1">
+                <Button variant="ink" size="lg" type="submit" disabled={isPending || isGooglePending} className="w-full mt-1">
                     {isPending ? (
                         <Loader2 className="animate-spin" />
                     ) : (
@@ -172,6 +190,32 @@ export function AdminLoginForm(): React.JSX.Element {
                     )}
                 </Button>
             </form>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3">
+                <div className="h-px flex-1 bg-border" />
+                <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-mute">o</span>
+                <div className="h-px flex-1 bg-border" />
+            </div>
+
+            {/* Google */}
+            <Button
+                variant="outline"
+                size="lg"
+                type="button"
+                disabled={isPending || isGooglePending}
+                className="w-full"
+                onClick={() => { void handleGoogle(); }}
+            >
+                {isGooglePending ? (
+                    <Loader2 className="animate-spin" />
+                ) : (
+                    <>
+                        <GoogleIcon />
+                        Continuar con Google
+                    </>
+                )}
+            </Button>
 
             {/* Student link */}
             <div className="rounded-[8px] bg-paper-warm px-4 py-3 text-center">

@@ -24,8 +24,8 @@ test.describe('Student Login Page (/examen/login)', () => {
         await expect(page.getByRole('button', { name: 'Comenzar examen' })).toBeVisible()
     })
 
-    test('shows EduNext Quiz branding', async ({ page }) => {
-        await expect(page.getByText('EduNext Quiz').first()).toBeVisible()
+    test('shows Aulika branding', async ({ page }) => {
+        await expect(page.getByText('Aulika').first()).toBeVisible()
     })
 
     test('shows link to admin login', async ({ page }) => {

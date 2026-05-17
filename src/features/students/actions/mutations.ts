@@ -6,6 +6,7 @@ import { USER_ROLE } from '@/shared/lib/roles';
 import { logAudit } from '@/shared/lib/audit';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
 import { studentSchema } from '@/features/students/schemas/student.schemas';
+import { assertQuota } from '@/features/subscriptions/lib/quota';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
@@ -25,6 +26,8 @@ export async function createStudent(data: unknown): Promise<void> {
     if (!isAdminOrSuperAdmin(session.user.userRoleName)) {
         throw new Error('Forbidden');
     }
+
+    await assertQuota(institutionId, 'student', session.user.userRoleName);
 
     const { groupId, ...rest } = studentSchema.parse(data);
     const student = await prisma.user.create({
@@ -150,6 +153,8 @@ export async function importStudents(
     if (!isAdminOrSuperAdmin(session.user.userRoleName)) {
         throw new Error('Forbidden');
     }
+
+    await assertQuota(institutionId, 'student', session.user.userRoleName, rows.length);
 
     const studentRole = await prisma.userRole.findUniqueOrThrow({
         where: { name: USER_ROLE.STUDENT },

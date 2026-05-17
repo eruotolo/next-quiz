@@ -45,9 +45,9 @@ export async function generateMetadata(): Promise<Metadata> {
         },
         description: seo.description,
         keywords: seo.keywords,
-        authors: [{ name: 'EduNext Team' }],
-        creator: 'EduNext',
-        publisher: 'EduNext',
+        authors: [{ name: 'Aulika Team' }],
+        creator: 'Aulika',
+        publisher: 'Aulika',
         formatDetection: {
             email: false,
             address: false,

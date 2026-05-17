@@ -99,7 +99,7 @@ Claude NO puede avanzar a la capa siguiente sin que el usuario haya invocado el 
 
 ## Project Overview
 
-**EduNext Quiz** — Sistema de exámenes en línea multi-tenant para instituciones académicas chilenas.
+**Aulika** — Sistema de evaluación en línea para colegios y universidades con gestión de exámenes y futura aula virtual.
 
 La app separa tres áreas con autenticación y routing distintos:
 

@@ -10,6 +10,7 @@ import {
 import { logAudit } from '@/shared/lib/audit';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
+import { assertQuota } from '@/features/subscriptions/lib/quota';
 import { revalidatePath } from 'next/cache';
 
 async function getSessionUser(requestSlug: string) {
@@ -58,8 +59,15 @@ export async function createExam(slug: string, data: unknown): Promise<{ id: str
         if (invalid.length > 0) throw new Error('Forbidden');
     }
 
+    await assertQuota(institutionId, 'exam', userRole);
+
     const exam = await prisma.exam.create({
-        data: { ...rest, groups: { connect: groupIds.map((id) => ({ id })) } },
+        data: {
+            ...rest,
+            groups: { connect: groupIds.map((id) => ({ id })) },
+            academicInstitutionId: institutionId ?? undefined,
+            createdById: userId,
+        },
     });
     await logAudit({
         action: AUDIT_ACTION.EXAM_CREATE,

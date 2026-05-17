@@ -31,15 +31,16 @@ export async function getGlobalSeo(): Promise<SeoMetadata> {
     }, {} as Record<string, string>);
 
     return {
-        title: configMap[APP_CONFIG_KEY.SEO_GLOBAL_TITLE] || 'EduNext Quiz',
+        title: configMap[APP_CONFIG_KEY.SEO_GLOBAL_TITLE] || 'Aulika',
         description:
             configMap[APP_CONFIG_KEY.SEO_GLOBAL_DESCRIPTION] ||
-            'Plataforma líder en exámenes y ensayos PAES para instituciones educativas.',
+            'Sistema de evaluación en línea para colegios y universidades.',
         keywords: configMap[APP_CONFIG_KEY.SEO_GLOBAL_KEYWORDS]?.split(',').map((k) => k.trim()) || [
-            'PAES',
-            'Ensayos',
+            'Aulika',
+            'Evaluación Online',
+            'Exámenes',
+            'Aula Virtual',
             'Educación',
-            'Chile',
         ],
         ogImage: configMap[APP_CONFIG_KEY.SEO_GLOBAL_OG_IMAGE],
     };

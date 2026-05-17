@@ -1,10 +1,10 @@
-import { MetadataRoute } from 'next';
+import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: 'Aulika - EduNext Quiz',
+        name: 'Aulika',
         short_name: 'Aulika',
-        description: 'Plataforma líder en exámenes y ensayos PAES para instituciones educativas.',
+        description: 'Sistema de evaluación online para colegios y universidades.',
         start_url: '/',
         display: 'standalone',
         background_color: '#ffffff',

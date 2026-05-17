@@ -4,9 +4,9 @@ services:
         container_name: next_quiz_postgres
         restart: unless-stopped
         environment:
-            POSTGRES_USER: ${POSTGRES_USER}
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: quiz
+            POSTGRES_PASSWORD: quiz_password
+            POSTGRES_DB: quiz_db
         ports:
             - '5434:5432'
         volumes:

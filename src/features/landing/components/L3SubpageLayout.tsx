@@ -26,7 +26,7 @@ export function L3SubpageLayout({ tag, title, description, children }: L3Subpage
                         {title.split(' ').map((word, i) => (
                             i === title.split(' ').length - 1 ? (
                                 <span key={i}><em className="text-primary not-italic italic">{word}</em></span>
-                            ) : word + ' '
+                            ) : `${word} `
                         ))}
                     </h1>
                     <p className="text-[20px] md:text-[22px] leading-relaxed text-ink-dim max-w-[720px]">
