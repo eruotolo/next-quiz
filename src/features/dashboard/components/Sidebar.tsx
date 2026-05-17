@@ -355,19 +355,21 @@ export function Sidebar({
                 {/* User block */}
                 <div className="border-t border-border p-3">
                     <div className="flex items-center gap-2.5 rounded-[12px] px-2 py-2">
-                        <Avatar
-                            name={userName ?? 'Admin'}
-                            size={34}
-                            className="shrink-0 ring-1 ring-border shadow-sm"
-                        />
-                        <div className="min-w-0 flex-1">
-                            <p className="truncate text-[12.5px] font-bold leading-tight text-ink">
-                                {userName ?? 'Mariela Saavedra'}
-                            </p>
-                            <p className="truncate font-sans text-[10.5px] leading-none text-mute">
-                                {userRole ?? 'Jefa UTP · Profesora'}
-                            </p>
-                        </div>
+                        <Link href="/perfil" className="flex min-w-0 flex-1 items-center gap-2.5 rounded-[8px] transition-colors hover:bg-paper-warm">
+                            <Avatar
+                                name={userName ?? 'Admin'}
+                                size={34}
+                                className="shrink-0 ring-1 ring-border shadow-sm"
+                            />
+                            <div className="min-w-0 flex-1">
+                                <p className="truncate text-[12.5px] font-bold leading-tight text-ink">
+                                    {userName ?? 'Admin'}
+                                </p>
+                                <p className="truncate font-sans text-[10.5px] leading-none text-mute">
+                                    {userRole ?? ''}
+                                </p>
+                            </div>
+                        </Link>
                         <Link
                             href="/"
                             title="Ir al sitio web"

@@ -29,7 +29,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { TablePaginator } from '@/shared/components/ui/table-paginator';
 import { Avatar } from '@/shared/components/ui/avatar';
 import { Tag } from '@/shared/components/ui/badge';
-import { RutField } from '@/shared/components/rut-field';
+import { RutField } from '@/shared/components/ui/rut-field';
 import { formatRut } from '@/shared/lib/rut';
 import type { PaginatedResult } from '@/shared/types/pagination';
 import { Loader2, Pencil, Plus, Trash2, Users, Search, Building2, MoreHorizontal } from 'lucide-react';

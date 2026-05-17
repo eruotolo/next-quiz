@@ -95,7 +95,7 @@ export async function getSubscriptions(
     });
 
     const page = Math.max(1, filters.page ?? 1);
-    const pageSize = 20;
+    const pageSize = 10;
     const skip = (page - 1) * pageSize;
 
     const where = {
@@ -593,7 +593,7 @@ export async function getPayments(
     });
 
     const page = Math.max(1, filters.page ?? 1);
-    const pageSize = 20;
+    const pageSize = 10;
     const skip = (page - 1) * pageSize;
 
     const where: {

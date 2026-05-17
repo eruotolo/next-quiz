@@ -14,6 +14,13 @@ Este archivo proporciona instrucciones permanentes a Claude Code cuando trabaja 
 
 **No asumir contexto de conversaciones anteriores** — Si el contexto se limpia o es un nuevo chat, pedir aclaración si es necesario.
 
+**LEER CLAUDE.md ANTES DE CADA FEATURE** — Al comenzar cualquier tarea de desarrollo (nueva feature, refactor, corrección), Claude DEBE leer este archivo completo para conocer la estructura vigente, los componentes existentes y las reglas de organización. No se puede alegar desconocimiento de lo que está documentado aquí.
+
+**DRY — Regla estricta** — Antes de crear cualquier componente, hook, helper o lógica nueva, Claude DEBE verificar si ya existe algo equivalente en el proyecto. Si existe, usarlo. Si está en el lugar incorrecto, documentarlo y solicitar moverlo. Nunca duplicar:
+- Componentes UI → buscar en `src/shared/components/ui/` primero
+- Lógica de dominio → buscar en `src/features/{dominio}/lib/`
+- Utilidades → buscar en `src/shared/lib/`
+
 **BLOQUEO POR AGENTE NO INVOCADO** — Antes de escribir, modificar o eliminar CUALQUIER archivo de código, Claude DEBE verificar si la tarea requiere un agente especialista. Si el agente correspondiente no fue invocado en la conversación actual, Claude DEBE detenerse completamente y responder con el mensaje exacto:
 
 > "Esta tarea requiere el agente **[nombre]**. Por favor invocalo con `/[nombre]` antes de continuar."
@@ -278,7 +285,14 @@ src/
 │
 └── shared/
     ├── components/
-    │   ├── ui/                       ← shadcn/ui primitivos
+    │   ├── ui/                       ← shadcn/ui primitivos + componentes UI reutilizables propios
+    │   │   ├── data-table.tsx        ← DataTable<T> genérico con paginación integrada
+    │   │   ├── rut-field.tsx         ← RutField input con máscara IMask (cross-feature)
+    │   │   ├── table-paginator.tsx   ← TablePaginator standalone
+    │   │   ├── stat-tile.tsx         ← StatTile para dashboards
+    │   │   └── ... (shadcn/ui)
+    │   ├── layout/                   ← componentes de layout compartidos entre features
+    │   │   └── AdminTopBar.tsx       ← barra superior del panel admin
     │   └── branding/
     │       └── logo.tsx              ← LogoMark, LogoIcon
     └── lib/
@@ -292,8 +306,33 @@ src/
 
 - **`src/app/`** — Solo archivos especiales de Next.js: `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, `not-found.tsx`, `route.ts`. **Prohibido**: componentes, hooks, helpers, tipos o carpetas `_components/` dentro de rutas.
 - **`src/features/{dominio}/`** — Todo lo que pertenece a un dominio de negocio: actions, components, schemas, types, lib.
-- **`src/shared/`** — Solo lo verdaderamente transversal: primitivos UI (shadcn), branding, prisma, utils, rut, roles.
+- **`src/shared/`** — Solo lo verdaderamente transversal. Nada vive suelto en la raíz de `shared/components/`.
 - **Barrel exports** — Cada feature puede exponer `index.ts`; los `page.tsx` importan desde `@/features/{dominio}/...`. Los archivos internos de un feature usan rutas relativas entre sí.
+
+#### Dónde va cada componente (decidir en este orden)
+
+1. **¿Es un primitivo shadcn/ui o un componente UI reutilizable entre ≥2 features?**
+   → `src/shared/components/ui/` (ej: `data-table.tsx`, `rut-field.tsx`, `table-paginator.tsx`)
+
+2. **¿Es un componente de layout compartido (barra, sidebar, nav)?**
+   → `src/shared/components/layout/` (ej: `AdminTopBar.tsx`)
+
+3. **¿Es de marca/identidad visual?**
+   → `src/shared/components/branding/` (ej: `logo.tsx`)
+
+4. **¿Pertenece a un solo dominio de negocio?**
+   → `src/features/{dominio}/components/` aunque se use en múltiples páginas del mismo dominio
+
+5. **¿Está en la raíz de `shared/components/` sin subcarpeta?**
+   → INCORRECTO. Moverlo a la subcarpeta correcta antes de usarlo.
+
+#### Reglas DRY para componentes
+
+- **Verificar antes de crear** — Buscar en `src/shared/components/ui/` antes de crear cualquier componente UI nuevo.
+- **Un solo input RUT** — El componente canónico es `src/shared/components/ui/rut-field.tsx` (`RutField`). No crear versiones locales inline en formularios. No usar `RutInput.tsx` de students en código nuevo.
+- **Una sola tabla** — El componente canónico es `src/shared/components/ui/data-table.tsx` (`DataTable<T>`). Toda tabla nueva con paginación DEBE usar este componente, no construir `<table>` desde cero.
+- **Un solo paginador** — `src/shared/components/ui/table-paginator.tsx` (`TablePaginator`). Usar siempre que se necesite paginación standalone.
+- **Paginación por defecto: 10 filas** — Toda tabla con paginación usa `perPage={10}` salvo que se pida explícitamente otro valor.
 
 ### Imports correctos (post-DDD)
 
@@ -305,8 +344,11 @@ src/
 | RUT helpers                 | `@/shared/lib/rut`                               |
 | Roles / USER_ROLE           | `@/shared/lib/roles`                             |
 | shadcn/ui componente        | `@/shared/components/ui/{componente}`            |
+| DataTable (tabla genérica)  | `@/shared/components/ui/data-table`              |
+| RutField (input RUT)        | `@/shared/components/ui/rut-field`               |
+| TablePaginator              | `@/shared/components/ui/table-paginator`         |
+| AdminTopBar                 | `@/shared/components/layout/AdminTopBar`         |
 | Logo                        | `@/shared/components/branding/logo`              |
-| RutInput                    | `@/features/students/components/RutInput`        |
 | Sidebar                     | `@/features/dashboard/components/Sidebar`        |
 | ExamCarousel / Timer        | `@/features/exam-session/components/...`         |
 | Cálculo de notas            | `@/features/results/lib/grade`                   |

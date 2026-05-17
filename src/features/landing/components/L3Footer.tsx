@@ -38,7 +38,7 @@ const FOOTER_COLS = [
             { label: 'Manifiesto', href: '/empresa/manifiesto' },
             { label: 'Historia', href: '/empresa/historia' },
             { label: 'Equipo', href: '/empresa/equipo' },
-            { label: 'Contacto', href: 'mailto:hola@aulika.cl' },
+            { label: 'Contacto', href: 'mailto:info@aulika.cl' },
         ],
     },
 ];
@@ -55,9 +55,31 @@ export function L3Footer(): React.JSX.Element {
                         <p className="text-[13px] leading-relaxed text-ink-dim max-w-[280px]">
                             La plataforma de evaluación en línea para colegios y universidades chilenas. Hecha en Santiago, pensada para el aula.
                         </p>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                             <Tag tone="outline" className="bg-white border-border text-[11px] h-6 px-2.5">aulika.cl</Tag>
-                            <Tag tone="outline" className="bg-white border-border text-[11px] h-6 px-2.5">hola@aulika.cl</Tag>
+                            <Tag tone="outline" className="bg-white border-border text-[11px] h-6 px-2.5">info@aulika.cl</Tag>
+                            <a
+                                href="https://www.instagram.com/aulika.cl/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex size-6 items-center justify-center rounded-full border border-border bg-white text-ink-dim transition-all hover:border-primary/30 hover:text-primary hover:scale-110 shadow-sm"
+                                title="Síguenos en Instagram"
+                            >
+                                <svg 
+                                    viewBox="0 0 24 24" 
+                                    fill="none" 
+                                    stroke="currentColor" 
+                                    strokeWidth="2" 
+                                    strokeLinecap="round" 
+                                    strokeLinejoin="round" 
+                                    className="size-3.5"
+                                >
+                                    <title>Instagram</title>
+                                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+                                </svg>
+                            </a>
                         </div>
                     </div>
 

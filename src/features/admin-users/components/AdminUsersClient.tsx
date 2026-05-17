@@ -30,12 +30,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { TablePaginator } from '@/shared/components/ui/table-paginator';
 import { Avatar } from '@/shared/components/ui/avatar';
 import { Tag } from '@/shared/components/ui/badge';
-import { RutField } from '@/shared/components/rut-field';
+import { RutField } from '@/shared/components/ui/rut-field';
 import { formatRut } from '@/shared/lib/rut';
 import { USER_ROLE } from '@/shared/lib/roles';
 import type { PaginatedResult } from '@/shared/types/pagination';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Pencil, Plus, Trash2, Search, Building2, MoreHorizontal, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Pencil, Plus, Trash2, Search, Building2, MoreHorizontal, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { useState, useTransition } from 'react';
@@ -219,11 +219,13 @@ function UpdateAdminForm({
                     ? USER_ROLE.SUPER_ADMIN
                     : USER_ROLE.ADMIN,
             academicInstitutionId: defaultValues.institution?.id ?? undefined,
+            password: '',
         },
     });
 
     const selectedRole = watch('role');
     const isSuperAdmin = selectedRole === USER_ROLE.SUPER_ADMIN;
+    const [showPassword, setShowPassword] = useState(false);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-4">
@@ -292,6 +294,32 @@ function UpdateAdminForm({
                     )}
                 </div>
             )}
+            <div className="flex flex-col gap-1.5">
+                <label htmlFor="edit-password" className="text-[13px] font-bold text-ink">
+                    Nueva contraseña
+                    <span className="ml-2 font-normal text-mute">(dejá en blanco para no cambiarla)</span>
+                </label>
+                <div className="relative">
+                    <Input
+                        id="edit-password"
+                        type={showPassword ? 'text' : 'password'}
+                        {...register('password')}
+                        placeholder="Mínimo 8 caracteres"
+                        className={cn('h-11 rounded-[10px] bg-white border-border pr-10', errors.password && 'border-destructive')}
+                        autoComplete="new-password"
+                    />
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-mute hover:text-ink transition-colors"
+                        tabIndex={-1}
+                        aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    >
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                </div>
+                {errors.password && <p className="text-xs text-destructive font-medium">{errors.password.message}</p>}
+            </div>
             <div className="mt-4 flex justify-end gap-2">
                 <Button type="submit" disabled={isPending} variant="ink" size="md">
                     {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}

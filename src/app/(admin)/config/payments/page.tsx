@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default async function PaymentsPage(): Promise<React.JSX.Element> {
     const result = await getPayments({ page: 1 });
-    const initial = result.data ?? { rows: [], total: 0, page: 1, pageSize: 20 };
+    const initial = result.data ?? { rows: [], total: 0, page: 1, pageSize: 10 };
 
     return (
         <div className="flex flex-col min-h-screen bg-paper">

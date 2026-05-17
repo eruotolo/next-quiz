@@ -102,6 +102,10 @@ export async function updateAdminUser(
         const targetRole = await prisma.userRole.findUnique({ where: { name: parsed.data.role } });
         if (!targetRole) return { data: null, error: 'Rol no encontrado.' };
 
+        const passwordUpdate = parsed.data.password
+            ? { password: await bcrypt.hash(parsed.data.password, 10) }
+            : {};
+
         await prisma.user.update({
             where: { id },
             data: {
@@ -111,6 +115,7 @@ export async function updateAdminUser(
                 rut: parsed.data.rut,
                 userRoleId: targetRole.id,
                 academicInstitutionId: parsed.data.academicInstitutionId ?? null,
+                ...passwordUpdate,
             },
         });
 
@@ -121,7 +126,7 @@ export async function updateAdminUser(
             actorRole: actor.userRoleName,
             entity: 'User',
             entityId: id,
-            metadata: { role: parsed.data.role },
+            metadata: { role: parsed.data.role, passwordChanged: !!parsed.data.password },
         });
 
         revalidatePath('/config/admins');

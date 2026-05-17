@@ -3,9 +3,10 @@
 import type * as React from 'react';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, ChevronRight, Download, Search } from 'lucide-react';
+import { Download, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
+import { DataTable, type ColumnDef } from '@/shared/components/ui/data-table';
 import {
     getPayments,
     exportPaymentsCSV,
@@ -100,15 +101,70 @@ export function PaymentsClient({ initial }: Props): React.JSX.Element {
         URL.revokeObjectURL(url);
     }
 
-    function handleRowClick(row: PaymentRow): void {
-        router.push(`/config/subscriptions/${row.subscriptionId}`);
-    }
-
-    const totalPages = Math.ceil(data.total / data.pageSize);
+    const columns: ColumnDef<PaymentRow>[] = [
+        {
+            key: 'date',
+            header: 'Fecha',
+            render: (row) => <span className="text-mute">{formatDate(row.paidAt ?? row.createdAt)}</span>,
+        },
+        {
+            key: 'institution',
+            header: 'Institución',
+            render: (row) => <span className="font-medium text-ink">{row.institutionName ?? '—'}</span>,
+        },
+        {
+            key: 'plan',
+            header: 'Plan',
+            render: (row) => PLAN_LABELS[row.subscriptionPlan],
+        },
+        {
+            key: 'billing',
+            header: 'Modalidad',
+            render: (row) => (
+                <span className="text-mute">{row.subscriptionBilling === 'monthly' ? 'Mensual' : 'Anual'}</span>
+            ),
+        },
+        {
+            key: 'amount',
+            header: 'Monto',
+            render: (row) => <span className="font-medium text-ink">{formatCLP(row.amount)}</span>,
+        },
+        {
+            key: 'status',
+            header: 'Estado',
+            render: (row) => (
+                <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${PAYMENT_STATUS_COLORS[row.status]}`}>
+                    {PAYMENT_STATUS_LABELS[row.status]}
+                </span>
+            ),
+        },
+        {
+            key: 'period',
+            header: 'Período',
+            render: (row) => (
+                <span className="text-mute">
+                    {row.periodStart ? `${formatDate(row.periodStart)} → ${formatDate(row.periodEnd)}` : '—'}
+                </span>
+            ),
+        },
+        {
+            key: 'actions',
+            header: 'Ver',
+            render: (row) => (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => { e.stopPropagation(); router.push(`/config/subscriptions/${row.subscriptionId}`); }}
+                    className="text-primary hover:text-primary/80"
+                >
+                    Ver →
+                </Button>
+            ),
+        },
+    ];
 
     return (
         <div className="space-y-4">
-            {/* Toolbar */}
             <div className="flex flex-wrap items-center gap-3">
                 <div className="flex h-9 flex-1 items-center gap-2 rounded-[8px] border border-border bg-white px-3">
                     <Search size={14} className="shrink-0 text-mute" />
@@ -162,7 +218,6 @@ export function PaymentsClient({ initial }: Props): React.JSX.Element {
                     onChange={(e) =>
                         applyFilters({ ...filters, dateFrom: e.target.value || undefined, page: 1 })
                     }
-                    placeholder="Desde"
                 />
 
                 <input
@@ -172,7 +227,6 @@ export function PaymentsClient({ initial }: Props): React.JSX.Element {
                     onChange={(e) =>
                         applyFilters({ ...filters, dateTo: e.target.value || undefined, page: 1 })
                     }
-                    placeholder="Hasta"
                 />
 
                 <Button variant="ghost" size="sm" onClick={() => void handleExport()}>
@@ -181,114 +235,17 @@ export function PaymentsClient({ initial }: Props): React.JSX.Element {
                 </Button>
             </div>
 
-            {/* Table */}
-            <div
-                className={`overflow-x-auto rounded-[16px] border border-border bg-white transition-opacity ${isPending ? 'opacity-60' : ''}`}
-            >
-                <table className="w-full text-[13px]">
-                    <thead>
-                        <tr className="border-b border-border bg-paper">
-                            {['Fecha', 'Institución', 'Plan', 'Modalidad', 'Monto', 'Estado', 'Período', 'Ver'].map(
-                                (h) => (
-                                    <th
-                                        key={h}
-                                        className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-[0.1em] text-mute whitespace-nowrap"
-                                    >
-                                        {h}
-                                    </th>
-                                ),
-                            )}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data.rows.length === 0 ? (
-                            <tr>
-                                <td colSpan={8} className="px-4 py-8 text-center text-mute">
-                                    No hay pagos con los filtros seleccionados
-                                </td>
-                            </tr>
-                        ) : (
-                            data.rows.map((row) => (
-                                <tr
-                                    key={row.id}
-                                    className="border-b border-border last:border-0 hover:bg-paper/50 transition-colors"
-                                >
-                                    <td className="px-4 py-3 whitespace-nowrap text-mute">
-                                        {formatDate(row.paidAt ?? row.createdAt)}
-                                    </td>
-                                    <td className="px-4 py-3 font-medium text-ink">
-                                        {row.institutionName ?? '—'}
-                                    </td>
-                                    <td className="px-4 py-3 whitespace-nowrap">
-                                        {PLAN_LABELS[row.subscriptionPlan]}
-                                    </td>
-                                    <td className="px-4 py-3 whitespace-nowrap text-mute">
-                                        {row.subscriptionBilling === 'monthly' ? 'Mensual' : 'Anual'}
-                                    </td>
-                                    <td className="px-4 py-3 whitespace-nowrap font-medium text-ink">
-                                        {formatCLP(row.amount)}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <span
-                                            className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${PAYMENT_STATUS_COLORS[row.status]}`}
-                                        >
-                                            {PAYMENT_STATUS_LABELS[row.status]}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-3 whitespace-nowrap text-mute">
-                                        {row.periodStart
-                                            ? `${formatDate(row.periodStart)} → ${formatDate(row.periodEnd)}`
-                                            : '—'}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => handleRowClick(row)}
-                                            className="text-primary hover:text-primary/80"
-                                        >
-                                            Ver →
-                                        </Button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <div className="flex items-center justify-between text-[13px] text-mute">
-                    <span>
-                        {data.total} registros · página {data.page}/{totalPages}
-                    </span>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={data.page <= 1}
-                            onClick={() =>
-                                applyFilters({ ...filters, page: (filters.page ?? 1) - 1 })
-                            }
-                        >
-                            <ChevronLeft size={14} />
-                            Anterior
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={data.page >= totalPages}
-                            onClick={() =>
-                                applyFilters({ ...filters, page: (filters.page ?? 1) + 1 })
-                            }
-                        >
-                            Siguiente
-                            <ChevronRight size={14} />
-                        </Button>
-                    </div>
-                </div>
-            )}
+            <DataTable<PaymentRow>
+                columns={columns}
+                rows={data.rows}
+                total={data.total}
+                page={data.page}
+                perPage={10}
+                onPageChange={(p) => applyFilters({ ...filters, page: p })}
+                emptyMessage="No hay pagos con los filtros seleccionados"
+                keyExtractor={(row) => row.id}
+                isPending={isPending}
+            />
         </div>
     );
 }

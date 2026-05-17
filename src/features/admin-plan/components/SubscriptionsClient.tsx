@@ -3,16 +3,10 @@
 import type * as React from 'react';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-    ChevronLeft,
-    ChevronRight,
-    Download,
-    ExternalLink,
-    Search,
-    XCircle,
-} from 'lucide-react';
+import { Download, ExternalLink, Search, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
+import { DataTable, type ColumnDef } from '@/shared/components/ui/data-table';
 import {
     getSubscriptions,
     cancelSubscription,
@@ -59,6 +53,69 @@ function formatDate(d: Date | null): string {
     if (!d) return '—';
     return new Date(d).toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: '2-digit' });
 }
+
+const COLUMNS: ColumnDef<SubscriptionRow>[] = [
+    {
+        key: 'createdAt',
+        header: 'Fecha',
+        render: (row) => <span className="text-mute">{formatDate(row.createdAt)}</span>,
+    },
+    {
+        key: 'payer',
+        header: 'Pagador',
+        className: 'whitespace-normal',
+        render: (row) => (
+            <div>
+                <p className="font-medium text-ink">{row.payerName ?? '—'}</p>
+                <p className="text-[12px] text-mute">{row.payerEmail ?? ''}</p>
+            </div>
+        ),
+    },
+    {
+        key: 'institution',
+        header: 'Institución',
+        render: (row) =>
+            row.institutionName ?? (
+                <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-[11px] font-medium text-yellow-700">
+                    Sin registrar
+                </span>
+            ),
+    },
+    {
+        key: 'plan',
+        header: 'Plan',
+        render: (row) => PLAN_LABELS[row.plan],
+    },
+    {
+        key: 'billing',
+        header: 'Modalidad',
+        render: (row) => <span className="text-mute">{row.billing === 'monthly' ? 'Mensual' : 'Anual'}</span>,
+    },
+    {
+        key: 'amount',
+        header: 'Monto',
+        render: (row) => formatCLP(row.amount),
+    },
+    {
+        key: 'status',
+        header: 'Estado',
+        render: (row) => (
+            <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_COLORS[row.status]}`}>
+                {STATUS_LABELS[row.status]}
+            </span>
+        ),
+    },
+    {
+        key: 'startedAt',
+        header: 'Inicio',
+        render: (row) => <span className="text-mute">{formatDate(row.startedAt)}</span>,
+    },
+    {
+        key: 'expiresAt',
+        header: 'Vencimiento',
+        render: (row) => <span className="text-mute">{formatDate(row.expiresAt)}</span>,
+    },
+];
 
 interface DetailModalProps {
     row: SubscriptionRow;
@@ -201,12 +258,9 @@ export function SubscriptionsClient({ initial }: Props): React.JSX.Element {
         URL.revokeObjectURL(url);
     }
 
-    const totalPages = Math.ceil(data.total / data.pageSize);
-
     return (
         <>
             <div className="space-y-4">
-                {/* Toolbar */}
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="flex h-9 flex-1 items-center gap-2 rounded-[8px] border border-border bg-white px-3">
                         <Search size={14} className="shrink-0 text-mute" />
@@ -257,89 +311,18 @@ export function SubscriptionsClient({ initial }: Props): React.JSX.Element {
                     </Button>
                 </div>
 
-                {/* Table */}
-                <div className={`overflow-x-auto rounded-[16px] border border-border bg-white transition-opacity ${isPending ? 'opacity-60' : ''}`}>
-                    <table className="w-full text-[13px]">
-                        <thead>
-                            <tr className="border-b border-border bg-paper">
-                                {['Fecha', 'Pagador', 'Institución', 'Plan', 'Modalidad', 'Monto', 'Estado', 'Inicio', 'Vencimiento'].map((h) => (
-                                    <th key={h} className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-[0.1em] text-mute whitespace-nowrap">
-                                        {h}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {data.rows.length === 0 ? (
-                                <tr>
-                                    <td colSpan={9} className="px-4 py-8 text-center text-mute">
-                                        No hay suscripciones con los filtros seleccionados
-                                    </td>
-                                </tr>
-                            ) : (
-                                data.rows.map((row) => (
-                                    <tr
-                                        key={row.id}
-                                        onClick={() => setDetail(row)}
-                                        className="cursor-pointer border-b border-border last:border-0 hover:bg-paper/50 transition-colors"
-                                    >
-                                        <td className="px-4 py-3 whitespace-nowrap text-mute">{formatDate(row.createdAt)}</td>
-                                        <td className="px-4 py-3">
-                                            <p className="font-medium text-ink">{row.payerName ?? '—'}</p>
-                                            <p className="text-[12px] text-mute">{row.payerEmail ?? ''}</p>
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            {row.institutionName ?? (
-                                                <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-[11px] font-medium text-yellow-700">
-                                                    Sin registrar
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap">{PLAN_LABELS[row.plan]}</td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-mute">
-                                            {row.billing === 'monthly' ? 'Mensual' : 'Anual'}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap">{formatCLP(row.amount)}</td>
-                                        <td className="px-4 py-3">
-                                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_COLORS[row.status]}`}>
-                                                {STATUS_LABELS[row.status]}
-                                            </span>
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-mute">{formatDate(row.startedAt)}</td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-mute">{formatDate(row.expiresAt)}</td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                    <div className="flex items-center justify-between text-[13px] text-mute">
-                        <span>{data.total} registros · página {data.page}/{totalPages}</span>
-                        <div className="flex gap-2">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                disabled={data.page <= 1}
-                                onClick={() => applyFilters({ ...filters, page: (filters.page ?? 1) - 1 })}
-                            >
-                                <ChevronLeft size={14} />
-                                Anterior
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                disabled={data.page >= totalPages}
-                                onClick={() => applyFilters({ ...filters, page: (filters.page ?? 1) + 1 })}
-                            >
-                                Siguiente
-                                <ChevronRight size={14} />
-                            </Button>
-                        </div>
-                    </div>
-                )}
+                <DataTable<SubscriptionRow>
+                    columns={COLUMNS}
+                    rows={data.rows}
+                    total={data.total}
+                    page={data.page}
+                    perPage={10}
+                    onPageChange={(p) => applyFilters({ ...filters, page: p })}
+                    onRowClick={setDetail}
+                    emptyMessage="No hay suscripciones con los filtros seleccionados"
+                    keyExtractor={(row) => row.id}
+                    isPending={isPending}
+                />
             </div>
 
             {detail && (

@@ -18,6 +18,7 @@ interface DataTableProps<T> {
     page: number;
     perPage: number;
     onPageChange: (page: number) => void;
+    onRowClick?: (row: T) => void;
     emptyMessage?: string;
     keyExtractor: (row: T) => string;
     isPending?: boolean;
@@ -30,6 +31,7 @@ export function DataTable<T>({
     page,
     perPage,
     onPageChange,
+    onRowClick,
     emptyMessage = 'No hay registros.',
     keyExtractor,
     isPending = false,
@@ -65,7 +67,8 @@ export function DataTable<T>({
                         {rows.map((row) => (
                             <tr
                                 key={keyExtractor(row)}
-                                className="hover:bg-muted/30 transition-colors"
+                                onClick={onRowClick ? () => onRowClick(row) : undefined}
+                                className={`hover:bg-muted/30 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
                             >
                                 {columns.map((col) => (
                                     <td

@@ -30,6 +30,10 @@ export const adminUserUpdateSchema = z.object({
         .refine((v) => isValidRut(v), 'RUT inválido'),
     role: z.enum(MANAGEABLE_ROLES, { message: 'Rol inválido' }),
     academicInstitutionId: z.string().uuid('Institución inválida').optional(),
+    password: z
+        .string()
+        .optional()
+        .refine((v) => !v || v.length >= 8, 'La contraseña debe tener al menos 8 caracteres'),
 });
 
 export type AdminUserUpdateInput = z.infer<typeof adminUserUpdateSchema>;

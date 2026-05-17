@@ -34,6 +34,10 @@ export default auth((req: NextAuthRequest) => {
         return NextResponse.redirect(new URL('/examen/login', req.url));
     }
 
+    if (pathname.startsWith('/perfil')) {
+        return NextResponse.next();
+    }
+
     const slug = pathname.split('/')[1];
 
     if (session.user.userRoleName === USER_ROLE.SUPER_ADMIN) {
