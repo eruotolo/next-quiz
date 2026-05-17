@@ -18,14 +18,16 @@ export function PublicNav(): React.JSX.Element {
 
     return (
         <header className="sticky top-0 z-50 border-b border-border bg-white/95 backdrop-blur-sm">
-            <div className="mx-auto flex items-center justify-between py-5 px-6 md:px-14">
-                {/* Lockup */}
-                <Link href="/" aria-label="Aulika" className="transition-opacity hover:opacity-90">
-                    <LogoLockup size={22} variant="cobalto" />
-                </Link>
+            <div className="mx-auto grid grid-cols-2 md:grid-cols-3 items-center py-5 px-6 md:px-14">
+                {/* Left: Lockup */}
+                <div className="flex justify-start">
+                    <Link href="/" aria-label="Aulika" className="transition-opacity hover:opacity-90">
+                        <LogoLockup size={22} variant="cobalto" />
+                    </Link>
+                </div>
 
-                {/* Nav links */}
-                <nav className="hidden items-center gap-8 md:flex">
+                {/* Center: Nav links */}
+                <nav className="hidden justify-center items-center gap-8 md:flex">
                     {navItems.map((item) => (
                         <Link
                             key={item.label}
@@ -37,8 +39,8 @@ export function PublicNav(): React.JSX.Element {
                     ))}
                 </nav>
 
-                {/* Actions */}
-                <div className="flex items-center gap-3">
+                {/* Right: Actions */}
+                <div className="flex items-center justify-end gap-3">
                     <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex text-[13px] font-bold">
                         <Link href="/examen/login">Acceso alumnos</Link>
                     </Button>

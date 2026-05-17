@@ -248,7 +248,7 @@ export function InstitutionSettingsClient({ institution, slug }: Props): React.J
                                 <Input
                                     id="seoTitle"
                                     {...register('seoTitle')}
-                                    placeholder={`${institution.name} | EduNext Quiz`}
+                                    placeholder={`${institution.name} | Aulika`}
                                     className={cn('h-11 rounded-[10px] border-border bg-white', errors.seoTitle && 'border-destructive')}
                                 />
                             </Field>

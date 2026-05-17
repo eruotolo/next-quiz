@@ -14,12 +14,12 @@ import { L3CTA } from '@/features/landing/components/L3CTA';
 import { L3Footer } from '@/features/landing/components/L3Footer';
 
 export const metadata: Metadata = {
-    title: 'Ensayos PAES Online · Gestión de Exámenes para Instituciones',
+    title: 'Aulika · Sistema de Evaluación Online para Instituciones Educativas',
     description:
-        'La plataforma líder en Chile para crear, aplicar y corregir ensayos PAES y exámenes institucionales. Sin papel, con resultados en tiempo real y análisis avanzado por IA.',
+        'La plataforma líder para crear, aplicar y corregir evaluaciones y exámenes institucionales. Gestión de exámenes y aula virtual para colegios y universidades.',
     openGraph: {
-        title: 'EduNext Quiz · La evolución del examen de aula',
-        description: 'Digitaliza tus evaluaciones con corrección automática y analítica instantánea. Diseñado para colegios y preuniversitarios de Chile.',
+        title: 'Aulika · La evolución de la evaluación académica',
+        description: 'Digitaliza tus evaluaciones con corrección automática y analítica instantánea. Diseñado para colegios y universidades.',
         type: 'website',
     },
 };
@@ -28,13 +28,13 @@ export default function MarketingPage(): React.JSX.Element {
     return (
         <>
             <L3Hero />
-            <L3Trust />
+            {/*<L3Trust />*/}
             <L3Walkthrough />
             <L3Comparison />
             <L3Segments />
             <L3Security />
             <L3Stats />
-            <L3Testimonials />
+            {/*<L3Testimonials />*/}
             <L3Pricing />
             <L3FAQ />
             <L3CTA />

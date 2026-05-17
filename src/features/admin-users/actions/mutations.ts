@@ -8,6 +8,7 @@ import { sendEmail, buildAdminWelcomeEmail } from '@/shared/lib/email';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
 import { adminUserCreateSchema, adminUserUpdateSchema } from '@/features/admin-users/schemas/admin-user.schemas';
+import { assertQuota } from '@/features/subscriptions/lib/quota';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 
@@ -30,6 +31,8 @@ export async function createAdminUser(
     if (!isSuperAdmin && !parsed.data.academicInstitutionId) {
         return { data: null, error: 'La institución es requerida para el rol Administrador.' };
     }
+
+    await assertQuota(parsed.data.academicInstitutionId ?? null, 'admin', actor.userRoleName);
 
     const rawPassword = randomBytes(8).toString('hex');
     const hashedPassword = await bcrypt.hash(rawPassword, 10);

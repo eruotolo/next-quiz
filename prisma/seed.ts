@@ -1,9 +1,58 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, type Plan } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 const USER_ROLES = ['SuperAdministrador', 'Administrador', 'Profesor', 'Estudiante'] as const;
+
+interface PlanLimitsSeed {
+    plan: Plan;
+    maxGroups: number | null;
+    maxAdmins: number | null;
+    maxProfessors: number | null;
+    maxStudents: number | null;
+    maxExamsPerYear: number | null;
+    description: string;
+}
+
+const PLAN_LIMITS: PlanLimitsSeed[] = [
+    {
+        plan: 'FREE',
+        maxGroups: 1,
+        maxAdmins: 1,
+        maxProfessors: 1,
+        maxStudents: 50,
+        maxExamsPerYear: 5,
+        description: 'Plan gratuito para docentes que recién comienzan',
+    },
+    {
+        plan: 'DOCENTE',
+        maxGroups: 5,
+        maxAdmins: 1,
+        maxProfessors: 5,
+        maxStudents: 150,
+        maxExamsPerYear: null,
+        description: 'Plan individual para docentes con grupos pequeños',
+    },
+    {
+        plan: 'COLEGIO',
+        maxGroups: 30,
+        maxAdmins: 5,
+        maxProfessors: null,
+        maxStudents: 300,
+        maxExamsPerYear: null,
+        description: 'Plan para establecimientos de educación básica y media',
+    },
+    {
+        plan: 'INSTITUCIONAL',
+        maxGroups: null,
+        maxAdmins: null,
+        maxProfessors: null,
+        maxStudents: null,
+        maxExamsPerYear: null,
+        description: 'Plan institucional con recursos ilimitados',
+    },
+];
 
 async function main(): Promise<void> {
     const rawPassword = process.env.ADMIN_PASSWORD;
@@ -41,6 +90,21 @@ async function main(): Promise<void> {
             userRoleId: superAdminRole.id,
         },
     });
+
+    for (const limits of PLAN_LIMITS) {
+        await prisma.planLimits.upsert({
+            where: { plan: limits.plan },
+            update: {
+                maxGroups: limits.maxGroups,
+                maxAdmins: limits.maxAdmins,
+                maxProfessors: limits.maxProfessors,
+                maxStudents: limits.maxStudents,
+                maxExamsPerYear: limits.maxExamsPerYear,
+                description: limits.description,
+            },
+            create: limits,
+        });
+    }
 
     console.log('Seed completed.');
 }

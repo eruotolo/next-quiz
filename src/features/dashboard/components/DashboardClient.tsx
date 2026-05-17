@@ -396,8 +396,8 @@ function CreateGroupDialog({
                 await createGroup({ name: groupName });
                 onOpenChange(false);
                 onSuccess();
-            } catch {
-                setGroupError('Ocurrió un error. Intentá de nuevo.');
+            } catch (err: unknown) {
+                setGroupError(err instanceof Error ? err.message : 'Ocurrió un error. Intentá de nuevo.');
             }
         });
     };
@@ -471,7 +471,9 @@ function CreateStudentDialog({
                 const msg =
                     err instanceof Error && err.message.includes('Unique constraint')
                         ? 'Ya existe un alumno con ese email o RUT.'
-                        : 'Ocurrió un error. Intentá de nuevo.';
+                        : err instanceof Error
+                          ? err.message
+                          : 'Ocurrió un error. Intentá de nuevo.';
                 setErrors({ general: msg });
             }
         });
@@ -577,8 +579,8 @@ function CreateExamDialog({
                 });
                 onOpenChange(false);
                 onSuccess();
-            } catch {
-                setErrors({ general: 'Ocurrió un error. Intentá de nuevo.' });
+            } catch (err: unknown) {
+                setErrors({ general: err instanceof Error ? err.message : 'Ocurrió un error. Intentá de nuevo.' });
             }
         });
     };

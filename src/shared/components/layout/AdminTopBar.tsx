@@ -5,6 +5,7 @@ interface AdminTopBarProps {
     title: string;
     breadcrumb?: string[];
     subtitle?: string | ReactNode;
+    icon?: ReactNode;
     actions?: ReactNode;
     className?: string;
 }
@@ -13,6 +14,7 @@ export function AdminTopBar({
     title,
     breadcrumb,
     subtitle,
+    icon,
     actions,
     className,
 }: AdminTopBarProps): React.JSX.Element {
@@ -36,7 +38,8 @@ export function AdminTopBar({
                         ))}
                     </nav>
                 )}
-                <h1 className="font-display text-[32px] font-medium leading-none tracking-[-0.025em] text-ink">
+                <h1 className="flex items-center gap-2 font-display text-[32px] font-medium leading-none tracking-[-0.025em] text-ink">
+                    {icon && <span className="text-mute">{icon}</span>}
                     {title}
                 </h1>
                 {subtitle && (

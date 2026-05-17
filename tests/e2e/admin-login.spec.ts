@@ -18,8 +18,8 @@ test.describe('Admin Login Page (/login)', () => {
         await expect(page.getByRole('button', { name: 'Ingresar al panel' })).toBeVisible()
     })
 
-    test('shows EduNext Quiz branding', async ({ page }) => {
-        await expect(page.getByText('EduNext Quiz').first()).toBeVisible()
+    test('shows Aulika branding', async ({ page }) => {
+        await expect(page.getByText('Aulika').first()).toBeVisible()
     })
 
     test('shows link to student login', async ({ page }) => {

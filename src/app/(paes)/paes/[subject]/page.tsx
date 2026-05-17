@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: PageProps) {
     const meta = getSubjectMeta(subject as PaesSubject);
     if (!meta) return {};
     return {
-        title: `${meta.label} — Simulador PAES · EduNext Quiz`,
+        title: `${meta.label} — Simulador PAES · Aulika`,
         description: `Practica ${meta.label} con un ensayo cronometrado de ${meta.practiceQuestionCount} preguntas.`,
     };
 }
