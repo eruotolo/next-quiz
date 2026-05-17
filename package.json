@@ -5,7 +5,7 @@
     "scripts": {
         "dev": "next dev --turbopack",
         "devBuild": "rm -rf .next && next build",
-        "build": "prisma migrate deploy && next build",
+        "build": "prisma generate && prisma migrate deploy && next build",
         "start": "next start",
         "lint": "biome check .",
         "lint:fix": "biome check --write .",
