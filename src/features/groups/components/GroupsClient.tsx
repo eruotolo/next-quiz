@@ -16,7 +16,7 @@ import { Tag } from '@/shared/components/ui/badge';
 import { formatRut } from '@/shared/lib/rut';
 import { cn } from '@/shared/lib/utils';
 import type { Group } from '@prisma/client';
-import { Edit2, GraduationCap, Loader2, MoreHorizontal, Plus, Trash2, Upload, Users } from 'lucide-react';
+import { Edit2, GraduationCap, Loader2, MoreHorizontal, Plus, Trash2, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { useState, useTransition } from 'react';
@@ -49,6 +49,8 @@ interface GroupWithCount extends Group {
 }
 
 interface Props {
+    slug: string;
+    institutionName: string;
     groups: GroupWithCount[];
     canMutate: boolean;
 }
@@ -97,7 +99,7 @@ function InitialsAvatar({
     );
 }
 
-export function GroupsClient({ groups, canMutate }: Props): React.JSX.Element {
+export function GroupsClient({ slug, institutionName, groups, canMutate }: Props): React.JSX.Element {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
@@ -133,27 +135,30 @@ export function GroupsClient({ groups, canMutate }: Props): React.JSX.Element {
             return;
         }
         startTransition(async () => {
-            try {
-                if (editing) await updateGroup(editing.id, { name });
-                else await createGroup({ name });
-                setIsOpen(false);
-                router.refresh();
-            } catch {
-                setError('Ocurrió un error. Intentá de nuevo.');
+            const result = editing
+                ? await updateGroup(slug, editing.id, { name })
+                : await createGroup(slug, { name });
+            if (result.error) {
+                setError(result.error);
+                return;
             }
+            setIsOpen(false);
+            toast.success(editing ? 'Grupo actualizado' : 'Grupo creado');
+            router.refresh();
         });
     };
 
     const handleDelete = (): void => {
         if (!toDelete) return;
         startTransition(async () => {
-            try {
-                await deleteGroup(toDelete.id);
-                setIsDelOpen(false);
-                router.refresh();
-            } catch {
-                setDeleteError('Ocurrió un error al eliminar. Intentá de nuevo.');
+            const result = await deleteGroup(slug, toDelete.id);
+            if (result.error) {
+                setDeleteError(result.error);
+                return;
             }
+            setIsDelOpen(false);
+            toast.success('Grupo eliminado');
+            router.refresh();
         });
     };
 
@@ -163,26 +168,15 @@ export function GroupsClient({ groups, canMutate }: Props): React.JSX.Element {
     return (
         <div className="flex flex-col min-h-screen bg-paper">
             <AdminTopBar
-                breadcrumb={['Colegio Antártica', 'Grupos']}
+                breadcrumb={[institutionName, 'Grupos']}
                 title="Grupos"
                 subtitle={`${groups.length} grupos · ${totalStudents} estudiantes activos · ${totalExams} exámenes históricos`}
                 actions={
                     canMutate && (
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="outline"
-                                size="md"
-                                className="gap-2"
-                                onClick={() => toast.info('Importación de grupos próximamente')}
-                            >
-                                <Upload size={15} />
-                                Importar lista
-                            </Button>
-                            <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
-                                <Plus size={16} />
-                                Nuevo grupo
-                            </Button>
-                        </div>
+                        <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
+                            <Plus size={16} />
+                            Nuevo grupo
+                        </Button>
                     )
                 }
             />
@@ -438,8 +432,10 @@ export function GroupsClient({ groups, canMutate }: Props): React.JSX.Element {
                     </DialogHeader>
                     <div className="py-2">
                         <p className="text-[14px] leading-relaxed text-ink-dim">
-                            ¿Estás seguro de eliminar <strong className="text-ink">{toDelete?.name}</strong>? Los alumnos
-                            quedarán sin grupo asignado.
+                            ¿Estás seguro de eliminar <strong className="text-ink">{toDelete?.name}</strong>?
+                            {toDelete && toDelete._count.users > 0
+                                ? ` Los ${toDelete._count.users} alumno(s) de este grupo quedarán sin grupo asignado.`
+                                : ' Este grupo no tiene alumnos asignados.'}
                         </p>
                     </div>
                     {deleteError && (

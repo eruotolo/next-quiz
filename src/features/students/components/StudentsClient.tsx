@@ -4,9 +4,11 @@ import {
     createStudent,
     deleteStudent,
     importStudents,
+    toggleStudentActive,
     updateStudent,
 } from '@/features/students/actions/mutations';
 import type { ImportStudentsResult } from '@/features/students/actions/mutations';
+import { toast } from 'sonner';
 import { RutInput } from '@/features/students/components/RutInput';
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
@@ -49,11 +51,11 @@ import {
     Loader2,
     MoreHorizontal,
     Plus,
+    Power,
     Search,
     Trash2,
     Upload,
     X,
-    ChevronDown,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
@@ -65,6 +67,8 @@ interface StudentWithGroup extends User {
 }
 
 interface Props {
+    slug: string;
+    institutionName: string;
     students: StudentWithGroup[];
     groups: Group[];
     canCreate: boolean;
@@ -93,15 +97,21 @@ interface ParsedRow {
 const emptyForm: FormState = { name: '', lastname: '', email: '', rut: '', groupId: '' };
 
 export function StudentsClient({
+    slug,
+    institutionName,
     students,
     groups,
     canCreate,
     canEdit: _canEdit,
     canDelete: _canDelete,
+    canToggleActive,
 }: Props): React.JSX.Element {
     const router = useRouter();
     const [page, setPage] = useState(1);
     const PAGE_SIZE = 10;
+    const [search, setSearch] = useState('');
+    const [groupFilter, setGroupFilter] = useState<string>('all');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
     const [importOpen, setImportOpen] = useState(false);
@@ -169,31 +179,42 @@ export function StudentsClient({
     const handleSave = (): void => {
         if (!validate()) return;
         startTransition(async () => {
-            try {
-                if (editing) await updateStudent(editing.id, form);
-                else await createStudent(form);
-                setIsOpen(false);
-                router.refresh();
-            } catch (err: unknown) {
-                const msg =
-                    err instanceof Error && err.message.includes('Unique constraint')
-                        ? 'Ya existe un alumno con ese email o RUT.'
-                        : 'Ocurrió un error. Intentá de nuevo.';
-                setErrors({ general: msg });
+            const result = editing
+                ? await updateStudent(slug, editing.id, form)
+                : await createStudent(slug, form);
+            if (result.error) {
+                setErrors({ general: result.error });
+                return;
             }
+            setIsOpen(false);
+            toast.success(editing ? 'Estudiante actualizado' : 'Estudiante creado');
+            router.refresh();
         });
     };
 
     const handleDelete = (): void => {
         if (!toDelete) return;
         startTransition(async () => {
-            try {
-                await deleteStudent(toDelete.id);
-                setIsDelOpen(false);
-                router.refresh();
-            } catch {
-                setDeleteError('Ocurrió un error al eliminar. Intentá de nuevo.');
+            const result = await deleteStudent(slug, toDelete.id);
+            if (result.error) {
+                setDeleteError(result.error);
+                return;
             }
+            setIsDelOpen(false);
+            toast.success('Estudiante eliminado');
+            router.refresh();
+        });
+    };
+
+    const handleToggleActive = (s: StudentWithGroup): void => {
+        startTransition(async () => {
+            const result = await toggleStudentActive(slug, s.id, !s.active);
+            if (result.error) {
+                toast.error(result.error);
+                return;
+            }
+            toast.success(s.active ? 'Estudiante desactivado' : 'Estudiante activado');
+            router.refresh();
         });
     };
 
@@ -320,20 +341,35 @@ export function StudentsClient({
 
     const validRows = parsedRows?.filter((r) => r.groupId) ?? [];
 
+    const filteredStudents = students.filter((s) => {
+        const q = search.trim().toLowerCase();
+        if (q) {
+            const haystack = `${s.name} ${s.lastname} ${s.email} ${formatRut(s.rut)} ${s.rut}`.toLowerCase();
+            if (!haystack.includes(q)) return false;
+        }
+        if (groupFilter !== 'all' && s.groupId !== groupFilter) return false;
+        if (statusFilter === 'active' && !s.active) return false;
+        if (statusFilter === 'inactive' && s.active) return false;
+        return true;
+    });
+    const pageCount = Math.max(1, Math.ceil(filteredStudents.length / PAGE_SIZE));
+    const currentPage = Math.min(page, pageCount);
+    const pageStudents = filteredStudents.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
     const handleImport = (): void => {
         if (validRows.length === 0) return;
         startTransition(async () => {
-            try {
-                const result = await importStudents(validRows);
-                setImportResult(result);
-                router.refresh();
-            } catch {
+            const result = await importStudents(slug, validRows);
+            if (result.error || !result.data) {
                 setImportResult({
                     created: 0,
                     skipped: 0,
-                    errors: [{ row: 0, message: 'Error inesperado. Intentá de nuevo.' }],
+                    errors: [{ row: 0, message: result.error ?? 'Error inesperado. Intentá de nuevo.' }],
                 });
+                return;
             }
+            setImportResult(result.data);
+            router.refresh();
         });
     };
 
@@ -341,7 +377,7 @@ export function StudentsClient({
         <div className="flex flex-col min-h-screen bg-paper">
             {/* Header */}
             <AdminTopBar
-                breadcrumb={['Colegio Antártica', 'Estudiantes']}
+                breadcrumb={[institutionName, 'Estudiantes']}
                 title="Estudiantes"
                 subtitle={
                     <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-mute">
@@ -383,26 +419,52 @@ export function StudentsClient({
                 <div className="relative flex-1 max-w-sm">
                     <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-mute" />
                     <Input
-                        placeholder="Buscar por nombre o RUT…"
+                        placeholder="Buscar por nombre, email o RUT…"
+                        value={search}
+                        onChange={(e) => {
+                            setSearch(e.target.value);
+                            setPage(1);
+                        }}
                         className="pl-9 h-[38px] border-border bg-white focus-visible:ring-primary/20"
                     />
                 </div>
-                <Button variant="ghost" size="md" className="gap-2 border border-border bg-white">
-                    Curso · Todos
-                    <ChevronDown size={14} className="text-mute" />
-                </Button>
-                <Button variant="ghost" size="md" className="gap-2 border border-border bg-white">
-                    Estado · Activa
-                    <ChevronDown size={14} className="text-mute" />
-                </Button>
+                <Select
+                    value={groupFilter}
+                    onValueChange={(v) => {
+                        setGroupFilter(v);
+                        setPage(1);
+                    }}
+                >
+                    <SelectTrigger className="h-[38px] w-[170px] border-border bg-white">
+                        <SelectValue placeholder="Curso · Todos" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-border shadow-xl">
+                        <SelectItem value="all">Curso · Todos</SelectItem>
+                        {groups.map((g) => (
+                            <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Select
+                    value={statusFilter}
+                    onValueChange={(v) => {
+                        setStatusFilter(v as 'all' | 'active' | 'inactive');
+                        setPage(1);
+                    }}
+                >
+                    <SelectTrigger className="h-[38px] w-[160px] border-border bg-white">
+                        <SelectValue placeholder="Estado · Todos" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-border shadow-xl">
+                        <SelectItem value="all">Estado · Todos</SelectItem>
+                        <SelectItem value="active">Activos</SelectItem>
+                        <SelectItem value="inactive">Inactivos</SelectItem>
+                    </SelectContent>
+                </Select>
                 <div className="flex-1" />
                 <span className="font-mono text-[11px] text-mute uppercase tracking-wider">
-                    {students.length} visibles · {students.length} totales
+                    {filteredStudents.length} visibles · {students.length} totales
                 </span>
-                <Button variant="ghost" size="md" className="gap-2 border border-border bg-white">
-                    <Download size={16} />
-                    Exportar
-                </Button>
             </div>
 
             {/* Main content */}
@@ -451,7 +513,14 @@ export function StudentsClient({
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {students.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((s) => (
+                                {pageStudents.length === 0 && (
+                                    <TableRow className="hover:bg-transparent">
+                                        <TableCell colSpan={8} className="py-12 text-center text-sm text-mute">
+                                            No hay estudiantes que coincidan con los filtros.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                                {pageStudents.map((s) => (
                                     <TableRow key={s.id} className="group h-16 border-b border-border last:border-0">
                                         <TableCell className="text-center">
                                             <input type="checkbox" className="size-4 rounded border-border cursor-pointer" />
@@ -496,17 +565,11 @@ export function StudentsClient({
                                                 {s.active ? 'Activa' : 'Inactiva'}
                                             </Tag>
                                         </TableCell>
-                                        <TableCell className="font-mono text-[12.5px] text-right text-ink-dim">
-                                            {/* Dummy value for UI consistency */}
-                                            {Math.floor(Math.random() * 10)}
+                                        <TableCell className="font-mono text-[12.5px] text-right text-mute">
+                                            —
                                         </TableCell>
-                                        <TableCell className="text-right">
-                                            <span className={cn(
-                                                "font-display text-[16px] font-bold",
-                                                Number.parseFloat(s.id.slice(0,1)) > 5 ? "text-success" : "text-primary"
-                                            )}>
-                                                {(Math.random() * 3 + 4).toFixed(1)}
-                                            </span>
+                                        <TableCell className="text-right text-mute">
+                                            —
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <DropdownMenu>
@@ -515,10 +578,15 @@ export function StudentsClient({
                                                         <MoreHorizontal size={16} className="text-mute" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="w-40 rounded-xl shadow-xl border-border">
+                                                <DropdownMenuContent align="end" className="w-44 rounded-xl shadow-xl border-border">
                                                     <DropdownMenuItem onClick={() => openEdit(s)} className="gap-2 py-2 cursor-pointer">
                                                         <Edit2 size={14} /> Editar
                                                     </DropdownMenuItem>
+                                                    {canToggleActive && (
+                                                        <DropdownMenuItem onClick={() => handleToggleActive(s)} className="gap-2 py-2 cursor-pointer">
+                                                            <Power size={14} /> {s.active ? 'Desactivar' : 'Activar'}
+                                                        </DropdownMenuItem>
+                                                    )}
                                                     <DropdownMenuItem onClick={() => openDelete(s)} className="text-destructive gap-2 py-2 cursor-pointer focus:bg-danger-wash focus:text-destructive">
                                                         <Trash2 size={14} /> Eliminar
                                                     </DropdownMenuItem>
@@ -530,9 +598,9 @@ export function StudentsClient({
                             </TableBody>
                         </Table>
                         <TablePaginator
-                            page={page}
+                            page={currentPage}
                             perPage={PAGE_SIZE}
-                            total={students.length}
+                            total={filteredStudents.length}
                             onPageChange={setPage}
                         />
                     </Card>

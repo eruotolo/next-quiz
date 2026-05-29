@@ -4,6 +4,7 @@ import { createExam } from '@/features/exams/actions/mutations';
 import { createGroup } from '@/features/groups/actions/mutations';
 import { createStudent } from '@/features/students/actions/mutations';
 import { RutInput } from '@/features/students/components/RutInput';
+import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import {
@@ -376,10 +377,12 @@ function buildTodayItems(
 function CreateGroupDialog({
     open,
     onOpenChange,
+    slug,
     onSuccess,
 }: {
     open: boolean;
     onOpenChange: (v: boolean) => void;
+    slug: string;
     onSuccess: () => void;
 }): React.JSX.Element {
     const [groupName, setGroupName] = useState('');
@@ -392,13 +395,14 @@ function CreateGroupDialog({
             return;
         }
         startTransition(async () => {
-            try {
-                await createGroup({ name: groupName });
-                onOpenChange(false);
-                onSuccess();
-            } catch (err: unknown) {
-                setGroupError(err instanceof Error ? err.message : 'Ocurrió un error. Intentá de nuevo.');
+            const result = await createGroup(slug, { name: groupName });
+            if (result.error) {
+                setGroupError(result.error);
+                return;
             }
+            onOpenChange(false);
+            toast.success('Grupo creado');
+            onSuccess();
         });
     };
 
@@ -445,11 +449,13 @@ function CreateStudentDialog({
     open,
     onOpenChange,
     groups,
+    slug,
     onSuccess,
 }: {
     open: boolean;
     onOpenChange: (v: boolean) => void;
     groups: Group[];
+    slug: string;
     onSuccess: () => void;
 }): React.JSX.Element {
     const [form, setForm] = useState({ name: '', lastname: '', email: '', rut: '', groupId: '' });
@@ -463,19 +469,14 @@ function CreateStudentDialog({
             return;
         }
         startTransition(async () => {
-            try {
-                await createStudent(form);
-                onOpenChange(false);
-                onSuccess();
-            } catch (err: unknown) {
-                const msg =
-                    err instanceof Error && err.message.includes('Unique constraint')
-                        ? 'Ya existe un alumno con ese email o RUT.'
-                        : err instanceof Error
-                          ? err.message
-                          : 'Ocurrió un error. Intentá de nuevo.';
-                setErrors({ general: msg });
+            const result = await createStudent(slug, form);
+            if (result.error) {
+                setErrors({ general: result.error });
+                return;
             }
+            onOpenChange(false);
+            toast.success('Estudiante creado');
+            onSuccess();
         });
     };
 
@@ -856,8 +857,8 @@ export function DashboardClient({
                 </div>
             </main>
 
-            <CreateGroupDialog open={grupoOpen} onOpenChange={setGrupoOpen} onSuccess={() => router.refresh()} />
-            <CreateStudentDialog open={alumnoOpen} onOpenChange={setAlumnoOpen} groups={groups} onSuccess={() => router.refresh()} />
+            <CreateGroupDialog open={grupoOpen} onOpenChange={setGrupoOpen} slug={slug} onSuccess={() => router.refresh()} />
+            <CreateStudentDialog open={alumnoOpen} onOpenChange={setAlumnoOpen} groups={groups} slug={slug} onSuccess={() => router.refresh()} />
             <CreateExamDialog open={examenOpen} onOpenChange={setExamenOpen} groups={groups} slug={slug} onSuccess={() => router.refresh()} />
         </div>
     );

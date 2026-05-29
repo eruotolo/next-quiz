@@ -1,81 +1,95 @@
 'use server';
 
-import { auth } from '@/features/auth/auth';
 import { prisma } from '@/shared/lib/prisma';
 import { logAudit } from '@/shared/lib/audit';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
 import { groupSchema } from '@/features/groups/schemas/group.schemas';
 import { USER_ROLE } from '@/shared/lib/roles';
+import { requireInstitutionAccess } from '@/shared/lib/auth-guard';
 import { assertQuota } from '@/features/subscriptions/lib/quota';
+import { type ActionResult, fail, ok, toActionError } from '@/shared/types/action';
 import { revalidatePath } from 'next/cache';
 
-async function getSessionUser() {
-    const session = await auth();
-    const slug = session?.user.institutionSlug;
-    if (!slug) throw new Error('Unauthorized');
-    const userRole = session?.user.userRoleName;
-    if (userRole !== USER_ROLE.ADMIN && userRole !== USER_ROLE.SUPER_ADMIN) {
-        throw new Error('Forbidden');
+const ADMIN_ONLY = [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN] as const;
+
+export async function createGroup(slug: string, data: unknown): Promise<ActionResult<{ id: string }>> {
+    try {
+        const ctx = await requireInstitutionAccess(slug, [...ADMIN_ONLY]);
+        const parsed = groupSchema.safeParse(data);
+        if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? 'Datos inválidos');
+
+        await assertQuota(ctx.institutionId, 'group', ctx.userRole);
+
+        const group = await prisma.group.create({
+            data: { ...parsed.data, academicInstitutionId: ctx.institutionId },
+            select: { id: true },
+        });
+        await logAudit({
+            action: AUDIT_ACTION.GROUP_CREATE,
+            actorId: ctx.userId,
+            actorEmail: ctx.userEmail,
+            actorRole: ctx.userRole,
+            academicInstitutionId: ctx.institutionId,
+            entity: 'Group',
+            entityId: group.id,
+        });
+        revalidatePath(`/${slug}/groups`);
+        return ok({ id: group.id });
+    } catch (err) {
+        return fail(toActionError(err, 'Error al crear el grupo.'));
     }
-    return {
-        slug,
-        userId: session?.user.id,
-        userEmail: session?.user.email,
-        userRole,
-        institutionId: session?.user.academicInstitutionId,
-    };
 }
 
-export async function createGroup(data: unknown): Promise<void> {
-    const { slug, userId, userEmail, userRole, institutionId } = await getSessionUser();
-    const parsed = groupSchema.parse(data);
+export async function updateGroup(slug: string, id: string, data: unknown): Promise<ActionResult> {
+    try {
+        const ctx = await requireInstitutionAccess(slug, [...ADMIN_ONLY]);
+        const parsed = groupSchema.safeParse(data);
+        if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? 'Datos inválidos');
 
-    await assertQuota(institutionId, 'group', userRole);
+        const res = await prisma.group.updateMany({
+            where: { id, academicInstitutionId: ctx.institutionId },
+            data: parsed.data,
+        });
+        if (res.count === 0) return fail('Grupo no encontrado.');
 
-    const group = await prisma.group.create({
-        data: { ...parsed, academicInstitutionId: institutionId ?? undefined },
-        select: { id: true },
-    });
-    await logAudit({
-        action: AUDIT_ACTION.GROUP_CREATE,
-        actorId: userId,
-        actorEmail: userEmail,
-        actorRole: userRole,
-        academicInstitutionId: institutionId,
-        entity: 'Group',
-        entityId: group.id,
-    });
-    revalidatePath(`/${slug}/groups`);
+        await logAudit({
+            action: AUDIT_ACTION.GROUP_UPDATE,
+            actorId: ctx.userId,
+            actorEmail: ctx.userEmail,
+            actorRole: ctx.userRole,
+            academicInstitutionId: ctx.institutionId,
+            entity: 'Group',
+            entityId: id,
+        });
+        revalidatePath(`/${slug}/groups`);
+        return ok(null);
+    } catch (err) {
+        return fail(toActionError(err, 'Error al actualizar el grupo.'));
+    }
 }
 
-export async function updateGroup(id: string, data: unknown): Promise<void> {
-    const { slug, userId, userEmail, userRole, institutionId } = await getSessionUser();
-    const parsed = groupSchema.parse(data);
-    await prisma.group.update({ where: { id }, data: parsed });
-    await logAudit({
-        action: AUDIT_ACTION.GROUP_UPDATE,
-        actorId: userId,
-        actorEmail: userEmail,
-        actorRole: userRole,
-        academicInstitutionId: institutionId,
-        entity: 'Group',
-        entityId: id,
-    });
-    revalidatePath(`/${slug}/groups`);
-}
+export async function deleteGroup(slug: string, id: string): Promise<ActionResult> {
+    try {
+        const ctx = await requireInstitutionAccess(slug, [...ADMIN_ONLY]);
 
-export async function deleteGroup(id: string): Promise<void> {
-    const { slug, userId, userEmail, userRole, institutionId } = await getSessionUser();
-    await prisma.group.delete({ where: { id } });
-    await logAudit({
-        action: AUDIT_ACTION.GROUP_DELETE,
-        actorId: userId,
-        actorEmail: userEmail,
-        actorRole: userRole,
-        academicInstitutionId: institutionId,
-        entity: 'Group',
-        entityId: id,
-    });
-    revalidatePath(`/${slug}/groups`);
-    revalidatePath(`/${slug}/students`);
+        const res = await prisma.group.deleteMany({
+            where: { id, academicInstitutionId: ctx.institutionId },
+        });
+        if (res.count === 0) return fail('Grupo no encontrado.');
+
+        await logAudit({
+            action: AUDIT_ACTION.GROUP_DELETE,
+            actorId: ctx.userId,
+            actorEmail: ctx.userEmail,
+            actorRole: ctx.userRole,
+            academicInstitutionId: ctx.institutionId,
+            entity: 'Group',
+            entityId: id,
+        });
+        revalidatePath(`/${slug}/groups`);
+        revalidatePath(`/${slug}/students`);
+        return ok(null);
+    } catch (err) {
+        return fail(toActionError(err, 'Error al eliminar el grupo.'));
+    }
 }
