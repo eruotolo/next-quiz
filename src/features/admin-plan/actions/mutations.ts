@@ -5,6 +5,7 @@ import { prisma } from '@/shared/lib/prisma';
 import { auth } from '@/features/auth/auth';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { invalidatePlanLimitsCache } from '@/features/subscriptions/lib/plan-limits';
+import { downgradeInstitutionToFree } from '@/features/subscriptions/lib/plan-sync';
 import { revalidatePath } from 'next/cache';
 import { type Plan, SubscriptionStatus, PaymentStatus } from '@prisma/client';
 
@@ -175,7 +176,7 @@ export async function cancelSubscription(
 
     const sub = await prisma.subscription.findUnique({
         where: { id: subscriptionId },
-        select: { id: true, mpSubscriptionId: true, status: true },
+        select: { id: true, mpSubscriptionId: true, status: true, academicInstitutionId: true },
     });
 
     if (!sub) return { data: null, error: 'Suscripción no encontrada.' };
@@ -199,6 +200,12 @@ export async function cancelSubscription(
         where: { id: subscriptionId },
         data: { status: SubscriptionStatus.cancelled, cancelledAt: new Date() },
     });
+
+    // Al cancelar, degradar la institución vinculada al plan FREE.
+    if (sub.academicInstitutionId) {
+        await downgradeInstitutionToFree(sub.academicInstitutionId);
+        revalidatePath('/config/institutions');
+    }
 
     revalidatePath('/config/subscriptions');
     return { data: null, error: null };

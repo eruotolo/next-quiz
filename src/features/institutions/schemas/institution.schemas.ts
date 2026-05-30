@@ -32,3 +32,17 @@ export const institutionSettingsSchema = z.object({
 });
 
 export type InstitutionSettingsInput = z.infer<typeof institutionSettingsSchema>;
+
+export const PLAN_VALUES = ['FREE', 'DOCENTE', 'COLEGIO', 'INSTITUCIONAL'] as const;
+
+export const assignPlanSchema = z.object({
+    plan: z.enum(PLAN_VALUES),
+    // Fecha de vencimiento opcional en formato YYYY-MM-DD; vacío = sin vencimiento.
+    planExpiresAt: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha inválida')
+        .optional()
+        .or(z.literal('')),
+});
+
+export type AssignPlanInput = z.infer<typeof assignPlanSchema>;

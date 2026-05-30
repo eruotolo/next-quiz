@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/shared/lib/prisma';
 import { verifyWebhookSignature } from '@/features/subscriptions/lib/mercadopago';
+import { activateInstitutionPlan, downgradeInstitutionToFree } from '@/features/subscriptions/lib/plan-sync';
 import { SubscriptionStatus, PaymentStatus } from '@prisma/client';
 
 async function saveWebhookEvent(
@@ -35,15 +36,22 @@ async function handlePreapproval(dataId: string, token: string): Promise<void> {
     };
     const mpStatus = preapproval.status;
 
+    const selectFields = {
+        id: true,
+        status: true,
+        plan: true,
+        academicInstitutionId: true,
+    } as const;
+
     const target =
         (await prisma.subscription.findFirst({
             where: { mpSubscriptionId: dataId },
-            select: { id: true, status: true },
+            select: selectFields,
         })) ??
         (preapproval.external_reference
             ? await prisma.subscription.findUnique({
                   where: { id: preapproval.external_reference },
-                  select: { id: true, status: true },
+                  select: selectFields,
               })
             : null);
 
@@ -62,6 +70,10 @@ async function handlePreapproval(dataId: string, token: string): Promise<void> {
                 ...(expiresAt ? { expiresAt } : {}),
             },
         });
+        // Sincronizar el plan de la institución con la suscripción autorizada.
+        if (target.academicInstitutionId) {
+            await activateInstitutionPlan(target.academicInstitutionId, target.plan, expiresAt ?? null);
+        }
     } else if (mpStatus === 'cancelled') {
         await prisma.subscription.update({
             where: { id: target.id },
@@ -70,6 +82,10 @@ async function handlePreapproval(dataId: string, token: string): Promise<void> {
                 cancelledAt: new Date(),
             },
         });
+        // Al cancelar, degradar la institución al plan FREE.
+        if (target.academicInstitutionId) {
+            await downgradeInstitutionToFree(target.academicInstitutionId);
+        }
     } else if (mpStatus === 'paused') {
         await prisma.subscription.update({
             where: { id: target.id },

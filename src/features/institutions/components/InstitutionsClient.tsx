@@ -3,11 +3,19 @@
 import {
     createInstitution,
     deleteInstitution,
+    setInstitutionPlan,
     toggleInstitutionActive,
     updateInstitution,
 } from '@/features/institutions/actions/mutations';
 import type { InstitutionRow } from '@/features/institutions/actions/queries';
 import { institutionSchema } from '@/features/institutions/schemas/institution.schemas';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/shared/components/ui/select';
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
@@ -25,7 +33,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { TablePaginator } from '@/shared/components/ui/table-paginator';
 import type { PaginatedResult } from '@/shared/types/pagination';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Building2, ExternalLink, Loader2, Pencil, Plus, Trash2, Search, MoreHorizontal, MapPin } from 'lucide-react';
+import { Building2, CreditCard, ExternalLink, Loader2, Pencil, Plus, Trash2, Search, MoreHorizontal, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
@@ -43,9 +51,91 @@ import {
 
 type InstitutionInput = z.infer<typeof institutionSchema>;
 
+const PLAN_LABELS: Record<string, string> = {
+    FREE: 'Free',
+    DOCENTE: 'Docente',
+    COLEGIO: 'Colegio',
+    INSTITUCIONAL: 'Institucional',
+};
+
+const PLAN_TONE: Record<string, 'default' | 'success' | 'outline'> = {
+    FREE: 'default',
+    DOCENTE: 'outline',
+    COLEGIO: 'outline',
+    INSTITUCIONAL: 'success',
+};
+
+function formatDate(d: Date | null): string {
+    if (!d) return '';
+    return new Date(d).toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
 interface Props {
     result: PaginatedResult<InstitutionRow>;
     q: string;
+}
+
+function PlanForm({
+    row,
+    onSubmit,
+    isPending,
+}: {
+    row: InstitutionRow;
+    onSubmit: (plan: string, planExpiresAt: string) => void;
+    isPending: boolean;
+}): React.JSX.Element {
+    const [plan, setPlan] = useState<string>(row.plan);
+    const [expires, setExpires] = useState<string>(
+        row.planExpiresAt ? new Date(row.planExpiresAt).toISOString().slice(0, 10) : '',
+    );
+
+    return (
+        <div className="flex flex-col gap-5 py-4">
+            <div className="flex flex-col gap-1.5">
+                <span className="text-[13px] font-bold text-ink">Plan</span>
+                <Select value={plan} onValueChange={setPlan}>
+                    <SelectTrigger className="h-11 rounded-[10px] border-border bg-white">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-border shadow-xl">
+                        {Object.entries(PLAN_LABELS).map(([value, label]) => (
+                            <SelectItem key={value} value={value}>{label}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="flex flex-col gap-1.5">
+                <label htmlFor="plan-expires" className="text-[13px] font-bold text-ink">
+                    Vencimiento (opcional)
+                </label>
+                <Input
+                    id="plan-expires"
+                    type="date"
+                    value={expires}
+                    onChange={(e) => setExpires(e.target.value)}
+                    disabled={plan === 'FREE'}
+                    className="h-11 rounded-[10px]"
+                />
+                <p className="text-[11px] text-mute">
+                    {plan === 'FREE'
+                        ? 'El plan Free no tiene vencimiento.'
+                        : 'Dejar en blanco para un plan sin fecha de vencimiento.'}
+                </p>
+            </div>
+            <div className="mt-2 flex justify-end gap-2">
+                <Button
+                    type="button"
+                    variant="ink"
+                    size="md"
+                    disabled={isPending}
+                    onClick={() => onSubmit(plan, plan === 'FREE' ? '' : expires)}
+                >
+                    {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    Asignar plan
+                </Button>
+            </div>
+        </div>
+    );
 }
 
 function InstitutionForm({
@@ -129,6 +219,7 @@ export function InstitutionsClient({ result, q: initialQ }: Props): React.JSX.El
     const [createOpen, setCreateOpen] = useState(false);
     const [editRow, setEditRow] = useState<InstitutionRow | null>(null);
     const [deleteRow, setDeleteRow] = useState<InstitutionRow | null>(null);
+    const [planRow, setPlanRow] = useState<InstitutionRow | null>(null);
 
     function pushUrl(params: { q?: string; page?: number }): void {
         const sp = new URLSearchParams();
@@ -180,6 +271,20 @@ export function InstitutionsClient({ result, q: initialQ }: Props): React.JSX.El
             }
             toast.success('Institución eliminada');
             setDeleteRow(null);
+            router.refresh();
+        });
+    }
+
+    function handleAssignPlan(plan: string, planExpiresAt: string): void {
+        if (!planRow) return;
+        startTransition(async () => {
+            const result = await setInstitutionPlan(planRow.id, { plan, planExpiresAt });
+            if (result.error) {
+                toast.error(result.error);
+                return;
+            }
+            toast.success('Plan asignado');
+            setPlanRow(null);
             router.refresh();
         });
     }
@@ -245,9 +350,10 @@ export function InstitutionsClient({ result, q: initialQ }: Props): React.JSX.El
                                 <TableRow className="hover:bg-transparent border-b border-border">
                                     <TableHead>Nombre / Entidad</TableHead>
                                     <TableHead className="w-[180px]">Identificador</TableHead>
-                                    <TableHead className="w-[180px]">Ubicación</TableHead>
-                                    <TableHead className="w-[120px] text-center">Usuarios</TableHead>
-                                    <TableHead className="w-[120px] text-center">Estado</TableHead>
+                                    <TableHead className="w-[160px]">Ubicación</TableHead>
+                                    <TableHead className="w-[150px]">Plan</TableHead>
+                                    <TableHead className="w-[100px] text-center">Usuarios</TableHead>
+                                    <TableHead className="w-[110px] text-center">Estado</TableHead>
                                     <TableHead className="w-12" />
                                 </TableRow>
                             </TableHeader>
@@ -274,6 +380,18 @@ export function InstitutionsClient({ result, q: initialQ }: Props): React.JSX.El
                                             <div className="flex items-center gap-1.5 text-mute">
                                                 <MapPin size={12} className="shrink-0 opacity-60" />
                                                 <span className="text-[12px] font-medium">{row.city}, {row.country}</span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-col gap-0.5">
+                                                <Tag tone={PLAN_TONE[row.plan] ?? 'default'} className="w-fit font-bold text-[10.5px] h-6 px-2.5">
+                                                    {PLAN_LABELS[row.plan] ?? row.plan}
+                                                </Tag>
+                                                {row.planExpiresAt && (
+                                                    <span className="text-[10.5px] text-mute">
+                                                        vence {formatDate(row.planExpiresAt)}
+                                                    </span>
+                                                )}
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-center font-mono text-[13px] font-bold text-ink-dim">
@@ -305,6 +423,9 @@ export function InstitutionsClient({ result, q: initialQ }: Props): React.JSX.El
                                                     <DropdownMenuContent align="end" className="rounded-xl border-border shadow-xl w-44">
                                                         <DropdownMenuItem onClick={() => setEditRow(row)} className="gap-2 py-2 cursor-pointer">
                                                             <Pencil size={14} /> Editar datos
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => setPlanRow(row)} className="gap-2 py-2 cursor-pointer">
+                                                            <CreditCard size={14} /> Asignar plan
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem onClick={() => setDeleteRow(row)} className="text-destructive gap-2 py-2 cursor-pointer focus:bg-danger-wash focus:text-destructive">
                                                             <Trash2 size={14} /> Eliminar
@@ -352,6 +473,23 @@ export function InstitutionsClient({ result, q: initialQ }: Props): React.JSX.El
                                 onSubmit={handleUpdate}
                                 isPending={isPending}
                             />
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Plan dialog */}
+            <Dialog open={!!planRow} onOpenChange={(o) => !o && setPlanRow(null)}>
+                <DialogContent className="max-w-md rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
+                    <div className="px-6 py-5 border-b border-border bg-paper">
+                        <DialogTitle className="font-display text-2xl text-ink">Asignar plan</DialogTitle>
+                        {planRow && (
+                            <p className="mt-1 text-[12.5px] text-mute">{planRow.name}</p>
+                        )}
+                    </div>
+                    <div className="px-6">
+                        {planRow && (
+                            <PlanForm row={planRow} onSubmit={handleAssignPlan} isPending={isPending} />
                         )}
                     </div>
                 </DialogContent>

@@ -5,7 +5,8 @@ import { prisma } from '@/shared/lib/prisma';
 import { logAudit } from '@/shared/lib/audit';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
-import { institutionSchema } from '@/features/institutions/schemas/institution.schemas';
+import { assignPlanSchema, institutionSchema } from '@/features/institutions/schemas/institution.schemas';
+import { activateInstitutionPlan, downgradeInstitutionToFree } from '@/features/subscriptions/lib/plan-sync';
 import { revalidatePath } from 'next/cache';
 
 async function requireSuperAdmin(): Promise<{ id: string; email: string; userRoleName: string }> {
@@ -93,6 +94,50 @@ export async function deleteInstitution(id: string): Promise<{ data: null; error
         return { data: null, error: null };
     } catch {
         return { data: null, error: 'Error al eliminar la institución.' };
+    }
+}
+
+export async function setInstitutionPlan(
+    id: string,
+    data: unknown,
+): Promise<{ data: null; error: string | null }> {
+    const actor = await requireSuperAdmin().catch(() => null);
+    if (!actor) return { data: null, error: 'No autorizado' };
+
+    const parsed = assignPlanSchema.safeParse(data);
+    if (!parsed.success) return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
+
+    try {
+        const institution = await prisma.academicInstitution.findUnique({
+            where: { id },
+            select: { id: true },
+        });
+        if (!institution) return { data: null, error: 'Institución no encontrada.' };
+
+        const expiresAt =
+            parsed.data.planExpiresAt && parsed.data.planExpiresAt !== ''
+                ? new Date(`${parsed.data.planExpiresAt}T23:59:59`)
+                : null;
+
+        if (parsed.data.plan === 'FREE') {
+            await downgradeInstitutionToFree(id);
+        } else {
+            await activateInstitutionPlan(id, parsed.data.plan, expiresAt);
+        }
+
+        await logAudit({
+            action: AUDIT_ACTION.INSTITUTION_UPDATE,
+            actorId: actor.id,
+            actorEmail: actor.email,
+            actorRole: actor.userRoleName,
+            entity: 'AcademicInstitution',
+            entityId: id,
+            metadata: { plan: parsed.data.plan, planExpiresAt: parsed.data.planExpiresAt ?? null, manual: true },
+        });
+        revalidatePath('/config/institutions');
+        return { data: null, error: null };
+    } catch {
+        return { data: null, error: 'Error al asignar el plan.' };
     }
 }
 
