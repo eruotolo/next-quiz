@@ -12,6 +12,13 @@ import {
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/shared/components/ui/select';
 import { Tag } from '@/shared/components/ui/badge';
 import { formatRut } from '@/shared/lib/rut';
 import { cn } from '@/shared/lib/utils';
@@ -48,12 +55,21 @@ interface GroupWithCount extends Group {
     tutor: TutorInfo | null;
 }
 
+interface ProfessorOption {
+    id: string;
+    name: string;
+    lastname: string;
+}
+
 interface Props {
     slug: string;
     institutionName: string;
     groups: GroupWithCount[];
+    professors: ProfessorOption[];
     canMutate: boolean;
 }
+
+const NO_TUTOR = '__none__';
 
 const CARD_COLORS = [
     '#1F2EFF',
@@ -99,7 +115,7 @@ function InitialsAvatar({
     );
 }
 
-export function GroupsClient({ slug, institutionName, groups, canMutate }: Props): React.JSX.Element {
+export function GroupsClient({ slug, institutionName, groups, professors, canMutate }: Props): React.JSX.Element {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
@@ -107,6 +123,8 @@ export function GroupsClient({ slug, institutionName, groups, canMutate }: Props
     const [editing, setEditing] = useState<GroupWithCount | null>(null);
     const [toDelete, setToDelete] = useState<GroupWithCount | null>(null);
     const [name, setName] = useState('');
+    const [stream, setStream] = useState('');
+    const [tutorId, setTutorId] = useState<string>(NO_TUTOR);
     const [error, setError] = useState<string | null>(null);
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
@@ -114,12 +132,16 @@ export function GroupsClient({ slug, institutionName, groups, canMutate }: Props
     const openCreate = (): void => {
         setEditing(null);
         setName('');
+        setStream('');
+        setTutorId(NO_TUTOR);
         setError(null);
         setIsOpen(true);
     };
     const openEdit = (g: GroupWithCount): void => {
         setEditing(g);
         setName(g.name);
+        setStream(g.stream ?? '');
+        setTutorId(g.tutor?.id ?? NO_TUTOR);
         setError(null);
         setIsOpen(true);
     };
@@ -134,10 +156,15 @@ export function GroupsClient({ slug, institutionName, groups, canMutate }: Props
             setError('El nombre es requerido.');
             return;
         }
+        const payload = {
+            name,
+            stream: stream.trim(),
+            tutorId: tutorId === NO_TUTOR ? null : tutorId,
+        };
         startTransition(async () => {
             const result = editing
-                ? await updateGroup(slug, editing.id, { name })
-                : await createGroup(slug, { name });
+                ? await updateGroup(slug, editing.id, payload)
+                : await createGroup(slug, payload);
             if (result.error) {
                 setError(result.error);
                 return;
@@ -395,22 +422,52 @@ export function GroupsClient({ slug, institutionName, groups, canMutate }: Props
                             {editing ? 'Editar grupo' : 'Nuevo grupo'}
                         </DialogTitle>
                     </DialogHeader>
-                    <div className="flex flex-col gap-2 py-4">
-                        <label htmlFor="group-form-name" className="text-[13px] font-bold text-ink">
-                            Nombre del grupo
-                        </label>
-                        <Input
-                            id="group-form-name"
-                            placeholder="Ej: 4to Año B"
-                            value={name}
-                            onChange={(e) => {
-                                setName(e.target.value);
-                                setError(null);
-                            }}
-                            className={cn('h-11 rounded-[10px] border-border bg-white', error && 'border-destructive')}
-                            autoFocus
-                        />
-                        {error && <p className="text-xs font-medium text-destructive">{error}</p>}
+                    <div className="flex flex-col gap-4 py-4">
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="group-form-name" className="text-[13px] font-bold text-ink">
+                                Nombre del grupo
+                            </label>
+                            <Input
+                                id="group-form-name"
+                                placeholder="Ej: 4to Año B"
+                                value={name}
+                                onChange={(e) => {
+                                    setName(e.target.value);
+                                    setError(null);
+                                }}
+                                className={cn('h-11 rounded-[10px] border-border bg-white', error && 'border-destructive')}
+                                autoFocus
+                            />
+                            {error && <p className="text-xs font-medium text-destructive">{error}</p>}
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="group-form-stream" className="text-[13px] font-bold text-ink">
+                                Mención / especialidad (opcional)
+                            </label>
+                            <Input
+                                id="group-form-stream"
+                                placeholder="Ej: Científico-Humanista"
+                                value={stream}
+                                onChange={(e) => setStream(e.target.value)}
+                                className="h-11 rounded-[10px] border-border bg-white"
+                            />
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <span className="text-[13px] font-bold text-ink">Profesor/a tutor/a (opcional)</span>
+                            <Select value={tutorId} onValueChange={setTutorId}>
+                                <SelectTrigger className="h-11 rounded-[10px] border-border bg-white">
+                                    <SelectValue placeholder="Sin tutor asignado" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-border shadow-xl">
+                                    <SelectItem value={NO_TUTOR}>Sin tutor asignado</SelectItem>
+                                    {professors.map((p) => (
+                                        <SelectItem key={p.id} value={p.id}>
+                                            {p.name} {p.lastname}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                     <DialogFooter className="gap-2">
                         <Button variant="ghost" size="md" onClick={() => setIsOpen(false)} disabled={isPending}>

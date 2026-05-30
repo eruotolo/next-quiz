@@ -22,28 +22,36 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
 
     const canMutate = isSuperAdmin || isAdmin;
 
-    const groups = await prisma.group.findMany({
-        where: {
-            academicInstitutionId: inst.id,
-            ...(isProfesor ? { professors: { some: { id: session.user.id } } } : {}),
-        },
-        include: {
-            _count: { select: { users: true, exams: true } },
-            tutor: { select: { id: true, name: true, lastname: true } },
-            users: {
-                where: { userRole: { name: USER_ROLE.STUDENT } },
-                select: { id: true, name: true, lastname: true, rut: true, active: true },
-                orderBy: { lastname: 'asc' },
+    const [groups, professors] = await Promise.all([
+        prisma.group.findMany({
+            where: {
+                academicInstitutionId: inst.id,
+                ...(isProfesor ? { professors: { some: { id: session.user.id } } } : {}),
             },
-        },
-        orderBy: { name: 'asc' },
-    });
+            include: {
+                _count: { select: { users: true, exams: true } },
+                tutor: { select: { id: true, name: true, lastname: true } },
+                users: {
+                    where: { userRole: { name: USER_ROLE.STUDENT } },
+                    select: { id: true, name: true, lastname: true, rut: true, active: true },
+                    orderBy: { lastname: 'asc' },
+                },
+            },
+            orderBy: { name: 'asc' },
+        }),
+        prisma.user.findMany({
+            where: { academicInstitutionId: inst.id, userRole: { name: USER_ROLE.PROFESOR } },
+            select: { id: true, name: true, lastname: true },
+            orderBy: { lastname: 'asc' },
+        }),
+    ]);
 
     return (
         <GroupsClient
             slug={slug}
             institutionName={inst.name}
             groups={groups}
+            professors={professors}
             canMutate={canMutate}
         />
     );
