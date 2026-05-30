@@ -265,6 +265,7 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                 if (editing) await updateExam(slug, editing.id, data);
                 else await createExam(slug, data);
                 setIsOpen(false);
+                toast.success(editing ? 'Examen actualizado' : 'Examen creado');
                 router.refresh();
             } catch {
                 setErrors({ general: 'Ocurrió un error. Intentá de nuevo.' });
@@ -278,6 +279,7 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
             try {
                 await deleteExam(slug, toDelete.id);
                 setIsDelOpen(false);
+                toast.success('Examen eliminado');
                 router.refresh();
             } catch {
                 setDeleteError('Ocurrió un error al eliminar. Intentá de nuevo.');

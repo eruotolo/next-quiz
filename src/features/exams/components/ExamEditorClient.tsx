@@ -1,6 +1,7 @@
 'use client';
 
 import { deleteQuestion, updateExam, upsertQuestion } from '@/features/exams/actions/mutations';
+import { toast } from 'sonner';
 import dynamic from 'next/dynamic';
 
 const ImportQuestionsDialog = dynamic(
@@ -253,6 +254,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
             try {
                 await upsertQuestion(slug, exam.id, draft, draftOrder);
                 setIsOpen(false);
+                toast.success('Pregunta guardada');
                 router.refresh();
             } catch {
                 setQErrors({ general: 'Ocurrió un error. Intentá de nuevo.' });
@@ -266,6 +268,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
             try {
                 await deleteQuestion(slug, toDeleteId, exam.id);
                 setIsDelOpen(false);
+                toast.success('Pregunta eliminada');
                 router.refresh();
             } catch {
                 setDeleteError('Ocurrió un error al eliminar. Intentá de nuevo.');
