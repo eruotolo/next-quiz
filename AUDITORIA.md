@@ -1,8 +1,9 @@
 ﻿# Auditoría de CRUD y Usabilidad — Aulika
 
 > Documento de seguimiento. Generado el 29-05-2026 mediante CodeGraph + revisión directa de código.
-> Estado de cada ítem: ⬜ pendiente · 🟦 en progreso · ✅ resuelto.
-> Confianza: ✅ verificado leyendo código · 🔸 detectado en barrido (confirmar antes del fix).
+> Remediación ejecutada en 6 fases (branch `fix/auditoria-crud`, v1.11.0 → v1.15.1).
+> Estado: ⬜ pendiente/diferido · ✅ resuelto · ➖ falso positivo descartado.
+> Confianza original: ✅ verificado leyendo código · 🔸 detectado en barrido.
 
 ## Leyenda de severidad
 - 🔴 Crítico — rompe una operación o genera inconsistencia de datos/seguridad.
@@ -13,89 +14,93 @@
 
 ## 1. Gap insignia — Ciclo de vida del plan de una institución
 
-La cadena de asignación de plan está rota de extremo a extremo.
+| # | Hallazgo | Sev. | Estado | Resolución |
+|---|---|---|---|---|
+| PLAN-1 | El formulario de institución no permite elegir plan | 🔴 | ✅ | Diálogo "Asignar plan" en `/config/institutions` (plan + vencimiento) |
+| PLAN-2 | No existía acción para asignar/cambiar plan | 🔴 | ✅ | `setInstitutionPlan` (SuperAdmin) en institutions/actions |
+| PLAN-3 | El webhook nunca actualizaba `institution.plan` | 🔴 | ✅ | `handlePreapproval` sincroniza plan en `authorized` y degrada en `cancelled` |
+| PLAN-4 | Cancelar/pausar no degradaba el plan | 🔴 | ✅ | `cancelSubscription` degrada la institución a FREE |
+| PLAN-5 | No se podía crear/vincular suscripción manual | 🟠 | ✅* | Cubierto operativamente con `setInstitutionPlan`; no se crea registro `Subscription` manual (no necesario para la operación) |
+| PLAN-6 | `quota.ts` leía `institution.plan` desincronizado | 🟠 | ✅ | `institution.plan` ahora se mantiene sincronizado (assign/webhook/cancel), elimina la divergencia |
 
-| # | Hallazgo | Evidencia | Sev. | Conf. | Estado |
-|---|---|---|---|---|---|
-| PLAN-1 | El formulario de alta/edición de institución no permite elegir `plan`, `email`, `planExpiresAt` ni dominios permitidos | `institution.schemas.ts:3-16`; `InstitutionsClient.tsx` (InstitutionForm) | 🔴 | ✅ | ⬜ |
-| PLAN-2 | No existe acción para asignar/cambiar el plan de una institución manualmente | `institutions/actions/mutations.ts` (solo create/update/delete/toggle, `update` usa `parsed.data`) | 🔴 | ✅ | ⬜ |
-| PLAN-3 | El webhook de MercadoPago nunca actualiza `institution.plan` ni `planExpiresAt` | `app/api/webhooks/mercadopago/route.ts` (solo toca `Subscription`) | 🔴 | ✅ | ⬜ |
-| PLAN-4 | Cancelar/pausar una suscripción no degrada el plan de la institución | `admin-plan/actions/mutations.ts:169-244` | 🔴 | ✅ | ⬜ |
-| PLAN-5 | No se puede crear una suscripción manual ni vincularla a una institución desde el panel | `admin-plan/actions/mutations.ts` | 🟠 | ✅ | ⬜ |
-| PLAN-6 | `quota.ts` enforce límites leyendo `institution.plan`, que queda desincronizado del estado real de pago | `subscriptions/lib/quota.ts` | 🟠 | ✅ | ⬜ |
-
----
-
-## 2. Hallazgos sistémicos (transversales)
-
-| # | Hallazgo | Evidencia | Sev. | Conf. | Estado |
-|---|---|---|---|---|---|
-| SYS-1 | Contrato de error inconsistente: actions que lanzan (`.parse`/`throw`) vs actions que retornan `{data,error}` | students/groups/exams/professors/results vs admin-users/profile/institutions | 🟠 | ✅ | ⬜ |
-| SYS-2 | Validación duplicada cliente/servidor (sin `zodResolver`) | StudentsClient, GroupsClient, ExamsClient, ExamEditorClient | 🟡 | ✅ | ⬜ |
-| SYS-3 | IDOR cross-tenant: `where: { id }` sin `academicInstitutionId` | `students/actions/mutations.ts:72-73, 94-96`; revisar professors | 🔴 | ✅ | ⬜ |
-| SYS-4 | Bypass de SuperAdmin roto en rutas `/[slug]`: `if (!slug) throw` con `institutionSlug=null` | `students/actions/mutations.ts:56-57, 87-89` | 🟠 | ✅ | ⬜ |
-| SYS-5 | Caché de límites en memoria (60s, por instancia) incoherente en Vercel multi-instancia | `subscriptions/lib/plan-limits.ts` | 🟡 | ✅ | ⬜ |
+Helper central: `src/features/subscriptions/lib/plan-sync.ts` (`activateInstitutionPlan`, `downgradeInstitutionToFree`).
 
 ---
 
-## 3. Acciones sin UI (operación "muerta")
+## 2. Hallazgos sistémicos
 
-| # | Hallazgo | Evidencia | Sev. | Conf. | Estado |
-|---|---|---|---|---|---|
-| UI-1 | `toggleExamActive` existe pero no hay botón "Publicar" en la UI | `exams/actions/mutations.ts:141`; sin invocación en ExamsClient | 🔴 | 🔸 | ⬜ |
-| UI-2 | `toggleStudentActive` existe pero no hay control en StudentsClient | `students/actions/mutations.ts:109-138` | 🟠 | 🔸 | ⬜ |
-| UI-3 | Se puede publicar un examen sin preguntas (sin validación pre-publicación) | exams (sin check de count) | 🔴 | 🔸 | ⬜ |
+| # | Hallazgo | Sev. | Estado | Resolución |
+|---|---|---|---|---|
+| SYS-1 | Contrato de error inconsistente | 🟠 | ✅* | students/groups/results/professors a `{data,error}`; exams create/update siguen lanzando pero capturados en UI |
+| SYS-2 | Validación duplicada cliente/servidor (sin zodResolver) | 🟡 | ⬜ | Diferido — pulido; la validación servidor (safeParse) ya es la fuente de verdad |
+| SYS-3 | IDOR cross-tenant (`where: { id }` sin institución) | 🔴 | ✅ | Scope por `institutionId` en students/groups/exams/professors/results vía `updateMany`/`deleteMany`/guards |
+| SYS-4 | Bypass SuperAdmin roto en `/[slug]` | 🟠 | ✅ | `requireInstitutionAccess` resuelve la institución del SuperAdmin desde el slug |
+| SYS-5 | Cache de límites incoherente entre instancias | 🟡 | ✅ | Reemplazado por memoización per-request con React `cache()` |
+
+Helper central: `src/shared/lib/auth-guard.ts` (`requireInstitutionAccess`, `requireSuperAdmin`) y `src/shared/types/action.ts` (`ActionResult`, `ok`, `fail`, `toActionError`).
 
 ---
 
-## 4. Campos no editables / controles fantasma
+## 3. Acciones sin UI
 
-| # | Hallazgo | Evidencia | Sev. | Conf. | Estado |
-|---|---|---|---|---|---|
-| FLD-1 | `stream` y `tutor` de grupo se muestran pero no son editables | `GroupsClient.tsx`; `group.schemas.ts` solo tiene `name` | 🟠 | 🔸 | ⬜ |
-| FLD-2 | `antiCheatEnabled`/`lockTabSwitch` no editables en el editor de examen | `ExamEditorClient.tsx:524-559` (read-only) | 🟡 | 🔸 | ⬜ |
-| FLD-3 | Búsqueda y filtros de StudentsClient sin `onChange` (decorativos) | `StudentsClient.tsx:385-397` | 🟡 | 🔸 | ⬜ |
-| FLD-4 | Botón "Importar grupos" solo muestra "próximamente" | `GroupsClient.tsx:176` | 🟡 | 🔸 | ⬜ |
-| FLD-5 | `avgScore` de grupo siempre muestra "—" pese a calcularse en query | `GroupsClient.tsx`; `groups/actions/queries.ts:60-63` | 🟡 | 🔸 | ⬜ |
+| # | Hallazgo | Sev. | Estado | Resolución |
+|---|---|---|---|---|
+| UI-1 | `toggleExamActive` sin botón | 🔴 | ✅ | Ítem "Publicar/Despublicar" en ExamsClient |
+| UI-2 | `toggleStudentActive` sin control | 🟠 | ✅ | Ítem "Activar/Desactivar" en StudentsClient |
+| UI-3 | Se podía publicar examen sin preguntas | 🔴 | ✅ | Guard en `toggleExamActive`: no publica con 0 preguntas |
+
+---
+
+## 4. Campos editables / controles fantasma
+
+| # | Hallazgo | Sev. | Estado | Resolución |
+|---|---|---|---|---|
+| FLD-1 | `stream`/`tutor` de grupo no editables | 🟠 | ✅ | Campos en el formulario + validación de tutor de la institución |
+| FLD-2 | `antiCheat`/`lockTabSwitch` no editables en editor | 🟡 | ➖ | Editables vía "Ajustes de examen"; en el editor son solo lectura por diseño |
+| FLD-3 | Búsqueda/filtros de StudentsClient decorativos | 🟡 | ✅ | Búsqueda + filtro por curso + filtro por estado funcionales |
+| FLD-4 | Botón "Importar grupos" falso | 🟡 | ✅ | Botón removido |
+| FLD-5 | `avgScore` de grupo siempre "—" | 🟡 | ⬜ | Diferido — se mantiene "—" honesto (sin dato calculado) en lugar de valor falso |
+
+También eliminados: valores aleatorios dummy de Exámenes/Promedio y breadcrumb hardcodeado en StudentsClient.
 
 ---
 
 ## 5. Robustez y seguridad
 
-| # | Hallazgo | Evidencia | Sev. | Conf. | Estado |
-|---|---|---|---|---|---|
-| ROB-1 | `deleteResult` sin Zod ni try/catch; no valida existencia | `results/actions/mutations.ts:10-30` | 🟠 | 🔸 | ⬜ |
-| ROB-2 | No existe recalcular resultado ni reabrir intento | results (sin acción) | 🟡 | 🔸 | ⬜ |
-| ROB-3 | SuperAdmin puede autoeliminarse (riesgo de lockout) | `admin-users/actions/mutations.ts:143-166` | 🟠 | 🔸 | ⬜ |
-| ROB-4 | professors usa `.parse()` sin safeParse y sin try/catch → 500 sin feedback | `professors/actions/mutations.ts:64,104` | 🟠 | 🔸 | ⬜ |
-| ROB-5 | `value` de AppConfig sin `maxLength` (riesgo de blobs gigantes) | `config/actions/app-config.ts:52` | 🟡 | 🔸 | ⬜ |
-| ROB-6 | profile no usa `revalidatePath` servidor (solo `router.refresh`) | `profile/actions/mutations.ts` | 🟡 | 🔸 | ⬜ |
-| ROB-7 | Chequeo de unicidad fuera de transacción en signup (race condition) | `subscriptions/actions/signup.ts:64-70, 269-275` | 🟠 | 🔸 | ⬜ |
-| ROB-8 | Suscripciones `pending` huérfanas sin garbage collection | `subscriptions/actions/signup.ts` | 🟡 | 🔸 | ⬜ |
-| ROB-9 | Profesor conserva acceso histórico a examen tras salir de todos sus grupos | `exams/actions/mutations.ts:44-50` | 🟡 | 🔸 | ⬜ |
+| # | Hallazgo | Sev. | Estado | Resolución |
+|---|---|---|---|---|
+| ROB-1 | `deleteResult` sin validación/scope | 🟠 | ✅ | Scope por institución (vía examen) + contrato `{data,error}` |
+| ROB-2 | No hay recalcular/reabrir resultado | 🟡 | ⬜ | Diferido — decisión de producto |
+| ROB-3 | SuperAdmin podía autoeliminarse | 🟠 | ✅ | Guard `id === actor.id` en `deleteAdminUser` |
+| ROB-4 | professors con `.parse()` sin try/catch + IDOR | 🟠 | ✅ | safeParse + `{data,error}` + scope de institución + bypass SuperAdmin |
+| ROB-5 | `value` de AppConfig sin `maxLength` | 🟡 | ✅ | `max(2000)` en el schema |
+| ROB-6 | profile sin `revalidatePath` servidor | 🟡 | ✅ | `revalidatePath('/perfil')` |
+| ROB-7 | Unicidad fuera de transacción en signup | 🟠 | ➖ | Falso positivo: los constraints únicos de slug/email/rut garantizan integridad |
+| ROB-8 | Suscripciones `pending` huérfanas sin GC | 🟡 | ⬜ | Diferido — requiere cron job de limpieza |
+| ROB-9 | Profesor con acceso histórico a examen | 🟡 | ➖ | Falso positivo: `assertProfessorExamAccess` valida membresía actual en cada mutación |
 
 ---
 
 ## 6. Consistencia de UX
 
-| # | Hallazgo | Evidencia | Sev. | Conf. | Estado |
-|---|---|---|---|---|---|
-| UX-1 | Falta toast de éxito en exams, exam-editor, groups y students locales | varios Client | 🟡 | 🔸 | ⬜ |
-| UX-2 | Confirmación de borrado de grupo sin conteo de alumnos afectados | `GroupsClient.tsx` | 🟡 | 🔸 | ⬜ |
-| UX-3 | Faltan estados vacíos/skeleton en vistas pesadas (editor de examen) | ExamEditorClient | 🟡 | 🔸 | ⬜ |
+| # | Hallazgo | Sev. | Estado | Resolución |
+|---|---|---|---|---|
+| UX-1 | Falta toast de éxito | 🟡 | ✅ | Toasts en students/groups/exams/editor/professors |
+| UX-2 | Borrado de grupo sin conteo de alumnos | 🟡 | ✅ | Mensaje con cantidad de alumnos afectados |
+| UX-3 | Falta skeleton en editor de examen | 🟡 | ⬜ | Diferido — pulido visual |
 
 ---
 
-## 7. Plan de remediación por fases
+## 7. Resumen de cierre
 
-- **Fase 0 — Cimientos transversales** (`/backend-agent`): SYS-1, SYS-3, SYS-4, SYS-5, ROB-7.
-- **Fase 1 — Ciclo de vida del plan** (`/backend-agent` → `/frontend-agent`): PLAN-1 a PLAN-6.
-- **Fase 2 — Integridad de exámenes y acciones invisibles** (`/backend-agent` + `/frontend-agent`): UI-1, UI-2, UI-3, ROB-9.
-- **Fase 3 — Campos editables y controles fantasma** (`/frontend-agent` + schema `/backend-agent`): FLD-1 a FLD-5.
-- **Fase 4 — Robustez y guardarraíles** (`/backend-agent` + `/frontend-agent`): ROB-1 a ROB-6, ROB-8.
-- **Fase 5 — Consistencia de UX** (`/frontend-agent`): UX-1, UX-2, UX-3, SYS-2.
+- **Fase 0** (v1.11.0): helper de autorización, IDOR + bypass SuperAdmin (students/groups), contrato `{data,error}`, cache de límites.
+- **Fase 1** (v1.12.0): asignación de plan + sincronización webhook + degradación al cancelar.
+- **Fase 2** (v1.13.0): publicar examen, bloqueo de examen vacío, IDOR exams.
+- **Fase 3** (v1.14.0): stream + tutor editables en grupos.
+- **Fase 4** (v1.15.0): deleteResult, anti-autoeliminación, professors endurecido, config, perfil.
+- **Fase 5** (v1.15.1): toasts de confirmación.
 
-Regla de coordinación: cada fase con código requiere invocar el agente correspondiente antes de implementar. Commits vía `/github-agent`.
+**Diferidos** (no críticos): SYS-2 (zodResolver), FLD-5 (promedio de grupo), ROB-2 (recalcular resultado), ROB-8 (GC de suscripciones pendientes vía cron), UX-3 (skeleton).
+**Falsos positivos descartados**: FLD-2, ROB-7, ROB-9, y la sospecha inicial de que `updateStudent` no persistía `groupId`.
 
-## Falso positivo descartado
-- ~~`updateStudent` no persiste `groupId`~~: descartado. `studentSchema` incluye `groupId` y se guarda con `data: parsed` (`students/actions/mutations.ts:72-73`).
+Verificación: `pnpm type-check` sin errores; `pnpm lint` sin errores (solo warnings preexistentes de complejidad/keys). Sin push ni deploy. No se requirieron migraciones de Prisma (los campos de plan ya existían en el schema).
