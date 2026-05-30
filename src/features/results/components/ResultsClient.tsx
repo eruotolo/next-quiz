@@ -81,7 +81,11 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
         if (!deleteTarget) return;
         const { id, studentName } = deleteTarget;
         startTransition(async () => {
-            await deleteResult(slug, id);
+            const result = await deleteResult(slug, id);
+            if (result.error) {
+                toast.error(result.error);
+                return;
+            }
             setDeleteTarget(null);
             toast.success('Resultado eliminado', {
                 description: `Se eliminó el resultado de ${studentName}.`,

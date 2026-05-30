@@ -73,7 +73,7 @@ const emptyForm: FormState = {
     groupIds: [],
 };
 
-export function ProfessorsClient({ professors, groups, slug: _slug }: Props): React.ReactElement {
+export function ProfessorsClient({ professors, groups, slug }: Props): React.ReactElement {
     const router = useRouter();
     const [page, setPage] = useState(1);
     const PAGE_SIZE = 10;
@@ -153,31 +153,28 @@ export function ProfessorsClient({ professors, groups, slug: _slug }: Props): Re
     const handleSave = (): void => {
         if (!validate()) return;
         startTransition(async () => {
-            try {
-                if (editing) await updateProfessor(editing.id, form);
-                else await createProfessor(form);
-                setIsOpen(false);
-                router.refresh();
-            } catch (err: unknown) {
-                const msg =
-                    err instanceof Error && err.message.includes('Unique constraint')
-                        ? 'Ya existe un profesor con ese email o RUT.'
-                        : 'Ocurrió un error. Intentá de nuevo.';
-                setErrors({ general: msg });
+            const result = editing
+                ? await updateProfessor(slug, editing.id, form)
+                : await createProfessor(slug, form);
+            if (result.error) {
+                setErrors({ general: result.error });
+                return;
             }
+            setIsOpen(false);
+            router.refresh();
         });
     };
 
     const handleDelete = (): void => {
         if (!toDelete) return;
         startTransition(async () => {
-            try {
-                await deleteProfessor(toDelete.id);
-                setIsDelOpen(false);
-                router.refresh();
-            } catch {
-                setDeleteError('Ocurrió un error al eliminar. Intentá de nuevo.');
+            const result = await deleteProfessor(slug, toDelete.id);
+            if (result.error) {
+                setDeleteError(result.error);
+                return;
             }
+            setIsDelOpen(false);
+            router.refresh();
         });
     };
 

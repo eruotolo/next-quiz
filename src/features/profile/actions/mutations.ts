@@ -3,6 +3,7 @@
 import { auth } from '@/features/auth/auth';
 import { profileUpdateSchema } from '@/features/profile/schemas/profile.schemas';
 import { prisma } from '@/shared/lib/prisma';
+import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 
 export async function updateMyProfile(
@@ -29,6 +30,7 @@ export async function updateMyProfile(
                 ...passwordUpdate,
             },
         });
+        revalidatePath('/perfil');
         return { error: null };
     } catch (err) {
         const msg =

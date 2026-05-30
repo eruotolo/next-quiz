@@ -49,7 +49,7 @@ const saveSchema = z.object({
         APP_CONFIG_KEY.SEO_GLOBAL_KEYWORDS,
         APP_CONFIG_KEY.SEO_GLOBAL_OG_IMAGE,
     ]),
-    value: z.string(),
+    value: z.string().max(2000, 'El valor no puede superar los 2000 caracteres'),
 });
 
 export async function saveAppConfig(

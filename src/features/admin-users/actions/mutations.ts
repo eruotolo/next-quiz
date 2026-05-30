@@ -144,6 +144,11 @@ export async function deleteAdminUser(id: string): Promise<{ data: null; error: 
     const actor = await requireSuperAdmin().catch(() => null);
     if (!actor) return { data: null, error: 'No autorizado' };
 
+    // Evitar que un administrador se elimine a sí mismo (riesgo de lockout).
+    if (id === actor.id) {
+        return { data: null, error: 'No podés eliminar tu propio usuario.' };
+    }
+
     try {
         await prisma.user.delete({
             where: {

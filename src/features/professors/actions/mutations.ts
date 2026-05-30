@@ -1,6 +1,5 @@
 'use server';
 
-import { auth } from '@/features/auth/auth';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
 import {
     createProfessorSchema,
@@ -9,152 +8,134 @@ import {
 import { logAudit } from '@/shared/lib/audit';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
+import { requireInstitutionAccess } from '@/shared/lib/auth-guard';
 import { assertQuota } from '@/features/subscriptions/lib/quota';
-import type { Session } from 'next-auth';
+import { type ActionResult, fail, ok, toActionError } from '@/shared/types/action';
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
 
-async function resolveSlugAndInstitution(
-    session: Session,
-    institutionSlug?: string,
-): Promise<{ slug: string; institutionId: string }> {
-    if (session.user.userRoleName === USER_ROLE.SUPER_ADMIN) {
-        if (!institutionSlug) throw new Error('Unauthorized');
-        const inst = await prisma.academicInstitution.findUnique({
-            where: { slug: institutionSlug },
+const ADMIN_ONLY = [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN] as const;
+
+/** Valida que los grupos indicados pertenezcan a la institución (evita cross-tenant). */
+async function groupsBelongToInstitution(groupIds: string[], institutionId: string): Promise<boolean> {
+    if (groupIds.length === 0) return true;
+    const count = await prisma.group.count({
+        where: { id: { in: groupIds }, academicInstitutionId: institutionId },
+    });
+    return count === groupIds.length;
+}
+
+export async function createProfessor(slug: string, data: unknown): Promise<ActionResult<{ id: string }>> {
+    try {
+        const ctx = await requireInstitutionAccess(slug, [...ADMIN_ONLY]);
+
+        const parsed = createProfessorSchema.safeParse(data);
+        if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? 'Datos inválidos');
+
+        const { groupIds, roleName, password, ...rest } = parsed.data;
+        if (!(await groupsBelongToInstitution(groupIds, ctx.institutionId))) {
+            return fail('Uno o más grupos no pertenecen a esta institución.');
+        }
+
+        await assertQuota(ctx.institutionId, 'professor', ctx.userRole);
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const professor = await prisma.user.create({
+            data: {
+                ...rest,
+                password: hashedPassword,
+                userRole: { connect: { name: roleName } },
+                academicInstitution: { connect: { id: ctx.institutionId } },
+                professorGroups: { connect: groupIds.map((id) => ({ id })) },
+            },
             select: { id: true },
         });
-        if (!inst) throw new Error('Unauthorized');
-        return { slug: institutionSlug, institutionId: inst.id };
-    }
 
-    const slug = session.user.institutionSlug;
-    const institutionId = session.user.academicInstitutionId;
-    if (!slug || !institutionId) throw new Error('Unauthorized');
-    return { slug, institutionId };
+        await logAudit({
+            action: AUDIT_ACTION.PROFESSOR_CREATE,
+            actorId: ctx.userId,
+            actorEmail: ctx.userEmail,
+            actorRole: ctx.userRole,
+            academicInstitutionId: ctx.institutionId,
+            entity: 'User',
+            entityId: professor.id,
+        });
+        revalidatePath(`/${slug}/professors`);
+        return ok({ id: professor.id });
+    } catch (err) {
+        return fail(toActionError(err, 'Error al crear el profesor.'));
+    }
 }
 
-async function resolveProfessorInstitution(
-    professorId: string,
-): Promise<{ slug: string; institutionId: string }> {
-    const professor = await prisma.user.findUnique({
-        where: { id: professorId },
-        select: { academicInstitution: { select: { id: true, slug: true } } },
-    });
-    const slug = professor?.academicInstitution?.slug;
-    const institutionId = professor?.academicInstitution?.id;
-    if (!slug || !institutionId) throw new Error('Not found');
-    return { slug, institutionId };
+export async function updateProfessor(slug: string, id: string, data: unknown): Promise<ActionResult> {
+    try {
+        const ctx = await requireInstitutionAccess(slug, [...ADMIN_ONLY]);
+
+        const parsed = updateProfessorSchema.safeParse(data);
+        if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? 'Datos inválidos');
+
+        // Scope: el profesor debe pertenecer a la institución del contexto.
+        const target = await prisma.user.findFirst({
+            where: { id, academicInstitutionId: ctx.institutionId, userRole: { name: USER_ROLE.PROFESOR } },
+            select: { id: true },
+        });
+        if (!target) return fail('Profesor no encontrado.');
+
+        const { groupIds, roleName, password, ...rest } = parsed.data;
+        if (!(await groupsBelongToInstitution(groupIds, ctx.institutionId))) {
+            return fail('Uno o más grupos no pertenecen a esta institución.');
+        }
+
+        const passwordData =
+            password && password.length > 0 ? { password: await bcrypt.hash(password, 10) } : {};
+
+        await prisma.user.update({
+            where: { id },
+            data: {
+                ...rest,
+                ...passwordData,
+                userRole: { connect: { name: roleName } },
+                professorGroups: { set: groupIds.map((gid) => ({ id: gid })) },
+            },
+        });
+
+        await logAudit({
+            action: AUDIT_ACTION.PROFESSOR_UPDATE,
+            actorId: ctx.userId,
+            actorEmail: ctx.userEmail,
+            actorRole: ctx.userRole,
+            academicInstitutionId: ctx.institutionId,
+            entity: 'User',
+            entityId: id,
+        });
+        revalidatePath(`/${slug}/professors`);
+        return ok(null);
+    } catch (err) {
+        return fail(toActionError(err, 'Error al actualizar el profesor.'));
+    }
 }
 
-// institutionSlug is required when SuperAdmin creates a professor
-export async function createProfessor(data: unknown, institutionSlug?: string): Promise<void> {
-    const session = await auth();
-    if (!session) throw new Error('Unauthorized');
-    if (
-        session.user.userRoleName !== USER_ROLE.ADMIN &&
-        session.user.userRoleName !== USER_ROLE.SUPER_ADMIN
-    ) {
-        throw new Error('Forbidden');
+export async function deleteProfessor(slug: string, id: string): Promise<ActionResult> {
+    try {
+        const ctx = await requireInstitutionAccess(slug, [...ADMIN_ONLY]);
+
+        const res = await prisma.user.deleteMany({
+            where: { id, academicInstitutionId: ctx.institutionId, userRole: { name: USER_ROLE.PROFESOR } },
+        });
+        if (res.count === 0) return fail('Profesor no encontrado.');
+
+        await logAudit({
+            action: AUDIT_ACTION.PROFESSOR_DELETE,
+            actorId: ctx.userId,
+            actorEmail: ctx.userEmail,
+            actorRole: ctx.userRole,
+            academicInstitutionId: ctx.institutionId,
+            entity: 'User',
+            entityId: id,
+        });
+        revalidatePath(`/${slug}/professors`);
+        return ok(null);
+    } catch (err) {
+        return fail(toActionError(err, 'Error al eliminar el profesor.'));
     }
-    const { slug, institutionId } = await resolveSlugAndInstitution(session, institutionSlug);
-
-    await assertQuota(institutionId, 'professor', session.user.userRoleName);
-
-    const { groupIds, roleName, password, ...rest } = createProfessorSchema.parse(data);
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const professor = await prisma.user.create({
-        data: {
-            ...rest,
-            password: hashedPassword,
-            userRole: { connect: { name: roleName } },
-            academicInstitution: { connect: { id: institutionId } },
-            professorGroups: { connect: groupIds.map((id) => ({ id })) },
-        },
-        select: { id: true },
-    });
-
-    await logAudit({
-        action: AUDIT_ACTION.PROFESSOR_CREATE,
-        actorId: session.user.id,
-        actorEmail: session.user.email,
-        actorRole: session.user.userRoleName,
-        academicInstitutionId: institutionId,
-        entity: 'User',
-        entityId: professor.id,
-    });
-
-    revalidatePath(`/${slug}/professors`);
-}
-
-export async function updateProfessor(id: string, data: unknown): Promise<void> {
-    const session = await auth();
-    if (!session) throw new Error('Unauthorized');
-    if (
-        session.user.userRoleName !== USER_ROLE.ADMIN &&
-        session.user.userRoleName !== USER_ROLE.SUPER_ADMIN
-    ) {
-        throw new Error('Forbidden');
-    }
-
-    // Get institution from the professor record (works for SuperAdmin and regular users)
-    const { slug, institutionId } = await resolveProfessorInstitution(id);
-
-    const { groupIds, roleName, password, ...rest } = updateProfessorSchema.parse(data);
-
-    const passwordData =
-        password && password.length > 0
-            ? { password: await bcrypt.hash(password, 10) }
-            : {};
-
-    await prisma.user.update({
-        where: { id },
-        data: {
-            ...rest,
-            ...passwordData,
-            userRole: { connect: { name: roleName } },
-            professorGroups: { set: groupIds.map((gid) => ({ id: gid })) },
-        },
-    });
-
-    await logAudit({
-        action: AUDIT_ACTION.PROFESSOR_UPDATE,
-        actorId: session.user.id,
-        actorEmail: session.user.email,
-        actorRole: session.user.userRoleName,
-        academicInstitutionId: institutionId,
-        entity: 'User',
-        entityId: id,
-    });
-
-    revalidatePath(`/${slug}/professors`);
-}
-
-export async function deleteProfessor(id: string): Promise<void> {
-    const session = await auth();
-    if (!session) throw new Error('Unauthorized');
-    if (
-        session.user.userRoleName !== USER_ROLE.ADMIN &&
-        session.user.userRoleName !== USER_ROLE.SUPER_ADMIN
-    ) {
-        throw new Error('Forbidden');
-    }
-
-    // Get institution from the professor record (works for SuperAdmin and regular users)
-    const { slug, institutionId } = await resolveProfessorInstitution(id);
-
-    await prisma.user.delete({ where: { id } });
-
-    await logAudit({
-        action: AUDIT_ACTION.PROFESSOR_DELETE,
-        actorId: session.user.id,
-        actorEmail: session.user.email,
-        actorRole: session.user.userRoleName,
-        academicInstitutionId: institutionId,
-        entity: 'User',
-        entityId: id,
-    });
-
-    revalidatePath(`/${slug}/professors`);
 }

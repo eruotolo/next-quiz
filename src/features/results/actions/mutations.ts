@@ -1,30 +1,36 @@
 'use server';
 
-import { auth } from '@/features/auth/auth';
 import { prisma } from '@/shared/lib/prisma';
 import { logAudit } from '@/shared/lib/audit';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
-import { USER_ROLE } from '@/shared/lib/roles';
+import { requireInstitutionAccess } from '@/shared/lib/auth-guard';
+import { type ActionResult, fail, ok, toActionError } from '@/shared/types/action';
 import { revalidatePath } from 'next/cache';
 
-export async function deleteResult(slug: string, id: string): Promise<void> {
-    const session = await auth();
-    if (!session?.user) throw new Error('Unauthorized');
-    const isSuperAdmin = session.user.userRoleName === USER_ROLE.SUPER_ADMIN;
-    if (!isSuperAdmin) {
-        const sessionSlug = session.user.institutionSlug;
-        if (!sessionSlug || sessionSlug !== slug) throw new Error('Unauthorized');
+export async function deleteResult(slug: string, id: string): Promise<ActionResult> {
+    try {
+        const ctx = await requireInstitutionAccess(slug);
+
+        // Scope de institución vía el examen del resultado (cierra IDOR) y
+        // verificación de existencia.
+        const res = await prisma.result.deleteMany({
+            where: { id, exam: { academicInstitutionId: ctx.institutionId } },
+        });
+        if (res.count === 0) return fail('Resultado no encontrado.');
+
+        await logAudit({
+            action: AUDIT_ACTION.RESULT_DELETE,
+            actorId: ctx.userId,
+            actorEmail: ctx.userEmail,
+            actorRole: ctx.userRole,
+            academicInstitutionId: ctx.institutionId,
+            entity: 'Result',
+            entityId: id,
+        });
+        revalidatePath(`/${slug}/results`);
+        revalidatePath(`/${slug}/liveresults`);
+        return ok(null);
+    } catch (err) {
+        return fail(toActionError(err, 'Error al eliminar el resultado.'));
     }
-    await prisma.result.delete({ where: { id } });
-    await logAudit({
-        action: AUDIT_ACTION.RESULT_DELETE,
-        actorId: session.user.id,
-        actorEmail: session.user.email,
-        actorRole: session.user.userRoleName,
-        academicInstitutionId: session.user.academicInstitutionId,
-        entity: 'Result',
-        entityId: id,
-    });
-    revalidatePath(`/${slug}/results`);
-    revalidatePath(`/${slug}/liveresults`);
 }
