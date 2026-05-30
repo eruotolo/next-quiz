@@ -83,5 +83,6 @@ parse_html.js
 .agents/
 .doc/
 .seeders/
+.codegraph/
 
 .env*.local
