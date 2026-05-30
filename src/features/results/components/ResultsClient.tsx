@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { deleteResult } from '@/features/results/actions/mutations';
+import { deleteResult, recalculateResult } from '@/features/results/actions/mutations';
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
@@ -19,7 +19,7 @@ import { Tag } from '@/shared/components/ui/badge';
 import { calcGrade } from '@/features/results/lib/grade';
 import { formatRut } from '@/shared/lib/rut';
 import { cn } from '@/shared/lib/utils';
-import { BarChart3, CheckCircle, Eye, Loader2, Trash2, Users, XCircle, MoreHorizontal, Download } from 'lucide-react';
+import { BarChart3, CheckCircle, Eye, Loader2, RefreshCw, Trash2, Users, XCircle, MoreHorizontal, Download } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -89,6 +89,20 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
             setDeleteTarget(null);
             toast.success('Resultado eliminado', {
                 description: `Se eliminó el resultado de ${studentName}.`,
+            });
+            router.refresh();
+        });
+    }
+
+    function handleRecalculate(id: string, studentName: string): void {
+        startTransition(async () => {
+            const result = await recalculateResult(slug, id);
+            if (result.error) {
+                toast.error(result.error);
+                return;
+            }
+            toast.success('Resultado recalculado', {
+                description: `Se recalculó la nota de ${studentName}.`,
             });
             router.refresh();
         });
@@ -237,6 +251,9 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
                                                                 <DropdownMenuContent align="end" className="rounded-xl border-border shadow-xl w-44">
                                                                     <DropdownMenuItem onClick={() => setViewTarget({ result: r, exam: data })} className="gap-2 py-2.5 cursor-pointer">
                                                                         <Eye size={14} /> Revisar respuestas
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem onClick={() => handleRecalculate(r.id, r.studentName)} className="gap-2 py-2.5 cursor-pointer">
+                                                                        <RefreshCw size={14} /> Recalcular nota
                                                                     </DropdownMenuItem>
                                                                     <DropdownMenuItem onClick={() => setDeleteTarget({ id: r.id, studentName: r.studentName })} className="text-destructive gap-2 py-2.5 cursor-pointer focus:bg-danger-wash focus:text-destructive">
                                                                         <Trash2 size={14} /> Eliminar registro

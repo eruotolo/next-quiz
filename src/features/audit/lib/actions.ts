@@ -25,6 +25,7 @@ export const AUDIT_ACTION = {
     QUESTIONS_IMPORT: 'questions.import',
 
     RESULT_DELETE: 'result.delete',
+    RESULT_RECALCULATE: 'result.recalculate',
 
     INSTITUTION_CREATE: 'institution.create',
     INSTITUTION_UPDATE: 'institution.update',
@@ -64,6 +65,7 @@ export const AUDIT_ACTION_LABEL: Record<AuditActionKey, string> = {
     'question.delete': 'Pregunta eliminada',
     'questions.import': 'Importación de preguntas',
     'result.delete': 'Resultado eliminado',
+    'result.recalculate': 'Resultado recalculado',
     'institution.create': 'Institución creada',
     'institution.update': 'Institución actualizada',
     'institution.delete': 'Institución eliminada',

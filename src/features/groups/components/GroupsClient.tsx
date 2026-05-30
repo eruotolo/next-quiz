@@ -53,6 +53,7 @@ interface GroupWithCount extends Group {
     _count: { users: number; exams: number };
     users: StudentInGroup[];
     tutor: TutorInfo | null;
+    avgGrade: number | null;
 }
 
 interface ProfessorOption {
@@ -317,7 +318,7 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
                                             </div>
                                             <div>
                                                 <p className="font-display text-[22px] font-bold text-ink leading-none">
-                                                    —
+                                                    {g.avgGrade !== null ? g.avgGrade.toFixed(1) : '—'}
                                                 </p>
                                                 <p className="mt-1 font-mono text-[9px] font-bold uppercase tracking-[0.1em] text-mute">
                                                     Promedio

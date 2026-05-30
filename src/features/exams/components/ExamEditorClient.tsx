@@ -1,6 +1,7 @@
 'use client';
 
 import { deleteQuestion, updateExam, upsertQuestion } from '@/features/exams/actions/mutations';
+import { questionSchema } from '@/features/exams/schemas/exam.schemas';
 import { toast } from 'sonner';
 import dynamic from 'next/dynamic';
 
@@ -231,21 +232,21 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
     };
 
     const validate = (): boolean => {
+        if (!draft) return false;
+        // Misma fuente de verdad que el servidor: validar con el schema Zod.
+        const parsed = questionSchema.safeParse(draft);
+        if (parsed.success) {
+            setQErrors({});
+            return true;
+        }
         const errs: { text?: string; options?: string } = {};
-        if (!draft?.text.trim()) errs.text = 'El texto de la pregunta es requerido.';
-        if (draft?.options.some((o) => !o.text.trim())) {
-            errs.options = 'Todas las opciones deben tener texto.';
-        } else {
-            const correctCount = draft?.options.filter((o) => o.isCorrect).length ?? 0;
-            if (draft?.questionType === 'UNICA' && correctCount !== 1) {
-                errs.options = 'Una pregunta única debe tener exactamente 1 respuesta correcta.';
-            } else if (draft?.questionType === 'MULTIPLE' && correctCount < 2) {
-                errs.options =
-                    'Una pregunta múltiple debe tener al menos 2 respuestas correctas.';
-            }
+        for (const issue of parsed.error.issues) {
+            const key = issue.path[0];
+            if (key === 'text' && !errs.text) errs.text = issue.message;
+            else if (key === 'options' && !errs.options) errs.options = issue.message;
         }
         setQErrors(errs);
-        return Object.keys(errs).length === 0;
+        return false;
     };
 
     const handleSaveQ = (): void => {

@@ -1,5 +1,6 @@
 import { auth } from '@/features/auth/auth';
 import { GroupsClient } from '@/features/groups/components/GroupsClient';
+import { calcGrade } from '@/features/results/lib/grade';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { redirect } from 'next/navigation';
@@ -46,11 +47,54 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
         }),
     ]);
 
+    // Promedio real por grupo: nota promedio de los resultados de sus estudiantes.
+    const groupIds = groups.map((g) => g.id);
+    const results =
+        groupIds.length > 0
+            ? await prisma.result.findMany({
+                  where: {
+                      student: { groupId: { in: groupIds } },
+                      exam: { academicInstitutionId: inst.id },
+                  },
+                  select: {
+                      score: true,
+                      maxScore: true,
+                      student: { select: { groupId: true } },
+                      exam: { select: { maxGrade: true, passingGrade: true, passingPercentage: true } },
+                  },
+              })
+            : [];
+
+    const gradeSums = new Map<string, { total: number; count: number }>();
+    for (const r of results) {
+        const gid = r.student.groupId;
+        if (!gid) continue;
+        const grade = calcGrade(
+            r.score,
+            r.maxScore,
+            r.exam.maxGrade,
+            r.exam.passingGrade,
+            r.exam.passingPercentage,
+        );
+        const entry = gradeSums.get(gid) ?? { total: 0, count: 0 };
+        entry.total += grade;
+        entry.count += 1;
+        gradeSums.set(gid, entry);
+    }
+
+    const groupsWithAvg = groups.map((g) => {
+        const s = gradeSums.get(g.id);
+        return {
+            ...g,
+            avgGrade: s && s.count > 0 ? Math.round((s.total / s.count) * 10) / 10 : null,
+        };
+    });
+
     return (
         <GroupsClient
             slug={slug}
             institutionName={inst.name}
-            groups={groups}
+            groups={groupsWithAvg}
             professors={professors}
             canMutate={canMutate}
         />

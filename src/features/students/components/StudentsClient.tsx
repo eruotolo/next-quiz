@@ -38,7 +38,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { TablePaginator } from '@/shared/components/ui/table-paginator';
 import { Avatar } from '@/shared/components/ui/avatar';
 import { Tag } from '@/shared/components/ui/badge';
-import { formatRut, isValidRut, normalizeRut } from '@/shared/lib/rut';
+import { formatRut, normalizeRut } from '@/shared/lib/rut';
+import { studentSchema } from '@/features/students/schemas/student.schemas';
 import type { Group, User } from '@prisma/client';
 import {
     AlertTriangle,
@@ -161,19 +162,19 @@ export function StudentsClient({
     };
 
     const validate = (): boolean => {
-        const next: Partial<Record<keyof FormState, string>> = {};
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!form.name.trim()) next.name = 'Nombre requerido';
-        if (!form.lastname.trim()) next.lastname = 'Apellido requerido';
-        if (!emailRegex.test(form.email)) next.email = 'Email inválido';
-        if (!form.rut.trim()) {
-            next.rut = 'RUT requerido';
-        } else if (!isValidRut(normalizeRut(form.rut))) {
-            next.rut = 'RUT inválido';
+        // Misma fuente de verdad que el servidor: validar con el schema Zod.
+        const parsed = studentSchema.safeParse(form);
+        if (parsed.success) {
+            setErrors({});
+            return true;
         }
-        if (!form.groupId) next.groupId = 'Seleccioná un grupo';
+        const next: Partial<Record<keyof FormState, string>> = {};
+        for (const issue of parsed.error.issues) {
+            const key = issue.path[0] as keyof FormState | undefined;
+            if (key && !next[key]) next[key] = issue.message;
+        }
         setErrors(next);
-        return Object.keys(next).length === 0;
+        return false;
     };
 
     const handleSave = (): void => {

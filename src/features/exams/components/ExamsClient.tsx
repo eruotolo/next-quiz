@@ -7,6 +7,7 @@ import {
     updateExam,
 } from '@/features/exams/actions/mutations';
 import { toast } from 'sonner';
+import { examSchema } from '@/features/exams/schemas/exam.schemas';
 import dynamic from 'next/dynamic';
 
 const ImportQuestionsDialog = dynamic(
@@ -232,23 +233,20 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
         setIsDelOpen(true);
     };
 
-    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: validation logic for multiple fields
     const validate = (): boolean => {
+        // Misma fuente de verdad que el servidor: validar con el schema Zod.
+        const parsed = examSchema.safeParse(form);
+        if (parsed.success) {
+            setErrors({});
+            return true;
+        }
         const next: Partial<Record<keyof FormState, string>> = {};
-        if (!form.title.trim()) next.title = 'Título requerido';
-        const tl = Number(form.timeLimit);
-        if (!form.timeLimit || Number.isNaN(tl) || tl < 1 || tl > 180)
-            next.timeLimit = 'Entre 1 y 180 minutos';
-        if (form.groupIds.length === 0) next.groupIds = 'Seleccioná al menos un grupo';
-        const mg = Number(form.maxGrade);
-        const pg = Number(form.passingGrade);
-        const pp = Number(form.passingPercentage);
-        if (Number.isNaN(mg) || mg < 1 || mg > 10) next.maxGrade = 'Entre 1 y 10';
-        if (Number.isNaN(pg) || pg < 1 || pg >= mg)
-            next.passingGrade = `Entre 1 y ${form.maxGrade}`;
-        if (Number.isNaN(pp) || pp < 1 || pp > 99) next.passingPercentage = 'Entre 1 y 99';
+        for (const issue of parsed.error.issues) {
+            const key = issue.path[0] as keyof FormState | undefined;
+            if (key && !next[key]) next[key] = issue.message;
+        }
         setErrors(next);
-        return Object.keys(next).length === 0;
+        return false;
     };
 
     const handleSave = (): void => {
