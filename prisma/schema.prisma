@@ -63,6 +63,10 @@ model AcademicInstitution {
     mpSubscriptionId     String?
     mpCustomerId         String?
     allowedEmailDomains  String[]       @default([])
+    // Plan interno (no comercial) asignado por el SuperAdmin. Si está seteado,
+    // sus límites tienen prioridad sobre los del plan comercial.
+    customPlanId         String?        @db.Uuid
+    customPlan           CustomPlan?    @relation(fields: [customPlanId], references: [id], onDelete: SetNull)
     // SEO
     seoTitle             String?
     seoDescription       String?
@@ -74,6 +78,8 @@ model AcademicInstitution {
     auditLogs            AuditLog[]
     createdAt            DateTime       @default(now())
     updatedAt            DateTime       @updatedAt
+
+    @@index([customPlanId])
 }
 
 // ─── Users & Groups ──────────────────────────────────────────────────────────
@@ -313,6 +319,22 @@ model PlanLimits {
     description     String?
     createdAt       DateTime @default(now())
     updatedAt       DateTime @updatedAt
+}
+
+// Planes internos creados por el SuperAdmin (no comerciales, no visibles para
+// el cliente final). Se asignan a una institución para darle límites a medida.
+model CustomPlan {
+    id              String                @id @default(uuid()) @db.Uuid
+    name            String                @unique
+    maxGroups       Int?
+    maxAdmins       Int?
+    maxProfessors   Int?
+    maxStudents     Int?
+    maxExamsPerYear Int?
+    description     String?
+    institutions    AcademicInstitution[]
+    createdAt       DateTime              @default(now())
+    updatedAt       DateTime              @updatedAt
 }
 
 model Subscription {

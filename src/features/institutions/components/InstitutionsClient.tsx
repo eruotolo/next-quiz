@@ -1,6 +1,7 @@
 'use client';
 
 import {
+    assignInstitutionCustomPlan,
     createInstitution,
     deleteInstitution,
     setInstitutionPlan,
@@ -70,65 +71,122 @@ function formatDate(d: Date | null): string {
     return new Date(d).toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
+interface CustomPlanOption {
+    id: string;
+    name: string;
+}
+
 interface Props {
     result: PaginatedResult<InstitutionRow>;
     q: string;
+    customPlans: CustomPlanOption[];
 }
+
+type AssignPayload =
+    | { kind: 'commercial'; plan: string; planExpiresAt: string }
+    | { kind: 'custom'; customPlanId: string };
 
 function PlanForm({
     row,
+    customPlans,
     onSubmit,
     isPending,
 }: {
     row: InstitutionRow;
-    onSubmit: (plan: string, planExpiresAt: string) => void;
+    customPlans: CustomPlanOption[];
+    onSubmit: (payload: AssignPayload) => void;
     isPending: boolean;
 }): React.JSX.Element {
+    const [kind, setKind] = useState<'commercial' | 'custom'>(row.customPlan ? 'custom' : 'commercial');
     const [plan, setPlan] = useState<string>(row.plan);
     const [expires, setExpires] = useState<string>(
         row.planExpiresAt ? new Date(row.planExpiresAt).toISOString().slice(0, 10) : '',
     );
+    const [customPlanId, setCustomPlanId] = useState<string>(row.customPlan?.id ?? customPlans[0]?.id ?? '');
+
+    const noCustom = customPlans.length === 0;
 
     return (
         <div className="flex flex-col gap-5 py-4">
             <div className="flex flex-col gap-1.5">
-                <span className="text-[13px] font-bold text-ink">Plan</span>
-                <Select value={plan} onValueChange={setPlan}>
+                <span className="text-[13px] font-bold text-ink">Tipo de plan</span>
+                <Select value={kind} onValueChange={(v) => setKind(v as 'commercial' | 'custom')}>
                     <SelectTrigger className="h-11 rounded-[10px] border-border bg-white">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl border-border shadow-xl">
-                        {Object.entries(PLAN_LABELS).map(([value, label]) => (
-                            <SelectItem key={value} value={value}>{label}</SelectItem>
-                        ))}
+                        <SelectItem value="commercial">Comercial</SelectItem>
+                        <SelectItem value="custom" disabled={noCustom}>Interno</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
-            <div className="flex flex-col gap-1.5">
-                <label htmlFor="plan-expires" className="text-[13px] font-bold text-ink">
-                    Vencimiento (opcional)
-                </label>
-                <Input
-                    id="plan-expires"
-                    type="date"
-                    value={expires}
-                    onChange={(e) => setExpires(e.target.value)}
-                    disabled={plan === 'FREE'}
-                    className="h-11 rounded-[10px]"
-                />
-                <p className="text-[11px] text-mute">
-                    {plan === 'FREE'
-                        ? 'El plan Free no tiene vencimiento.'
-                        : 'Dejar en blanco para un plan sin fecha de vencimiento.'}
-                </p>
-            </div>
+
+            {kind === 'commercial' ? (
+                <>
+                    <div className="flex flex-col gap-1.5">
+                        <span className="text-[13px] font-bold text-ink">Plan comercial</span>
+                        <Select value={plan} onValueChange={setPlan}>
+                            <SelectTrigger className="h-11 rounded-[10px] border-border bg-white">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl border-border shadow-xl">
+                                {Object.entries(PLAN_LABELS).map(([value, label]) => (
+                                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <label htmlFor="plan-expires" className="text-[13px] font-bold text-ink">
+                            Vencimiento (opcional)
+                        </label>
+                        <Input
+                            id="plan-expires"
+                            type="date"
+                            value={expires}
+                            onChange={(e) => setExpires(e.target.value)}
+                            disabled={plan === 'FREE'}
+                            className="h-11 rounded-[10px]"
+                        />
+                        <p className="text-[11px] text-mute">
+                            {plan === 'FREE'
+                                ? 'El plan Free no tiene vencimiento.'
+                                : 'Dejar en blanco para un plan sin fecha de vencimiento.'}
+                        </p>
+                    </div>
+                </>
+            ) : (
+                <div className="flex flex-col gap-1.5">
+                    <span className="text-[13px] font-bold text-ink">Plan interno</span>
+                    <Select value={customPlanId} onValueChange={setCustomPlanId}>
+                        <SelectTrigger className="h-11 rounded-[10px] border-border bg-white">
+                            <SelectValue placeholder="Seleccioná un plan interno" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-border shadow-xl">
+                            {customPlans.map((cp) => (
+                                <SelectItem key={cp.id} value={cp.id}>{cp.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <p className="text-[11px] text-mute">
+                        Los planes internos se crean en Planes. No son visibles para el cliente final.
+                    </p>
+                </div>
+            )}
+
             <div className="mt-2 flex justify-end gap-2">
                 <Button
                     type="button"
                     variant="ink"
                     size="md"
-                    disabled={isPending}
-                    onClick={() => onSubmit(plan, plan === 'FREE' ? '' : expires)}
+                    disabled={isPending || (kind === 'custom' && !customPlanId)}
+                    onClick={() =>
+                        onSubmit(
+                            kind === 'commercial'
+                                ? { kind: 'commercial', plan, planExpiresAt: plan === 'FREE' ? '' : expires }
+                                : { kind: 'custom', customPlanId },
+                        )
+                    }
                 >
                     {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                     Asignar plan
@@ -212,7 +270,7 @@ function InstitutionForm({
     );
 }
 
-export function InstitutionsClient({ result, q: initialQ }: Props): React.JSX.Element {
+export function InstitutionsClient({ result, q: initialQ, customPlans }: Props): React.JSX.Element {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [search, setSearch] = useState(initialQ);
@@ -275,10 +333,16 @@ export function InstitutionsClient({ result, q: initialQ }: Props): React.JSX.El
         });
     }
 
-    function handleAssignPlan(plan: string, planExpiresAt: string): void {
+    function handleAssignPlan(payload: AssignPayload): void {
         if (!planRow) return;
         startTransition(async () => {
-            const result = await setInstitutionPlan(planRow.id, { plan, planExpiresAt });
+            const result =
+                payload.kind === 'commercial'
+                    ? await setInstitutionPlan(planRow.id, {
+                          plan: payload.plan,
+                          planExpiresAt: payload.planExpiresAt,
+                      })
+                    : await assignInstitutionCustomPlan(planRow.id, payload.customPlanId);
             if (result.error) {
                 toast.error(result.error);
                 return;
@@ -384,13 +448,24 @@ export function InstitutionsClient({ result, q: initialQ }: Props): React.JSX.El
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex flex-col gap-0.5">
-                                                <Tag tone={PLAN_TONE[row.plan] ?? 'default'} className="w-fit font-bold text-[10.5px] h-6 px-2.5">
-                                                    {PLAN_LABELS[row.plan] ?? row.plan}
-                                                </Tag>
-                                                {row.planExpiresAt && (
-                                                    <span className="text-[10.5px] text-mute">
-                                                        vence {formatDate(row.planExpiresAt)}
-                                                    </span>
+                                                {row.customPlan ? (
+                                                    <>
+                                                        <Tag tone="outline" className="w-fit font-bold text-[10.5px] h-6 px-2.5 border-primary/30 text-primary">
+                                                            {row.customPlan.name}
+                                                        </Tag>
+                                                        <span className="text-[10.5px] text-mute">plan interno</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Tag tone={PLAN_TONE[row.plan] ?? 'default'} className="w-fit font-bold text-[10.5px] h-6 px-2.5">
+                                                            {PLAN_LABELS[row.plan] ?? row.plan}
+                                                        </Tag>
+                                                        {row.planExpiresAt && (
+                                                            <span className="text-[10.5px] text-mute">
+                                                                vence {formatDate(row.planExpiresAt)}
+                                                            </span>
+                                                        )}
+                                                    </>
                                                 )}
                                             </div>
                                         </TableCell>
@@ -489,7 +564,7 @@ export function InstitutionsClient({ result, q: initialQ }: Props): React.JSX.El
                     </div>
                     <div className="px-6">
                         {planRow && (
-                            <PlanForm row={planRow} onSubmit={handleAssignPlan} isPending={isPending} />
+                            <PlanForm row={planRow} customPlans={customPlans} onSubmit={handleAssignPlan} isPending={isPending} />
                         )}
                     </div>
                 </DialogContent>

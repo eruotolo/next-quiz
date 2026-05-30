@@ -1,17 +1,76 @@
-import type { PlanLimits } from '@prisma/client';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { getPlanLimits } from './plan-limits';
 
 export type QuotaResource = 'exam' | 'group' | 'admin' | 'professor' | 'student';
 
-const RESOURCE_LIMIT_KEY: Record<QuotaResource, keyof PlanLimits> = {
+interface EffectiveLimits {
+    maxGroups: number | null;
+    maxAdmins: number | null;
+    maxProfessors: number | null;
+    maxStudents: number | null;
+    maxExamsPerYear: number | null;
+}
+
+const RESOURCE_LIMIT_KEY: Record<QuotaResource, keyof EffectiveLimits> = {
     exam: 'maxExamsPerYear',
     group: 'maxGroups',
     admin: 'maxAdmins',
     professor: 'maxProfessors',
     student: 'maxStudents',
 };
+
+/**
+ * Resuelve los límites efectivos de una institución: si tiene un plan interno
+ * (CustomPlan) asignado, manda ese; si no, los del plan comercial.
+ */
+async function getEffectiveLimits(
+    institutionId: string,
+): Promise<{ limits: EffectiveLimits; label: string } | null> {
+    const institution = await prisma.academicInstitution.findUnique({
+        where: { id: institutionId },
+        select: {
+            plan: true,
+            customPlan: {
+                select: {
+                    name: true,
+                    maxGroups: true,
+                    maxAdmins: true,
+                    maxProfessors: true,
+                    maxStudents: true,
+                    maxExamsPerYear: true,
+                },
+            },
+        },
+    });
+    if (!institution) return null;
+
+    if (institution.customPlan) {
+        const c = institution.customPlan;
+        return {
+            limits: {
+                maxGroups: c.maxGroups,
+                maxAdmins: c.maxAdmins,
+                maxProfessors: c.maxProfessors,
+                maxStudents: c.maxStudents,
+                maxExamsPerYear: c.maxExamsPerYear,
+            },
+            label: c.name,
+        };
+    }
+
+    const pl = await getPlanLimits(institution.plan);
+    return {
+        limits: {
+            maxGroups: pl.maxGroups,
+            maxAdmins: pl.maxAdmins,
+            maxProfessors: pl.maxProfessors,
+            maxStudents: pl.maxStudents,
+            maxExamsPerYear: pl.maxExamsPerYear,
+        },
+        label: institution.plan,
+    };
+}
 
 export class QuotaExceededError extends Error {
     constructor(
@@ -63,20 +122,16 @@ export async function assertQuota(
     if (callerRole === USER_ROLE.SUPER_ADMIN) return;
     if (!institutionId) return;
 
-    const institution = await prisma.academicInstitution.findUnique({
-        where: { id: institutionId },
-        select: { plan: true },
-    });
-    if (!institution) return;
+    const effective = await getEffectiveLimits(institutionId);
+    if (!effective) return;
 
-    const limits = await getPlanLimits(institution.plan);
     const limitKey = RESOURCE_LIMIT_KEY[resource];
-    const max = limits[limitKey] as number | null;
+    const max = effective.limits[limitKey];
     if (max === null || max === undefined) return;
 
     const used = await countResource(institutionId, resource);
     if (used + extra >= max) {
-        throw new QuotaExceededError(resource, used + extra, max, institution.plan);
+        throw new QuotaExceededError(resource, used + extra, max, effective.label);
     }
 }
 
@@ -87,19 +142,15 @@ export type QuotaUsage = {
 };
 
 export async function getQuotaUsage(institutionId: string): Promise<QuotaUsage[]> {
-    const institution = await prisma.academicInstitution.findUnique({
-        where: { id: institutionId },
-        select: { plan: true },
-    });
-    if (!institution) return [];
+    const effective = await getEffectiveLimits(institutionId);
+    if (!effective) return [];
 
-    const limits = await getPlanLimits(institution.plan);
     const resources: QuotaResource[] = ['group', 'student', 'exam'];
 
     return Promise.all(
         resources.map(async (resource) => {
             const limitKey = RESOURCE_LIMIT_KEY[resource];
-            const max = (limits[limitKey] as number | null) ?? null;
+            const max = effective.limits[limitKey] ?? null;
             const used = await countResource(institutionId, resource);
             return { resource, used, max };
         }),

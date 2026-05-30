@@ -62,6 +62,7 @@ export interface InstitutionRow {
     active: boolean;
     plan: Plan;
     planExpiresAt: Date | null;
+    customPlan: { id: string; name: string } | null;
     _count: { users: number };
 }
 
@@ -96,6 +97,7 @@ export async function getInstitutions(
                 active: true,
                 plan: true,
                 planExpiresAt: true,
+                customPlan: { select: { id: true, name: true } },
                 _count: { select: { users: true } },
             },
         }),
@@ -123,6 +125,7 @@ export async function getInstitutionById(id: string): Promise<InstitutionRow | n
             active: true,
             plan: true,
             planExpiresAt: true,
+            customPlan: { select: { id: true, name: true } },
             _count: { select: { users: true } },
         },
     });

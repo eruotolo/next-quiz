@@ -124,6 +124,8 @@ export async function setInstitutionPlan(
         } else {
             await activateInstitutionPlan(id, parsed.data.plan, expiresAt);
         }
+        // Asignar un plan comercial quita cualquier plan interno previo.
+        await prisma.academicInstitution.update({ where: { id }, data: { customPlanId: null } });
 
         await logAudit({
             action: AUDIT_ACTION.INSTITUTION_UPDATE,
@@ -138,6 +140,42 @@ export async function setInstitutionPlan(
         return { data: null, error: null };
     } catch {
         return { data: null, error: 'Error al asignar el plan.' };
+    }
+}
+
+export async function assignInstitutionCustomPlan(
+    id: string,
+    customPlanId: string,
+): Promise<{ data: null; error: string | null }> {
+    const actor = await requireSuperAdmin().catch(() => null);
+    if (!actor) return { data: null, error: 'No autorizado' };
+
+    try {
+        const [institution, customPlan] = await Promise.all([
+            prisma.academicInstitution.findUnique({ where: { id }, select: { id: true } }),
+            prisma.customPlan.findUnique({ where: { id: customPlanId }, select: { id: true, name: true } }),
+        ]);
+        if (!institution) return { data: null, error: 'Institución no encontrada.' };
+        if (!customPlan) return { data: null, error: 'Plan interno no encontrado.' };
+
+        await prisma.academicInstitution.update({
+            where: { id },
+            data: { customPlanId, activatedAt: new Date() },
+        });
+
+        await logAudit({
+            action: AUDIT_ACTION.INSTITUTION_UPDATE,
+            actorId: actor.id,
+            actorEmail: actor.email,
+            actorRole: actor.userRoleName,
+            entity: 'AcademicInstitution',
+            entityId: id,
+            metadata: { customPlan: customPlan.name, manual: true },
+        });
+        revalidatePath('/config/institutions');
+        return { data: null, error: null };
+    } catch {
+        return { data: null, error: 'Error al asignar el plan interno.' };
     }
 }
 

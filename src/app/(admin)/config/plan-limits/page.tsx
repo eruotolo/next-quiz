@@ -12,7 +12,10 @@ export const metadata: Metadata = {
 };
 
 export default async function PlanLimitsPage(): Promise<React.JSX.Element> {
-    const limits = await prisma.planLimits.findMany({ orderBy: { plan: 'asc' } });
+    const [limits, customPlans] = await Promise.all([
+        prisma.planLimits.findMany({ orderBy: { plan: 'asc' } }),
+        prisma.customPlan.findMany({ orderBy: { name: 'asc' } }),
+    ]);
 
     return (
         <div className="flex flex-col min-h-screen bg-paper">
@@ -23,7 +26,7 @@ export default async function PlanLimitsPage(): Promise<React.JSX.Element> {
                 icon={<Sliders size={18} />}
             />
             <main className="flex-1 p-8">
-                <PlanLimitsClient limits={limits} />
+                <PlanLimitsClient limits={limits} customPlans={customPlans} />
             </main>
         </div>
     );
