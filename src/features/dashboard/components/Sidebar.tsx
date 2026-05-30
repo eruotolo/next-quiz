@@ -42,8 +42,8 @@ interface NavItem {
 
 const ADMIN_NAV: NavItem[] = [
     { path: '', label: 'Inicio', icon: Home, exact: true },
-    { path: '/students', label: 'Estudiantes', icon: GraduationCap, countKey: 'students' },
     { path: '/groups', label: 'Grupos', icon: Users, countKey: 'groups' },
+    { path: '/students', label: 'Estudiantes', icon: GraduationCap, countKey: 'students' },
     { path: '/exams', label: 'Exámenes', icon: BookOpen, countKey: 'exams' },
     { path: '/results', label: 'Resultados', icon: BarChart3 },
     { path: '/liveresults', label: 'En vivo', icon: Activity, live: true },
@@ -53,12 +53,12 @@ const ADMIN_NAV: NavItem[] = [
 const SUPER_NAV: NavItem[] = [
     { path: '/config', label: 'Panel', icon: Home, exact: true },
     { path: '/config/institutions', label: 'Instituciones', icon: Building2, countKey: 'institutions' },
-    { path: '/config/billing', label: 'Facturación', icon: CreditCard },
-    { path: '/config/subscriptions', label: 'Suscripciones', icon: Receipt },
-    { path: '/config/payments', label: 'Pagos', icon: Wallet },
-    { path: '/config/plan-limits', label: 'Planes', icon: Layers },
-    { path: '/config/admins', label: 'Administradores', icon: UserCog, countKey: 'admins' },
     { path: '/config/students', label: 'Alumnos', icon: GraduationCap, countKey: 'students' },
+    { path: '/config/admins', label: 'Administradores', icon: UserCog, countKey: 'admins' },
+    { path: '/config/plan-limits', label: 'Planes', icon: Layers },
+    { path: '/config/subscriptions', label: 'Suscripciones', icon: Receipt },
+    { path: '/config/billing', label: 'Facturación', icon: CreditCard },
+    { path: '/config/payments', label: 'Pagos', icon: Wallet },
     { path: '/config/auditoria', label: 'Auditoría', icon: ScrollText },
     { path: '/config/settings', label: 'Sistema', icon: Settings },
 ];
