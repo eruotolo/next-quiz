@@ -3,8 +3,10 @@
 import {
     createExam,
     deleteExam,
+    toggleExamActive,
     updateExam,
 } from '@/features/exams/actions/mutations';
+import { toast } from 'sonner';
 import dynamic from 'next/dynamic';
 
 const ImportQuestionsDialog = dynamic(
@@ -35,6 +37,7 @@ import {
     Loader2,
     MoreHorizontal,
     Plus,
+    Power,
     Search,
     Settings,
     Trash2,
@@ -282,6 +285,18 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
         });
     };
 
+    const handleTogglePublish = (exam: { id: string; active: boolean }): void => {
+        startTransition(async () => {
+            const result = await toggleExamActive(slug, exam.id, !exam.active);
+            if (result.error) {
+                toast.error(result.error);
+                return;
+            }
+            toast.success(exam.active ? 'Examen despublicado' : 'Examen publicado');
+            router.refresh();
+        });
+    };
+
     const counts: Record<TabFilter, number> = {
         todos: exams.length,
         'en-curso': exams.filter((e) => deriveExamStatus(e) === 'en-curso').length,
@@ -491,6 +506,13 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                                                 >
                                                     <Edit2 size={14} />
                                                     Ajustes de examen
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    onClick={() => handleTogglePublish(exam)}
+                                                    className="gap-2 py-2.5 cursor-pointer"
+                                                >
+                                                    <Power size={14} />
+                                                    {exam.active ? 'Despublicar' : 'Publicar'}
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onClick={() => openDelete(exam)}

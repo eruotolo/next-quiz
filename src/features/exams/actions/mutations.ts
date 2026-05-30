@@ -1,6 +1,5 @@
 'use server';
 
-import { auth } from '@/features/auth/auth';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
 import {
     examSchema,
@@ -10,26 +9,19 @@ import {
 import { logAudit } from '@/shared/lib/audit';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
+import { requireInstitutionAccess } from '@/shared/lib/auth-guard';
 import { assertQuota } from '@/features/subscriptions/lib/quota';
 import { revalidatePath } from 'next/cache';
 
 async function getSessionUser(requestSlug: string) {
-    const session = await auth();
-    if (!session) throw new Error('Unauthorized');
-
-    const isSuperAdmin = session.user.userRoleName === USER_ROLE.SUPER_ADMIN;
-
-    if (!isSuperAdmin) {
-        const sessionSlug = session.user.institutionSlug;
-        if (!sessionSlug || sessionSlug !== requestSlug) throw new Error('Unauthorized');
-    }
-
+    const ctx = await requireInstitutionAccess(requestSlug);
     return {
-        slug: requestSlug,
-        userId: session.user.id,
-        userEmail: session.user.email,
-        userRole: session.user.userRoleName,
-        institutionId: session.user.academicInstitutionId,
+        slug: ctx.slug,
+        userId: ctx.userId,
+        userEmail: ctx.userEmail,
+        userRole: ctx.userRole,
+        // Para el SuperAdmin se resuelve el id real de la institución desde el slug.
+        institutionId: ctx.institutionId,
     };
 }
 
@@ -86,6 +78,13 @@ export async function updateExam(slug: string, id: string, data: unknown): Promi
     const { userId, userEmail, userRole, institutionId } = await getSessionUser(slug);
     const { groupIds, ...rest } = examSchema.parse(data);
 
+    // Scope de institución: evita editar exámenes de otra institución (IDOR).
+    const owned = await prisma.exam.findFirst({
+        where: { id, academicInstitutionId: institutionId },
+        select: { id: true },
+    });
+    if (!owned) throw new Error('Forbidden');
+
     let finalGroupIds: string[];
 
     if (userRole === USER_ROLE.PROFESOR) {
@@ -125,7 +124,8 @@ export async function updateExam(slug: string, id: string, data: unknown): Promi
 export async function deleteExam(slug: string, id: string): Promise<void> {
     const { userId, userEmail, userRole, institutionId } = await getSessionUser(slug);
     if (userRole === USER_ROLE.PROFESOR) await assertProfessorExamAccess(id, userId);
-    await prisma.exam.delete({ where: { id } });
+    const res = await prisma.exam.deleteMany({ where: { id, academicInstitutionId: institutionId } });
+    if (res.count === 0) throw new Error('Forbidden');
     await logAudit({
         action: AUDIT_ACTION.EXAM_DELETE,
         actorId: userId,
@@ -138,21 +138,43 @@ export async function deleteExam(slug: string, id: string): Promise<void> {
     revalidatePath(`/${slug}/exams`);
 }
 
-export async function toggleExamActive(slug: string, id: string, active: boolean): Promise<void> {
-    const { userId, userEmail, userRole, institutionId } = await getSessionUser(slug);
-    if (userRole === USER_ROLE.PROFESOR) await assertProfessorExamAccess(id, userId);
-    await prisma.exam.update({ where: { id }, data: { active } });
-    await logAudit({
-        action: AUDIT_ACTION.EXAM_TOGGLE_ACTIVE,
-        actorId: userId,
-        actorEmail: userEmail,
-        actorRole: userRole,
-        academicInstitutionId: institutionId,
-        entity: 'Exam',
-        entityId: id,
-        metadata: { active },
-    });
-    revalidatePath(`/${slug}/exams`);
+export async function toggleExamActive(
+    slug: string,
+    id: string,
+    active: boolean,
+): Promise<{ data: null; error: string | null }> {
+    try {
+        const { userId, userEmail, userRole, institutionId } = await getSessionUser(slug);
+        if (userRole === USER_ROLE.PROFESOR) await assertProfessorExamAccess(id, userId);
+
+        // Scope de institución + verificación de existencia.
+        const exam = await prisma.exam.findFirst({
+            where: { id, academicInstitutionId: institutionId },
+            select: { id: true, _count: { select: { questions: true } } },
+        });
+        if (!exam) return { data: null, error: 'Examen no encontrado.' };
+
+        // No se puede publicar un examen sin preguntas.
+        if (active && exam._count.questions === 0) {
+            return { data: null, error: 'No se puede publicar un examen sin preguntas.' };
+        }
+
+        await prisma.exam.update({ where: { id }, data: { active } });
+        await logAudit({
+            action: AUDIT_ACTION.EXAM_TOGGLE_ACTIVE,
+            actorId: userId,
+            actorEmail: userEmail,
+            actorRole: userRole,
+            academicInstitutionId: institutionId,
+            entity: 'Exam',
+            entityId: id,
+            metadata: { active },
+        });
+        revalidatePath(`/${slug}/exams`);
+        return { data: null, error: null };
+    } catch {
+        return { data: null, error: 'No se pudo cambiar el estado del examen.' };
+    }
 }
 
 export async function upsertQuestion(
