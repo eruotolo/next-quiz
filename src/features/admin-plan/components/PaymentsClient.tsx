@@ -1,18 +1,29 @@
-'use client';
+﻿'use client';
 
 import type * as React from 'react';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Download, Search } from 'lucide-react';
+import { Download, ExternalLink, Search, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
+import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
-import { DataTable, type ColumnDef } from '@/shared/components/ui/data-table';
+import { Card } from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/shared/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import { TablePaginator } from '@/shared/components/ui/table-paginator';
+import { cn } from '@/shared/lib/utils';
 import {
     getPayments,
     exportPaymentsCSV,
 } from '@/features/admin-plan/actions/mutations';
 import type {
-    PaymentRow,
     PaginatedPayments,
     PaymentFilters,
 } from '@/features/admin-plan/actions/mutations';
@@ -101,151 +112,152 @@ export function PaymentsClient({ initial }: Props): React.JSX.Element {
         URL.revokeObjectURL(url);
     }
 
-    const columns: ColumnDef<PaymentRow>[] = [
-        {
-            key: 'date',
-            header: 'Fecha',
-            render: (row) => <span className="text-mute">{formatDate(row.paidAt ?? row.createdAt)}</span>,
-        },
-        {
-            key: 'institution',
-            header: 'Institución',
-            render: (row) => <span className="font-medium text-ink">{row.institutionName ?? '—'}</span>,
-        },
-        {
-            key: 'plan',
-            header: 'Plan',
-            render: (row) => PLAN_LABELS[row.subscriptionPlan],
-        },
-        {
-            key: 'billing',
-            header: 'Modalidad',
-            render: (row) => (
-                <span className="text-mute">{row.subscriptionBilling === 'monthly' ? 'Mensual' : 'Anual'}</span>
-            ),
-        },
-        {
-            key: 'amount',
-            header: 'Monto',
-            render: (row) => <span className="font-medium text-ink">{formatCLP(row.amount)}</span>,
-        },
-        {
-            key: 'status',
-            header: 'Estado',
-            render: (row) => (
-                <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${PAYMENT_STATUS_COLORS[row.status]}`}>
-                    {PAYMENT_STATUS_LABELS[row.status]}
-                </span>
-            ),
-        },
-        {
-            key: 'period',
-            header: 'Período',
-            render: (row) => (
-                <span className="text-mute">
-                    {row.periodStart ? `${formatDate(row.periodStart)} → ${formatDate(row.periodEnd)}` : '—'}
-                </span>
-            ),
-        },
-        {
-            key: 'actions',
-            header: 'Ver',
-            render: (row) => (
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => { e.stopPropagation(); router.push(`/config/subscriptions/${row.subscriptionId}`); }}
-                    className="text-primary hover:text-primary/80"
-                >
-                    Ver →
-                </Button>
-            ),
-        },
-    ];
-
     return (
-        <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-3">
-                <div className="flex h-9 flex-1 items-center gap-2 rounded-[8px] border border-border bg-white px-3">
-                    <Search size={14} className="shrink-0 text-mute" />
-                    <input
+        <div className="flex flex-col min-h-screen bg-paper">
+            <AdminTopBar
+                breadcrumb={['Aulika · Plataforma', 'Panel Global', 'Pagos']}
+                title="Pagos"
+                subtitle={`${data.total} cobros registrados`}
+                icon={<Wallet size={18} />}
+                actions={
+                    <Button variant="ghost" size="sm" onClick={() => void handleExport()} className="gap-1.5">
+                        <Download size={14} />
+                        Exportar CSV
+                    </Button>
+                }
+            />
+
+            {/* Filter bar */}
+            <div className="flex flex-wrap items-center gap-2 border-b border-border bg-white px-8 py-4">
+                <div className="relative flex-1 max-w-sm">
+                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-mute" />
+                    <Input
                         type="search"
-                        placeholder="Buscar institución…"
                         value={search}
                         onChange={(e) => handleSearch(e.target.value)}
-                        className="flex-1 bg-transparent text-[13px] text-ink outline-none placeholder:text-mute/50"
+                        placeholder="Buscar institución..."
+                        className="pl-9 h-[38px] border-border bg-white"
                     />
                 </div>
 
-                <select
-                    className="h-9 rounded-[8px] border border-border bg-white px-3 text-[13px] text-ink outline-none"
-                    value={filters.plan ?? ''}
-                    onChange={(e) =>
-                        applyFilters({ ...filters, plan: (e.target.value as Plan) || undefined, page: 1 })
-                    }
+                <Select
+                    value={filters.plan ?? 'all'}
+                    onValueChange={(v) => applyFilters({ ...filters, plan: v === 'all' ? undefined : (v as Plan), page: 1 })}
                 >
-                    <option value="">Todos los planes</option>
-                    {(['DOCENTE', 'COLEGIO', 'INSTITUCIONAL'] as Plan[]).map((p) => (
-                        <option key={p} value={p}>
-                            {PLAN_LABELS[p]}
-                        </option>
-                    ))}
-                </select>
+                    <SelectTrigger className="h-[38px] w-44 border-border bg-white text-sm">
+                        <SelectValue placeholder="Plan" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-border shadow-xl">
+                        <SelectItem value="all">Todos los planes</SelectItem>
+                        {(['DOCENTE', 'COLEGIO', 'INSTITUCIONAL'] as Plan[]).map((p) => (
+                            <SelectItem key={p} value={p}>{PLAN_LABELS[p]}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
 
-                <select
-                    className="h-9 rounded-[8px] border border-border bg-white px-3 text-[13px] text-ink outline-none"
-                    value={filters.status ?? ''}
-                    onChange={(e) =>
-                        applyFilters({
-                            ...filters,
-                            status: (e.target.value as PaymentStatus) || undefined,
-                            page: 1,
-                        })
-                    }
+                <Select
+                    value={filters.status ?? 'all'}
+                    onValueChange={(v) => applyFilters({ ...filters, status: v === 'all' ? undefined : (v as PaymentStatus), page: 1 })}
                 >
-                    <option value="">Todos los estados</option>
-                    {(Object.values(PaymentStatus) as PaymentStatus[]).map((s) => (
-                        <option key={s} value={s}>
-                            {PAYMENT_STATUS_LABELS[s]}
-                        </option>
-                    ))}
-                </select>
+                    <SelectTrigger className="h-[38px] w-40 border-border bg-white text-sm">
+                        <SelectValue placeholder="Estado" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-border shadow-xl">
+                        <SelectItem value="all">Todos los estados</SelectItem>
+                        {(Object.values(PaymentStatus) as PaymentStatus[]).map((s) => (
+                            <SelectItem key={s} value={s}>{PAYMENT_STATUS_LABELS[s]}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
 
-                <input
-                    type="date"
-                    className="h-9 rounded-[8px] border border-border bg-white px-3 text-[13px] text-ink outline-none"
-                    value={filters.dateFrom ?? ''}
-                    onChange={(e) =>
-                        applyFilters({ ...filters, dateFrom: e.target.value || undefined, page: 1 })
-                    }
-                />
+                <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-mute whitespace-nowrap">Desde</span>
+                    <Input
+                        type="date"
+                        value={filters.dateFrom ?? ''}
+                        onChange={(e) => applyFilters({ ...filters, dateFrom: e.target.value || undefined, page: 1 })}
+                        className="h-[38px] w-36 border-border bg-white"
+                    />
+                </div>
 
-                <input
-                    type="date"
-                    className="h-9 rounded-[8px] border border-border bg-white px-3 text-[13px] text-ink outline-none"
-                    value={filters.dateTo ?? ''}
-                    onChange={(e) =>
-                        applyFilters({ ...filters, dateTo: e.target.value || undefined, page: 1 })
-                    }
-                />
+                <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-mute whitespace-nowrap">Hasta</span>
+                    <Input
+                        type="date"
+                        value={filters.dateTo ?? ''}
+                        onChange={(e) => applyFilters({ ...filters, dateTo: e.target.value || undefined, page: 1 })}
+                        className="h-[38px] w-36 border-border bg-white"
+                    />
+                </div>
 
-                <Button variant="ghost" size="sm" onClick={() => void handleExport()}>
-                    <Download size={14} />
-                    Exportar CSV
-                </Button>
+                <div className="flex-1" />
+                <span className="font-mono text-[11px] text-mute uppercase tracking-wider">
+                    {data.total} cobros
+                </span>
             </div>
 
-            <DataTable<PaymentRow>
-                columns={columns}
-                rows={data.rows}
-                total={data.total}
-                page={data.page}
-                perPage={10}
-                onPageChange={(p) => applyFilters({ ...filters, page: p })}
-                emptyMessage="No hay pagos con los filtros seleccionados"
-                keyExtractor={(row) => row.id}
-                isPending={isPending}
-            />
+            <main className="flex-1 p-8 overflow-auto">
+                {data.rows.length === 0 ? (
+                    <Card className="flex flex-col items-center justify-center border-dashed py-24">
+                        <Wallet size={48} className="mb-4 text-mute/20" />
+                        <p className="text-lg font-medium text-ink">
+                            No hay pagos con los filtros seleccionados
+                        </p>
+                    </Card>
+                ) : (
+                    <Card className={cn('p-0 overflow-visible border-border shadow-sm transition-opacity', isPending && 'opacity-60')}>
+                        <Table>
+                            <TableHeader className="bg-paper">
+                                <TableRow className="hover:bg-transparent border-b border-border">
+                                    <TableHead>Fecha</TableHead>
+                                    <TableHead>Institución</TableHead>
+                                    <TableHead>Plan</TableHead>
+                                    <TableHead>Modalidad</TableHead>
+                                    <TableHead>Monto</TableHead>
+                                    <TableHead>Estado</TableHead>
+                                    <TableHead>Período</TableHead>
+                                    <TableHead className="w-12" />
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {data.rows.map((row) => (
+                                    <TableRow key={row.id} className="group h-14 border-b border-border last:border-0">
+                                        <TableCell className="text-mute">{formatDate(row.paidAt ?? row.createdAt)}</TableCell>
+                                        <TableCell className="font-medium text-ink">{row.institutionName ?? '—'}</TableCell>
+                                        <TableCell>{PLAN_LABELS[row.subscriptionPlan]}</TableCell>
+                                        <TableCell className="text-mute">{row.subscriptionBilling === 'monthly' ? 'Mensual' : 'Anual'}</TableCell>
+                                        <TableCell className="font-medium text-ink">{formatCLP(row.amount)}</TableCell>
+                                        <TableCell>
+                                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${PAYMENT_STATUS_COLORS[row.status]}`}>
+                                                {PAYMENT_STATUS_LABELS[row.status]}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="text-mute">
+                                            {row.periodStart ? `${formatDate(row.periodStart)} → ${formatDate(row.periodEnd)}` : '—'}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                onClick={() => router.push(`/config/subscriptions/${row.subscriptionId}`)}
+                                                title="Ver suscripción"
+                                            >
+                                                <ExternalLink size={16} className="text-primary" />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                        <TablePaginator
+                            page={data.page}
+                            perPage={10}
+                            total={data.total}
+                            onPageChange={(p) => applyFilters({ ...filters, page: p })}
+                        />
+                    </Card>
+                )}
+            </main>
         </div>
     );
 }
