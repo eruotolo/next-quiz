@@ -8,6 +8,7 @@ import {
 } from '@/features/exams/actions/mutations';
 import { toast } from 'sonner';
 import { examSchema } from '@/features/exams/schemas/exam.schemas';
+import { generateExcelTemplate, generateMarkdownTemplate } from '@/features/exams/lib/templates';
 import dynamic from 'next/dynamic';
 
 const ImportQuestionsDialog = dynamic(
@@ -34,6 +35,7 @@ import {
     BookOpen,
     Calendar,
     Edit2,
+    FileSpreadsheet,
     FileText,
     LayoutTemplate,
     Loader2,
@@ -334,10 +336,33 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                 subtitle={statsSubtitle || undefined}
                 actions={
                     <>
-                        <Button variant="ghost" size="md" className="gap-2">
-                            <LayoutTemplate size={16} />
-                            Plantillas
-                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="md" className="gap-2">
+                                    <LayoutTemplate size={16} />
+                                    Plantillas
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                                align="end"
+                                className="rounded-xl border-border shadow-xl w-52"
+                            >
+                                <DropdownMenuItem
+                                    onClick={() => generateExcelTemplate()}
+                                    className="gap-2 py-2.5 cursor-pointer"
+                                >
+                                    <FileSpreadsheet size={14} />
+                                    Descargar Excel (.xlsx)
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => generateMarkdownTemplate()}
+                                    className="gap-2 py-2.5 cursor-pointer"
+                                >
+                                    <FileText size={14} />
+                                    Descargar Markdown (.md)
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                         <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
                             <Plus size={16} />
                             Nuevo examen
