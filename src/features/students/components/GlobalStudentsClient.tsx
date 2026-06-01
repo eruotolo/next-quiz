@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import {
     createStudentGlobal,
@@ -13,6 +13,7 @@ import { Card } from '@/shared/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -379,6 +380,7 @@ export function GlobalStudentsClient({ result, institutions, q: initialQ, instit
                 <DialogContent className="max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
                     <div className="px-6 py-5 border-b border-border bg-paper">
                         <DialogTitle className="font-display text-2xl text-ink">Nuevo alumno</DialogTitle>
+                        <DialogDescription className="sr-only">Formulario para registrar un nuevo alumno.</DialogDescription>
                     </div>
                     <div className="px-6">
                         <StudentForm
@@ -395,6 +397,7 @@ export function GlobalStudentsClient({ result, institutions, q: initialQ, instit
                 <DialogContent className="max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
                     <div className="px-6 py-5 border-b border-border bg-paper">
                         <DialogTitle className="font-display text-2xl text-ink">Editar alumno</DialogTitle>
+                        <DialogDescription className="sr-only">Formulario para editar los datos del alumno.</DialogDescription>
                     </div>
                     <div className="px-6">
                         {editRow && (
@@ -421,6 +424,7 @@ export function GlobalStudentsClient({ result, institutions, q: initialQ, instit
                 <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-display text-2xl text-destructive">Eliminar alumno</DialogTitle>
+                        <DialogDescription className="sr-only">Confirmación para eliminar el alumno de forma permanente.</DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
                         <p className="text-[14px] leading-relaxed text-ink-dim">

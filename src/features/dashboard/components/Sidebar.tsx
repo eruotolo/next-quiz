@@ -44,6 +44,7 @@ const ADMIN_NAV: NavItem[] = [
     { path: '', label: 'Inicio', icon: Home, exact: true },
     { path: '/groups', label: 'Grupos', icon: Users, countKey: 'groups' },
     { path: '/students', label: 'Estudiantes', icon: GraduationCap, countKey: 'students' },
+    { path: '/professors', label: 'Profesores', icon: UserCog },
     { path: '/exams', label: 'Exámenes', icon: BookOpen, countKey: 'exams' },
     { path: '/results', label: 'Resultados', icon: BarChart3 },
     { path: '/liveresults', label: 'En vivo', icon: Activity, live: true },

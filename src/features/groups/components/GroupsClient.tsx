@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { createGroup, deleteGroup, updateGroup } from '@/features/groups/actions/mutations';
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
@@ -7,6 +7,7 @@ import { Card } from '@/shared/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -360,6 +361,7 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
                         <DialogTitle className="font-display text-2xl text-ink">
                             Estudiantes — {studentsGroup?.name}
                         </DialogTitle>
+                        <DialogDescription className="sr-only">Listado de estudiantes asignados al grupo.</DialogDescription>
                     </div>
                     {studentsGroup && studentsGroup.users.length === 0 ? (
                         <div className="flex flex-col items-center gap-2 py-16 text-center">
@@ -422,6 +424,7 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
                         <DialogTitle className="font-display text-2xl">
                             {editing ? 'Editar grupo' : 'Nuevo grupo'}
                         </DialogTitle>
+                        <DialogDescription className="sr-only">Formulario para crear o editar un grupo.</DialogDescription>
                     </DialogHeader>
                     <div className="flex flex-col gap-4 py-4">
                         <div className="flex flex-col gap-2">
@@ -487,6 +490,7 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
                 <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-display text-2xl text-destructive">Eliminar grupo</DialogTitle>
+                        <DialogDescription className="sr-only">Confirmación para eliminar el grupo de forma permanente.</DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
                         <p className="text-[14px] leading-relaxed text-ink-dim">

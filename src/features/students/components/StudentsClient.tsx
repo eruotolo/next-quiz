@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import {
     createStudent,
@@ -16,6 +16,7 @@ import { Card } from '@/shared/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -613,6 +614,7 @@ export function StudentsClient({
                 <DialogContent className="sm:max-w-lg rounded-[22px] border-border shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-display text-2xl">{editing ? 'Editar estudiante' : 'Nuevo estudiante'}</DialogTitle>
+                        <DialogDescription className="sr-only">Formulario para crear o editar un estudiante.</DialogDescription>
                     </DialogHeader>
                     <div className="flex flex-col gap-4 py-4">
                         {errors.general && (
@@ -697,6 +699,7 @@ export function StudentsClient({
                 <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-display text-2xl text-destructive">Eliminar estudiante</DialogTitle>
+                        <DialogDescription className="sr-only">Confirmación para eliminar el estudiante de forma permanente.</DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
                         <p className="text-[14px] leading-relaxed text-ink-dim">
@@ -735,6 +738,7 @@ export function StudentsClient({
                 <DialogContent className="sm:max-w-lg rounded-[22px] border-border shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-display text-2xl">Importar estudiantes</DialogTitle>
+                        <DialogDescription className="sr-only">Importá estudiantes de forma masiva desde un archivo.</DialogDescription>
                     </DialogHeader>
 
                     <input

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import {
     assignInstitutionCustomPlan,
@@ -23,6 +23,7 @@ import { Card } from '@/shared/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -528,6 +529,7 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
                 <DialogContent className="max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
                     <div className="px-6 py-5 border-b border-border bg-paper">
                         <DialogTitle className="font-display text-2xl text-ink">Nueva institución</DialogTitle>
+                        <DialogDescription className="sr-only">Formulario para registrar una nueva institución.</DialogDescription>
                     </div>
                     <div className="px-6">
                         <InstitutionForm onSubmit={handleCreate} isPending={isPending} />
@@ -540,6 +542,7 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
                 <DialogContent className="max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
                     <div className="px-6 py-5 border-b border-border bg-paper">
                         <DialogTitle className="font-display text-2xl text-ink">Editar institución</DialogTitle>
+                        <DialogDescription className="sr-only">Formulario para editar los datos de la institución.</DialogDescription>
                     </div>
                     <div className="px-6">
                         {editRow && (
@@ -558,6 +561,7 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
                 <DialogContent className="max-w-md rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
                     <div className="px-6 py-5 border-b border-border bg-paper">
                         <DialogTitle className="font-display text-2xl text-ink">Asignar plan</DialogTitle>
+                        <DialogDescription className="sr-only">Formulario para asignar un plan a la institución.</DialogDescription>
                         {planRow && (
                             <p className="mt-1 text-[12.5px] text-mute">{planRow.name}</p>
                         )}
@@ -575,6 +579,7 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
                 <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-display text-2xl text-destructive">Eliminar institución</DialogTitle>
+                        <DialogDescription className="sr-only">Confirmación para eliminar la institución de forma permanente.</DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
                         <p className="text-[14px] leading-relaxed text-ink-dim">

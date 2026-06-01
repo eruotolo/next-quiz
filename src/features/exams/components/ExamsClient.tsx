@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import {
     createExam,
@@ -20,6 +20,7 @@ import { Card } from '@/shared/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -538,6 +539,7 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                         <DialogTitle className="font-display text-2xl text-ink">
                             {editing ? 'Ajustes del examen' : 'Nuevo examen'}
                         </DialogTitle>
+                        <DialogDescription className="sr-only">Formulario para crear o configurar un examen.</DialogDescription>
                     </div>
 
                     <div className="flex-1 space-y-5 overflow-y-auto px-6 py-6">
@@ -768,6 +770,7 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                         <DialogTitle className="font-display text-2xl text-destructive">
                             Eliminar examen
                         </DialogTitle>
+                        <DialogDescription className="sr-only">Confirmación para eliminar el examen.</DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
                         <p className="text-[14px] leading-relaxed text-ink-dim">

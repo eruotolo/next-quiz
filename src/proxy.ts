@@ -1,4 +1,4 @@
-import { auth } from '@/features/auth/auth';
+﻿import { auth } from '@/features/auth/auth';
 import { USER_ROLE } from '@/shared/lib/roles';
 import type { Session } from 'next-auth';
 import { type NextRequest, NextResponse } from 'next/server';
@@ -53,5 +53,5 @@ export default auth((req: NextAuthRequest) => {
 });
 
 export const config = {
-    matcher: ['/((?!_next|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|ttf|otf|eot)$).*)'],
+    matcher: ['/((?!_next|favicon\\.ico|manifest\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|ttf|otf|eot)$).*)'],
 };

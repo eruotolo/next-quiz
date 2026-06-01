@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import {
     createAdminUser,
@@ -14,6 +14,7 @@ import { Card } from '@/shared/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -555,6 +556,7 @@ export function AdminUsersClient({ result, institutions, q: initialQ, institutio
                 <DialogContent className="max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
                     <div className="px-6 py-5 border-b border-border bg-paper">
                         <DialogTitle className="font-display text-2xl text-ink">Nuevo Administrador</DialogTitle>
+                        <DialogDescription className="sr-only">Formulario para crear un nuevo administrador.</DialogDescription>
                     </div>
                     <div className="px-6">
                         <CreateAdminForm
@@ -571,6 +573,7 @@ export function AdminUsersClient({ result, institutions, q: initialQ, institutio
                 <DialogContent className="max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
                     <div className="px-6 py-5 border-b border-border bg-paper">
                         <DialogTitle className="font-display text-2xl text-ink">Editar Usuario</DialogTitle>
+                        <DialogDescription className="sr-only">Formulario para editar los datos del usuario.</DialogDescription>
                     </div>
                     <div className="px-6">
                         {editRow && (
@@ -590,6 +593,7 @@ export function AdminUsersClient({ result, institutions, q: initialQ, institutio
                 <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-display text-2xl text-destructive">Eliminar acceso</DialogTitle>
+                        <DialogDescription className="sr-only">Confirmación para eliminar el acceso del usuario.</DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
                         <p className="text-[14px] leading-relaxed text-ink-dim">

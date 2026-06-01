@@ -1,4 +1,4 @@
-# CLAUDE.md
+﻿# CLAUDE.md
 
 Este archivo proporciona instrucciones permanentes a Claude Code cuando trabaja en este repositorio.
 
@@ -392,6 +392,33 @@ Lógica de protección:
 
 > El SuperAdministrador NO tiene `academicInstitutionId` (es null por diseño — gestiona toda la plataforma).
 
+### Matriz de permisos por rol
+
+Los permisos se aplican en tres capas: **proxy** (`src/proxy.ts`), **páginas** (`src/app/(admin)/...`) y **Server Actions** (`requireInstitutionAccess`). Leyenda: ✅ permitido · ⚠️ permitido con alcance limitado · ❌ denegado.
+
+| Recurso / Acción                         | SuperAdministrador | Administrador | Profesor                    | Estudiante |
+| ---------------------------------------- | ------------------ | ------------- | --------------------------- | ---------- |
+| Panel `/config` (global)                 | ✅                 | ❌            | ❌                          | ❌         |
+| Panel institución `/[slug]`              | ✅ (cualquiera)    | ✅ (la suya)  | ✅ (la suya)                | ❌         |
+| Login al panel admin (NextAuth)          | ✅                 | ✅            | ✅                          | ❌ (RUT)   |
+| Instituciones (CRUD)                     | ✅                 | ❌            | ❌                          | ❌         |
+| Planes / Suscripciones / Facturación / Pagos / Auditoría / Config del sistema | ✅ | ❌ | ❌            | ❌         |
+| Estudiantes — ver                        | ✅                 | ✅            | ⚠️ solo sus grupos          | ❌         |
+| Estudiantes — crear                      | ✅                 | ✅            | ❌                          | ❌         |
+| Estudiantes — editar                     | ✅                 | ✅            | ⚠️ solo sus grupos          | ❌         |
+| Estudiantes — eliminar                   | ✅                 | ✅            | ❌                          | ❌         |
+| Estudiantes — activar/desactivar         | ✅                 | ✅            | ⚠️ solo sus grupos          | ❌         |
+| Profesores — ver                         | ✅                 | ✅            | ✅ (listado)                | ❌         |
+| Profesores — crear/editar/eliminar       | ✅                 | ✅            | ❌                          | ❌         |
+| Grupos — ver                             | ✅                 | ✅            | ⚠️ solo los asignados       | ❌         |
+| Grupos — crear/editar/eliminar           | ✅                 | ✅            | ❌                          | ❌         |
+| Exámenes — ver/gestionar                 | ✅                 | ✅            | ⚠️ solo los de sus grupos   | ❌         |
+| Resultados / En vivo                     | ✅                 | ✅            | ⚠️ solo sus grupos          | ❌         |
+| Ajustes de institución (`/[slug]/settings`) | ✅              | ✅            | ❌                          | ❌         |
+| Rendir exámenes (`/examen`)              | —                  | —             | —                           | ✅         |
+
+> **SuperAdministrador**: la columna refleja su rol como llave maestra — opera en cualquier institución resolviendo por el `slug` de la URL. **Profesor**: el alcance ⚠️ está acotado a los grupos donde figura como profesor/tutor (`professors: { some: { id } }`). **Estudiante**: nunca obtiene sesión NextAuth; el proxy lo redirige a `/examen/login`.
+
 ## Estructura de Rutas
 
 ### Rutas Públicas
@@ -478,5 +505,6 @@ ADMIN_RUT              # RUT del SuperAdmin (sin puntos ni guión)
 - Validación matemática del dígito verificador obligatoria.
 - Utilities en `@/shared/lib/rut.ts`.
 - Input UI en `@/features/students/components/RutInput.tsx`.
+
 
 Última actualización: 14 de Mayo de 2026

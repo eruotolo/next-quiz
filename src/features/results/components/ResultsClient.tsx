@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
@@ -10,6 +10,7 @@ import { Card } from '@/shared/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogFooter,
@@ -278,6 +279,7 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
                 <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-display text-2xl text-destructive">Eliminar registro</DialogTitle>
+                        <DialogDescription className="sr-only">Confirmación para eliminar el registro de resultado.</DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
                         <p className="text-[14px] leading-relaxed text-ink-dim">
@@ -299,6 +301,7 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
                 <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
                     <div className="px-6 py-5 border-b border-border bg-paper">
                         <DialogTitle className="font-display text-xl text-ink">{viewTarget?.result.studentName}</DialogTitle>
+                        <DialogDescription className="sr-only">Detalle del resultado del estudiante en el examen.</DialogDescription>
                         <p className="text-[12px] font-bold text-mute uppercase tracking-widest mt-1">{viewTarget?.exam.title}</p>
                     </div>
                     <div className="flex-1 overflow-hidden">

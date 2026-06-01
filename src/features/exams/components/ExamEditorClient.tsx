@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { deleteQuestion, updateExam, upsertQuestion } from '@/features/exams/actions/mutations';
 import { questionSchema } from '@/features/exams/schemas/exam.schemas';
@@ -16,6 +16,7 @@ import { Tag } from '@/shared/components/ui/badge';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -595,6 +596,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                         <DialogTitle className="font-display text-2xl text-ink">
                             {draft?.id ? 'Editar pregunta' : 'Nueva pregunta'}
                         </DialogTitle>
+                        <DialogDescription className="sr-only">Formulario para crear o editar una pregunta del examen.</DialogDescription>
                     </div>
                     <div className="flex-1 space-y-5 overflow-y-auto px-6 py-6">
                         {qErrors.general && (
@@ -734,6 +736,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                 <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-display text-2xl text-destructive">Eliminar pregunta</DialogTitle>
+                        <DialogDescription className="sr-only">Confirmación para eliminar la pregunta.</DialogDescription>
                     </DialogHeader>
                     <p className="text-[14px] leading-relaxed text-ink-dim py-2">
                         ¿Estás seguro de eliminar esta pregunta? Esta acción no se puede deshacer.

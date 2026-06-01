@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import type * as React from 'react';
 import { useState } from 'react';
@@ -10,6 +10,7 @@ import { Input } from '@/shared/components/ui/input';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -366,6 +367,7 @@ export function PlanLimitsClient({ limits, customPlans }: Props): React.JSX.Elem
                         <DialogTitle className="font-display text-2xl">
                             {editing ? 'Editar plan interno' : 'Nuevo plan interno'}
                         </DialogTitle>
+                        <DialogDescription className="sr-only">Formulario para crear o editar un plan interno.</DialogDescription>
                     </DialogHeader>
                     <CustomPlanFormFields
                         key={editing?.id ?? 'new'}
@@ -381,6 +383,7 @@ export function PlanLimitsClient({ limits, customPlans }: Props): React.JSX.Elem
                 <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-display text-2xl text-destructive">Eliminar plan interno</DialogTitle>
+                        <DialogDescription className="sr-only">Confirmación para eliminar el plan interno.</DialogDescription>
                     </DialogHeader>
                     <p className="py-2 text-[14px] leading-relaxed text-ink-dim">
                         ¿Eliminar <strong className="text-ink">{deleting?.name}</strong>? Las instituciones que lo tengan

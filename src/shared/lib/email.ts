@@ -43,6 +43,7 @@ export async function sendEmail(params: SendEmailParams): Promise<{ sent: boolea
         return { sent: true };
     } catch (err) {
         const message = err instanceof Error ? err.message : 'Error al enviar el email.';
+        console.error('[Brevo] sendEmail failed:', message);
         return { sent: false, error: message };
     }
 }

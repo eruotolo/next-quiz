@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { createExam } from '@/features/exams/actions/mutations';
 import { createGroup } from '@/features/groups/actions/mutations';
@@ -10,6 +10,7 @@ import { Card } from '@/shared/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -411,6 +412,7 @@ function CreateGroupDialog({
             <DialogContent className="rounded-[22px]">
                 <DialogHeader>
                     <DialogTitle className="font-display text-2xl">Nuevo grupo</DialogTitle>
+                    <DialogDescription className="sr-only">Formulario para crear un nuevo grupo.</DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-2 py-4">
                     <label htmlFor="group-name" className="text-[13px] font-bold text-[#0b0b11]">
@@ -485,6 +487,7 @@ function CreateStudentDialog({
             <DialogContent className="sm:max-w-lg rounded-[22px]">
                 <DialogHeader>
                     <DialogTitle className="font-display text-2xl">Nuevo estudiante</DialogTitle>
+                    <DialogDescription className="sr-only">Formulario para crear un nuevo estudiante.</DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-4 py-4">
                     <div className="grid grid-cols-2 gap-3">
@@ -591,6 +594,7 @@ function CreateExamDialog({
             <DialogContent className="rounded-[22px] max-w-md">
                 <DialogHeader>
                     <DialogTitle className="font-display text-2xl">Nuevo examen</DialogTitle>
+                    <DialogDescription className="sr-only">Formulario para crear un nuevo examen.</DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-4 py-4">
                     <div className="flex flex-col gap-1.5">

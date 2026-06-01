@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import {
     createProfessor,
@@ -12,6 +12,7 @@ import { Card } from '@/shared/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -307,6 +308,7 @@ export function ProfessorsClient({ professors, groups, slug }: Props): React.Rea
                 <DialogContent className="sm:max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
                     <div className="px-6 py-5 border-b border-border bg-paper">
                         <DialogTitle className="font-display text-2xl text-ink">{editing ? 'Ajustes del perfil' : 'Nuevo profesor'}</DialogTitle>
+                        <DialogDescription className="sr-only">Formulario para crear o editar un profesor.</DialogDescription>
                     </div>
                     
                     <div className="flex-1 space-y-4 overflow-y-auto px-6 py-6">
@@ -442,6 +444,7 @@ export function ProfessorsClient({ professors, groups, slug }: Props): React.Rea
                 <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-display text-2xl text-destructive">Eliminar acceso</DialogTitle>
+                        <DialogDescription className="sr-only">Confirmación para eliminar el acceso del profesor.</DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
                         <p className="text-[14px] leading-relaxed text-ink-dim">
