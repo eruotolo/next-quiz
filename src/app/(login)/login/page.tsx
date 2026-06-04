@@ -12,7 +12,9 @@ interface LoginPageProps {
     searchParams: Promise<{ error?: string }>;
 }
 
-export default async function LoginPage({ searchParams }: LoginPageProps): Promise<React.JSX.Element> {
+export default async function LoginPage({
+    searchParams,
+}: LoginPageProps): Promise<React.JSX.Element> {
     const session = await auth();
 
     if (session?.user) {

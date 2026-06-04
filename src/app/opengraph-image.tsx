@@ -38,7 +38,8 @@ export default function OGImage(): ImageResponse {
                     width: 400,
                     height: 400,
                     borderRadius: '50%',
-                    background: 'radial-gradient(circle, rgba(214,255,31,0.18) 0%, transparent 70%)',
+                    background:
+                        'radial-gradient(circle, rgba(214,255,31,0.18) 0%, transparent 70%)',
                 }}
             />
 

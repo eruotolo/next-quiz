@@ -1,7 +1,5 @@
-import { auth } from '@/features/auth/auth';
 import { prisma } from '@/shared/lib/prisma';
-import { USER_ROLE } from '@/shared/lib/roles';
-import { redirect } from 'next/navigation';
+import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
 import { ProfessorsClient } from '@/features/professors/components/ProfessorsClient';
 
 export default async function ProfessorsPage({
@@ -9,21 +7,8 @@ export default async function ProfessorsPage({
 }: {
     params: Promise<{ slug: string }>;
 }): Promise<React.ReactElement> {
-    const [{ slug }, session] = await Promise.all([params, auth()]);
-    if (!session) redirect('/login');
-
-    let institutionId: string;
-    if (session.user.userRoleName === USER_ROLE.SUPER_ADMIN) {
-        const inst = await prisma.academicInstitution.findUnique({
-            where: { slug },
-            select: { id: true },
-        });
-        if (!inst) redirect('/config');
-        institutionId = inst.id;
-    } else {
-        if (!session.user.academicInstitutionId) redirect('/login');
-        institutionId = session.user.academicInstitutionId;
-    }
+    const { slug } = await params;
+    const { institutionId, institutionName } = await requireInstitutionPageAccess(slug);
 
     const [professors, groups] = await Promise.all([
         prisma.user.findMany({
@@ -34,8 +19,18 @@ export default async function ProfessorsPage({
             include: { userRole: true, professorGroups: true },
             orderBy: { lastname: 'asc' },
         }),
-        prisma.group.findMany({ orderBy: { name: 'asc' } }),
+        prisma.group.findMany({
+            where: { academicInstitutionId: institutionId },
+            orderBy: { name: 'asc' },
+        }),
     ]);
 
-    return <ProfessorsClient professors={professors} groups={groups} slug={slug} />;
+    return (
+        <ProfessorsClient
+            professors={professors}
+            groups={groups}
+            slug={slug}
+            institutionName={institutionName}
+        />
+    );
 }

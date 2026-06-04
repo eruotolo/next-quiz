@@ -133,7 +133,10 @@ export async function registerFreeInstitution(
 export async function createPaidCheckout(
     data: unknown,
     plan: PaidPlan,
-): Promise<{ data: { initPoint: string | null; subscriptionId: string } | null; error: string | null }> {
+): Promise<{
+    data: { initPoint: string | null; subscriptionId: string } | null;
+    error: string | null;
+}> {
     const parsed = payerSchema.safeParse(data);
     if (!parsed.success) {
         return { data: null, error: parsed.error.errors[0]?.message ?? 'Datos inválidos' };
@@ -185,9 +188,10 @@ export async function createPaidCheckout(
     }
 }
 
-export async function getSubscriptionStatus(
-    subscriptionId: string,
-): Promise<{ data: { status: string; institutionSlug: string | null } | null; error: string | null }> {
+export async function getSubscriptionStatus(subscriptionId: string): Promise<{
+    data: { status: string; institutionSlug: string | null } | null;
+    error: string | null;
+}> {
     const sub = await prisma.subscription.findUnique({
         where: { id: subscriptionId },
         select: {
@@ -204,10 +208,13 @@ export async function getSubscriptionStatus(
         const token = process.env.MP_ACCESS_TOKEN;
         if (token) {
             try {
-                const mpRes = await fetch(`https://api.mercadopago.com/preapproval/${sub.mpSubscriptionId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                    next: { revalidate: 0 },
-                });
+                const mpRes = await fetch(
+                    `https://api.mercadopago.com/preapproval/${sub.mpSubscriptionId}`,
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                        next: { revalidate: 0 },
+                    },
+                );
                 if (mpRes.ok) {
                     const mpData = (await mpRes.json()) as { status?: string };
                     if (mpData.status === 'authorized') {
@@ -215,7 +222,13 @@ export async function getSubscriptionStatus(
                             where: { id: subscriptionId },
                             data: { status: 'authorized' },
                         });
-                        return { data: { status: 'authorized', institutionSlug: sub.academicInstitution?.slug ?? null }, error: null };
+                        return {
+                            data: {
+                                status: 'authorized',
+                                institutionSlug: sub.academicInstitution?.slug ?? null,
+                            },
+                            error: null,
+                        };
                     }
                 }
             } catch {
@@ -260,7 +273,10 @@ export async function completeRegistration(
 
     if (!sub) return { data: null, error: 'Suscripción no encontrada.' };
     if (sub.status !== 'authorized')
-        return { data: null, error: 'El pago aún no fue confirmado. Esperá unos segundos e intentá de nuevo.' };
+        return {
+            data: null,
+            error: 'El pago aún no fue confirmado. Esperá unos segundos e intentá de nuevo.',
+        };
     if (sub.academicInstitutionId !== null)
         return { data: null, error: 'Esta suscripción ya tiene una institución registrada.' };
 

@@ -4,6 +4,14 @@ import { cn } from '@/shared/lib/utils';
 import type React from 'react';
 import { IMaskInput } from 'react-imask';
 
+/**
+ * Configuración de máscara RUT chileno compartida. Úsala en cualquier
+ * `IMaskInput` que necesite distinto envoltorio visual al de `RutField`
+ * (ej. formularios públicos con label-icono inline).
+ */
+export const RUT_MASK = '00.000.000-[*]' as const;
+export const RUT_MASK_DEFINITIONS = { '*': /[0-9kK]/ } as const;
+
 interface RutFieldProps {
     id?: string;
     value: string;
@@ -12,12 +20,18 @@ interface RutFieldProps {
     className?: string;
 }
 
-export function RutField({ id, value, onChange, disabled, className }: RutFieldProps): React.JSX.Element {
+export function RutField({
+    id,
+    value,
+    onChange,
+    disabled,
+    className,
+}: RutFieldProps): React.JSX.Element {
     return (
         <IMaskInput
             id={id}
-            mask="00.000.000-[*]"
-            definitions={{ '*': /[0-9kK]/ }}
+            mask={RUT_MASK}
+            definitions={RUT_MASK_DEFINITIONS}
             value={value}
             onAccept={(val: string) => onChange(val)}
             disabled={disabled}

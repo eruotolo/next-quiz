@@ -22,7 +22,9 @@ function SheetClose({
     return <SheetPrimitive.Close data-slot="sheet-close" {...props} />;
 }
 
-function SheetPortal({ ...props }: React.ComponentProps<typeof SheetPrimitive.Portal>): React.JSX.Element {
+function SheetPortal({
+    ...props
+}: React.ComponentProps<typeof SheetPrimitive.Portal>): React.JSX.Element {
     return <SheetPrimitive.Portal {...props} />;
 }
 
@@ -34,7 +36,7 @@ function SheetOverlay({
         <SheetPrimitive.Overlay
             data-slot="sheet-overlay"
             className={cn(
-                'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm',
+                'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 bg-ink/40 fixed inset-0 z-50 backdrop-blur-sm',
                 className,
             )}
             {...props}
@@ -60,10 +62,14 @@ function SheetContent({
                 className={cn(
                     'fixed z-50 flex flex-col gap-4 bg-white shadow-xl transition ease-in-out',
                     'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=open]:duration-300',
-                    side === 'right' && 'inset-y-0 right-0 h-full w-3/4 max-w-sm border-l border-border data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right',
-                    side === 'left' && 'inset-y-0 left-0 h-full w-3/4 max-w-sm border-r border-border data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left',
-                    side === 'top' && 'inset-x-0 top-0 h-auto border-b border-border data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top',
-                    side === 'bottom' && 'inset-x-0 bottom-0 h-auto border-t border-border data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
+                    side === 'right' &&
+                        'border-border data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full w-3/4 max-w-sm border-l',
+                    side === 'left' &&
+                        'border-border data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 h-full w-3/4 max-w-sm border-r',
+                    side === 'top' &&
+                        'border-border data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 h-auto border-b',
+                    side === 'bottom' &&
+                        'border-border data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t',
                     className,
                 )}
                 {...props}
@@ -83,9 +89,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<'div'>): Reac
 }
 
 function SheetFooter({ className, ...props }: React.ComponentProps<'div'>): React.JSX.Element {
-    return (
-        <div className={cn('mt-auto flex flex-col gap-2 p-6', className)} {...props} />
-    );
+    return <div className={cn('mt-auto flex flex-col gap-2 p-6', className)} {...props} />;
 }
 
 function SheetTitle({
@@ -95,7 +99,10 @@ function SheetTitle({
     return (
         <SheetPrimitive.Title
             data-slot="sheet-title"
-            className={cn('font-display text-[20px] font-semibold text-ink tracking-[-0.02em]', className)}
+            className={cn(
+                'font-display text-ink text-[20px] font-semibold tracking-[-0.02em]',
+                className,
+            )}
             {...props}
         />
     );
@@ -108,7 +115,7 @@ function SheetDescription({
     return (
         <SheetPrimitive.Description
             data-slot="sheet-description"
-            className={cn('text-[13px] text-ink-dim', className)}
+            className={cn('text-ink-dim text-[13px]', className)}
             {...props}
         />
     );

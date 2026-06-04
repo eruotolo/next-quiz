@@ -1,4 +1,4 @@
-import { z } from 'zod';
+﻿import { z } from 'zod';
 
 export const questionTypeEnum = z.enum(['UNICA', 'MULTIPLE']);
 
@@ -28,7 +28,8 @@ export const questionSchema = z
         } else if (q.questionType === 'MULTIPLE' && correctCount < 2) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'Una pregunta de opción múltiple debe tener al menos 2 respuestas correctas',
+                message:
+                    'Una pregunta de opción múltiple debe tener al menos 2 respuestas correctas',
                 path: ['options'],
             });
         }
@@ -38,6 +39,17 @@ export const importQuestionsSchema = z
     .array(questionSchema)
     .min(1, 'Al menos 1 pregunta')
     .max(200, 'Máximo 200 preguntas');
+
+// Campo de texto opcional: ausente = no tocar (undefined), vacío = limpiar (null).
+const optionalText = z
+    .preprocess((v) => (v === '' ? null : v), z.string().max(120).nullable())
+    .optional();
+
+// Campo de fecha opcional desde <input type="datetime-local">: ausente = no tocar,
+// vacío = limpiar (null), string = coerción a Date.
+const optionalDate = z
+    .preprocess((v) => (v === '' ? null : v), z.coerce.date().nullable())
+    .optional();
 
 export const examSchema = z
     .object({
@@ -51,11 +63,22 @@ export const examSchema = z
         maxGrade: z.coerce.number().min(1).max(10).default(7),
         passingGrade: z.coerce.number().min(1).max(10).default(4),
         passingPercentage: z.coerce.number().int().min(1).max(99).default(60),
+        subject: optionalText,
+        unit: optionalText,
+        scheduledAt: optionalDate,
+        closesAt: optionalDate,
     })
     .refine((data) => data.passingGrade < data.maxGrade, {
         message: 'La nota de aprobación debe ser menor a la nota máxima',
         path: ['passingGrade'],
-    });
+    })
+    .refine(
+        (data) => !(data.scheduledAt && data.closesAt) || data.scheduledAt < data.closesAt,
+        {
+            message: 'La fecha de inicio debe ser anterior a la de cierre',
+            path: ['closesAt'],
+        },
+    );
 
 export type OptionInput = z.infer<typeof optionSchema>;
 export type QuestionInput = z.infer<typeof questionSchema>;

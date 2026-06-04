@@ -12,8 +12,11 @@ import { generateExcelTemplate, generateMarkdownTemplate } from '@/features/exam
 import dynamic from 'next/dynamic';
 
 const ImportQuestionsDialog = dynamic(
-    () => import('@/features/exams/components/ImportQuestionsDialog').then((m) => m.ImportQuestionsDialog),
-    { ssr: false }
+    () =>
+        import('@/features/exams/components/ImportQuestionsDialog').then(
+            (m) => m.ImportQuestionsDialog,
+        ),
+    { ssr: false },
 );
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
@@ -74,6 +77,10 @@ interface FormState {
     maxGrade: string;
     passingGrade: string;
     passingPercentage: string;
+    subject: string;
+    unit: string;
+    scheduledAt: string;
+    closesAt: string;
 }
 
 const emptyForm: FormState = {
@@ -87,14 +94,38 @@ const emptyForm: FormState = {
     maxGrade: '7',
     passingGrade: '4',
     passingPercentage: '60',
+    subject: '',
+    unit: '',
+    scheduledAt: '',
+    closesAt: '',
 };
+
+// Date -> valor para <input type="datetime-local"> (hora local "YYYY-MM-DDTHH:mm").
+function toDatetimeLocal(date: Date | null): string {
+    if (!date) return '';
+    const d = new Date(date);
+    const pad = (n: number): string => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 type TabMode = 'libre' | 'antitrampa' | 'total';
 
 const TAB_MODES: { value: TabMode; label: string; desc: string }[] = [
-    { value: 'libre', label: 'Libre', desc: 'El alumno puede cambiar de pestaña sin restricciones.' },
-    { value: 'antitrampa', label: 'Anti-trampa', desc: '3 salidas permitidas, a la 3ª el examen se envía.' },
-    { value: 'total', label: 'Restricción total', desc: 'Cualquier salida envía el examen automáticamente.' },
+    {
+        value: 'libre',
+        label: 'Libre',
+        desc: 'El alumno puede cambiar de pestaña sin restricciones.',
+    },
+    {
+        value: 'antitrampa',
+        label: 'Anti-trampa',
+        desc: '3 salidas permitidas, a la 3ª el examen se envía.',
+    },
+    {
+        value: 'total',
+        label: 'Restricción total',
+        desc: 'Cualquier salida envía el examen automáticamente.',
+    },
 ];
 
 function getTabMode(antiCheatEnabled: boolean, lockTabSwitch: boolean): TabMode {
@@ -132,8 +163,8 @@ const EN_CURSO_ACCENT_COLORS = [
 function deriveExamStatus(exam: ExamWithCount): Exclude<TabFilter, 'todos'> {
     const now = new Date();
     if (exam.closesAt && new Date(exam.closesAt) < now) return 'corregidos';
-    if (exam.active) return 'en-curso';
     if (exam.scheduledAt && new Date(exam.scheduledAt) > now) return 'programados';
+    if (exam.active) return 'en-curso';
     return 'borradores';
 }
 
@@ -151,15 +182,18 @@ const STATUS_BADGE_CONFIG: Record<
     { tone: 'success' | 'primary' | 'warning' | 'default'; label: string }
 > = {
     'en-curso': { tone: 'primary', label: 'En curso' },
-    'programados': { tone: 'warning', label: 'Programado' },
-    'corregidos': { tone: 'success', label: 'Corregido' },
-    'borradores': { tone: 'default', label: 'Borrador' },
+    programados: { tone: 'warning', label: 'Programado' },
+    corregidos: { tone: 'success', label: 'Corregido' },
+    borradores: { tone: 'default', label: 'Borrador' },
 };
 
 function formatExamDate(exam: ExamWithCount): string {
     const status = deriveExamStatus(exam);
     if (status === 'borradores') return 'Sin programar';
-    const date = exam.closesAt ?? exam.scheduledAt;
+    const date =
+        status === 'programados'
+            ? (exam.scheduledAt ?? exam.closesAt)
+            : (exam.closesAt ?? exam.scheduledAt);
     if (!date) return 'Sin programar';
     const d = new Date(date);
     const now = new Date();
@@ -175,7 +209,13 @@ function formatExamDate(exam: ExamWithCount): string {
 }
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: complex UI component with multiple dialogs
-export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups: Group[] }): React.JSX.Element {
+export function ExamsClient({
+    exams,
+    groups,
+}: {
+    exams: ExamWithCount[];
+    groups: Group[];
+}): React.JSX.Element {
     const router = useRouter();
     const { slug } = useParams<{ slug: string }>();
     const [tab, setTab] = useState<TabFilter>('todos');
@@ -225,6 +265,10 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
             maxGrade: String(exam.maxGrade),
             passingGrade: String(exam.passingGrade),
             passingPercentage: String(exam.passingPercentage),
+            subject: exam.subject ?? '',
+            unit: exam.unit ?? '',
+            scheduledAt: toDatetimeLocal(exam.scheduledAt),
+            closesAt: toDatetimeLocal(exam.closesAt),
         });
         setErrors({});
         setIsOpen(true);
@@ -328,7 +372,7 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
     });
 
     return (
-        <div className="flex flex-col min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             {/* Header */}
             <AdminTopBar
                 breadcrumb={['Institución', 'Exámenes']}
@@ -345,18 +389,18 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
                                 align="end"
-                                className="rounded-xl border-border shadow-xl w-52"
+                                className="border-border w-52 rounded-xl shadow-xl"
                             >
                                 <DropdownMenuItem
                                     onClick={() => generateExcelTemplate()}
-                                    className="gap-2 py-2.5 cursor-pointer"
+                                    className="cursor-pointer gap-2 py-2.5"
                                 >
                                     <FileSpreadsheet size={14} />
                                     Descargar Excel (.xlsx)
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={() => generateMarkdownTemplate()}
-                                    className="gap-2 py-2.5 cursor-pointer"
+                                    className="cursor-pointer gap-2 py-2.5"
                                 >
                                     <FileText size={14} />
                                     Descargar Markdown (.md)
@@ -372,7 +416,7 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
             />
 
             {/* Filter + Search bar */}
-            <div className="flex items-center justify-between border-b border-border bg-white px-8 py-3 gap-4">
+            <div className="border-border flex items-center justify-between gap-4 border-b bg-white px-8 py-3">
                 <div className="flex items-center gap-1">
                     {tabLabels.map(({ id, label }) => (
                         <button
@@ -380,7 +424,7 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                             type="button"
                             onClick={() => setTab(id)}
                             className={cn(
-                                'px-4 py-1.5 rounded-full text-[13px] font-medium transition-all whitespace-nowrap',
+                                'rounded-full px-4 py-1.5 text-[13px] font-medium whitespace-nowrap transition-all',
                                 tab === id
                                     ? 'bg-ink text-white'
                                     : 'text-ink-dim hover:bg-paper-warm',
@@ -393,30 +437,30 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                 <div className="relative shrink-0">
                     <Search
                         size={14}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-mute pointer-events-none"
+                        className="text-mute pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
                     />
                     <Input
                         placeholder="Buscar examen..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 h-9 w-52 rounded-full bg-paper text-[13px] border-border"
+                        className="bg-paper border-border h-9 w-52 rounded-full pl-9 text-[13px]"
                     />
                 </div>
             </div>
 
             {/* List */}
-            <main className="flex-1 p-8 overflow-auto">
+            <main className="flex-1 overflow-auto p-8">
                 {filtered.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
-                        <BookOpen size={48} className="mb-4 text-mute/20" />
-                        <p className="text-lg font-medium text-ink">
+                        <BookOpen size={48} className="text-mute/20 mb-4" />
+                        <p className="text-ink text-lg font-medium">
                             {tab === 'todos' && !searchQuery
                                 ? 'Todavía no hay exámenes'
-                                : "Sin resultados"}
+                                : 'Sin resultados'}
                         </p>
                         {tab === 'todos' && !searchQuery && (
                             <>
-                                <p className="mt-1 text-sm text-mute">
+                                <p className="text-mute mt-1 text-sm">
                                     Creá el primero y luego añadile preguntas.
                                 </p>
                                 <Button
@@ -445,52 +489,49 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                                     ? exam.groups.map((g) => g.name).join(', ')
                                     : '—';
                             const dateText = formatExamDate(exam);
-                            const showResults =
-                                status === 'en-curso' || status === 'corregidos';
+                            const showResults = status === 'en-curso' || status === 'corregidos';
 
                             return (
                                 <div
                                     key={exam.id}
-                                    className="group flex items-stretch overflow-hidden rounded-xl border border-border bg-white shadow-sm hover:shadow-md transition-shadow"
+                                    className="group border-border flex items-stretch overflow-hidden rounded-xl border bg-white shadow-sm transition-shadow hover:shadow-md"
                                 >
                                     {/* Accent bar */}
                                     <div className={cn('w-[4px] shrink-0', accentColor)} />
 
                                     {/* Content */}
-                                    <div className="flex flex-1 items-center gap-4 px-6 py-4 min-w-0">
+                                    <div className="flex min-w-0 flex-1 items-center gap-4 px-6 py-4">
                                         {/* Title + Groups */}
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-[15px] font-semibold text-ink truncate leading-snug">
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-ink truncate text-[15px] leading-snug font-semibold">
                                                 {examTitle}
                                             </p>
-                                            <p className="text-[12px] text-mute mt-0.5 truncate">
+                                            <p className="text-mute mt-0.5 truncate text-[12px]">
                                                 Grupos · {groupNames}
                                             </p>
                                         </div>
 
                                         {/* Status badge */}
-                                        <div className="w-[110px] flex justify-center shrink-0">
+                                        <div className="flex w-[110px] shrink-0 justify-center">
                                             <Tag tone={tone} size="md">
                                                 {statusLabel}
                                             </Tag>
                                         </div>
 
                                         {/* Question count */}
-                                        <div className="w-[72px] flex items-center gap-1.5 text-[13px] text-ink-dim shrink-0">
+                                        <div className="text-ink-dim flex w-[72px] shrink-0 items-center gap-1.5 text-[13px]">
                                             <FileText size={14} className="text-mute/60 shrink-0" />
                                             <span>{exam._count.questions} q.</span>
                                         </div>
 
                                         {/* Participation */}
-                                        <div className="w-[56px] flex items-center gap-1.5 text-[13px] text-ink-dim shrink-0">
+                                        <div className="text-ink-dim flex w-[56px] shrink-0 items-center gap-1.5 text-[13px]">
                                             <Users size={14} className="text-mute/60 shrink-0" />
-                                            <span>
-                                                {showResults ? exam._count.results : '—'}
-                                            </span>
+                                            <span>{showResults ? exam._count.results : '—'}</span>
                                         </div>
 
                                         {/* Date */}
-                                        <div className="w-[112px] flex items-center gap-1.5 text-[13px] text-ink-dim shrink-0">
+                                        <div className="text-ink-dim flex w-[112px] shrink-0 items-center gap-1.5 text-[13px]">
                                             <Calendar size={14} className="text-mute/60 shrink-0" />
                                             <span className="truncate">{dateText}</span>
                                         </div>
@@ -501,18 +542,21 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                                                 <Button
                                                     variant="ghost"
                                                     size="icon-sm"
-                                                    className="h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    className="h-8 w-8 shrink-0 opacity-70 transition-opacity hover:opacity-100"
                                                 >
-                                                    <MoreHorizontal size={16} className="text-mute" />
+                                                    <MoreHorizontal
+                                                        size={16}
+                                                        className="text-mute"
+                                                    />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent
                                                 align="end"
-                                                className="rounded-xl border-border shadow-xl w-48"
+                                                className="border-border w-48 rounded-xl shadow-xl"
                                             >
                                                 <DropdownMenuItem
                                                     asChild
-                                                    className="gap-2 py-2.5 cursor-pointer"
+                                                    className="cursor-pointer gap-2 py-2.5"
                                                 >
                                                     <Link href={`/${slug}/exams/${exam.id}/edit`}>
                                                         <Settings size={14} />
@@ -521,28 +565,28 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onClick={() => setImportExamId(exam.id)}
-                                                    className="gap-2 py-2.5 cursor-pointer"
+                                                    className="cursor-pointer gap-2 py-2.5"
                                                 >
                                                     <Upload size={14} />
                                                     Importar preguntas
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onClick={() => openEdit(exam)}
-                                                    className="gap-2 py-2.5 cursor-pointer"
+                                                    className="cursor-pointer gap-2 py-2.5"
                                                 >
                                                     <Edit2 size={14} />
                                                     Ajustes de examen
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onClick={() => handleTogglePublish(exam)}
-                                                    className="gap-2 py-2.5 cursor-pointer"
+                                                    className="cursor-pointer gap-2 py-2.5"
                                                 >
                                                     <Power size={14} />
                                                     {exam.active ? 'Despublicar' : 'Publicar'}
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onClick={() => openDelete(exam)}
-                                                    className="text-destructive gap-2 py-2.5 cursor-pointer focus:bg-danger-wash focus:text-destructive"
+                                                    className="text-destructive focus:bg-danger-wash focus:text-destructive cursor-pointer gap-2 py-2.5"
                                                 >
                                                     <Trash2 size={14} />
                                                     Eliminar evaluación
@@ -559,23 +603,28 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
 
             {/* Create/Edit dialog */}
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
-                    <div className="px-6 py-5 border-b border-border bg-paper">
-                        <DialogTitle className="font-display text-2xl text-ink">
+                <DialogContent className="border-border flex max-h-[90vh] flex-col overflow-hidden rounded-[22px] p-0 shadow-2xl sm:max-w-lg">
+                    <div className="border-border bg-paper border-b px-6 py-5">
+                        <DialogTitle className="font-display text-ink text-2xl">
                             {editing ? 'Ajustes del examen' : 'Nuevo examen'}
                         </DialogTitle>
-                        <DialogDescription className="sr-only">Formulario para crear o configurar un examen.</DialogDescription>
+                        <DialogDescription className="sr-only">
+                            Formulario para crear o configurar un examen.
+                        </DialogDescription>
                     </div>
 
                     <div className="flex-1 space-y-5 overflow-y-auto px-6 py-6">
                         {errors.general && (
-                            <p className="rounded-[10px] bg-danger-wash px-4 py-3 text-sm text-destructive font-bold border border-destructive/10">
+                            <p className="bg-danger-wash text-destructive border-destructive/10 rounded-[10px] border px-4 py-3 text-sm font-bold">
                                 {errors.general}
                             </p>
                         )}
 
                         <div className="flex flex-col gap-1.5">
-                            <label htmlFor="exam-form-title" className="text-[13px] font-bold text-ink">
+                            <label
+                                htmlFor="exam-form-title"
+                                className="text-ink text-[13px] font-bold"
+                            >
                                 Título del examen
                             </label>
                             <Input
@@ -584,18 +633,106 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                                 value={form.title}
                                 onChange={(e) => setField('title', e.target.value)}
                                 className={cn(
-                                    'h-11 rounded-[10px] bg-white border-border',
+                                    'border-border h-11 rounded-[10px] bg-white',
                                     errors.title && 'border-destructive',
                                 )}
                                 autoFocus
                             />
                             {errors.title && (
-                                <p className="text-xs text-destructive font-medium">{errors.title}</p>
+                                <p className="text-destructive text-xs font-medium">
+                                    {errors.title}
+                                </p>
                             )}
                         </div>
 
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1.5">
+                                <label
+                                    htmlFor="exam-form-subject"
+                                    className="text-ink text-[13px] font-bold"
+                                >
+                                    Materia
+                                </label>
+                                <Input
+                                    id="exam-form-subject"
+                                    placeholder="Ej: Historia"
+                                    value={form.subject}
+                                    onChange={(e) => setField('subject', e.target.value)}
+                                    className="border-border h-11 rounded-[10px] bg-white"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <label
+                                    htmlFor="exam-form-unit"
+                                    className="text-ink text-[13px] font-bold"
+                                >
+                                    Unidad
+                                </label>
+                                <Input
+                                    id="exam-form-unit"
+                                    placeholder="Ej: Unidad 4"
+                                    value={form.unit}
+                                    onChange={(e) => setField('unit', e.target.value)}
+                                    className="border-border h-11 rounded-[10px] bg-white"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1.5">
+                                <label
+                                    htmlFor="exam-form-scheduledAt"
+                                    className="text-ink text-[13px] font-bold"
+                                >
+                                    Fecha de inicio
+                                </label>
+                                <Input
+                                    id="exam-form-scheduledAt"
+                                    type="datetime-local"
+                                    value={form.scheduledAt}
+                                    onChange={(e) => setField('scheduledAt', e.target.value)}
+                                    className="border-border h-11 rounded-[10px] bg-white"
+                                />
+                                <p className="text-mute text-[11px] leading-snug">
+                                    Antes de esta fecha el examen no se puede rendir. Dejá vacío para
+                                    disponibilidad inmediata.
+                                </p>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <label
+                                    htmlFor="exam-form-closesAt"
+                                    className="text-ink text-[13px] font-bold"
+                                >
+                                    Fecha de cierre
+                                </label>
+                                <Input
+                                    id="exam-form-closesAt"
+                                    type="datetime-local"
+                                    value={form.closesAt}
+                                    onChange={(e) => setField('closesAt', e.target.value)}
+                                    className={cn(
+                                        'border-border h-11 rounded-[10px] bg-white',
+                                        errors.closesAt && 'border-destructive',
+                                    )}
+                                />
+                                {errors.closesAt ? (
+                                    <p className="text-destructive text-xs font-medium">
+                                        {errors.closesAt}
+                                    </p>
+                                ) : (
+                                    <p className="text-mute text-[11px] leading-snug">
+                                        Después de esta fecha ya no se puede rendir. Dejá vacío para
+                                        sin límite.
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
                         <div className="flex flex-col gap-1.5">
-                            <label htmlFor="exam-form-timelimit" className="text-[13px] font-bold text-ink">
+                            <label
+                                htmlFor="exam-form-timelimit"
+                                className="text-ink text-[13px] font-bold"
+                            >
                                 Tiempo límite
                             </label>
                             <div className="relative w-1/2">
@@ -607,24 +744,30 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                                     value={form.timeLimit}
                                     onChange={(e) => setField('timeLimit', e.target.value)}
                                     className={cn(
-                                        'h-11 rounded-[10px] bg-white border-border pr-12',
+                                        'border-border h-11 rounded-[10px] bg-white pr-12',
                                         errors.timeLimit && 'border-destructive',
                                     )}
                                 />
-                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-bold text-mute uppercase">
+                                <span className="text-mute absolute top-1/2 right-4 -translate-y-1/2 text-[11px] font-bold uppercase">
                                     MIN
                                 </span>
                             </div>
                             {errors.timeLimit && (
-                                <p className="text-xs text-destructive font-medium">{errors.timeLimit}</p>
+                                <p className="text-destructive text-xs font-medium">
+                                    {errors.timeLimit}
+                                </p>
                             )}
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <span className="text-[13px] font-bold text-ink">Vigilancia del examen</span>
-                            <div className="rounded-[10px] border border-border overflow-hidden divide-y divide-border">
+                            <span className="text-ink text-[13px] font-bold">
+                                Vigilancia del examen
+                            </span>
+                            <div className="border-border divide-border divide-y overflow-hidden rounded-[10px] border">
                                 {TAB_MODES.map((mode) => {
-                                    const active = getTabMode(form.antiCheatEnabled, form.lockTabSwitch) === mode.value;
+                                    const active =
+                                        getTabMode(form.antiCheatEnabled, form.lockTabSwitch) ===
+                                        mode.value;
                                     return (
                                         <button
                                             key={mode.value}
@@ -634,19 +777,32 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                                                 setForm((f) => ({ ...f, ...flags }));
                                             }}
                                             className={cn(
-                                                'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors',
-                                                active ? 'bg-primary-wash/40' : 'bg-white hover:bg-paper-warm/50',
+                                                'flex w-full items-center gap-3 px-4 py-3 text-left transition-colors',
+                                                active
+                                                    ? 'bg-primary-wash/40'
+                                                    : 'hover:bg-paper-warm/50 bg-white',
                                             )}
                                         >
-                                            <div className={cn(
-                                                'h-3.5 w-3.5 shrink-0 rounded-full border-2 transition-colors',
-                                                active ? 'border-primary bg-primary' : 'border-border bg-white',
-                                            )} />
+                                            <div
+                                                className={cn(
+                                                    'h-3.5 w-3.5 shrink-0 rounded-full border-2 transition-colors',
+                                                    active
+                                                        ? 'border-primary bg-primary'
+                                                        : 'border-border bg-white',
+                                                )}
+                                            />
                                             <div className="min-w-0">
-                                                <p className={cn('text-[12px] font-bold', active ? 'text-primary' : 'text-ink')}>
+                                                <p
+                                                    className={cn(
+                                                        'text-[12px] font-bold',
+                                                        active ? 'text-primary' : 'text-ink',
+                                                    )}
+                                                >
                                                     {mode.label}
                                                 </p>
-                                                <p className="text-[11px] text-mute leading-snug">{mode.desc}</p>
+                                                <p className="text-mute text-[11px] leading-snug">
+                                                    {mode.desc}
+                                                </p>
                                             </div>
                                         </button>
                                     );
@@ -655,16 +811,21 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <span className="text-[13px] font-bold text-ink">Aleatorización</span>
+                            <span className="text-ink text-[13px] font-bold">Aleatorización</span>
                             <div
                                 className={cn(
-                                    'flex items-center justify-between px-4 py-3 rounded-[10px] border border-border bg-paper-warm/30 transition-colors gap-4',
-                                    form.randomizeQuestions && 'bg-primary-wash/30 border-primary/20',
+                                    'border-border bg-paper-warm/30 flex items-center justify-between gap-4 rounded-[10px] border px-4 py-3 transition-colors',
+                                    form.randomizeQuestions &&
+                                        'bg-primary-wash/30 border-primary/20',
                                 )}
                             >
-                                <div className="flex flex-col gap-0.5 min-w-0">
-                                    <span className="text-[12px] font-bold text-ink-dim">Aleatorizar preguntas</span>
-                                    <span className="text-[11px] text-mute leading-snug">Cada estudiante verá las preguntas en un orden distinto.</span>
+                                <div className="flex min-w-0 flex-col gap-0.5">
+                                    <span className="text-ink-dim text-[12px] font-bold">
+                                        Aleatorizar preguntas
+                                    </span>
+                                    <span className="text-mute text-[11px] leading-snug">
+                                        Cada estudiante verá las preguntas en un orden distinto.
+                                    </span>
                                 </div>
                                 <Switch
                                     checked={form.randomizeQuestions}
@@ -675,15 +836,15 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <span className="text-[13px] font-bold text-ink">Grupos asignados</span>
+                            <span className="text-ink text-[13px] font-bold">Grupos asignados</span>
                             <div
                                 className={cn(
-                                    'max-h-[160px] overflow-y-auto rounded-[12px] border border-border bg-paper-warm/20 p-2',
+                                    'border-border bg-paper-warm/20 max-h-[160px] overflow-y-auto rounded-[12px] border p-2',
                                     errors.groupIds && 'border-destructive',
                                 )}
                             >
                                 {groups.length === 0 ? (
-                                    <p className="px-3 py-4 text-center text-[13px] text-mute">
+                                    <p className="text-mute px-3 py-4 text-center text-[13px]">
                                         No hay grupos creados
                                     </p>
                                 ) : (
@@ -697,9 +858,9 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                                                     type="checkbox"
                                                     checked={form.groupIds.includes(g.id)}
                                                     onChange={() => toggleGroup(g.id)}
-                                                    className="accent-primary h-4 w-4 rounded border-border"
+                                                    className="accent-primary border-border h-4 w-4 rounded"
                                                 />
-                                                <span className="text-[13.5px] font-medium text-ink">
+                                                <span className="text-ink text-[13.5px] font-medium">
                                                     {g.name}
                                                 </span>
                                             </label>
@@ -708,15 +869,22 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                                 )}
                             </div>
                             {errors.groupIds && (
-                                <p className="text-xs text-destructive font-medium">{errors.groupIds}</p>
+                                <p className="text-destructive text-xs font-medium">
+                                    {errors.groupIds}
+                                </p>
                             )}
                         </div>
 
-                        <div className="flex flex-col gap-3 p-5 rounded-[14px] bg-paper border border-border">
-                            <span className="text-[13px] font-bold text-ink">Escala de evaluación</span>
+                        <div className="bg-paper border-border flex flex-col gap-3 rounded-[14px] border p-5">
+                            <span className="text-ink text-[13px] font-bold">
+                                Escala de evaluación
+                            </span>
                             <div className="grid grid-cols-3 gap-4">
                                 <div className="flex flex-col gap-1.5">
-                                    <label htmlFor="exam-grade-max" className="text-[11px] font-bold text-mute uppercase">
+                                    <label
+                                        htmlFor="exam-grade-max"
+                                        className="text-mute text-[11px] font-bold uppercase"
+                                    >
                                         Máxima
                                     </label>
                                     <Input
@@ -729,7 +897,10 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <label htmlFor="exam-grade-pass" className="text-[11px] font-bold text-mute uppercase">
+                                    <label
+                                        htmlFor="exam-grade-pass"
+                                        className="text-mute text-[11px] font-bold uppercase"
+                                    >
                                         Aprobación
                                     </label>
                                     <Input
@@ -742,14 +913,19 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1.5">
-                                    <label htmlFor="exam-grade-pct" className="text-[11px] font-bold text-mute uppercase">
+                                    <label
+                                        htmlFor="exam-grade-pct"
+                                        className="text-mute text-[11px] font-bold uppercase"
+                                    >
                                         % Exigencia
                                     </label>
                                     <Input
                                         id="exam-grade-pct"
                                         type="number"
                                         value={form.passingPercentage}
-                                        onChange={(e) => setField('passingPercentage', e.target.value)}
+                                        onChange={(e) =>
+                                            setField('passingPercentage', e.target.value)
+                                        }
                                         className="h-10 rounded-[8px] text-center font-bold"
                                     />
                                 </div>
@@ -757,7 +933,7 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                         </div>
                     </div>
 
-                    <div className="px-6 py-4 border-t border-border flex justify-end gap-2 bg-white">
+                    <div className="border-border flex justify-end gap-2 border-t bg-white px-6 py-4">
                         <Button
                             variant="ghost"
                             size="md"
@@ -773,7 +949,7 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                             onClick={handleSave}
                             className="min-w-[140px]"
                         >
-                            {isPending && <Loader2 className="animate-spin mr-2" />}
+                            {isPending && <Loader2 className="mr-2 animate-spin" />}
                             {editing ? 'Guardar cambios' : 'Crear examen'}
                         </Button>
                     </div>
@@ -790,18 +966,20 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
 
             {/* Delete dialog */}
             <Dialog open={isDelOpen} onOpenChange={setIsDelOpen}>
-                <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
+                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle className="font-display text-2xl text-destructive">
+                        <DialogTitle className="font-display text-destructive text-2xl">
                             Eliminar examen
                         </DialogTitle>
-                        <DialogDescription className="sr-only">Confirmación para eliminar el examen.</DialogDescription>
+                        <DialogDescription className="sr-only">
+                            Confirmación para eliminar el examen.
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
-                        <p className="text-[14px] leading-relaxed text-ink-dim">
+                        <p className="text-ink-dim text-[14px] leading-relaxed">
                             ¿Estás seguro de eliminar{' '}
-                            <strong className="text-ink">&ldquo;{toDelete?.title}&rdquo;</strong>? Esta
-                            acción es irreversible.
+                            <strong className="text-ink">&ldquo;{toDelete?.title}&rdquo;</strong>?
+                            Esta acción es irreversible.
                         </p>
                     </div>
                     {deleteError && (
@@ -809,7 +987,7 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                             {deleteError}
                         </p>
                     )}
-                    <DialogFooter className="gap-2 sm:justify-end mt-2">
+                    <DialogFooter className="mt-2 gap-2 sm:justify-end">
                         <Button
                             variant="ghost"
                             size="md"
@@ -824,7 +1002,7 @@ export function ExamsClient({ exams, groups }: { exams: ExamWithCount[]; groups:
                             disabled={isPending}
                             onClick={handleDelete}
                         >
-                            {isPending && <Loader2 className="animate-spin mr-2" />}
+                            {isPending && <Loader2 className="mr-2 animate-spin" />}
                             Eliminar
                         </Button>
                     </DialogFooter>

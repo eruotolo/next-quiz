@@ -11,38 +11,27 @@ const buttonVariants = cva(
         variants: {
             variant: {
                 // Aulika primary
-                primary:
-                    'bg-primary text-white hover:bg-[#172ae6]',
+                primary: 'bg-primary text-white hover:bg-[#172ae6]',
                 // default → alias primary (backward compat)
-                default:
-                    'bg-primary text-white hover:bg-[#172ae6]',
+                default: 'bg-primary text-white hover:bg-[#172ae6]',
                 // Ink — dark fill
-                ink:
-                    'bg-ink text-white hover:bg-[#1e1f29]',
+                ink: 'bg-ink text-white hover:bg-[#1e1f29]',
                 // Lime — energy accent
-                lime:
-                    'bg-lime text-ink font-bold hover:bg-[#c8f000]',
+                lime: 'bg-lime text-ink font-bold hover:bg-[#c8f000]',
                 // Ghost — border
-                ghost:
-                    'bg-transparent text-ink border border-border hover:bg-paper-warm',
+                ghost: 'bg-transparent text-ink border border-border hover:bg-paper-warm',
                 // Soft — warm fill
-                soft:
-                    'bg-paper-warm text-ink border-0 hover:bg-[#e5e0d0]',
+                soft: 'bg-paper-warm text-ink border-0 hover:bg-[#e5e0d0]',
                 // Danger
-                danger:
-                    'bg-destructive text-white hover:bg-[#b82a17]',
+                danger: 'bg-destructive text-white hover:bg-[#b82a17]',
                 // backward compat alias
-                destructive:
-                    'bg-destructive text-white hover:bg-[#b82a17]',
+                destructive: 'bg-destructive text-white hover:bg-[#b82a17]',
                 // Ghost on dark backgrounds
-                'ghost-dark':
-                    'bg-transparent text-white border border-white/20 hover:bg-white/10',
+                'ghost-dark': 'bg-transparent text-white border border-white/20 hover:bg-white/10',
                 // Outline (shadcn compat)
-                outline:
-                    'bg-transparent text-ink border border-border hover:bg-paper-warm',
+                outline: 'bg-transparent text-ink border border-border hover:bg-paper-warm',
                 // Secondary (shadcn compat → soft)
-                secondary:
-                    'bg-paper-warm text-ink hover:bg-[#e5e0d0]',
+                secondary: 'bg-paper-warm text-ink hover:bg-[#e5e0d0]',
                 // Link
                 link: 'text-primary underline-offset-4 hover:underline',
             },

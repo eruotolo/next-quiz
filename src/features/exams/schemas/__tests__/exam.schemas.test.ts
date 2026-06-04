@@ -1,37 +1,37 @@
-import { describe, expect, it } from 'vitest'
-import { examSchema, optionSchema, questionSchema } from '../exam.schemas'
+﻿import { describe, expect, it } from 'vitest';
+import { examSchema, optionSchema, questionSchema } from '../exam.schemas';
 
 describe('optionSchema', () => {
     it('accepts a valid option', () => {
-        const result = optionSchema.safeParse({ text: 'Opción A', isCorrect: true })
-        expect(result.success).toBe(true)
-    })
+        const result = optionSchema.safeParse({ text: 'Opción A', isCorrect: true });
+        expect(result.success).toBe(true);
+    });
 
     it('rejects empty text', () => {
-        const result = optionSchema.safeParse({ text: '', isCorrect: false })
-        expect(result.success).toBe(false)
-    })
+        const result = optionSchema.safeParse({ text: '', isCorrect: false });
+        expect(result.success).toBe(false);
+    });
 
     it('defaults isCorrect to false', () => {
-        const result = optionSchema.safeParse({ text: 'Opción' })
-        expect(result.success && result.data.isCorrect).toBe(false)
-    })
-})
+        const result = optionSchema.safeParse({ text: 'Opción' });
+        expect(result.success && result.data.isCorrect).toBe(false);
+    });
+});
 
 describe('questionSchema — UNICA', () => {
     const baseOptions = [
         { text: 'Opción correcta', isCorrect: true },
         { text: 'Opción incorrecta', isCorrect: false },
-    ]
+    ];
 
     it('accepts a valid UNICA question with exactly 1 correct answer', () => {
         const result = questionSchema.safeParse({
             text: '¿Cuánto es 2+2?',
             questionType: 'UNICA',
             options: baseOptions,
-        })
-        expect(result.success).toBe(true)
-    })
+        });
+        expect(result.success).toBe(true);
+    });
 
     it('rejects UNICA question with 0 correct answers', () => {
         const result = questionSchema.safeParse({
@@ -41,9 +41,9 @@ describe('questionSchema — UNICA', () => {
                 { text: 'A', isCorrect: false },
                 { text: 'B', isCorrect: false },
             ],
-        })
-        expect(result.success).toBe(false)
-    })
+        });
+        expect(result.success).toBe(false);
+    });
 
     it('rejects UNICA question with 2 correct answers', () => {
         const result = questionSchema.safeParse({
@@ -53,28 +53,28 @@ describe('questionSchema — UNICA', () => {
                 { text: 'A', isCorrect: true },
                 { text: 'B', isCorrect: true },
             ],
-        })
-        expect(result.success).toBe(false)
-    })
+        });
+        expect(result.success).toBe(false);
+    });
 
     it('rejects question with less than 2 options', () => {
         const result = questionSchema.safeParse({
             text: '¿Pregunta?',
             questionType: 'UNICA',
             options: [{ text: 'Solo una', isCorrect: true }],
-        })
-        expect(result.success).toBe(false)
-    })
+        });
+        expect(result.success).toBe(false);
+    });
 
     it('rejects empty question text', () => {
         const result = questionSchema.safeParse({
             text: '',
             questionType: 'UNICA',
             options: baseOptions,
-        })
-        expect(result.success).toBe(false)
-    })
-})
+        });
+        expect(result.success).toBe(false);
+    });
+});
 
 describe('questionSchema — MULTIPLE', () => {
     it('accepts MULTIPLE question with at least 2 correct answers', () => {
@@ -86,9 +86,9 @@ describe('questionSchema — MULTIPLE', () => {
                 { text: 'Verde', isCorrect: false },
                 { text: 'Azul', isCorrect: true },
             ],
-        })
-        expect(result.success).toBe(true)
-    })
+        });
+        expect(result.success).toBe(true);
+    });
 
     it('rejects MULTIPLE question with only 1 correct answer', () => {
         const result = questionSchema.safeParse({
@@ -98,10 +98,10 @@ describe('questionSchema — MULTIPLE', () => {
                 { text: 'Solo esta', isCorrect: true },
                 { text: 'Incorrecta', isCorrect: false },
             ],
-        })
-        expect(result.success).toBe(false)
-    })
-})
+        });
+        expect(result.success).toBe(false);
+    });
+});
 
 describe('examSchema', () => {
     const validExam = {
@@ -113,34 +113,84 @@ describe('examSchema', () => {
         maxGrade: 7,
         passingGrade: 4,
         passingPercentage: 60,
-    }
+    };
 
     it('accepts a valid exam configuration', () => {
-        expect(examSchema.safeParse(validExam).success).toBe(true)
-    })
+        expect(examSchema.safeParse(validExam).success).toBe(true);
+    });
 
     it('rejects when passingGrade >= maxGrade', () => {
-        const result = examSchema.safeParse({ ...validExam, passingGrade: 7, maxGrade: 7 })
-        expect(result.success).toBe(false)
-    })
+        const result = examSchema.safeParse({ ...validExam, passingGrade: 7, maxGrade: 7 });
+        expect(result.success).toBe(false);
+    });
 
     it('rejects empty title', () => {
-        const result = examSchema.safeParse({ ...validExam, title: '' })
-        expect(result.success).toBe(false)
-    })
+        const result = examSchema.safeParse({ ...validExam, title: '' });
+        expect(result.success).toBe(false);
+    });
 
     it('rejects timeLimit of 0', () => {
-        const result = examSchema.safeParse({ ...validExam, timeLimit: 0 })
-        expect(result.success).toBe(false)
-    })
+        const result = examSchema.safeParse({ ...validExam, timeLimit: 0 });
+        expect(result.success).toBe(false);
+    });
 
     it('rejects timeLimit over 180 minutes', () => {
-        const result = examSchema.safeParse({ ...validExam, timeLimit: 181 })
-        expect(result.success).toBe(false)
-    })
+        const result = examSchema.safeParse({ ...validExam, timeLimit: 181 });
+        expect(result.success).toBe(false);
+    });
 
     it('rejects empty groupIds array', () => {
-        const result = examSchema.safeParse({ ...validExam, groupIds: [] })
-        expect(result.success).toBe(false)
-    })
-})
+        const result = examSchema.safeParse({ ...validExam, groupIds: [] });
+        expect(result.success).toBe(false);
+    });
+
+    it('accepts subject, unit and a valid date window', () => {
+        const result = examSchema.safeParse({
+            ...validExam,
+            subject: 'Historia',
+            unit: 'Unidad 4',
+            scheduledAt: '2026-06-10T08:00',
+            closesAt: '2026-06-10T14:30',
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+            expect(result.data.scheduledAt).toBeInstanceOf(Date);
+            expect(result.data.closesAt).toBeInstanceOf(Date);
+        }
+    });
+
+    it('treats empty subject/unit/dates as null (cleared)', () => {
+        const result = examSchema.safeParse({
+            ...validExam,
+            subject: '',
+            unit: '',
+            scheduledAt: '',
+            closesAt: '',
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+            expect(result.data.subject).toBeNull();
+            expect(result.data.unit).toBeNull();
+            expect(result.data.scheduledAt).toBeNull();
+            expect(result.data.closesAt).toBeNull();
+        }
+    });
+
+    it('leaves dates untouched when omitted (undefined)', () => {
+        const result = examSchema.safeParse(validExam);
+        expect(result.success).toBe(true);
+        if (result.success) {
+            expect(result.data.scheduledAt).toBeUndefined();
+            expect(result.data.closesAt).toBeUndefined();
+        }
+    });
+
+    it('rejects when closesAt is before scheduledAt', () => {
+        const result = examSchema.safeParse({
+            ...validExam,
+            scheduledAt: '2026-06-10T14:30',
+            closesAt: '2026-06-10T08:00',
+        });
+        expect(result.success).toBe(false);
+    });
+});

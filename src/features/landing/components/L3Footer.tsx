@@ -45,33 +45,44 @@ const FOOTER_COLS = [
 
 export function L3Footer(): React.JSX.Element {
     return (
-        <footer className="border-t border-border bg-paper-warm pt-20 pb-10">
+        <footer className="border-border bg-paper-warm border-t pt-20 pb-10">
             <div className="mx-auto max-w-[1400px] px-6 md:px-14">
                 {/* Main grid */}
                 <div className="grid gap-12 lg:grid-cols-[1.5fr_repeat(4,1fr)]">
                     {/* Brand */}
                     <div className="flex flex-col gap-6">
                         <LogoLockup size={26} variant="cobalto" />
-                        <p className="text-[13px] leading-relaxed text-ink-dim max-w-[280px]">
-                            La plataforma de evaluación en línea para colegios y universidades chilenas. Hecha en Santiago, pensada para el aula.
+                        <p className="text-ink-dim max-w-[280px] text-[13px] leading-relaxed">
+                            La plataforma de evaluación en línea para colegios y universidades
+                            chilenas. Hecha en Santiago, pensada para el aula.
                         </p>
                         <div className="flex flex-wrap items-center gap-2">
-                            <Tag tone="outline" className="bg-white border-border text-[11px] h-6 px-2.5">aulika.cl</Tag>
-                            <Tag tone="outline" className="bg-white border-border text-[11px] h-6 px-2.5">info@aulika.cl</Tag>
+                            <Tag
+                                tone="outline"
+                                className="border-border h-6 bg-white px-2.5 text-[11px]"
+                            >
+                                aulika.cl
+                            </Tag>
+                            <Tag
+                                tone="outline"
+                                className="border-border h-6 bg-white px-2.5 text-[11px]"
+                            >
+                                info@aulika.cl
+                            </Tag>
                             <a
                                 href="https://www.instagram.com/aulika.cl/"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex size-6 items-center justify-center rounded-full border border-border bg-white text-ink-dim transition-all hover:border-primary/30 hover:text-primary hover:scale-110 shadow-sm"
+                                className="border-border text-ink-dim hover:border-primary/30 hover:text-primary flex size-6 items-center justify-center rounded-full border bg-white shadow-sm transition-all hover:scale-110"
                                 title="Síguenos en Instagram"
                             >
-                                <svg 
-                                    viewBox="0 0 24 24" 
-                                    fill="none" 
-                                    stroke="currentColor" 
-                                    strokeWidth="2" 
-                                    strokeLinecap="round" 
-                                    strokeLinejoin="round" 
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                     className="size-3.5"
                                 >
                                     <title>Instagram</title>
@@ -86,7 +97,7 @@ export function L3Footer(): React.JSX.Element {
                     {/* Link columns */}
                     {FOOTER_COLS.map((col) => (
                         <div key={col.heading}>
-                            <h4 className="mb-5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-mute">
+                            <h4 className="text-mute mb-5 font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
                                 {col.heading}
                             </h4>
                             <ul className="space-y-3">
@@ -94,7 +105,7 @@ export function L3Footer(): React.JSX.Element {
                                     <li key={link.label}>
                                         <Link
                                             href={link.href}
-                                            className="text-[13px] text-ink hover:text-primary transition-colors font-medium"
+                                            className="text-ink hover:text-primary text-[13px] font-medium transition-colors"
                                         >
                                             {link.label}
                                         </Link>
@@ -106,14 +117,22 @@ export function L3Footer(): React.JSX.Element {
                 </div>
 
                 {/* Bottom bar */}
-                <div className="mt-20 flex flex-col items-center justify-between gap-6 border-t border-border/50 pt-8 font-mono text-[10px] font-bold uppercase tracking-widest text-mute sm:flex-row">
+                <div className="border-border/50 text-mute mt-20 flex flex-col items-center justify-between gap-6 border-t pt-8 font-mono text-[10px] font-bold tracking-widest uppercase sm:flex-row">
                     <p>
-                        <a target="_blank" rel="noopener" href="https://crowadvance.com">Crow Advance</a> © {new Date().getFullYear()} · Hecho en Castro, Chiloé, Chile</p>
+                        <a target="_blank" rel="noopener" href="https://crowadvance.com">
+                            Crow Advance
+                        </a>{' '}
+                        © {new Date().getFullYear()} · Hecho en Castro, Chiloé, Chile
+                    </p>
                     <div className="flex items-center gap-6">
-                        <Link href="/examen/login" className="hover:text-ink transition-colors">Acceso alumnos</Link>
-                        <Link href="/login" className="hover:text-ink transition-colors">Acceso docentes</Link>
+                        <Link href="/examen/login" className="hover:text-ink transition-colors">
+                            Acceso alumnos
+                        </Link>
+                        <Link href="/login" className="hover:text-ink transition-colors">
+                            Acceso docentes
+                        </Link>
                         <span className="flex items-center gap-1.5">
-                            <span className="size-1.5 rounded-full bg-success animate-pulse" />
+                            <span className="bg-success size-1.5 animate-pulse rounded-full" />
                             Operativo
                         </span>
                     </div>

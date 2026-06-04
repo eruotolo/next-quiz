@@ -11,12 +11,12 @@ export const metadata: Metadata = {
 export default function ColegioErrorPage(): React.JSX.Element {
     return (
         <div className="flex flex-col items-center gap-5 py-8 text-center">
-            <XCircle className="size-12 text-destructive" />
+            <XCircle className="text-destructive size-12" />
             <div>
-                <h1 className="font-display text-[28px] font-semibold tracking-tight text-ink">
+                <h1 className="font-display text-ink text-[28px] font-semibold tracking-tight">
                     El pago no fue completado
                 </h1>
-                <p className="mt-2 text-[14px] text-ink-dim">
+                <p className="text-ink-dim mt-2 text-[14px]">
                     Podés volver a intentarlo o contactarnos si necesitás ayuda.
                 </p>
             </div>

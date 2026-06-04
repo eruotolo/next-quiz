@@ -17,10 +17,7 @@ export interface AuditInput {
 export async function logAudit(input: AuditInput): Promise<void> {
     try {
         const h = await headers();
-        const ip =
-            h.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-            h.get('x-real-ip') ??
-            null;
+        const ip = h.get('x-forwarded-for')?.split(',')[0]?.trim() ?? h.get('x-real-ip') ?? null;
         const userAgent = h.get('user-agent') ?? null;
 
         await prisma.auditLog.create({

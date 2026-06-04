@@ -73,13 +73,7 @@ interface Props {
 
 const NO_TUTOR = '__none__';
 
-const CARD_COLORS = [
-    '#1F2EFF',
-    '#7C5CFF',
-    '#22C55E',
-    '#FF5A4D',
-    '#F59E0B',
-];
+const CARD_COLORS = ['#1F2EFF', '#7C5CFF', '#22C55E', '#FF5A4D', '#F59E0B'];
 
 const AVATAR_COLORS = ['#1F2EFF', '#7C5CFF', '#22C55E', '#FF5A4D', '#F59E0B', '#06B6D4', '#EC4899'];
 
@@ -107,8 +101,8 @@ function InitialsAvatar({
     return (
         <div
             className={cn(
-                'rounded-full flex items-center justify-center text-white font-bold ring-2 ring-white shrink-0',
-                size === 'sm' ? 'w-7 h-7 text-[10px]' : 'w-9 h-9 text-[12px]',
+                'flex shrink-0 items-center justify-center rounded-full font-bold text-white ring-2 ring-white',
+                size === 'sm' ? 'h-7 w-7 text-[10px]' : 'h-9 w-9 text-[12px]',
             )}
             style={{ backgroundColor: color }}
         >
@@ -117,7 +111,13 @@ function InitialsAvatar({
     );
 }
 
-export function GroupsClient({ slug, institutionName, groups, professors, canMutate }: Props): React.JSX.Element {
+export function GroupsClient({
+    slug,
+    institutionName,
+    groups,
+    professors,
+    canMutate,
+}: Props): React.JSX.Element {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
@@ -195,7 +195,7 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
     const totalExams = groups.reduce((sum, g) => sum + g._count.exams, 0);
 
     return (
-        <div className="flex flex-col min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             <AdminTopBar
                 breadcrumb={[institutionName, 'Grupos']}
                 title="Grupos"
@@ -210,14 +210,21 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
                 }
             />
 
-            <main className="flex-1 p-8 overflow-auto">
+            <main className="flex-1 overflow-auto p-8">
                 {groups.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
-                        <Users size={48} className="mb-4 text-mute/20" />
-                        <p className="text-lg font-medium text-ink">Todavía no hay grupos</p>
-                        <p className="mt-1 text-sm text-mute">Creá el primero para empezar a organizar alumnos.</p>
+                        <Users size={48} className="text-mute/20 mb-4" />
+                        <p className="text-ink text-lg font-medium">Todavía no hay grupos</p>
+                        <p className="text-mute mt-1 text-sm">
+                            Creá el primero para empezar a organizar alumnos.
+                        </p>
                         {canMutate && (
-                            <Button variant="primary" size="md" onClick={openCreate} className="mt-6">
+                            <Button
+                                variant="primary"
+                                size="md"
+                                onClick={openCreate}
+                                className="mt-6"
+                            >
                                 <Plus size={16} />
                                 Crear grupo
                             </Button>
@@ -233,32 +240,39 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
                             return (
                                 <Card
                                     key={g.id}
-                                    className="relative flex flex-col border-border bg-white shadow-sm overflow-hidden"
+                                    className="border-border relative flex flex-col overflow-hidden bg-white shadow-sm"
                                     style={{ borderTopWidth: 4, borderTopColor: color }}
                                 >
-                                    <div className="p-5 flex flex-col">
+                                    <div className="flex flex-col p-5">
                                         {/* Header: name + menu */}
-                                        <div className="flex items-start justify-between mb-1">
+                                        <div className="mb-1 flex items-start justify-between">
                                             <div>
-                                                <h3 className="font-display text-[30px] font-bold leading-none tracking-tight text-ink">
+                                                <h3 className="font-display text-ink text-[30px] leading-none font-bold tracking-tight">
                                                     {g.name}
                                                 </h3>
                                                 {g.stream && (
-                                                    <p className="mt-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-mute">
+                                                    <p className="text-mute mt-1.5 font-mono text-[10px] font-bold tracking-[0.12em] uppercase">
                                                         {g.stream}
                                                     </p>
                                                 )}
                                             </div>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon-sm" className="h-8 w-8 text-mute border-0">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon-sm"
+                                                        className="text-mute h-8 w-8 border-0"
+                                                    >
                                                         <MoreHorizontal size={16} />
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="rounded-xl border-border shadow-xl">
+                                                <DropdownMenuContent
+                                                    align="end"
+                                                    className="border-border rounded-xl shadow-xl"
+                                                >
                                                     <DropdownMenuItem
                                                         onClick={() => setStudentsGroup(g)}
-                                                        className="gap-2 py-2 cursor-pointer"
+                                                        className="cursor-pointer gap-2 py-2"
                                                     >
                                                         <GraduationCap size={14} /> Ver estudiantes
                                                     </DropdownMenuItem>
@@ -266,13 +280,13 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
                                                         <>
                                                             <DropdownMenuItem
                                                                 onClick={() => openEdit(g)}
-                                                                className="gap-2 py-2 cursor-pointer"
+                                                                className="cursor-pointer gap-2 py-2"
                                                             >
                                                                 <Edit2 size={14} /> Editar nombre
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem
                                                                 onClick={() => openDelete(g)}
-                                                                className="text-destructive gap-2 py-2 cursor-pointer"
+                                                                className="text-destructive cursor-pointer gap-2 py-2"
                                                             >
                                                                 <Trash2 size={14} /> Eliminar grupo
                                                             </DropdownMenuItem>
@@ -283,45 +297,55 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
                                         </div>
 
                                         {/* Tutor */}
-                                        <div className="flex items-center gap-3 border-y border-border py-3 my-3">
+                                        <div className="border-border my-3 flex items-center gap-3 border-y py-3">
                                             {g.tutor ? (
                                                 <>
-                                                    <InitialsAvatar name={g.tutor.name} lastname={g.tutor.lastname} size="md" />
+                                                    <InitialsAvatar
+                                                        name={g.tutor.name}
+                                                        lastname={g.tutor.lastname}
+                                                        size="md"
+                                                    />
                                                     <div>
-                                                        <p className="text-[13px] font-semibold text-ink leading-tight">
+                                                        <p className="text-ink text-[13px] leading-tight font-semibold">
                                                             {g.tutor.name} {g.tutor.lastname}
                                                         </p>
-                                                        <p className="text-[11px] text-mute">Profesor/a tutor/a</p>
+                                                        <p className="text-mute text-[11px]">
+                                                            Profesor/a tutor/a
+                                                        </p>
                                                     </div>
                                                 </>
                                             ) : (
-                                                <p className="text-[12px] text-mute italic">Sin tutor asignado</p>
+                                                <p className="text-mute text-[12px] italic">
+                                                    Sin tutor asignado
+                                                </p>
                                             )}
                                         </div>
 
                                         {/* Stats */}
-                                        <div className="grid grid-cols-3 gap-3 mb-4">
+                                        <div className="mb-4 grid grid-cols-3 gap-3">
                                             <div>
-                                                <p className="font-display text-[22px] font-bold text-ink leading-none">
+                                                <p className="font-display text-ink text-[22px] leading-none font-bold">
                                                     {g._count.users}
                                                 </p>
-                                                <p className="mt-1 font-mono text-[9px] font-bold uppercase tracking-[0.1em] text-mute">
+                                                <p className="text-mute mt-1 font-mono text-[9px] font-bold tracking-[0.1em] uppercase">
                                                     Estudiantes
                                                 </p>
                                             </div>
                                             <div>
-                                                <p className="font-display text-[22px] font-bold text-ink leading-none">
+                                                <p className="font-display text-ink text-[22px] leading-none font-bold">
                                                     {g._count.exams}
                                                 </p>
-                                                <p className="mt-1 font-mono text-[9px] font-bold uppercase tracking-[0.1em] text-mute">
+                                                <p className="text-mute mt-1 font-mono text-[9px] font-bold tracking-[0.1em] uppercase">
                                                     Exámenes
                                                 </p>
                                             </div>
                                             <div>
-                                                <p className="font-display text-[22px] font-bold text-ink leading-none">
-                                                    {g.avgGrade !== null ? g.avgGrade.toFixed(1) : '—'}
+                                                <p className="font-display text-ink text-[22px] leading-none font-bold">
+                                                    {g.avgGrade !== null
+                                                        ? g.avgGrade.toFixed(1)
+                                                        : '—'}
                                                 </p>
-                                                <p className="mt-1 font-mono text-[9px] font-bold uppercase tracking-[0.1em] text-mute">
+                                                <p className="text-mute mt-1 font-mono text-[9px] font-bold tracking-[0.1em] uppercase">
                                                     Promedio
                                                 </p>
                                             </div>
@@ -333,17 +357,23 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
                                                 <>
                                                     <div className="flex -space-x-2">
                                                         {visibleStudents.map((s) => (
-                                                            <InitialsAvatar key={s.id} name={s.name} lastname={s.lastname} />
+                                                            <InitialsAvatar
+                                                                key={s.id}
+                                                                name={s.name}
+                                                                lastname={s.lastname}
+                                                            />
                                                         ))}
                                                     </div>
                                                     {extraStudents > 0 && (
-                                                        <span className="text-[12px] font-medium text-mute">
+                                                        <span className="text-mute text-[12px] font-medium">
                                                             +{extraStudents} más
                                                         </span>
                                                     )}
                                                 </>
                                             ) : (
-                                                <span className="text-[12px] text-mute italic">Sin estudiantes</span>
+                                                <span className="text-mute text-[12px] italic">
+                                                    Sin estudiantes
+                                                </span>
                                             )}
                                         </div>
                                     </div>
@@ -355,50 +385,67 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
             </main>
 
             {/* Students modal */}
-            <Dialog open={studentsGroup !== null} onOpenChange={(o) => !o && setStudentsGroup(null)}>
-                <DialogContent className="sm:max-w-xl rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
-                    <div className="px-6 py-5 border-b border-border bg-paper">
-                        <DialogTitle className="font-display text-2xl text-ink">
+            <Dialog
+                open={studentsGroup !== null}
+                onOpenChange={(o) => !o && setStudentsGroup(null)}
+            >
+                <DialogContent className="border-border overflow-hidden rounded-[22px] p-0 shadow-2xl sm:max-w-xl">
+                    <div className="border-border bg-paper border-b px-6 py-5">
+                        <DialogTitle className="font-display text-ink text-2xl">
                             Estudiantes — {studentsGroup?.name}
                         </DialogTitle>
-                        <DialogDescription className="sr-only">Listado de estudiantes asignados al grupo.</DialogDescription>
+                        <DialogDescription className="sr-only">
+                            Listado de estudiantes asignados al grupo.
+                        </DialogDescription>
                     </div>
                     {studentsGroup && studentsGroup.users.length === 0 ? (
                         <div className="flex flex-col items-center gap-2 py-16 text-center">
                             <GraduationCap size={40} className="text-mute/20" />
-                            <p className="text-sm font-medium text-mute">Este grupo no tiene alumnos asignados.</p>
+                            <p className="text-mute text-sm font-medium">
+                                Este grupo no tiene alumnos asignados.
+                            </p>
                         </div>
                     ) : (
                         <div className="max-h-[60vh] overflow-y-auto">
                             <table className="w-full text-sm">
-                                <thead className="sticky top-0 bg-white border-b border-border z-10">
+                                <thead className="border-border sticky top-0 z-10 border-b bg-white">
                                     <tr>
-                                        <th className="px-6 py-3 text-left font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-mute">
+                                        <th className="text-mute px-6 py-3 text-left font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                             Estudiante
                                         </th>
-                                        <th className="px-6 py-3 text-left font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-mute">
+                                        <th className="text-mute px-6 py-3 text-left font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                             RUT
                                         </th>
-                                        <th className="px-6 py-3 text-center font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-mute">
+                                        <th className="text-mute px-6 py-3 text-center font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                             Estado
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-border">
+                                <tbody className="divide-border divide-y">
                                     {studentsGroup?.users.map((s) => (
-                                        <tr key={s.id} className="hover:bg-paper-warm/30 transition-colors">
+                                        <tr
+                                            key={s.id}
+                                            className="hover:bg-paper-warm/30 transition-colors"
+                                        >
                                             <td className="px-6 py-4">
-                                                <p className={cn('text-[13.5px] font-bold', s.active ? 'text-ink' : 'text-mute opacity-50')}>
+                                                <p
+                                                    className={cn(
+                                                        'text-[13.5px] font-bold',
+                                                        s.active
+                                                            ? 'text-ink'
+                                                            : 'text-mute opacity-50',
+                                                    )}
+                                                >
                                                     {s.lastname}, {s.name}
                                                 </p>
                                             </td>
-                                            <td className="px-6 py-4 font-mono text-[12px] text-mute">
+                                            <td className="text-mute px-6 py-4 font-mono text-[12px]">
                                                 {formatRut(s.rut)}
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 <Tag
                                                     tone={s.active ? 'success' : 'default'}
-                                                    className="font-bold text-[10px] h-5"
+                                                    className="h-5 text-[10px] font-bold"
                                                 >
                                                     {s.active ? 'Activa' : 'Inactiva'}
                                                 </Tag>
@@ -409,7 +456,7 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
                             </table>
                         </div>
                     )}
-                    <div className="px-6 py-4 border-t border-border flex justify-end bg-white">
+                    <div className="border-border flex justify-end border-t bg-white px-6 py-4">
                         <Button variant="ink" size="md" onClick={() => setStudentsGroup(null)}>
                             Cerrar lista
                         </Button>
@@ -419,16 +466,21 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
 
             {/* Create/Edit dialog */}
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="rounded-[22px] border-border shadow-2xl">
+                <DialogContent className="border-border rounded-[22px] shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-display text-2xl">
                             {editing ? 'Editar grupo' : 'Nuevo grupo'}
                         </DialogTitle>
-                        <DialogDescription className="sr-only">Formulario para crear o editar un grupo.</DialogDescription>
+                        <DialogDescription className="sr-only">
+                            Formulario para crear o editar un grupo.
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="flex flex-col gap-4 py-4">
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="group-form-name" className="text-[13px] font-bold text-ink">
+                            <label
+                                htmlFor="group-form-name"
+                                className="text-ink text-[13px] font-bold"
+                            >
                                 Nombre del grupo
                             </label>
                             <Input
@@ -439,13 +491,21 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
                                     setName(e.target.value);
                                     setError(null);
                                 }}
-                                className={cn('h-11 rounded-[10px] border-border bg-white', error && 'border-destructive')}
+                                className={cn(
+                                    'border-border h-11 rounded-[10px] bg-white',
+                                    error && 'border-destructive',
+                                )}
                                 autoFocus
                             />
-                            {error && <p className="text-xs font-medium text-destructive">{error}</p>}
+                            {error && (
+                                <p className="text-destructive text-xs font-medium">{error}</p>
+                            )}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="group-form-stream" className="text-[13px] font-bold text-ink">
+                            <label
+                                htmlFor="group-form-stream"
+                                className="text-ink text-[13px] font-bold"
+                            >
                                 Mención / especialidad (opcional)
                             </label>
                             <Input
@@ -453,16 +513,18 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
                                 placeholder="Ej: Científico-Humanista"
                                 value={stream}
                                 onChange={(e) => setStream(e.target.value)}
-                                className="h-11 rounded-[10px] border-border bg-white"
+                                className="border-border h-11 rounded-[10px] bg-white"
                             />
                         </div>
                         <div className="flex flex-col gap-2">
-                            <span className="text-[13px] font-bold text-ink">Profesor/a tutor/a (opcional)</span>
+                            <span className="text-ink text-[13px] font-bold">
+                                Profesor/a tutor/a (opcional)
+                            </span>
                             <Select value={tutorId} onValueChange={setTutorId}>
-                                <SelectTrigger className="h-11 rounded-[10px] border-border bg-white">
+                                <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
                                     <SelectValue placeholder="Sin tutor asignado" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl border-border shadow-xl">
+                                <SelectContent className="border-border rounded-xl shadow-xl">
                                     <SelectItem value={NO_TUTOR}>Sin tutor asignado</SelectItem>
                                     {professors.map((p) => (
                                         <SelectItem key={p.id} value={p.id}>
@@ -474,11 +536,16 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
                         </div>
                     </div>
                     <DialogFooter className="gap-2">
-                        <Button variant="ghost" size="md" onClick={() => setIsOpen(false)} disabled={isPending}>
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setIsOpen(false)}
+                            disabled={isPending}
+                        >
                             Cancelar
                         </Button>
                         <Button variant="ink" size="md" disabled={isPending} onClick={handleSave}>
-                            {isPending && <Loader2 className="animate-spin mr-2" />}
+                            {isPending && <Loader2 className="mr-2 animate-spin" />}
                             {editing ? 'Guardar cambios' : 'Crear grupo'}
                         </Button>
                     </DialogFooter>
@@ -487,14 +554,19 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
 
             {/* Delete dialog */}
             <Dialog open={isDelOpen} onOpenChange={setIsDelOpen}>
-                <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
+                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle className="font-display text-2xl text-destructive">Eliminar grupo</DialogTitle>
-                        <DialogDescription className="sr-only">Confirmación para eliminar el grupo de forma permanente.</DialogDescription>
+                        <DialogTitle className="font-display text-destructive text-2xl">
+                            Eliminar grupo
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Confirmación para eliminar el grupo de forma permanente.
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
-                        <p className="text-[14px] leading-relaxed text-ink-dim">
-                            ¿Estás seguro de eliminar <strong className="text-ink">{toDelete?.name}</strong>?
+                        <p className="text-ink-dim text-[14px] leading-relaxed">
+                            ¿Estás seguro de eliminar{' '}
+                            <strong className="text-ink">{toDelete?.name}</strong>?
                             {toDelete && toDelete._count.users > 0
                                 ? ` Los ${toDelete._count.users} alumno(s) de este grupo quedarán sin grupo asignado.`
                                 : ' Este grupo no tiene alumnos asignados.'}
@@ -505,12 +577,22 @@ export function GroupsClient({ slug, institutionName, groups, professors, canMut
                             {deleteError}
                         </p>
                     )}
-                    <DialogFooter className="gap-2 sm:justify-end mt-2">
-                        <Button variant="ghost" size="md" onClick={() => setIsDelOpen(false)} disabled={isPending}>
+                    <DialogFooter className="mt-2 gap-2 sm:justify-end">
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setIsDelOpen(false)}
+                            disabled={isPending}
+                        >
                             Cancelar
                         </Button>
-                        <Button variant="danger" size="md" disabled={isPending} onClick={handleDelete}>
-                            {isPending && <Loader2 className="animate-spin mr-2" />}
+                        <Button
+                            variant="danger"
+                            size="md"
+                            disabled={isPending}
+                            onClick={handleDelete}
+                        >
+                            {isPending && <Loader2 className="mr-2 animate-spin" />}
                             Eliminar
                         </Button>
                     </DialogFooter>

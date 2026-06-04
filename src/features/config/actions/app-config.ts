@@ -14,7 +14,11 @@ type AppConfigMap = Record<AppConfigKey, string>;
 async function requireSuperAdmin(): Promise<{ id: string; email: string; userRoleName: string }> {
     const session = await auth();
     if (session?.user.userRoleName !== USER_ROLE.SUPER_ADMIN) throw new Error('Unauthorized');
-    return { id: session.user.id, email: session.user.email ?? '', userRoleName: session.user.userRoleName };
+    return {
+        id: session.user.id,
+        email: session.user.email ?? '',
+        userRoleName: session.user.userRoleName,
+    };
 }
 
 export async function getAppConfig(): Promise<AppConfigMap> {
@@ -60,7 +64,8 @@ export async function saveAppConfig(
     if (!actor) return { data: null, error: 'No autorizado' };
 
     const parsed = saveSchema.safeParse({ key, value });
-    if (!parsed.success) return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
+    if (!parsed.success)
+        return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
 
     try {
         await prisma.appConfig.upsert({

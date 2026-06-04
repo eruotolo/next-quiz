@@ -25,7 +25,11 @@ export interface GlobalStudentRow {
 async function requireSuperAdmin(): Promise<{ id: string; email: string; userRoleName: string }> {
     const session = await auth();
     if (session?.user.userRoleName !== USER_ROLE.SUPER_ADMIN) throw new Error('Unauthorized');
-    return { id: session.user.id, email: session.user.email ?? '', userRoleName: session.user.userRoleName };
+    return {
+        id: session.user.id,
+        email: session.user.email ?? '',
+        userRoleName: session.user.userRoleName,
+    };
 }
 
 const studentGlobalSchema = z.object({
@@ -101,7 +105,8 @@ export async function createStudentGlobal(
     if (!actor) return { data: null, error: 'No autorizado' };
 
     const parsed = studentGlobalSchema.safeParse(data);
-    if (!parsed.success) return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
+    if (!parsed.success)
+        return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
 
     const studentRole = await prisma.userRole.findUnique({ where: { name: USER_ROLE.STUDENT } });
     if (!studentRole) return { data: null, error: 'Rol Estudiante no encontrado.' };
@@ -153,7 +158,8 @@ export async function updateStudentGlobal(
     if (!actor) return { data: null, error: 'No autorizado' };
 
     const parsed = studentGlobalSchema.safeParse(data);
-    if (!parsed.success) return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
+    if (!parsed.success)
+        return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
 
     try {
         await prisma.user.update({
@@ -188,7 +194,9 @@ export async function updateStudentGlobal(
     }
 }
 
-export async function deleteStudentGlobal(id: string): Promise<{ data: null; error: string | null }> {
+export async function deleteStudentGlobal(
+    id: string,
+): Promise<{ data: null; error: string | null }> {
     const actor = await requireSuperAdmin().catch(() => null);
     if (!actor) return { data: null, error: 'No autorizado' };
 

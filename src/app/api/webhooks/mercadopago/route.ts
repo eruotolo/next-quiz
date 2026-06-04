@@ -1,7 +1,10 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/shared/lib/prisma';
 import { verifyWebhookSignature } from '@/features/subscriptions/lib/mercadopago';
-import { activateInstitutionPlan, downgradeInstitutionToFree } from '@/features/subscriptions/lib/plan-sync';
+import {
+    activateInstitutionPlan,
+    downgradeInstitutionToFree,
+} from '@/features/subscriptions/lib/plan-sync';
 import { SubscriptionStatus, PaymentStatus } from '@prisma/client';
 
 async function saveWebhookEvent(
@@ -72,7 +75,11 @@ async function handlePreapproval(dataId: string, token: string): Promise<void> {
         });
         // Sincronizar el plan de la institución con la suscripción autorizada.
         if (target.academicInstitutionId) {
-            await activateInstitutionPlan(target.academicInstitutionId, target.plan, expiresAt ?? null);
+            await activateInstitutionPlan(
+                target.academicInstitutionId,
+                target.plan,
+                expiresAt ?? null,
+            );
         }
     } else if (mpStatus === 'cancelled') {
         await prisma.subscription.update({
@@ -148,10 +155,9 @@ async function handlePayment(dataId: string, token: string): Promise<void> {
 }
 
 async function handleAuthorizedPayment(dataId: string, token: string): Promise<void> {
-    const mpRes = await fetch(
-        `https://api.mercadopago.com/authorized_payments/${dataId}`,
-        { headers: { Authorization: `Bearer ${token}` } },
-    );
+    const mpRes = await fetch(`https://api.mercadopago.com/authorized_payments/${dataId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
     if (!mpRes.ok) return;
 
     const ap = (await mpRes.json()) as {
@@ -196,9 +202,7 @@ async function handleAuthorizedPayment(dataId: string, token: string): Promise<v
             periodStart: ap.payment_period?.start_date
                 ? new Date(ap.payment_period.start_date)
                 : null,
-            periodEnd: ap.payment_period?.end_date
-                ? new Date(ap.payment_period.end_date)
-                : null,
+            periodEnd: ap.payment_period?.end_date ? new Date(ap.payment_period.end_date) : null,
             rawPayload: ap as never,
         },
     });

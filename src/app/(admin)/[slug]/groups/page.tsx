@@ -1,33 +1,23 @@
-import { auth } from '@/features/auth/auth';
 import { GroupsClient } from '@/features/groups/components/GroupsClient';
 import { calcGrade } from '@/features/results/lib/grade';
 import { prisma } from '@/shared/lib/prisma';
+import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
+import { groupProfessorFilter } from '@/shared/lib/scoping';
 import { USER_ROLE } from '@/shared/lib/roles';
-import { redirect } from 'next/navigation';
 
 export default async function GroupsPage({ params }: { params: Promise<{ slug: string }> }) {
-    const [{ slug }, session] = await Promise.all([params, auth()]);
-    if (!session) redirect('/login');
+    const { slug } = await params;
+    const { institutionId, institutionName, userId, isProfesor } =
+        await requireInstitutionPageAccess(slug);
 
-    const inst = await prisma.academicInstitution.findUnique({
-        where: { slug },
-        select: { id: true, name: true },
-    });
-    if (!inst) redirect(session.user.userRoleName === USER_ROLE.SUPER_ADMIN ? '/config' : '/login');
-
-    const isSuperAdmin = session.user.userRoleName === USER_ROLE.SUPER_ADMIN;
-    const isAdmin = session.user.userRoleName === USER_ROLE.ADMIN;
-    const isProfesor = session.user.userRoleName === USER_ROLE.PROFESOR;
-
-    if (!isSuperAdmin && session.user.academicInstitutionId !== inst.id) redirect('/login');
-
-    const canMutate = isSuperAdmin || isAdmin;
+    // Solo Admin/SuperAdmin mutan grupos; el Profesor solo ve los suyos.
+    const canMutate = !isProfesor;
 
     const [groups, professors] = await Promise.all([
         prisma.group.findMany({
             where: {
-                academicInstitutionId: inst.id,
-                ...(isProfesor ? { professors: { some: { id: session.user.id } } } : {}),
+                academicInstitutionId: institutionId,
+                ...(isProfesor && groupProfessorFilter(userId)),
             },
             include: {
                 _count: { select: { users: true, exams: true } },
@@ -41,7 +31,7 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
             orderBy: { name: 'asc' },
         }),
         prisma.user.findMany({
-            where: { academicInstitutionId: inst.id, userRole: { name: USER_ROLE.PROFESOR } },
+            where: { academicInstitutionId: institutionId, userRole: { name: USER_ROLE.PROFESOR } },
             select: { id: true, name: true, lastname: true },
             orderBy: { lastname: 'asc' },
         }),
@@ -54,13 +44,15 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
             ? await prisma.result.findMany({
                   where: {
                       student: { groupId: { in: groupIds } },
-                      exam: { academicInstitutionId: inst.id },
+                      exam: { academicInstitutionId: institutionId },
                   },
                   select: {
                       score: true,
                       maxScore: true,
                       student: { select: { groupId: true } },
-                      exam: { select: { maxGrade: true, passingGrade: true, passingPercentage: true } },
+                      exam: {
+                          select: { maxGrade: true, passingGrade: true, passingPercentage: true },
+                      },
                   },
               })
             : [];
@@ -93,7 +85,7 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
     return (
         <GroupsClient
             slug={slug}
-            institutionName={inst.name}
+            institutionName={institutionName}
             groups={groupsWithAvg}
             professors={professors}
             canMutate={canMutate}

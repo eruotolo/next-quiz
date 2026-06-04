@@ -26,14 +26,30 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/shared/components/ui/table';
 import { TablePaginator } from '@/shared/components/ui/table-paginator';
 import { Avatar } from '@/shared/components/ui/avatar';
 import { Tag } from '@/shared/components/ui/badge';
 import { RutField } from '@/shared/components/ui/rut-field';
 import { formatRut } from '@/shared/lib/rut';
 import type { PaginatedResult } from '@/shared/types/pagination';
-import { Loader2, Pencil, Plus, Trash2, Users, Search, Building2, MoreHorizontal } from 'lucide-react';
+import {
+    Loader2,
+    Pencil,
+    Plus,
+    Trash2,
+    Users,
+    Search,
+    Building2,
+    MoreHorizontal,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { useState, useTransition } from 'react';
@@ -94,55 +110,61 @@ function StudentForm({
         <form onSubmit={handleSubmit} className="flex flex-col gap-5 py-4">
             <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                    <label htmlFor="gstu-name" className="text-[13px] font-bold text-ink">Nombre</label>
+                    <label htmlFor="gstu-name" className="text-ink text-[13px] font-bold">
+                        Nombre
+                    </label>
                     <Input
                         id="gstu-name"
                         value={form.name}
                         onChange={(e) => handleChange('name', e.target.value)}
-                        className="h-11 rounded-[10px] bg-white border-border"
+                        className="border-border h-11 rounded-[10px] bg-white"
                         required
                     />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                    <label htmlFor="gstu-lastname" className="text-[13px] font-bold text-ink">Apellido</label>
+                    <label htmlFor="gstu-lastname" className="text-ink text-[13px] font-bold">
+                        Apellido
+                    </label>
                     <Input
                         id="gstu-lastname"
                         value={form.lastname}
                         onChange={(e) => handleChange('lastname', e.target.value)}
-                        className="h-11 rounded-[10px] bg-white border-border"
+                        className="border-border h-11 rounded-[10px] bg-white"
                         required
                     />
                 </div>
             </div>
             <div className="flex flex-col gap-1.5">
-                <label htmlFor="gstu-email" className="text-[13px] font-bold text-ink">Email</label>
+                <label htmlFor="gstu-email" className="text-ink text-[13px] font-bold">
+                    Email
+                </label>
                 <Input
                     id="gstu-email"
                     type="email"
                     value={form.email}
                     onChange={(e) => handleChange('email', e.target.value)}
-                    className="h-11 rounded-[10px] bg-white border-border"
+                    className="border-border h-11 rounded-[10px] bg-white"
                     required
                 />
             </div>
             <div className="flex flex-col gap-1.5">
-                <span className="text-[13px] font-bold text-ink">RUT</span>
+                <span className="text-ink text-[13px] font-bold">RUT</span>
                 <RutField
                     value={form.rut}
                     onChange={(v) => handleChange('rut', v)}
-                    className="h-11 rounded-[10px] bg-white border-border"
+                    className="border-border h-11 rounded-[10px] bg-white"
                 />
             </div>
             <div className="flex flex-col gap-1.5">
-                <span className="text-[13px] font-bold text-ink">Institución</span>
+                <span className="text-ink text-[13px] font-bold">Institución</span>
                 <Select
                     value={form.academicInstitutionId}
                     onValueChange={(v) => handleChange('academicInstitutionId', v)}
                 >
-                    <SelectTrigger className="h-11 rounded-[10px] bg-white border-border">
+                    <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
                         <SelectValue placeholder="Seleccioná una institución" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border-border shadow-xl">
+                    <SelectContent className="border-border rounded-xl shadow-xl">
                         {institutions.map((i) => (
                             <SelectItem key={i.id} value={i.id}>
                                 {i.name}
@@ -153,7 +175,7 @@ function StudentForm({
             </div>
             <div className="mt-4 flex justify-end gap-2">
                 <Button type="submit" disabled={isPending} variant="ink" size="md">
-                    {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Guardar alumno
                 </Button>
             </div>
@@ -161,7 +183,12 @@ function StudentForm({
     );
 }
 
-export function GlobalStudentsClient({ result, institutions, q: initialQ, institutionId: initialInstitutionId }: Props): React.JSX.Element {
+export function GlobalStudentsClient({
+    result,
+    institutions,
+    q: initialQ,
+    institutionId: initialInstitutionId,
+}: Props): React.JSX.Element {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [search, setSearch] = useState(initialQ);
@@ -227,14 +254,19 @@ export function GlobalStudentsClient({ result, institutions, q: initialQ, instit
     }
 
     return (
-        <div className="flex flex-col min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             {/* Header */}
             <AdminTopBar
                 breadcrumb={['Sistema', 'Base Global']}
                 title="Todos los Estudiantes"
                 subtitle={`${result.total} alumnos registrados en la red Aulika`}
                 actions={
-                    <Button variant="ink" size="md" onClick={() => setCreateOpen(true)} className="gap-2">
+                    <Button
+                        variant="ink"
+                        size="md"
+                        onClick={() => setCreateOpen(true)}
+                        className="gap-2"
+                    >
                         <Plus size={16} />
                         Nuevo alumno
                     </Button>
@@ -242,17 +274,17 @@ export function GlobalStudentsClient({ result, institutions, q: initialQ, instit
             />
 
             {/* Filter bar */}
-            <div className="flex items-center gap-2 border-b border-border bg-white px-8 py-4">
-                <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-mute" />
+            <div className="border-border flex items-center gap-2 border-b bg-white px-8 py-4">
+                <form onSubmit={handleSearchSubmit} className="relative max-w-sm flex-1">
+                    <Search className="text-mute absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                     <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Buscar por nombre, RUT o email..."
-                        className="pl-9 h-[38px] border-border bg-white"
+                        className="border-border h-[38px] bg-white pl-9"
                     />
                 </form>
-                
+
                 <div className="flex items-center gap-2">
                     <Building2 size={16} className="text-mute ml-4" />
                     <Select
@@ -263,10 +295,10 @@ export function GlobalStudentsClient({ result, institutions, q: initialQ, instit
                             pushUrl({ institutionId: val, page: 1 });
                         }}
                     >
-                        <SelectTrigger className="h-[38px] w-52 border-border bg-white">
+                        <SelectTrigger className="border-border h-[38px] w-52 bg-white">
                             <SelectValue placeholder="Todas las instituciones" />
                         </SelectTrigger>
-                        <SelectContent className="rounded-xl border-border shadow-xl">
+                        <SelectContent className="border-border rounded-xl shadow-xl">
                             <SelectItem value="__all__">Todas las instituciones</SelectItem>
                             {institutions.map((i) => (
                                 <SelectItem key={i.id} value={i.id}>
@@ -278,27 +310,34 @@ export function GlobalStudentsClient({ result, institutions, q: initialQ, instit
                 </div>
 
                 <div className="flex-1" />
-                <span className="font-mono text-[11px] text-mute uppercase tracking-wider">
+                <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
                     {result.total} resultados
                 </span>
             </div>
 
-            <main className="flex-1 p-8 overflow-auto">
+            <main className="flex-1 overflow-auto p-8">
                 {result.items.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
-                        <Users size={48} className="mb-4 text-mute/20" />
-                        <p className="text-lg font-medium text-ink">No hay alumnos encontrados</p>
-                        <p className="mt-1 text-sm text-mute">Ajusta los filtros o crea un nuevo registro.</p>
-                        <Button variant="primary" size="md" onClick={() => setCreateOpen(true)} className="mt-6">
+                        <Users size={48} className="text-mute/20 mb-4" />
+                        <p className="text-ink text-lg font-medium">No hay alumnos encontrados</p>
+                        <p className="text-mute mt-1 text-sm">
+                            Ajusta los filtros o crea un nuevo registro.
+                        </p>
+                        <Button
+                            variant="primary"
+                            size="md"
+                            onClick={() => setCreateOpen(true)}
+                            className="mt-6"
+                        >
                             <Plus size={16} />
                             Nuevo alumno
                         </Button>
                     </Card>
                 ) : (
-                    <Card className="p-0 overflow-visible border-border shadow-sm">
+                    <Card className="border-border overflow-visible p-0 shadow-sm">
                         <Table>
                             <TableHeader className="bg-paper">
-                                <TableRow className="hover:bg-transparent border-b border-border">
+                                <TableRow className="border-border border-b hover:bg-transparent">
                                     <TableHead>Estudiante</TableHead>
                                     <TableHead className="w-[160px]">RUT</TableHead>
                                     <TableHead className="w-[200px]">Institución</TableHead>
@@ -308,54 +347,85 @@ export function GlobalStudentsClient({ result, institutions, q: initialQ, instit
                             </TableHeader>
                             <TableBody>
                                 {result.items.map((row) => (
-                                    <TableRow key={row.id} className="group h-16 border-b border-border last:border-0">
+                                    <TableRow
+                                        key={row.id}
+                                        className="group border-border h-16 border-b last:border-0"
+                                    >
                                         <TableCell>
                                             <div className="flex items-center gap-3">
                                                 <Avatar
                                                     name={`${row.name} ${row.lastname}`}
                                                     size={32}
-                                                    className="ring-1 ring-border shadow-sm"
+                                                    className="ring-border shadow-sm ring-1"
                                                 />
                                                 <div className="flex flex-col">
-                                                    <span className="text-[13.5px] font-bold text-ink leading-tight">{row.name} {row.lastname}</span>
-                                                    <span className="text-[11.5px] text-mute">{row.email}</span>
+                                                    <span className="text-ink text-[13.5px] leading-tight font-bold">
+                                                        {row.name} {row.lastname}
+                                                    </span>
+                                                    <span className="text-mute text-[11.5px]">
+                                                        {row.email}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="font-mono text-[12px] text-mute">
+                                        <TableCell className="text-mute font-mono text-[12px]">
                                             {formatRut(row.rut)}
                                         </TableCell>
                                         <TableCell>
                                             {row.institution ? (
                                                 <div className="flex items-center gap-2">
-                                                    <Building2 size={12} className="text-primary/60" />
-                                                    <span className="text-[12.5px] font-medium text-ink-dim">{row.institution.name}</span>
+                                                    <Building2
+                                                        size={12}
+                                                        className="text-primary/60"
+                                                    />
+                                                    <span className="text-ink-dim text-[12.5px] font-medium">
+                                                        {row.institution.name}
+                                                    </span>
                                                 </div>
                                             ) : (
-                                                <span className="text-[11.5px] text-mute">—</span>
+                                                <span className="text-mute text-[11.5px]">—</span>
                                             )}
                                         </TableCell>
                                         <TableCell>
                                             {row.group ? (
-                                                <Tag tone="outline" className="font-mono text-[10px] h-5 border-border bg-paper-warm/50">
+                                                <Tag
+                                                    tone="outline"
+                                                    className="border-border bg-paper-warm/50 h-5 font-mono text-[10px]"
+                                                >
                                                     {row.group.name}
                                                 </Tag>
                                             ) : (
-                                                <span className="text-[11.5px] text-mute">—</span>
+                                                <span className="text-mute text-[11.5px]">—</span>
                                             )}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon-sm" className="h-9 w-9">
-                                                        <MoreHorizontal size={18} className="text-mute" />
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon-sm"
+                                                        className="h-9 w-9"
+                                                    >
+                                                        <MoreHorizontal
+                                                            size={18}
+                                                            className="text-mute"
+                                                        />
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="rounded-xl border-border shadow-xl w-44">
-                                                    <DropdownMenuItem onClick={() => setEditRow(row)} className="gap-2 py-2.5 cursor-pointer">
+                                                <DropdownMenuContent
+                                                    align="end"
+                                                    className="border-border w-44 rounded-xl shadow-xl"
+                                                >
+                                                    <DropdownMenuItem
+                                                        onClick={() => setEditRow(row)}
+                                                        className="cursor-pointer gap-2 py-2.5"
+                                                    >
                                                         <Pencil size={14} /> Editar datos
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => setDeleteRow(row)} className="text-destructive gap-2 py-2.5 cursor-pointer focus:bg-danger-wash focus:text-destructive">
+                                                    <DropdownMenuItem
+                                                        onClick={() => setDeleteRow(row)}
+                                                        className="text-destructive focus:bg-danger-wash focus:text-destructive cursor-pointer gap-2 py-2.5"
+                                                    >
                                                         <Trash2 size={14} /> Eliminar registro
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -377,10 +447,14 @@ export function GlobalStudentsClient({ result, institutions, q: initialQ, instit
 
             {/* Create dialog */}
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-                <DialogContent className="max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
-                    <div className="px-6 py-5 border-b border-border bg-paper">
-                        <DialogTitle className="font-display text-2xl text-ink">Nuevo alumno</DialogTitle>
-                        <DialogDescription className="sr-only">Formulario para registrar un nuevo alumno.</DialogDescription>
+                <DialogContent className="border-border max-w-lg overflow-hidden rounded-[22px] p-0 shadow-2xl">
+                    <div className="border-border bg-paper border-b px-6 py-5">
+                        <DialogTitle className="font-display text-ink text-2xl">
+                            Nuevo alumno
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Formulario para registrar un nuevo alumno.
+                        </DialogDescription>
                     </div>
                     <div className="px-6">
                         <StudentForm
@@ -394,10 +468,14 @@ export function GlobalStudentsClient({ result, institutions, q: initialQ, instit
 
             {/* Edit dialog */}
             <Dialog open={!!editRow} onOpenChange={(o) => !o && setEditRow(null)}>
-                <DialogContent className="max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
-                    <div className="px-6 py-5 border-b border-border bg-paper">
-                        <DialogTitle className="font-display text-2xl text-ink">Editar alumno</DialogTitle>
-                        <DialogDescription className="sr-only">Formulario para editar los datos del alumno.</DialogDescription>
+                <DialogContent className="border-border max-w-lg overflow-hidden rounded-[22px] p-0 shadow-2xl">
+                    <div className="border-border bg-paper border-b px-6 py-5">
+                        <DialogTitle className="font-display text-ink text-2xl">
+                            Editar alumno
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Formulario para editar los datos del alumno.
+                        </DialogDescription>
                     </div>
                     <div className="px-6">
                         {editRow && (
@@ -421,20 +499,40 @@ export function GlobalStudentsClient({ result, institutions, q: initialQ, instit
 
             {/* Delete confirmation */}
             <Dialog open={!!deleteRow} onOpenChange={(o) => !o && setDeleteRow(null)}>
-                <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
+                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle className="font-display text-2xl text-destructive">Eliminar alumno</DialogTitle>
-                        <DialogDescription className="sr-only">Confirmación para eliminar el alumno de forma permanente.</DialogDescription>
+                        <DialogTitle className="font-display text-destructive text-2xl">
+                            Eliminar alumno
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Confirmación para eliminar el alumno de forma permanente.
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
-                        <p className="text-[14px] leading-relaxed text-ink-dim">
-                            ¿Estás seguro de eliminar a <strong className="text-ink">{deleteRow?.name} {deleteRow?.lastname}</strong>? Esta acción es irreversible.
+                        <p className="text-ink-dim text-[14px] leading-relaxed">
+                            ¿Estás seguro de eliminar a{' '}
+                            <strong className="text-ink">
+                                {deleteRow?.name} {deleteRow?.lastname}
+                            </strong>
+                            ? Esta acción es irreversible.
                         </p>
                     </div>
-                    <DialogFooter className="gap-2 sm:justify-end mt-2">
-                        <Button variant="ghost" size="md" onClick={() => setDeleteRow(null)} disabled={isPending}>Cancelar</Button>
-                        <Button variant="danger" size="md" onClick={handleDelete} disabled={isPending}>
-                            {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    <DialogFooter className="mt-2 gap-2 sm:justify-end">
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setDeleteRow(null)}
+                            disabled={isPending}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="danger"
+                            size="md"
+                            onClick={handleDelete}
+                            disabled={isPending}
+                        >
+                            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Eliminar
                         </Button>
                     </DialogFooter>

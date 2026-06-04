@@ -64,7 +64,11 @@ export function LogoMark({
 }
 
 // Wordmark: "aulika" in Bricolage Grotesque 600, tracking -3.5%
-export function LogoWordmark({ size = 16, color, className }: LogoWordmarkProps): React.JSX.Element {
+export function LogoWordmark({
+    size = 16,
+    color,
+    className,
+}: LogoWordmarkProps): React.JSX.Element {
     return (
         <span
             className={className}
@@ -93,10 +97,7 @@ export function LogoLockup({
     const wordSize = size;
     const gap = Math.round(size * 0.33);
     return (
-        <div
-            className={`inline-flex items-center ${className ?? ''}`}
-            style={{ gap }}
-        >
+        <div className={`inline-flex items-center ${className ?? ''}`} style={{ gap }}>
             <LogoMark size={markSize} variant={variant} />
             <LogoWordmark size={wordSize} />
         </div>
@@ -104,7 +105,13 @@ export function LogoLockup({
 }
 
 /** @deprecated Use LogoMark */
-export function LogoIcon({ size = 18, className }: { size?: number; className?: string }): React.JSX.Element {
+export function LogoIcon({
+    size = 18,
+    className,
+}: {
+    size?: number;
+    className?: string;
+}): React.JSX.Element {
     return (
         <svg
             width={size}

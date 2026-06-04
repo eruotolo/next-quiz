@@ -6,8 +6,11 @@ import { toast } from 'sonner';
 import dynamic from 'next/dynamic';
 
 const ImportQuestionsDialog = dynamic(
-    () => import('@/features/exams/components/ImportQuestionsDialog').then((m) => m.ImportQuestionsDialog),
-    { ssr: false }
+    () =>
+        import('@/features/exams/components/ImportQuestionsDialog').then(
+            (m) => m.ImportQuestionsDialog,
+        ),
+    { ssr: false },
 );
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
@@ -25,7 +28,20 @@ import { Input } from '@/shared/components/ui/input';
 import { Switch } from '@/shared/components/ui/switch';
 import { cn } from '@/shared/lib/utils';
 import type { Exam, Group, Option, Question } from '@prisma/client';
-import { ArrowLeft, BookOpen, Flag, GripVertical, Loader2, Plus, Settings, Shuffle, Trash2, Upload, X, Zap } from 'lucide-react';
+import {
+    ArrowLeft,
+    BookOpen,
+    Flag,
+    GripVertical,
+    Loader2,
+    Plus,
+    Settings,
+    Shuffle,
+    Trash2,
+    Upload,
+    X,
+    Zap,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
@@ -283,14 +299,19 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
     const totalPoints = exam.questions.reduce((s, q) => s + q.points, 0);
 
     return (
-        <div className="flex flex-col min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             <AdminTopBar
                 breadcrumb={['Exámenes', exam.title]}
                 title={exam.title}
                 subtitle={`${exam.groups.map((g) => g.name).join(' · ')} · ${exam.timeLimit} min · ${exam.questions.length} pregunta${exam.questions.length !== 1 ? 's' : ''} · ${totalPoints} pts`}
                 actions={
                     <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="md" onClick={() => setIsImportOpen(true)} className="gap-2">
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setIsImportOpen(true)}
+                            className="gap-2"
+                        >
                             <Upload size={15} />
                             Importar
                         </Button>
@@ -309,17 +330,17 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
 
             <div className="flex flex-1 overflow-hidden">
                 {/* Left sidebar: question map */}
-                <aside className="w-[260px] shrink-0 flex flex-col border-r border-border bg-white overflow-y-auto">
-                    <div className="px-4 py-3 border-b border-border">
-                        <p className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-mute">
+                <aside className="border-border flex w-[260px] shrink-0 flex-col overflow-y-auto border-r bg-white">
+                    <div className="border-border border-b px-4 py-3">
+                        <p className="text-mute font-mono text-[10px] font-bold tracking-[0.12em] uppercase">
                             Preguntas · {exam.questions.length}
                         </p>
                     </div>
-                    <div className="flex flex-col gap-1 p-3 flex-1">
+                    <div className="flex flex-1 flex-col gap-1 p-3">
                         {exam.questions.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-10 gap-2">
+                            <div className="flex flex-col items-center justify-center gap-2 py-10">
                                 <BookOpen size={28} className="text-mute/20" />
-                                <p className="text-[12px] text-mute text-center">Sin preguntas</p>
+                                <p className="text-mute text-center text-[12px]">Sin preguntas</p>
                             </div>
                         ) : (
                             exam.questions.map((q, idx) => {
@@ -329,16 +350,20 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                         key={q.id}
                                         type="button"
                                         onClick={() => openEdit(q, idx)}
-                                        className="group flex items-center gap-2.5 rounded-[10px] px-3 py-2.5 text-left transition-colors hover:bg-primary-wash/60"
+                                        className="group hover:bg-primary-wash/60 flex items-center gap-2.5 rounded-[10px] px-3 py-2.5 text-left transition-colors"
                                     >
                                         <GripVertical size={12} className="text-mute/40 shrink-0" />
-                                        <div className={cn(
-                                            "flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] text-[11px] font-bold",
-                                            hasIssue ? "bg-warning-wash text-warning" : "bg-paper-warm text-ink-dim"
-                                        )}>
+                                        <div
+                                            className={cn(
+                                                'flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] text-[11px] font-bold',
+                                                hasIssue
+                                                    ? 'bg-warning-wash text-warning'
+                                                    : 'bg-paper-warm text-ink-dim',
+                                            )}
+                                        >
                                             {String(idx + 1).padStart(2, '0')}
                                         </div>
-                                        <p className="text-[12px] font-medium text-ink-dim truncate flex-1">
+                                        <p className="text-ink-dim flex-1 truncate text-[12px] font-medium">
                                             {q.text || 'Sin texto'}
                                         </p>
                                         {hasIssue && (
@@ -349,8 +374,13 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                             })
                         )}
                     </div>
-                    <div className="p-3 border-t border-border">
-                        <Button variant="ghost" size="sm" onClick={openNew} className="w-full gap-2 text-primary font-bold border border-dashed border-primary/20 hover:bg-primary-wash/40">
+                    <div className="border-border border-t p-3">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={openNew}
+                            className="text-primary border-primary/20 hover:bg-primary-wash/40 w-full gap-2 border border-dashed font-bold"
+                        >
                             <Plus size={14} />
                             Nueva pregunta
                         </Button>
@@ -361,37 +391,58 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                 <main className="flex-1 overflow-y-auto p-8">
                     {exam.questions.length === 0 ? (
                         <Card className="flex flex-col items-center justify-center border-dashed py-24">
-                            <BookOpen size={48} className="mb-4 text-mute/20" />
-                            <p className="text-lg font-bold text-ink">Este examen no tiene preguntas</p>
-                            <p className="mt-1 text-sm text-mute">Agregá la primera o importalas en masa.</p>
+                            <BookOpen size={48} className="text-mute/20 mb-4" />
+                            <p className="text-ink text-lg font-bold">
+                                Este examen no tiene preguntas
+                            </p>
+                            <p className="text-mute mt-1 text-sm">
+                                Agregá la primera o importalas en masa.
+                            </p>
                             <div className="mt-6 flex gap-3">
                                 <Button variant="ink" size="md" onClick={openNew} className="gap-2">
                                     <Plus size={16} />
                                     Agregar pregunta
                                 </Button>
-                                <Button variant="ghost" size="md" onClick={() => setIsImportOpen(true)} className="gap-2">
+                                <Button
+                                    variant="ghost"
+                                    size="md"
+                                    onClick={() => setIsImportOpen(true)}
+                                    className="gap-2"
+                                >
                                     <Upload size={16} />
                                     Importar
                                 </Button>
                             </div>
                         </Card>
                     ) : (
-                        <div className="space-y-4 max-w-[780px]">
+                        <div className="max-w-[780px] space-y-4">
                             {exam.questions.map((q, idx) => (
                                 <Card
                                     key={q.id}
-                                    className="bg-white border-border shadow-sm overflow-hidden p-0"
+                                    className="border-border overflow-hidden bg-white p-0 shadow-sm"
                                 >
                                     {/* Card header */}
-                                    <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-paper">
+                                    <div className="border-border bg-paper flex items-center justify-between border-b px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <Tag tone="primary" className="font-mono text-[10px] h-6 px-2.5">
+                                            <Tag
+                                                tone="primary"
+                                                className="h-6 px-2.5 font-mono text-[10px]"
+                                            >
                                                 P {String(idx + 1).padStart(2, '0')}
                                             </Tag>
-                                            <Tag tone={q.questionType === 'MULTIPLE' ? 'outline' : 'default'} className="font-mono text-[10px] h-6 px-2.5">
-                                                {q.questionType === 'MULTIPLE' ? 'Múltiple' : 'Única'}
+                                            <Tag
+                                                tone={
+                                                    q.questionType === 'MULTIPLE'
+                                                        ? 'outline'
+                                                        : 'default'
+                                                }
+                                                className="h-6 px-2.5 font-mono text-[10px]"
+                                            >
+                                                {q.questionType === 'MULTIPLE'
+                                                    ? 'Múltiple'
+                                                    : 'Única'}
                                             </Tag>
-                                            <span className="font-mono text-[10px] font-bold text-mute uppercase">
+                                            <span className="text-mute font-mono text-[10px] font-bold uppercase">
                                                 {q.points} {q.points === 1 ? 'PTO' : 'PTOS'}
                                             </span>
                                         </div>
@@ -399,7 +450,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
-                                                className="gap-1.5 text-primary font-bold hover:bg-primary-wash"
+                                                className="text-primary hover:bg-primary-wash gap-1.5 font-bold"
                                                 onClick={() => openEdit(q, idx)}
                                             >
                                                 <Settings size={13} />
@@ -418,7 +469,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
 
                                     {/* Card body */}
                                     <div className="px-6 py-5">
-                                        <p className="font-display text-[18px] font-medium text-ink leading-snug">
+                                        <p className="font-display text-ink text-[18px] leading-snug font-medium">
                                             {q.text}
                                         </p>
                                         <div className="mt-4 space-y-2">
@@ -426,28 +477,40 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                                 <div
                                                     key={o.id}
                                                     className={cn(
-                                                        "flex items-center gap-3 rounded-[10px] border px-4 py-2.5 transition-colors",
+                                                        'flex items-center gap-3 rounded-[10px] border px-4 py-2.5 transition-colors',
                                                         o.isCorrect
-                                                            ? "bg-success/5 border-success/20"
-                                                            : "bg-paper border-border"
+                                                            ? 'bg-success/5 border-success/20'
+                                                            : 'bg-paper border-border',
                                                     )}
                                                 >
-                                                    <div className={cn(
-                                                        "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold border",
-                                                        o.isCorrect
-                                                            ? "bg-success border-success/30 text-white"
-                                                            : "bg-white border-border text-mute"
-                                                    )}>
+                                                    <div
+                                                        className={cn(
+                                                            'flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-bold',
+                                                            o.isCorrect
+                                                                ? 'bg-success border-success/30 text-white'
+                                                                : 'border-border text-mute bg-white',
+                                                        )}
+                                                    >
                                                         {LETTERS[oi]}
                                                     </div>
-                                                    <span className={cn(
-                                                        "text-[13.5px] font-medium",
-                                                        o.isCorrect ? "text-success" : "text-ink-dim"
-                                                    )}>
-                                                        {o.text || <span className="italic opacity-40">Sin texto</span>}
+                                                    <span
+                                                        className={cn(
+                                                            'text-[13.5px] font-medium',
+                                                            o.isCorrect
+                                                                ? 'text-success'
+                                                                : 'text-ink-dim',
+                                                        )}
+                                                    >
+                                                        {o.text || (
+                                                            <span className="italic opacity-40">
+                                                                Sin texto
+                                                            </span>
+                                                        )}
                                                     </span>
                                                     {o.isCorrect && (
-                                                        <span className="ml-auto font-mono text-[10px] font-bold text-success uppercase">✓ Correcta</span>
+                                                        <span className="text-success ml-auto font-mono text-[10px] font-bold uppercase">
+                                                            ✓ Correcta
+                                                        </span>
                                                     )}
                                                 </div>
                                             ))}
@@ -460,45 +523,61 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                 </main>
 
                 {/* Right inspector */}
-                <aside className="w-[280px] shrink-0 flex flex-col border-l border-border bg-white overflow-y-auto">
-                    <div className="px-4 py-3 border-b border-border">
-                        <p className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-mute">
+                <aside className="border-border flex w-[280px] shrink-0 flex-col overflow-y-auto border-l bg-white">
+                    <div className="border-border border-b px-4 py-3">
+                        <p className="text-mute font-mono text-[10px] font-bold tracking-[0.12em] uppercase">
                             Inspector
                         </p>
                     </div>
                     <div className="flex flex-col gap-4 p-4">
                         {/* Exam metadata */}
-                        <Card className="border-border bg-paper shadow-none p-4">
-                            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-mute mb-3">Examen</p>
+                        <Card className="border-border bg-paper p-4 shadow-none">
+                            <p className="text-mute mb-3 font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
+                                Examen
+                            </p>
                             <div className="space-y-2.5">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-[12px] text-mute">Tiempo</span>
-                                    <span className="font-mono text-[12px] font-bold text-ink">{exam.timeLimit} min</span>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-mute text-[12px]">Tiempo</span>
+                                    <span className="text-ink font-mono text-[12px] font-bold">
+                                        {exam.timeLimit} min
+                                    </span>
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-[12px] text-mute">Preguntas</span>
-                                    <span className="font-mono text-[12px] font-bold text-ink">{exam.questions.length}</span>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-mute text-[12px]">Preguntas</span>
+                                    <span className="text-ink font-mono text-[12px] font-bold">
+                                        {exam.questions.length}
+                                    </span>
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-[12px] text-mute">Total pts</span>
-                                    <span className="font-mono text-[12px] font-bold text-ink">{totalPoints}</span>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-mute text-[12px]">Total pts</span>
+                                    <span className="text-ink font-mono text-[12px] font-bold">
+                                        {totalPoints}
+                                    </span>
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-[12px] text-mute">Nota máx.</span>
-                                    <span className="font-mono text-[12px] font-bold text-ink">{exam.maxGrade}</span>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-mute text-[12px]">Nota máx.</span>
+                                    <span className="text-ink font-mono text-[12px] font-bold">
+                                        {exam.maxGrade}
+                                    </span>
                                 </div>
                             </div>
                         </Card>
 
                         {/* Groups */}
-                        <Card className="border-border bg-paper shadow-none p-4">
-                            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-mute mb-3">Grupos asignados</p>
+                        <Card className="border-border bg-paper p-4 shadow-none">
+                            <p className="text-mute mb-3 font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
+                                Grupos asignados
+                            </p>
                             {exam.groups.length === 0 ? (
-                                <p className="text-[12px] text-mute italic">Sin grupos</p>
+                                <p className="text-mute text-[12px] italic">Sin grupos</p>
                             ) : (
                                 <div className="flex flex-wrap gap-1.5">
                                     {exam.groups.map((g) => (
-                                        <Tag key={g.id} tone="outline" className="font-mono text-[10px] h-5 bg-white">
+                                        <Tag
+                                            key={g.id}
+                                            tone="outline"
+                                            className="h-5 bg-white font-mono text-[10px]"
+                                        >
                                             {g.name}
                                         </Tag>
                                     ))}
@@ -507,15 +586,21 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                         </Card>
 
                         {/* Randomization toggle */}
-                        <Card className="border-border bg-paper shadow-none p-4">
-                            <div className="flex items-center gap-2 mb-3">
+                        <Card className="border-border bg-paper p-4 shadow-none">
+                            <div className="mb-3 flex items-center gap-2">
                                 <Shuffle size={14} className="text-primary" />
-                                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-mute">Aleatorización</p>
+                                <p className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
+                                    Aleatorización
+                                </p>
                             </div>
                             <div className="flex items-center justify-between gap-3">
                                 <div className="flex flex-col gap-0.5">
-                                    <span className="text-[11px] font-bold text-ink-dim">Orden de preguntas</span>
-                                    <span className="text-[10px] text-mute leading-snug">Cada estudiante ve un orden distinto.</span>
+                                    <span className="text-ink-dim text-[11px] font-bold">
+                                        Orden de preguntas
+                                    </span>
+                                    <span className="text-mute text-[10px] leading-snug">
+                                        Cada estudiante ve un orden distinto.
+                                    </span>
                                 </div>
                                 <Switch
                                     checked={randomizeQuestions}
@@ -527,35 +612,46 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                         </Card>
 
                         {/* Anti-cheat status */}
-                        <Card className="border-border bg-ink text-white shadow-none p-4">
-                            <div className="flex items-center gap-2 mb-3">
+                        <Card className="border-border bg-ink p-4 text-white shadow-none">
+                            <div className="mb-3 flex items-center gap-2">
                                 <Zap size={14} className="text-lime" />
-                                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-white/60">Anti-copia</p>
+                                <p className="font-mono text-[10px] font-bold tracking-[0.1em] text-white/60 uppercase">
+                                    Anti-copia
+                                </p>
                             </div>
                             <div className="space-y-2">
-                                <div className="flex justify-between items-center">
+                                <div className="flex items-center justify-between">
                                     <span className="text-[11px] text-white/60">Vigilancia</span>
-                                    <span className={cn(
-                                        "font-mono text-[10px] font-bold",
-                                        exam.antiCheatEnabled ? "text-lime" : "text-white/30"
-                                    )}>
+                                    <span
+                                        className={cn(
+                                            'font-mono text-[10px] font-bold',
+                                            exam.antiCheatEnabled ? 'text-lime' : 'text-white/30',
+                                        )}
+                                    >
                                         {!exam.antiCheatEnabled
                                             ? 'Libre'
                                             : exam.lockTabSwitch
-                                                ? 'Restric. total'
-                                                : 'Anti-trampa'}
+                                              ? 'Restric. total'
+                                              : 'Anti-trampa'}
                                     </span>
                                 </div>
                                 {[
                                     { label: 'Un intento', value: exam.oneAttempt },
                                     { label: 'IP única', value: exam.uniqueIp },
                                 ].map((item) => (
-                                    <div key={item.label} className="flex justify-between items-center">
-                                        <span className="text-[11px] text-white/60">{item.label}</span>
-                                        <span className={cn(
-                                            "font-mono text-[10px] font-bold",
-                                            item.value ? "text-lime" : "text-white/30"
-                                        )}>
+                                    <div
+                                        key={item.label}
+                                        className="flex items-center justify-between"
+                                    >
+                                        <span className="text-[11px] text-white/60">
+                                            {item.label}
+                                        </span>
+                                        <span
+                                            className={cn(
+                                                'font-mono text-[10px] font-bold',
+                                                item.value ? 'text-lime' : 'text-white/30',
+                                            )}
+                                        >
                                             {item.value ? 'ON' : 'OFF'}
                                         </span>
                                     </div>
@@ -565,12 +661,14 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
 
                         {/* Validation */}
                         {exam.questions.some((q) => !q.options.some((o) => o.isCorrect)) && (
-                            <Card className="border-warning/20 bg-warning-wash shadow-none p-4">
+                            <Card className="border-warning/20 bg-warning-wash p-4 shadow-none">
                                 <div className="flex items-start gap-2">
-                                    <Flag size={14} className="text-warning shrink-0 mt-0.5" />
+                                    <Flag size={14} className="text-warning mt-0.5 shrink-0" />
                                     <div>
-                                        <p className="text-[12px] font-bold text-warning">Antes de publicar</p>
-                                        <p className="text-[11px] text-warning/80 mt-1">
+                                        <p className="text-warning text-[12px] font-bold">
+                                            Antes de publicar
+                                        </p>
+                                        <p className="text-warning/80 mt-1 text-[11px]">
                                             Hay preguntas sin respuesta correcta marcada.
                                         </p>
                                     </div>
@@ -591,21 +689,26 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
 
             {/* Question create/edit dialog */}
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-2xl rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
-                    <div className="px-6 py-5 border-b border-border bg-paper">
-                        <DialogTitle className="font-display text-2xl text-ink">
+                <DialogContent className="border-border flex max-h-[90vh] flex-col overflow-hidden rounded-[22px] p-0 shadow-2xl sm:max-w-2xl">
+                    <div className="border-border bg-paper border-b px-6 py-5">
+                        <DialogTitle className="font-display text-ink text-2xl">
                             {draft?.id ? 'Editar pregunta' : 'Nueva pregunta'}
                         </DialogTitle>
-                        <DialogDescription className="sr-only">Formulario para crear o editar una pregunta del examen.</DialogDescription>
+                        <DialogDescription className="sr-only">
+                            Formulario para crear o editar una pregunta del examen.
+                        </DialogDescription>
                     </div>
                     <div className="flex-1 space-y-5 overflow-y-auto px-6 py-6">
                         {qErrors.general && (
-                            <p className="rounded-[10px] bg-danger-wash border border-destructive/10 px-4 py-3 text-sm text-destructive font-bold">
+                            <p className="bg-danger-wash border-destructive/10 text-destructive rounded-[10px] border px-4 py-3 text-sm font-bold">
                                 {qErrors.general}
                             </p>
                         )}
                         <div className="flex flex-col gap-1.5">
-                            <label htmlFor="question-text" className="text-[13px] font-bold text-ink">
+                            <label
+                                htmlFor="question-text"
+                                className="text-ink text-[13px] font-bold"
+                            >
                                 Enunciado
                             </label>
                             <Input
@@ -613,17 +716,27 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                 placeholder="Ej: ¿Cuál es la capital de Chile?"
                                 value={draft?.text ?? ''}
                                 onChange={(e) => setDraftText(e.target.value)}
-                                className={cn("h-11 rounded-[10px] bg-white border-border", qErrors.text && 'border-destructive')}
+                                className={cn(
+                                    'border-border h-11 rounded-[10px] bg-white',
+                                    qErrors.text && 'border-destructive',
+                                )}
                                 autoFocus
                             />
                             {qErrors.text && (
-                                <p className="text-destructive text-xs font-medium">{qErrors.text}</p>
+                                <p className="text-destructive text-xs font-medium">
+                                    {qErrors.text}
+                                </p>
                             )}
                         </div>
 
                         <div className="flex gap-4">
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="question-points" className="text-[13px] font-bold text-ink">Puntos</label>
+                                <label
+                                    htmlFor="question-points"
+                                    className="text-ink text-[13px] font-bold"
+                                >
+                                    Puntos
+                                </label>
                                 <Input
                                     id="question-points"
                                     type="number"
@@ -631,12 +744,12 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                     max={100}
                                     value={String(draft?.points ?? 1)}
                                     onChange={(e) => setDraftPoints(Number(e.target.value) || 1)}
-                                    className="h-11 w-[100px] rounded-[10px] bg-white border-border text-center font-bold"
+                                    className="border-border h-11 w-[100px] rounded-[10px] bg-white text-center font-bold"
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <span className="text-[13px] font-bold text-ink">Tipo</span>
-                                <div className="flex overflow-hidden rounded-[10px] border border-border h-11">
+                                <span className="text-ink text-[13px] font-bold">Tipo</span>
+                                <div className="border-border flex h-11 overflow-hidden rounded-[10px] border">
                                     {(['UNICA', 'MULTIPLE'] as const).map((t) => (
                                         <button
                                             key={t}
@@ -647,7 +760,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                                 draft?.questionType === t
                                                     ? 'bg-ink text-white'
                                                     : 'text-mute hover:bg-paper-warm',
-                                                t === 'MULTIPLE' && 'border-l border-border',
+                                                t === 'MULTIPLE' && 'border-border border-l',
                                             )}
                                         >
                                             {t === 'UNICA' ? 'Única' : 'Múltiple'}
@@ -659,17 +772,19 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
 
                         <div>
                             <div className="mb-3 flex items-center justify-between">
-                                <p className="text-[13px] font-bold text-ink">
+                                <p className="text-ink text-[13px] font-bold">
                                     Opciones{' '}
-                                    <span className="text-mute font-normal text-[12px]">
-                                        {isMultiple ? '— marcá las correctas' : '— marcá la correcta'}
+                                    <span className="text-mute text-[12px] font-normal">
+                                        {isMultiple
+                                            ? '— marcá las correctas'
+                                            : '— marcá la correcta'}
                                     </span>
                                 </p>
                                 {(draft?.options.length ?? 0) < 6 && (
                                     <Button
                                         size="sm"
                                         variant="ghost"
-                                        className="gap-1.5 text-primary font-bold"
+                                        className="text-primary gap-1.5 font-bold"
                                         onClick={addOption}
                                     >
                                         <Plus size={12} />
@@ -678,7 +793,9 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                 )}
                             </div>
                             {qErrors.options && (
-                                <p className="text-destructive mb-2 text-[12px] font-bold">{qErrors.options}</p>
+                                <p className="text-destructive mb-2 text-[12px] font-bold">
+                                    {qErrors.options}
+                                </p>
                             )}
                             <div className="space-y-2">
                                 {draft?.options.map((opt, i) => (
@@ -701,15 +818,15 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                             value={opt.text}
                                             onChange={(e) => setOptionText(i, e.target.value)}
                                             className={cn(
-                                                "flex-1 h-10 rounded-[8px] border-border bg-white",
-                                                opt.isCorrect && "bg-success/5 border-success/20"
+                                                'border-border h-10 flex-1 rounded-[8px] bg-white',
+                                                opt.isCorrect && 'bg-success/5 border-success/20',
                                             )}
                                         />
                                         {(draft?.options.length ?? 0) > 2 && (
                                             <button
                                                 type="button"
                                                 onClick={() => removeOption(i)}
-                                                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-mute transition-colors hover:bg-danger-wash hover:text-destructive"
+                                                className="text-mute hover:bg-danger-wash hover:text-destructive flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors"
                                             >
                                                 <X size={14} />
                                             </button>
@@ -719,12 +836,23 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                             </div>
                         </div>
                     </div>
-                    <div className="px-6 py-4 border-t border-border flex justify-end gap-2 bg-white">
-                        <Button variant="ghost" size="md" onClick={() => setIsOpen(false)} disabled={isPending}>
+                    <div className="border-border flex justify-end gap-2 border-t bg-white px-6 py-4">
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setIsOpen(false)}
+                            disabled={isPending}
+                        >
                             Cancelar
                         </Button>
-                        <Button variant="ink" size="md" disabled={isPending} onClick={handleSaveQ} className="min-w-[140px]">
-                            {isPending && <Loader2 className="animate-spin mr-2" />}
+                        <Button
+                            variant="ink"
+                            size="md"
+                            disabled={isPending}
+                            onClick={handleSaveQ}
+                            className="min-w-[140px]"
+                        >
+                            {isPending && <Loader2 className="mr-2 animate-spin" />}
                             Guardar pregunta
                         </Button>
                     </div>
@@ -733,25 +861,39 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
 
             {/* Delete question dialog */}
             <Dialog open={isDelOpen} onOpenChange={setIsDelOpen}>
-                <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
+                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle className="font-display text-2xl text-destructive">Eliminar pregunta</DialogTitle>
-                        <DialogDescription className="sr-only">Confirmación para eliminar la pregunta.</DialogDescription>
+                        <DialogTitle className="font-display text-destructive text-2xl">
+                            Eliminar pregunta
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Confirmación para eliminar la pregunta.
+                        </DialogDescription>
                     </DialogHeader>
-                    <p className="text-[14px] leading-relaxed text-ink-dim py-2">
+                    <p className="text-ink-dim py-2 text-[14px] leading-relaxed">
                         ¿Estás seguro de eliminar esta pregunta? Esta acción no se puede deshacer.
                     </p>
                     {deleteError && (
-                        <p className="rounded-[10px] bg-danger-wash border border-destructive/10 px-4 py-2 text-sm text-destructive font-bold">
+                        <p className="bg-danger-wash border-destructive/10 text-destructive rounded-[10px] border px-4 py-2 text-sm font-bold">
                             {deleteError}
                         </p>
                     )}
-                    <DialogFooter className="gap-2 sm:justify-end mt-2">
-                        <Button variant="ghost" size="md" onClick={() => setIsDelOpen(false)} disabled={isPending}>
+                    <DialogFooter className="mt-2 gap-2 sm:justify-end">
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setIsDelOpen(false)}
+                            disabled={isPending}
+                        >
                             Cancelar
                         </Button>
-                        <Button variant="danger" size="md" disabled={isPending} onClick={handleDeleteQ}>
-                            {isPending && <Loader2 className="animate-spin mr-2" />}
+                        <Button
+                            variant="danger"
+                            size="md"
+                            disabled={isPending}
+                            onClick={handleDeleteQ}
+                        >
+                            {isPending && <Loader2 className="mr-2 animate-spin" />}
                             Eliminar
                         </Button>
                     </DialogFooter>

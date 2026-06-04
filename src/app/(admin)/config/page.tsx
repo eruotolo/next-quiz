@@ -19,7 +19,14 @@ import Link from 'next/link';
 
 export default async function ConfigPage() {
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const [institutions, totalAdmins, totalStudents, totalProfessors, recentAuditEvents, activeInstitutions] = await Promise.all([
+    const [
+        institutions,
+        totalAdmins,
+        totalStudents,
+        totalProfessors,
+        recentAuditEvents,
+        activeInstitutions,
+    ] = await Promise.all([
         prisma.academicInstitution.count(),
         prisma.user.count({ where: { userRole: { name: USER_ROLE.ADMIN } } }),
         prisma.user.count({ where: { userRole: { name: USER_ROLE.STUDENT } } }),
@@ -123,7 +130,7 @@ export default async function ConfigPage() {
     ];
 
     return (
-        <div className="flex flex-col min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             <AdminTopBar
                 breadcrumb={['Aulika · Plataforma', 'Panel Global']}
                 title="Panel SuperAdmin"
@@ -138,28 +145,28 @@ export default async function ConfigPage() {
                 }
             />
 
-            <main className="flex-1 p-8 space-y-8 overflow-auto">
+            <main className="flex-1 space-y-8 overflow-auto p-8">
                 {/* Stats */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {stats.map((s) => (
-                        <Card key={s.label} className="bg-white border-border shadow-sm p-6">
-                            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-[12px] bg-primary-wash border border-primary/10 text-primary">
+                        <Card key={s.label} className="border-border bg-white p-6 shadow-sm">
+                            <div className="bg-primary-wash border-primary/10 text-primary mb-5 flex h-11 w-11 items-center justify-center rounded-[12px] border">
                                 <s.icon size={20} />
                             </div>
-                            <p className="font-display text-[40px] font-bold leading-none tracking-[-0.03em] text-ink">
+                            <p className="font-display text-ink text-[40px] leading-none font-bold tracking-[-0.03em]">
                                 {s.value}
                             </p>
-                            <p className="mt-2 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-mute">
+                            <p className="text-mute mt-2 font-mono text-[11px] font-bold tracking-[0.1em] uppercase">
                                 {s.label}
                             </p>
-                            <p className="mt-1 text-[12px] text-ink-dim">{s.sub}</p>
+                            <p className="text-ink-dim mt-1 text-[12px]">{s.sub}</p>
                         </Card>
                     ))}
                 </div>
 
                 {/* Navigation cards */}
                 <div>
-                    <h2 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-mute mb-4">
+                    <h2 className="text-mute mb-4 font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
                         Módulos del sistema
                     </h2>
                     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -167,20 +174,18 @@ export default async function ConfigPage() {
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className="group flex items-center gap-4 rounded-[18px] border border-border bg-white p-5 shadow-sm transition-all hover:shadow-md"
+                                className="group border-border flex items-center gap-4 rounded-[18px] border bg-white p-5 shadow-sm transition-all hover:shadow-md"
                                 style={{ borderLeftWidth: 4, borderLeftColor: item.color }}
                             >
                                 <div
-                                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border border-border/50"
+                                    className="border-border/50 flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border"
                                     style={{ backgroundColor: item.wash, color: item.color }}
                                 >
                                     <item.icon size={18} />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <p className="text-[14px] font-bold text-ink">
-                                        {item.label}
-                                    </p>
-                                    <p className="mt-0.5 text-[12px] text-mute leading-snug">
+                                    <p className="text-ink text-[14px] font-bold">{item.label}</p>
+                                    <p className="text-mute mt-0.5 text-[12px] leading-snug">
                                         {item.sub}
                                     </p>
                                 </div>
@@ -191,10 +196,10 @@ export default async function ConfigPage() {
 
                 {/* System health + audit */}
                 <div className="grid gap-4 lg:grid-cols-2">
-                    <Card className="bg-white border-border shadow-sm p-6">
-                        <div className="flex items-center gap-2 mb-5">
+                    <Card className="border-border bg-white p-6 shadow-sm">
+                        <div className="mb-5 flex items-center gap-2">
                             <Zap size={15} className="text-primary" />
-                            <h3 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-mute">
+                            <h3 className="text-mute font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
                                 Salud del sistema · últimas 24h
                             </h3>
                         </div>
@@ -203,11 +208,19 @@ export default async function ConfigPage() {
                                 { label: 'API latencia', value: '< 120ms', ok: true },
                                 { label: 'Sesiones activas', value: '—', ok: true },
                                 { label: 'Errores 5xx', value: '0', ok: true },
-                                { label: 'Eventos audit', value: String(recentAuditEvents), ok: recentAuditEvents < 100 },
+                                {
+                                    label: 'Eventos audit',
+                                    value: String(recentAuditEvents),
+                                    ok: recentAuditEvents < 100,
+                                },
                             ].map((item) => (
                                 <div key={item.label} className="flex flex-col gap-1">
-                                    <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-mute">{item.label}</span>
-                                    <span className={`font-display text-[22px] font-bold leading-none ${item.ok ? 'text-success' : 'text-destructive'}`}>
+                                    <span className="text-mute font-mono text-[10px] font-bold tracking-widest uppercase">
+                                        {item.label}
+                                    </span>
+                                    <span
+                                        className={`font-display text-[22px] leading-none font-bold ${item.ok ? 'text-success' : 'text-destructive'}`}
+                                    >
                                         {item.value}
                                     </span>
                                 </div>
@@ -215,18 +228,24 @@ export default async function ConfigPage() {
                         </div>
                     </Card>
 
-                    <Card className="bg-white border-border shadow-sm p-6">
-                        <div className="flex items-center gap-2 mb-5">
+                    <Card className="border-border bg-white p-6 shadow-sm">
+                        <div className="mb-5 flex items-center gap-2">
                             <ScrollText size={15} className="text-primary" />
-                            <h3 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-mute">
+                            <h3 className="text-mute font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
                                 Auditoría · últimos cambios
                             </h3>
                         </div>
-                        <div className="flex flex-col items-center justify-center h-[100px] gap-3">
-                            <Tag tone="outline" className="font-mono text-[11px] h-7 px-3">
-                                {recentAuditEvents} evento{recentAuditEvents !== 1 ? 's' : ''} en las últimas 24h
+                        <div className="flex h-[100px] flex-col items-center justify-center gap-3">
+                            <Tag tone="outline" className="h-7 px-3 font-mono text-[11px]">
+                                {recentAuditEvents} evento{recentAuditEvents !== 1 ? 's' : ''} en
+                                las últimas 24h
                             </Tag>
-                            <Button variant="ghost" size="sm" asChild className="font-mono text-[11px] uppercase tracking-widest text-mute">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                asChild
+                                className="text-mute font-mono text-[11px] tracking-widest uppercase"
+                            >
                                 <Link href="/config/auditoria">Ver bitácora completa →</Link>
                             </Button>
                         </div>

@@ -8,11 +8,11 @@ function Input({ className, type, ...props }: React.ComponentProps<'input'>): Re
             type={type}
             data-slot="input"
             className={cn(
-                'border-border placeholder:text-mute h-[38px] w-full min-w-0 rounded-[8px] border bg-white px-[14px] py-[11px] text-[14px] text-ink transition-colors outline-none',
+                'border-border placeholder:text-mute text-ink h-[38px] w-full min-w-0 rounded-[8px] border bg-white px-[14px] py-[11px] text-[14px] transition-colors outline-none',
                 'file:text-ink file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium',
-                'focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20',
+                'focus-visible:border-primary focus-visible:ring-primary/20 focus-visible:ring-2',
                 'disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50',
-                'aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20',
+                'aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:ring-2',
                 className,
             )}
             {...props}
@@ -51,7 +51,7 @@ function InputField({
             {label && (
                 <label
                     htmlFor={inputId}
-                    className="font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-ink-dim"
+                    className="text-ink-dim font-mono text-[11px] font-medium tracking-[0.08em] uppercase"
                 >
                     {label}
                 </label>
@@ -59,12 +59,12 @@ function InputField({
             {hasDecorator ? (
                 <div className="relative flex items-center">
                     {iconLeft && (
-                        <span className="pointer-events-none absolute left-[14px] flex items-center text-mute [&>svg]:size-4">
+                        <span className="text-mute pointer-events-none absolute left-[14px] flex items-center [&>svg]:size-4">
                             {iconLeft}
                         </span>
                     )}
                     {prefix && (
-                        <span className="pointer-events-none absolute left-[14px] font-mono text-[13px] text-mute">
+                        <span className="text-mute pointer-events-none absolute left-[14px] font-mono text-[13px]">
                             {prefix}
                         </span>
                     )}
@@ -80,7 +80,7 @@ function InputField({
                         {...props}
                     />
                     {iconRight && (
-                        <span className="pointer-events-none absolute right-[14px] flex items-center text-mute [&>svg]:size-4">
+                        <span className="text-mute pointer-events-none absolute right-[14px] flex items-center [&>svg]:size-4">
                             {iconRight}
                         </span>
                     )}
@@ -93,12 +93,8 @@ function InputField({
                     {...props}
                 />
             )}
-            {error && (
-                <p className="text-[12px] text-destructive">{error}</p>
-            )}
-            {hint && !error && (
-                <p className="text-[12px] text-mute">{hint}</p>
-            )}
+            {error && <p className="text-destructive text-[12px]">{error}</p>}
+            {hint && !error && <p className="text-mute text-[12px]">{hint}</p>}
         </div>
     );
 }

@@ -6,7 +6,9 @@ import { AlertDialog as AlertDialogPrimitive } from 'radix-ui';
 import { cn } from '@/shared/lib/utils';
 import { buttonVariants } from '@/shared/components/ui/button';
 
-function AlertDialog({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Root>): React.JSX.Element {
+function AlertDialog({
+    ...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Root>): React.JSX.Element {
     return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
 }
 
@@ -16,7 +18,9 @@ function AlertDialogTrigger({
     return <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...props} />;
 }
 
-function AlertDialogPortal({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Portal>): React.JSX.Element {
+function AlertDialogPortal({
+    ...props
+}: React.ComponentProps<typeof AlertDialogPrimitive.Portal>): React.JSX.Element {
     return <AlertDialogPrimitive.Portal {...props} />;
 }
 
@@ -28,7 +32,7 @@ function AlertDialogOverlay({
         <AlertDialogPrimitive.Overlay
             data-slot="alert-dialog-overlay"
             className={cn(
-                'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm',
+                'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 bg-ink/40 fixed inset-0 z-50 backdrop-blur-sm',
                 className,
             )}
             {...props}
@@ -56,13 +60,22 @@ function AlertDialogContent({
     );
 }
 
-function AlertDialogHeader({ className, ...props }: React.ComponentProps<'div'>): React.JSX.Element {
+function AlertDialogHeader({
+    className,
+    ...props
+}: React.ComponentProps<'div'>): React.JSX.Element {
     return <div className={cn('flex flex-col gap-2', className)} {...props} />;
 }
 
-function AlertDialogFooter({ className, ...props }: React.ComponentProps<'div'>): React.JSX.Element {
+function AlertDialogFooter({
+    className,
+    ...props
+}: React.ComponentProps<'div'>): React.JSX.Element {
     return (
-        <div className={cn('mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end', className)} {...props} />
+        <div
+            className={cn('mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end', className)}
+            {...props}
+        />
     );
 }
 
@@ -73,7 +86,10 @@ function AlertDialogTitle({
     return (
         <AlertDialogPrimitive.Title
             data-slot="alert-dialog-title"
-            className={cn('font-display text-[22px] font-semibold text-ink tracking-[-0.02em]', className)}
+            className={cn(
+                'font-display text-ink text-[22px] font-semibold tracking-[-0.02em]',
+                className,
+            )}
             {...props}
         />
     );
@@ -86,7 +102,7 @@ function AlertDialogDescription({
     return (
         <AlertDialogPrimitive.Description
             data-slot="alert-dialog-description"
-            className={cn('text-[14px] text-ink-dim', className)}
+            className={cn('text-ink-dim text-[14px]', className)}
             {...props}
         />
     );

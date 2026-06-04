@@ -47,7 +47,9 @@ export interface CreatePreapprovalResult {
     mpStatus: string;
 }
 
-export async function createPreapproval(params: CreatePreapprovalParams): Promise<CreatePreapprovalResult> {
+export async function createPreapproval(
+    params: CreatePreapprovalParams,
+): Promise<CreatePreapprovalResult> {
     const token = process.env.MP_ACCESS_TOKEN;
     if (!token) throw new Error('MP_ACCESS_TOKEN is not set');
 

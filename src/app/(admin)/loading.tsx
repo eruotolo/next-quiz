@@ -2,7 +2,7 @@ import { Skeleton } from '@/shared/components/ui/skeleton';
 
 export default function AdminLoading(): React.JSX.Element {
     return (
-        <div className="flex min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen">
             <div className="w-60 shrink-0 border-r bg-white" />
             <main className="ml-60 flex-1 p-8">
                 <div className="space-y-4">

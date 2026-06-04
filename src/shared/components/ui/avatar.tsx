@@ -19,7 +19,7 @@ const AVATAR_PALETTE = [
 function hashName(name: string): number {
     let hash = 0;
     for (let i = 0; i < name.length; i++) {
-        hash = ((hash * 31) + name.charCodeAt(i)) >>> 0;
+        hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
     }
     return hash;
 }
@@ -66,7 +66,7 @@ function Avatar({ name = '', src, size = 36, color, className }: AvatarProps): R
             role="img"
             aria-label={name}
             className={cn(
-                'inline-flex shrink-0 select-none items-center justify-center rounded-full font-mono font-semibold text-white',
+                'inline-flex shrink-0 items-center justify-center rounded-full font-mono font-semibold text-white select-none',
                 className,
             )}
             style={{ width: size, height: size, background: bg, fontSize }}
@@ -120,13 +120,7 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<'span'>): Rea
 }
 
 function AvatarGroup({ className, ...props }: React.ComponentProps<'div'>): React.JSX.Element {
-    return (
-        <div
-            data-slot="avatar-group"
-            className={cn('flex -space-x-2', className)}
-            {...props}
-        />
-    );
+    return <div data-slot="avatar-group" className={cn('flex -space-x-2', className)} {...props} />;
 }
 
 function AvatarGroupCount({ className, ...props }: React.ComponentProps<'div'>): React.JSX.Element {

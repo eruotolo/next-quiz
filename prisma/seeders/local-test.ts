@@ -206,7 +206,10 @@ async function main(): Promise<void> {
 
         const group = await getOrCreate(
             () => prisma.group.findFirst({ where: { name: groupName } }),
-            () => prisma.group.create({ data: { name: groupName } }),
+            () =>
+                prisma.group.create({
+                    data: { name: groupName, academicInstitutionId: institutionId },
+                }),
         );
 
         groupMap.set(inst.slug, group.id);

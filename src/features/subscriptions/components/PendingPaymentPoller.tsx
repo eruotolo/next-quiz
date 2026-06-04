@@ -42,12 +42,13 @@ export function PendingPaymentPoller({ subscriptionId, planName }: Props): React
     if (failed) {
         return (
             <div className="flex flex-col items-center gap-4 py-8 text-center">
-                <XCircle className="size-12 text-destructive" />
-                <h2 className="font-display text-[24px] font-semibold tracking-tight text-ink">
+                <XCircle className="text-destructive size-12" />
+                <h2 className="font-display text-ink text-[24px] font-semibold tracking-tight">
                     No se pudo confirmar el pago
                 </h2>
-                <p className="text-[14px] text-ink-dim">
-                    El pago no fue autorizado o tomó demasiado tiempo. Si realizaste el pago, esperá unos minutos y revisá tu email para continuar con el registro.
+                <p className="text-ink-dim text-[14px]">
+                    El pago no fue autorizado o tomó demasiado tiempo. Si realizaste el pago, esperá
+                    unos minutos y revisá tu email para continuar con el registro.
                 </p>
             </div>
         );
@@ -55,14 +56,15 @@ export function PendingPaymentPoller({ subscriptionId, planName }: Props): React
 
     return (
         <div className="flex flex-col items-center gap-4 py-8 text-center">
-            <div className="flex size-16 items-center justify-center rounded-full bg-primary/10">
-                <Loader2 className="size-8 animate-spin text-primary" />
+            <div className="bg-primary/10 flex size-16 items-center justify-center rounded-full">
+                <Loader2 className="text-primary size-8 animate-spin" />
             </div>
-            <h2 className="font-display text-[24px] font-semibold tracking-tight text-ink">
+            <h2 className="font-display text-ink text-[24px] font-semibold tracking-tight">
                 Confirmando tu pago
             </h2>
-            <p className="text-[14px] text-ink-dim">
-                Estamos esperando la confirmación de MercadoPago para el plan <strong>{planName}</strong>. Esto puede tardar unos segundos.
+            <p className="text-ink-dim text-[14px]">
+                Estamos esperando la confirmación de MercadoPago para el plan{' '}
+                <strong>{planName}</strong>. Esto puede tardar unos segundos.
             </p>
             <div className="flex gap-1">
                 {Array.from({ length: MAX_ATTEMPTS }).map((_, i) => (

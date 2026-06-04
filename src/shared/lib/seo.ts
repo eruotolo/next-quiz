@@ -25,17 +25,22 @@ export async function getGlobalSeo(): Promise<SeoMetadata> {
         },
     });
 
-    const configMap = configs.reduce((acc, curr) => {
-        acc[curr.key] = curr.value;
-        return acc;
-    }, {} as Record<string, string>);
+    const configMap = configs.reduce(
+        (acc, curr) => {
+            acc[curr.key] = curr.value;
+            return acc;
+        },
+        {} as Record<string, string>,
+    );
 
     return {
         title: configMap[APP_CONFIG_KEY.SEO_GLOBAL_TITLE] || 'Aulika',
         description:
             configMap[APP_CONFIG_KEY.SEO_GLOBAL_DESCRIPTION] ||
             'Sistema de evaluación en línea para colegios y universidades.',
-        keywords: configMap[APP_CONFIG_KEY.SEO_GLOBAL_KEYWORDS]?.split(',').map((k) => k.trim()) || [
+        keywords: configMap[APP_CONFIG_KEY.SEO_GLOBAL_KEYWORDS]
+            ?.split(',')
+            .map((k) => k.trim()) || [
             'Aulika',
             'Evaluación Online',
             'Exámenes',

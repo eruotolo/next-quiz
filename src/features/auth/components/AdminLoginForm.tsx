@@ -85,25 +85,26 @@ export function AdminLoginForm({ googleError }: AdminLoginFormProps): React.JSX.
         <div className="space-y-6">
             {/* Header */}
             <div>
-                <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-mute">
+                <span className="text-mute font-mono text-[11px] tracking-[0.1em] uppercase">
                     Acceso docente
                 </span>
-                <h1 className="mt-2 font-display text-[38px] font-semibold leading-none tracking-[-0.03em] text-ink">
+                <h1 className="font-display text-ink mt-2 text-[38px] leading-none font-semibold tracking-[-0.03em]">
                     Iniciar sesión
                 </h1>
-                <p className="mt-2 text-[14px] leading-relaxed text-ink-dim">
+                <p className="text-ink-dim mt-2 text-[14px] leading-relaxed">
                     Ingresá con tus credenciales para acceder al panel.
                 </p>
             </div>
 
             {/* Google error from OAuth callback */}
             {isGoogleDenied && (
-                <div className="flex items-start gap-2 rounded-[8px] bg-danger-wash px-4 py-3 text-[13px] text-destructive">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-destructive text-[11px] font-bold text-white">
+                <div className="bg-danger-wash text-destructive flex items-start gap-2 rounded-[8px] px-4 py-3 text-[13px]">
+                    <span className="bg-destructive flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white">
                         !
                     </span>
                     <span>
-                        Tu cuenta de Google no está registrada en la plataforma. Adquirí un plan para continuar.
+                        Tu cuenta de Google no está registrada en la plataforma. Adquirí un plan
+                        para continuar.
                     </span>
                 </div>
             )}
@@ -116,10 +117,10 @@ export function AdminLoginForm({ googleError }: AdminLoginFormProps): React.JSX.
                 className="space-y-3"
             >
                 {/* Email */}
-                <label className="flex h-[46px] cursor-text items-center gap-3 rounded-[8px] border border-border bg-white px-3 transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 hover:border-ink/20">
-                    <Mail size={14} className="shrink-0 text-mute" />
+                <label className="border-border focus-within:border-primary focus-within:ring-primary/20 hover:border-ink/20 flex h-[46px] cursor-text items-center gap-3 rounded-[8px] border bg-white px-3 transition-colors focus-within:ring-2">
+                    <Mail size={14} className="text-mute shrink-0" />
                     <div className="flex min-w-0 flex-1 flex-col">
-                        <span className="font-mono text-[9px] uppercase leading-none tracking-[0.08em] text-mute">
+                        <span className="text-mute font-mono text-[9px] leading-none tracking-[0.08em] uppercase">
                             Email
                         </span>
                         <input
@@ -129,16 +130,16 @@ export function AdminLoginForm({ googleError }: AdminLoginFormProps): React.JSX.
                             placeholder="docente@colegio.cl"
                             disabled={isPending}
                             required
-                            className="bg-transparent text-[14px] text-ink outline-none placeholder:text-mute/50 disabled:opacity-60"
+                            className="text-ink placeholder:text-mute/50 bg-transparent text-[14px] outline-none disabled:opacity-60"
                         />
                     </div>
                 </label>
 
                 {/* Password */}
-                <label className="flex h-[46px] cursor-text items-center gap-3 rounded-[8px] border border-border bg-white px-3 transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 hover:border-ink/20">
-                    <Lock size={14} className="shrink-0 text-mute" />
+                <label className="border-border focus-within:border-primary focus-within:ring-primary/20 hover:border-ink/20 flex h-[46px] cursor-text items-center gap-3 rounded-[8px] border bg-white px-3 transition-colors focus-within:ring-2">
+                    <Lock size={14} className="text-mute shrink-0" />
                     <div className="flex min-w-0 flex-1 flex-col">
-                        <span className="font-mono text-[9px] uppercase leading-none tracking-[0.08em] text-mute">
+                        <span className="text-mute font-mono text-[9px] leading-none tracking-[0.08em] uppercase">
                             Contraseña
                         </span>
                         <input
@@ -148,13 +149,13 @@ export function AdminLoginForm({ googleError }: AdminLoginFormProps): React.JSX.
                             placeholder="••••••••"
                             disabled={isPending}
                             required
-                            className="bg-transparent text-[14px] text-ink outline-none placeholder:text-mute/50 disabled:opacity-60"
+                            className="text-ink placeholder:text-mute/50 bg-transparent text-[14px] outline-none disabled:opacity-60"
                         />
                     </div>
                     <button
                         type="button"
                         onClick={() => setShowPassword((v) => !v)}
-                        className="shrink-0 text-mute outline-none transition-colors hover:text-ink"
+                        className="text-mute hover:text-ink shrink-0 transition-colors outline-none"
                         tabIndex={-1}
                     >
                         {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -163,15 +164,15 @@ export function AdminLoginForm({ googleError }: AdminLoginFormProps): React.JSX.
 
                 {/* Forgot */}
                 <div className="flex justify-end">
-                    <span className="text-[12px] font-medium text-mute">
+                    <span className="text-mute text-[12px] font-medium">
                         ¿Olvidaste tu contraseña? Contactá al administrador.
                     </span>
                 </div>
 
                 {/* Error */}
                 {error && (
-                    <div className="flex items-center gap-2 rounded-[8px] bg-danger-wash px-4 py-3 text-[13px] text-destructive">
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-destructive text-[11px] font-bold text-white">
+                    <div className="bg-danger-wash text-destructive flex items-center gap-2 rounded-[8px] px-4 py-3 text-[13px]">
+                        <span className="bg-destructive flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white">
                             !
                         </span>
                         {error}
@@ -179,7 +180,13 @@ export function AdminLoginForm({ googleError }: AdminLoginFormProps): React.JSX.
                 )}
 
                 {/* Submit */}
-                <Button variant="ink" size="lg" type="submit" disabled={isPending || isGooglePending} className="w-full mt-1">
+                <Button
+                    variant="ink"
+                    size="lg"
+                    type="submit"
+                    disabled={isPending || isGooglePending}
+                    className="mt-1 w-full"
+                >
                     {isPending ? (
                         <Loader2 className="animate-spin" />
                     ) : (
@@ -193,9 +200,11 @@ export function AdminLoginForm({ googleError }: AdminLoginFormProps): React.JSX.
 
             {/* Divider */}
             <div className="flex items-center gap-3">
-                <div className="h-px flex-1 bg-border" />
-                <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-mute">o</span>
-                <div className="h-px flex-1 bg-border" />
+                <div className="bg-border h-px flex-1" />
+                <span className="text-mute font-mono text-[10px] tracking-[0.08em] uppercase">
+                    o
+                </span>
+                <div className="bg-border h-px flex-1" />
             </div>
 
             {/* Google */}
@@ -205,7 +214,9 @@ export function AdminLoginForm({ googleError }: AdminLoginFormProps): React.JSX.
                 type="button"
                 disabled={isPending || isGooglePending}
                 className="w-full"
-                onClick={() => { void handleGoogle(); }}
+                onClick={() => {
+                    void handleGoogle();
+                }}
             >
                 {isGooglePending ? (
                     <Loader2 className="animate-spin" />
@@ -218,10 +229,10 @@ export function AdminLoginForm({ googleError }: AdminLoginFormProps): React.JSX.
             </Button>
 
             {/* Student link */}
-            <div className="rounded-[8px] bg-paper-warm px-4 py-3 text-center">
-                <p className="text-[12px] text-ink-dim">
+            <div className="bg-paper-warm rounded-[8px] px-4 py-3 text-center">
+                <p className="text-ink-dim text-[12px]">
                     ¿Sos alumno?{' '}
-                    <Link href="/examen/login" className="font-medium text-primary">
+                    <Link href="/examen/login" className="text-primary font-medium">
                         Accedé aquí →
                     </Link>
                 </p>

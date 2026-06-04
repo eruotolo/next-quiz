@@ -16,8 +16,14 @@ import { revalidatePath } from 'next/cache';
 
 const ADMIN_ONLY = [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN] as const;
 
+// El módulo "Cuerpo Docente" gestiona ambos roles (lista Profesores y Administradores).
+const MANAGED_ROLES = [USER_ROLE.PROFESOR, USER_ROLE.ADMIN] as const;
+
 /** Valida que los grupos indicados pertenezcan a la institución (evita cross-tenant). */
-async function groupsBelongToInstitution(groupIds: string[], institutionId: string): Promise<boolean> {
+async function groupsBelongToInstitution(
+    groupIds: string[],
+    institutionId: string,
+): Promise<boolean> {
     if (groupIds.length === 0) return true;
     const count = await prisma.group.count({
         where: { id: { in: groupIds }, academicInstitutionId: institutionId },
@@ -25,7 +31,10 @@ async function groupsBelongToInstitution(groupIds: string[], institutionId: stri
     return count === groupIds.length;
 }
 
-export async function createProfessor(slug: string, data: unknown): Promise<ActionResult<{ id: string }>> {
+export async function createProfessor(
+    slug: string,
+    data: unknown,
+): Promise<ActionResult<{ id: string }>> {
     try {
         const ctx = await requireInstitutionAccess(slug, [...ADMIN_ONLY]);
 
@@ -67,19 +76,28 @@ export async function createProfessor(slug: string, data: unknown): Promise<Acti
     }
 }
 
-export async function updateProfessor(slug: string, id: string, data: unknown): Promise<ActionResult> {
+export async function updateProfessor(
+    slug: string,
+    id: string,
+    data: unknown,
+): Promise<ActionResult> {
     try {
         const ctx = await requireInstitutionAccess(slug, [...ADMIN_ONLY]);
 
         const parsed = updateProfessorSchema.safeParse(data);
         if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? 'Datos inválidos');
 
-        // Scope: el profesor debe pertenecer a la institución del contexto.
+        // Scope: el usuario debe pertenecer a la institución y a un rol que
+        // gestiona este módulo (Profesor o Administrador).
         const target = await prisma.user.findFirst({
-            where: { id, academicInstitutionId: ctx.institutionId, userRole: { name: USER_ROLE.PROFESOR } },
+            where: {
+                id,
+                academicInstitutionId: ctx.institutionId,
+                userRole: { name: { in: [...MANAGED_ROLES] } },
+            },
             select: { id: true },
         });
-        if (!target) return fail('Profesor no encontrado.');
+        if (!target) return fail('Usuario no encontrado.');
 
         const { groupIds, roleName, password, ...rest } = parsed.data;
         if (!(await groupsBelongToInstitution(groupIds, ctx.institutionId))) {
@@ -119,10 +137,17 @@ export async function deleteProfessor(slug: string, id: string): Promise<ActionR
     try {
         const ctx = await requireInstitutionAccess(slug, [...ADMIN_ONLY]);
 
+        // Nadie puede eliminarse a sí mismo (evita lockout de la institución).
+        if (id === ctx.userId) return fail('No podés eliminar tu propia cuenta.');
+
         const res = await prisma.user.deleteMany({
-            where: { id, academicInstitutionId: ctx.institutionId, userRole: { name: USER_ROLE.PROFESOR } },
+            where: {
+                id,
+                academicInstitutionId: ctx.institutionId,
+                userRole: { name: { in: [...MANAGED_ROLES] } },
+            },
         });
-        if (res.count === 0) return fail('Profesor no encontrado.');
+        if (res.count === 0) return fail('Usuario no encontrado.');
 
         await logAudit({
             action: AUDIT_ACTION.PROFESSOR_DELETE,

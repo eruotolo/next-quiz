@@ -15,12 +15,30 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/shared/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/shared/components/ui/table';
 import { Tag } from '@/shared/components/ui/badge';
 import { calcGrade } from '@/features/results/lib/grade';
 import { formatRut } from '@/shared/lib/rut';
 import { cn } from '@/shared/lib/utils';
-import { BarChart3, CheckCircle, Eye, Loader2, RefreshCw, Trash2, Users, XCircle, MoreHorizontal, Download } from 'lucide-react';
+import {
+    BarChart3,
+    CheckCircle,
+    Eye,
+    Loader2,
+    RefreshCw,
+    Trash2,
+    Users,
+    XCircle,
+    MoreHorizontal,
+    Download,
+} from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -66,9 +84,15 @@ interface Props {
     examGroups: ExamGroup[];
     totalCount: number;
     slug: string;
+    institutionName: string;
 }
 
-export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JSX.Element {
+export function ResultsClient({
+    examGroups,
+    totalCount,
+    slug,
+    institutionName,
+}: Props): React.JSX.Element {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [deleteTarget, setDeleteTarget] = useState<{ id: string; studentName: string } | null>(
@@ -112,22 +136,27 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
     // Compute summary stats
     const allResults = examGroups.flatMap((eg) =>
         eg.results.map((r) => ({
-            grade: calcGrade(r.score, r.maxScore, eg.maxGrade, eg.passingGrade, eg.passingPercentage),
+            grade: calcGrade(
+                r.score,
+                r.maxScore,
+                eg.maxGrade,
+                eg.passingGrade,
+                eg.passingPercentage,
+            ),
             passingGrade: eg.passingGrade,
         })),
     );
     const avgGrade =
-        allResults.length > 0
-            ? allResults.reduce((s, r) => s + r.grade, 0) / allResults.length
-            : 0;
+        allResults.length > 0 ? allResults.reduce((s, r) => s + r.grade, 0) / allResults.length : 0;
     const passingCount = allResults.filter((r) => r.grade >= r.passingGrade).length;
-    const passingRate = allResults.length > 0 ? Math.round((passingCount / allResults.length) * 100) : 0;
+    const passingRate =
+        allResults.length > 0 ? Math.round((passingCount / allResults.length) * 100) : 0;
 
     return (
-        <div className="flex flex-col min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             {/* Header */}
             <AdminTopBar
-                breadcrumb={['Colegio Antártica', 'Resultados']}
+                breadcrumb={[institutionName, 'Resultados']}
                 title="Historial de Resultados"
                 subtitle={`${totalCount} evaluaciones completadas y procesadas`}
                 actions={
@@ -138,11 +167,16 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
                 }
             />
 
-            <main className="flex-1 p-8 space-y-8 overflow-auto">
+            <main className="flex-1 space-y-8 overflow-auto p-8">
                 {/* Global Stats */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     {[
-                        { label: 'Total Entregas', value: String(totalCount), icon: Users, color: '#1F2EFF' },
+                        {
+                            label: 'Total Entregas',
+                            value: String(totalCount),
+                            icon: Users,
+                            color: '#1F2EFF',
+                        },
                         {
                             label: 'Promedio General',
                             value: avgGrade.toFixed(1),
@@ -156,14 +190,19 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
                             color: '#22C55E',
                         },
                     ].map((tile) => (
-                        <Card key={tile.label} className="p-6 bg-white border-border shadow-sm">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="size-8 rounded-[8px] flex items-center justify-center border border-border bg-paper-warm" style={{ color: tile.color }}>
+                        <Card key={tile.label} className="border-border bg-white p-6 shadow-sm">
+                            <div className="mb-4 flex items-center gap-3">
+                                <div
+                                    className="border-border bg-paper-warm flex size-8 items-center justify-center rounded-[8px] border"
+                                    style={{ color: tile.color }}
+                                >
                                     <tile.icon size={16} />
                                 </div>
-                                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-mute">{tile.label}</span>
+                                <span className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
+                                    {tile.label}
+                                </span>
                             </div>
-                            <p className="font-display text-[32px] font-bold leading-none tracking-tight text-ink">
+                            <p className="font-display text-ink text-[32px] leading-none font-bold tracking-tight">
                                 {tile.value}
                             </p>
                         </Card>
@@ -172,9 +211,11 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
 
                 {totalCount === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
-                        <BarChart3 size={48} className="mb-4 text-mute/20" />
-                        <p className="text-lg font-medium text-ink">Todavía no hay resultados</p>
-                        <p className="mt-1 text-sm text-mute">Los resultados aparecerán aquí cuando los alumnos completen exámenes.</p>
+                        <BarChart3 size={48} className="text-mute/20 mb-4" />
+                        <p className="text-ink text-lg font-medium">Todavía no hay resultados</p>
+                        <p className="text-mute mt-1 text-sm">
+                            Los resultados aparecerán aquí cuando los alumnos completen exámenes.
+                        </p>
                     </Card>
                 ) : (
                     <div className="space-y-10">
@@ -182,26 +223,41 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
                             <div key={data.examId} className="space-y-4">
                                 <div className="flex items-end justify-between px-2">
                                     <div>
-                                        <h2 className="font-display text-[22px] font-bold text-ink tracking-tight">{data.title}</h2>
-                                        <div className="mt-1 flex items-center gap-2 text-mute">
-                                            <Tag tone="outline" className="bg-paper-warm/50 border-border font-mono text-[10px] h-5">{data.groupNames}</Tag>
-                                            <span className="text-[12px] font-medium">· {data.results.length} alumnos evaluados</span>
+                                        <h2 className="font-display text-ink text-[22px] font-bold tracking-tight">
+                                            {data.title}
+                                        </h2>
+                                        <div className="text-mute mt-1 flex items-center gap-2">
+                                            <Tag
+                                                tone="outline"
+                                                className="bg-paper-warm/50 border-border h-5 font-mono text-[10px]"
+                                            >
+                                                {data.groupNames}
+                                            </Tag>
+                                            <span className="text-[12px] font-medium">
+                                                · {data.results.length} alumnos evaluados
+                                            </span>
                                         </div>
                                     </div>
-                                    <div className="font-mono text-[10px] font-bold text-mute uppercase tracking-widest bg-white border border-border px-3 py-1 rounded-full">
+                                    <div className="text-mute border-border rounded-full border bg-white px-3 py-1 font-mono text-[10px] font-bold tracking-widest uppercase">
                                         Escala: {data.passingGrade} ({data.passingPercentage}%)
                                     </div>
                                 </div>
 
-                                <Card className="p-0 overflow-visible border-border shadow-sm">
+                                <Card className="border-border overflow-visible p-0 shadow-sm">
                                     <Table>
                                         <TableHeader className="bg-paper">
-                                            <TableRow className="hover:bg-transparent border-b border-border">
+                                            <TableRow className="border-border border-b hover:bg-transparent">
                                                 <TableHead>Estudiante</TableHead>
                                                 <TableHead className="w-[160px]">RUT</TableHead>
-                                                <TableHead className="w-[140px] text-center">Puntaje</TableHead>
-                                                <TableHead className="w-[120px] text-center">Nota</TableHead>
-                                                <TableHead className="w-[180px] text-right">Fecha de Entrega</TableHead>
+                                                <TableHead className="w-[140px] text-center">
+                                                    Puntaje
+                                                </TableHead>
+                                                <TableHead className="w-[120px] text-center">
+                                                    Nota
+                                                </TableHead>
+                                                <TableHead className="w-[180px] text-right">
+                                                    Fecha de Entrega
+                                                </TableHead>
                                                 <TableHead className="w-12" />
                                             </TableRow>
                                         </TableHeader>
@@ -216,26 +272,35 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
                                                 );
                                                 const passing = grade >= data.passingGrade;
                                                 return (
-                                                    <TableRow key={r.id} className="group h-16 border-b border-border last:border-0">
+                                                    <TableRow
+                                                        key={r.id}
+                                                        className="group border-border h-16 border-b last:border-0"
+                                                    >
                                                         <TableCell>
-                                                            <span className="text-[13.5px] font-bold text-ink">{r.studentName}</span>
+                                                            <span className="text-ink text-[13.5px] font-bold">
+                                                                {r.studentName}
+                                                            </span>
                                                         </TableCell>
-                                                        <TableCell className="font-mono text-[12px] text-mute">
+                                                        <TableCell className="text-mute font-mono text-[12px]">
                                                             {formatRut(r.studentRut)}
                                                         </TableCell>
-                                                        <TableCell className="text-center font-mono text-[13px] font-bold text-ink-dim">
+                                                        <TableCell className="text-ink-dim text-center font-mono text-[13px] font-bold">
                                                             {r.score} / {r.maxScore}
                                                         </TableCell>
                                                         <TableCell className="text-center">
                                                             <Tag
-                                                                tone={passing ? "success" : "danger"}
-                                                                className="font-display font-bold text-[14px] h-7 px-3 rounded-full"
+                                                                tone={
+                                                                    passing ? 'success' : 'danger'
+                                                                }
+                                                                className="font-display h-7 rounded-full px-3 text-[14px] font-bold"
                                                             >
                                                                 {grade.toFixed(1)}
                                                             </Tag>
                                                         </TableCell>
-                                                        <TableCell className="text-right font-mono text-[11px] font-bold text-mute uppercase">
-                                                            {new Date(r.completedAt).toLocaleDateString('es-CL', {
+                                                        <TableCell className="text-mute text-right font-mono text-[11px] font-bold uppercase">
+                                                            {new Date(
+                                                                r.completedAt,
+                                                            ).toLocaleDateString('es-CL', {
                                                                 day: '2-digit',
                                                                 month: 'short',
                                                                 hour: '2-digit',
@@ -245,19 +310,57 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
                                                         <TableCell className="text-right">
                                                             <DropdownMenu>
                                                                 <DropdownMenuTrigger asChild>
-                                                                    <Button variant="ghost" size="icon-sm" className="h-9 w-9">
-                                                                        <MoreHorizontal size={18} className="text-mute" />
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon-sm"
+                                                                        className="h-9 w-9"
+                                                                    >
+                                                                        <MoreHorizontal
+                                                                            size={18}
+                                                                            className="text-mute"
+                                                                        />
                                                                     </Button>
                                                                 </DropdownMenuTrigger>
-                                                                <DropdownMenuContent align="end" className="rounded-xl border-border shadow-xl w-44">
-                                                                    <DropdownMenuItem onClick={() => setViewTarget({ result: r, exam: data })} className="gap-2 py-2.5 cursor-pointer">
-                                                                        <Eye size={14} /> Revisar respuestas
+                                                                <DropdownMenuContent
+                                                                    align="end"
+                                                                    className="border-border w-44 rounded-xl shadow-xl"
+                                                                >
+                                                                    <DropdownMenuItem
+                                                                        onClick={() =>
+                                                                            setViewTarget({
+                                                                                result: r,
+                                                                                exam: data,
+                                                                            })
+                                                                        }
+                                                                        className="cursor-pointer gap-2 py-2.5"
+                                                                    >
+                                                                        <Eye size={14} /> Revisar
+                                                                        respuestas
                                                                     </DropdownMenuItem>
-                                                                    <DropdownMenuItem onClick={() => handleRecalculate(r.id, r.studentName)} className="gap-2 py-2.5 cursor-pointer">
-                                                                        <RefreshCw size={14} /> Recalcular nota
+                                                                    <DropdownMenuItem
+                                                                        onClick={() =>
+                                                                            handleRecalculate(
+                                                                                r.id,
+                                                                                r.studentName,
+                                                                            )
+                                                                        }
+                                                                        className="cursor-pointer gap-2 py-2.5"
+                                                                    >
+                                                                        <RefreshCw size={14} />{' '}
+                                                                        Recalcular nota
                                                                     </DropdownMenuItem>
-                                                                    <DropdownMenuItem onClick={() => setDeleteTarget({ id: r.id, studentName: r.studentName })} className="text-destructive gap-2 py-2.5 cursor-pointer focus:bg-danger-wash focus:text-destructive">
-                                                                        <Trash2 size={14} /> Eliminar registro
+                                                                    <DropdownMenuItem
+                                                                        onClick={() =>
+                                                                            setDeleteTarget({
+                                                                                id: r.id,
+                                                                                studentName:
+                                                                                    r.studentName,
+                                                                            })
+                                                                        }
+                                                                        className="text-destructive focus:bg-danger-wash focus:text-destructive cursor-pointer gap-2 py-2.5"
+                                                                    >
+                                                                        <Trash2 size={14} />{' '}
+                                                                        Eliminar registro
                                                                     </DropdownMenuItem>
                                                                 </DropdownMenuContent>
                                                             </DropdownMenu>
@@ -276,20 +379,38 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
 
             {/* Delete confirmation */}
             <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-                <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
+                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle className="font-display text-2xl text-destructive">Eliminar registro</DialogTitle>
-                        <DialogDescription className="sr-only">Confirmación para eliminar el registro de resultado.</DialogDescription>
+                        <DialogTitle className="font-display text-destructive text-2xl">
+                            Eliminar registro
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Confirmación para eliminar el registro de resultado.
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
-                        <p className="text-[14px] leading-relaxed text-ink-dim">
-                            ¿Estás seguro de eliminar el resultado de <strong className="text-ink">{deleteTarget?.studentName}</strong>? Esta acción no se puede deshacer.
+                        <p className="text-ink-dim text-[14px] leading-relaxed">
+                            ¿Estás seguro de eliminar el resultado de{' '}
+                            <strong className="text-ink">{deleteTarget?.studentName}</strong>? Esta
+                            acción no se puede deshacer.
                         </p>
                     </div>
-                    <DialogFooter className="gap-2 sm:justify-end mt-2">
-                        <Button variant="ghost" size="md" onClick={() => setDeleteTarget(null)} disabled={isPending}>Cancelar</Button>
-                        <Button variant="danger" size="md" onClick={handleDelete} disabled={isPending}>
-                            {isPending && <Loader2 className="animate-spin mr-2" />}
+                    <DialogFooter className="mt-2 gap-2 sm:justify-end">
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setDeleteTarget(null)}
+                            disabled={isPending}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="danger"
+                            size="md"
+                            onClick={handleDelete}
+                            disabled={isPending}
+                        >
+                            {isPending && <Loader2 className="mr-2 animate-spin" />}
                             Eliminar
                         </Button>
                     </DialogFooter>
@@ -298,19 +419,27 @@ export function ResultsClient({ examGroups, totalCount, slug }: Props): React.JS
 
             {/* Answers review */}
             <Dialog open={!!viewTarget} onOpenChange={(open) => !open && setViewTarget(null)}>
-                <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
-                    <div className="px-6 py-5 border-b border-border bg-paper">
-                        <DialogTitle className="font-display text-xl text-ink">{viewTarget?.result.studentName}</DialogTitle>
-                        <DialogDescription className="sr-only">Detalle del resultado del estudiante en el examen.</DialogDescription>
-                        <p className="text-[12px] font-bold text-mute uppercase tracking-widest mt-1">{viewTarget?.exam.title}</p>
+                <DialogContent className="border-border flex max-h-[90vh] flex-col overflow-hidden rounded-[22px] p-0 shadow-2xl sm:max-w-lg">
+                    <div className="border-border bg-paper border-b px-6 py-5">
+                        <DialogTitle className="font-display text-ink text-xl">
+                            {viewTarget?.result.studentName}
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Detalle del resultado del estudiante en el examen.
+                        </DialogDescription>
+                        <p className="text-mute mt-1 text-[12px] font-bold tracking-widest uppercase">
+                            {viewTarget?.exam.title}
+                        </p>
                     </div>
                     <div className="flex-1 overflow-hidden">
                         {viewTarget && (
                             <AnswersReview result={viewTarget.result} exam={viewTarget.exam} />
                         )}
                     </div>
-                    <div className="px-6 py-4 border-t border-border flex justify-end bg-white">
-                        <Button variant="ink" size="md" onClick={() => setViewTarget(null)}>Cerrar revisión</Button>
+                    <div className="border-border flex justify-end border-t bg-white px-6 py-4">
+                        <Button variant="ink" size="md" onClick={() => setViewTarget(null)}>
+                            Cerrar revisión
+                        </Button>
                     </div>
                 </DialogContent>
             </Dialog>
@@ -333,7 +462,7 @@ function AnswersReview({
     }
 
     return (
-        <div className="h-full overflow-y-auto px-6 py-6 space-y-4">
+        <div className="h-full space-y-4 overflow-y-auto px-6 py-6">
             {exam.questions.map((q, idx) => {
                 const selectedIds = getSelectedIds(answerMap[q.id]);
                 const correctOptions = q.options.filter((o) => o.isCorrect);
@@ -356,30 +485,38 @@ function AnswersReview({
                         )}
                     >
                         <div className="flex items-start gap-3">
-                            <div className={cn(
-                                "size-6 rounded-full flex items-center justify-center shrink-0 mt-0.5",
-                                isCorrect ? "bg-success text-white" : "bg-destructive text-white"
-                            )}>
+                            <div
+                                className={cn(
+                                    'mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full',
+                                    isCorrect
+                                        ? 'bg-success text-white'
+                                        : 'bg-destructive text-white',
+                                )}
+                            >
                                 {isCorrect ? <CheckCircle size={14} /> : <XCircle size={14} />}
                             </div>
                             <div className="flex-1">
-                                <p className="text-[14px] font-bold leading-tight text-ink">
+                                <p className="text-ink text-[14px] leading-tight font-bold">
                                     {idx + 1}. {q.text}
                                 </p>
-                                
+
                                 {!isCorrect && (
                                     <div className="mt-3 space-y-2">
-                                        <div className="rounded-[8px] bg-white/60 p-2 border border-destructive/10">
-                                            <p className="text-[11px] font-bold text-destructive uppercase tracking-wider mb-1">Respuesta del alumno</p>
-                                            <p className="text-[13px] text-ink-dim">
+                                        <div className="border-destructive/10 rounded-[8px] border bg-white/60 p-2">
+                                            <p className="text-destructive mb-1 text-[11px] font-bold tracking-wider uppercase">
+                                                Respuesta del alumno
+                                            </p>
+                                            <p className="text-ink-dim text-[13px]">
                                                 {selectedOptions.length > 0
                                                     ? selectedOptions.map((o) => o.text).join(', ')
                                                     : 'Sin respuesta'}
                                             </p>
                                         </div>
-                                        <div className="rounded-[8px] bg-success/10 p-2 border border-success/10">
-                                            <p className="text-[11px] font-bold text-success uppercase tracking-wider mb-1">Respuesta correcta</p>
-                                            <p className="text-[13px] text-ink">
+                                        <div className="bg-success/10 border-success/10 rounded-[8px] border p-2">
+                                            <p className="text-success mb-1 text-[11px] font-bold tracking-wider uppercase">
+                                                Respuesta correcta
+                                            </p>
+                                            <p className="text-ink text-[13px]">
                                                 {correctOptions.map((o) => o.text).join(', ')}
                                             </p>
                                         </div>

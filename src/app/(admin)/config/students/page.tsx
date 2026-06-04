@@ -7,7 +7,9 @@ interface PageProps {
     searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function StudentsGlobalPage({ searchParams }: PageProps): Promise<React.JSX.Element> {
+export default async function StudentsGlobalPage({
+    searchParams,
+}: PageProps): Promise<React.JSX.Element> {
     const sp = await searchParams;
     const q = typeof sp.q === 'string' ? sp.q : '';
     const page = Math.max(1, Number(sp.page) || 1);

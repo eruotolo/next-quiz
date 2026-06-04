@@ -1,25 +1,28 @@
-import { auth } from '@/features/auth/auth';
 import { ExamEditorClient } from '@/features/exams/components/ExamEditorClient';
+import { demoExamFilter } from '@/features/demo/lib/demo';
 import { prisma } from '@/shared/lib/prisma';
-import { USER_ROLE } from '@/shared/lib/roles';
-import { notFound, redirect } from 'next/navigation';
+import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
+import { notFound } from 'next/navigation';
 
 interface PageProps {
     params: Promise<{ slug: string; id: string }>;
 }
 
 export default async function ExamEditorPage({ params }: PageProps) {
-    const [{ id }, session] = await Promise.all([params, auth()]);
-    if (!session) redirect('/login');
+    const { slug, id } = await params;
+    const { institutionId, isProfesor, userId, isDemo, demoSessionId } =
+        await requireInstitutionPageAccess(slug);
 
-    const isProfesor = session.user.userRoleName === USER_ROLE.PROFESOR;
-
-    const exam = await prisma.exam.findUnique({
+    // Scope de institución (cierra IDOR) + scope de profesor por sus grupos.
+    // En modo demo, el examen debe pertenecer a la sesión del visitante.
+    const exam = await prisma.exam.findFirst({
         where: {
             id,
+            academicInstitutionId: institutionId,
             ...(isProfesor && {
-                groups: { some: { professors: { some: { id: session.user.id } } } },
+                groups: { some: { professors: { some: { id: userId } } } },
             }),
+            ...demoExamFilter({ isDemo, demoSessionId }),
         },
         include: {
             groups: true,

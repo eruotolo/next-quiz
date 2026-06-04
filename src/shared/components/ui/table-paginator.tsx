@@ -10,14 +10,19 @@ export interface TablePaginatorProps {
     onPageChange: (page: number) => void;
 }
 
-export function TablePaginator({ page, perPage, total, onPageChange }: TablePaginatorProps): React.JSX.Element {
+export function TablePaginator({
+    page,
+    perPage,
+    total,
+    onPageChange,
+}: TablePaginatorProps): React.JSX.Element {
     const totalPages = Math.max(1, Math.ceil(total / perPage));
     const from = total === 0 ? 0 : (page - 1) * perPage + 1;
     const to = Math.min(page * perPage, total);
 
     return (
-        <div className="flex items-center justify-between border-t border-border px-4 py-2.5 bg-paper-warm/30">
-            <span className="font-mono text-[11px] text-mute uppercase tracking-wider">
+        <div className="border-border bg-paper-warm/30 flex items-center justify-between border-t px-4 py-2.5">
+            <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
                 {total === 0 ? 'Sin resultados' : `${from}–${to} de ${total}`}
             </span>
             <div className="flex items-center gap-1">
@@ -30,7 +35,7 @@ export function TablePaginator({ page, perPage, total, onPageChange }: TablePagi
                 >
                     <ChevronLeft size={15} />
                 </Button>
-                <span className="font-mono text-[12px] text-ink-dim min-w-[56px] text-center">
+                <span className="text-ink-dim min-w-[56px] text-center font-mono text-[12px]">
                     {page} / {totalPages}
                 </span>
                 <Button

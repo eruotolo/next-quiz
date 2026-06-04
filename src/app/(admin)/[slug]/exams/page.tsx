@@ -1,21 +1,23 @@
-import { auth } from '@/features/auth/auth';
 import { ExamsClient } from '@/features/exams/components/ExamsClient';
+import { demoExamFilter } from '@/features/demo/lib/demo';
 import { prisma } from '@/shared/lib/prisma';
-import { USER_ROLE } from '@/shared/lib/roles';
-import { redirect } from 'next/navigation';
+import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
+import { examProfessorFilter, groupProfessorFilter } from '@/shared/lib/scoping';
 
-export default async function ExamsPage() {
-    const session = await auth();
-    if (!session) redirect('/login');
+export default async function ExamsPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const { institutionId, isProfesor, userId, isDemo, demoSessionId } =
+        await requireInstitutionPageAccess(slug);
 
-    const isProfesor = session.user.userRoleName === USER_ROLE.PROFESOR;
-    const profesorId = session.user.id;
-
+    // Scope: exámenes y grupos de la institución; el Profesor solo los de sus grupos.
+    // En modo demo, además, cada visitante solo ve los exámenes de su sesión.
     const [exams, groups] = await Promise.all([
         prisma.exam.findMany({
-            where: isProfesor
-                ? { groups: { some: { professors: { some: { id: profesorId } } } } }
-                : undefined,
+            where: {
+                academicInstitutionId: institutionId,
+                ...(isProfesor && examProfessorFilter(userId)),
+                ...demoExamFilter({ isDemo, demoSessionId }),
+            },
             include: {
                 groups: true,
                 _count: { select: { questions: true, results: true } },
@@ -23,7 +25,10 @@ export default async function ExamsPage() {
             orderBy: { createdAt: 'desc' },
         }),
         prisma.group.findMany({
-            where: isProfesor ? { professors: { some: { id: profesorId } } } : undefined,
+            where: {
+                academicInstitutionId: institutionId,
+                ...(isProfesor && groupProfessorFilter(userId)),
+            },
             orderBy: { name: 'asc' },
         }),
     ]);

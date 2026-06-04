@@ -14,7 +14,15 @@ import {
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { cn } from '@/shared/lib/utils';
-import { CheckCircle, Download, FileSpreadsheet, FileText, Loader2, Upload, XCircle } from 'lucide-react';
+import {
+    CheckCircle,
+    Download,
+    FileSpreadsheet,
+    FileText,
+    Loader2,
+    Upload,
+    XCircle,
+} from 'lucide-react';
 import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -30,7 +38,12 @@ interface Props {
 type Tab = 'excel' | 'markdown';
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
-export function ImportQuestionsDialog({ slug, examId, open, onOpenChange }: Props): React.JSX.Element {
+export function ImportQuestionsDialog({
+    slug,
+    examId,
+    open,
+    onOpenChange,
+}: Props): React.JSX.Element {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<Tab>('excel');
     const [parseResult, setParseResult] = useState<ParseResult | null>(null);
@@ -81,7 +94,9 @@ export function ImportQuestionsDialog({ slug, examId, open, onOpenChange }: Prop
             try {
                 const questionsToSend: QuestionDraft[] = parseResult.ok;
                 const { count } = await importQuestions(slug, examId, questionsToSend);
-                toast.success(`${count} pregunta${count !== 1 ? 's' : ''} importada${count !== 1 ? 's' : ''} correctamente`);
+                toast.success(
+                    `${count} pregunta${count !== 1 ? 's' : ''} importada${count !== 1 ? 's' : ''} correctamente`,
+                );
                 onOpenChange(false);
                 reset();
                 router.refresh();
@@ -145,17 +160,21 @@ export function ImportQuestionsDialog({ slug, examId, open, onOpenChange }: Prop
                             <>
                                 <strong className="text-foreground">Formato Excel:</strong> columnas{' '}
                                 <code className="bg-muted rounded px-1">pregunta</code>,{' '}
-                                <code className="bg-muted rounded px-1">tipo</code> (unica/multiple),{' '}
+                                <code className="bg-muted rounded px-1">tipo</code>{' '}
+                                (unica/multiple),{' '}
                                 <code className="bg-muted rounded px-1">puntos</code>,{' '}
                                 <code className="bg-muted rounded px-1">opcion1</code>,{' '}
-                                <code className="bg-muted rounded px-1">correcta1</code> … hasta opcion6/correcta6.
-                                Marcá correctas con <code className="bg-muted rounded px-1">x</code>.
+                                <code className="bg-muted rounded px-1">correcta1</code> … hasta
+                                opcion6/correcta6. Marcá correctas con{' '}
+                                <code className="bg-muted rounded px-1">x</code>.
                             </>
                         ) : (
                             <>
                                 <strong className="text-foreground">Formato Markdown:</strong>{' '}
-                                <code className="bg-muted rounded px-1">## ¿Pregunta? [1 pts] [unica]</code>
-                                {' '}seguido de{' '}
+                                <code className="bg-muted rounded px-1">
+                                    ## ¿Pregunta? [1 pts] [unica]
+                                </code>{' '}
+                                seguido de{' '}
                                 <code className="bg-muted rounded px-1">- [x] correcta</code> y{' '}
                                 <code className="bg-muted rounded px-1">- [ ] incorrecta</code>.
                                 Tipos: <code className="bg-muted rounded px-1">unica</code> o{' '}
@@ -169,7 +188,7 @@ export function ImportQuestionsDialog({ slug, examId, open, onOpenChange }: Prop
                         <Button
                             size="sm"
                             variant="outline"
-                            className="rounded-lg gap-1.5"
+                            className="gap-1.5 rounded-lg"
                             onClick={() =>
                                 activeTab === 'excel'
                                     ? generateExcelTemplate()
@@ -182,7 +201,7 @@ export function ImportQuestionsDialog({ slug, examId, open, onOpenChange }: Prop
                         <Button
                             size="sm"
                             variant="outline"
-                            className="rounded-lg gap-1.5"
+                            className="gap-1.5 rounded-lg"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={isParsing}
                         >
@@ -200,8 +219,7 @@ export function ImportQuestionsDialog({ slug, examId, open, onOpenChange }: Prop
 
                     {fileName && (
                         <p className="text-muted-foreground text-[12.5px]">
-                            Archivo:{' '}
-                            <span className="text-foreground font-medium">{fileName}</span>
+                            Archivo: <span className="text-foreground font-medium">{fileName}</span>
                         </p>
                     )}
 
@@ -250,11 +268,21 @@ export function ImportQuestionsDialog({ slug, examId, open, onOpenChange }: Prop
                                     <table className="w-full text-sm">
                                         <thead>
                                             <tr className="bg-muted/50 border-border border-b">
-                                                <th className="px-3 py-2 text-left text-xs font-semibold">#</th>
-                                                <th className="px-3 py-2 text-left text-xs font-semibold">Pregunta</th>
-                                                <th className="px-3 py-2 text-left text-xs font-semibold">Tipo</th>
-                                                <th className="px-3 py-2 text-center text-xs font-semibold">Pts</th>
-                                                <th className="px-3 py-2 text-center text-xs font-semibold">Ops</th>
+                                                <th className="px-3 py-2 text-left text-xs font-semibold">
+                                                    #
+                                                </th>
+                                                <th className="px-3 py-2 text-left text-xs font-semibold">
+                                                    Pregunta
+                                                </th>
+                                                <th className="px-3 py-2 text-left text-xs font-semibold">
+                                                    Tipo
+                                                </th>
+                                                <th className="px-3 py-2 text-center text-xs font-semibold">
+                                                    Pts
+                                                </th>
+                                                <th className="px-3 py-2 text-center text-xs font-semibold">
+                                                    Ops
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -308,7 +336,8 @@ export function ImportQuestionsDialog({ slug, examId, open, onOpenChange }: Prop
                         onClick={handleImport}
                     >
                         {isPending && <Loader2 className="animate-spin" />}
-                        Importar {parseResult && parseResult.ok.length > 0
+                        Importar{' '}
+                        {parseResult && parseResult.ok.length > 0
                             ? `${parseResult.ok.length} pregunta${parseResult.ok.length !== 1 ? 's' : ''}`
                             : ''}
                     </Button>
@@ -323,9 +352,7 @@ function TypeBadge({ type }: { type: 'UNICA' | 'MULTIPLE' }): React.JSX.Element 
         <span
             className={cn(
                 'inline-flex items-center rounded-full px-2 py-0.5 text-[10.5px] font-semibold',
-                type === 'MULTIPLE'
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'bg-amber-50 text-amber-700',
+                type === 'MULTIPLE' ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700',
             )}
         >
             {type === 'MULTIPLE' ? 'Múltiple' : 'Única'}

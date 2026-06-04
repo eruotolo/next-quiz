@@ -2,7 +2,7 @@ import { Skeleton } from '@/shared/components/ui/skeleton';
 
 export default function SlugLoading(): React.JSX.Element {
     return (
-        <div className="flex min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen">
             <div className="w-60 shrink-0 border-r bg-white p-4">
                 <Skeleton className="mb-6 h-8 w-32" />
                 <div className="space-y-2">

@@ -2,6 +2,8 @@ import { logAudit } from '@/shared/lib/audit';
 import { prisma } from '@/shared/lib/prisma';
 import { ADMIN_ROLES } from '@/shared/lib/roles';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
+import { deleteDemoSessionExams } from '@/features/demo/lib/cleanup';
+import { randomUUID } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import NextAuth, { type Account, type Session, type User } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
@@ -33,7 +35,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                         email: true,
                         password: true,
                         userRole: { select: { name: true } },
-                        academicInstitution: { select: { id: true, slug: true } },
+                        academicInstitution: { select: { id: true, slug: true, isDemo: true } },
                     },
                 });
 
@@ -88,6 +90,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     userRoleName: user.userRole.name,
                     academicInstitutionId: user.academicInstitution?.id ?? null,
                     institutionSlug: user.academicInstitution?.slug ?? null,
+                    isDemo: user.academicInstitution?.isDemo ?? false,
                 };
             },
         }),
@@ -110,12 +113,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return false;
         },
 
-        async jwt({ token, user, account }: { token: JWT; user?: User; account?: Account | null }): Promise<JWT> {
+        async jwt({
+            token,
+            user,
+            account,
+        }: {
+            token: JWT;
+            user?: User;
+            account?: Account | null;
+        }): Promise<JWT> {
             if (user && account?.provider === 'credentials') {
                 token.id = user.id as string;
                 token.userRoleName = user.userRoleName;
                 token.academicInstitutionId = user.academicInstitutionId;
                 token.institutionSlug = user.institutionSlug;
+                token.isDemo = user.isDemo;
+                // Un id por login del demo: aísla lo creado por cada visitante.
+                token.demoSessionId = user.isDemo ? randomUUID() : null;
             }
 
             if (user && account?.provider === 'google' && user.email) {
@@ -135,6 +149,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     token.userRoleName = dbUser.userRole?.name ?? '';
                     token.academicInstitutionId = dbUser.academicInstitution?.id ?? null;
                     token.institutionSlug = dbUser.academicInstitution?.slug ?? null;
+                    token.isDemo = false;
+                    token.demoSessionId = null;
 
                     await logAudit({
                         action: AUDIT_ACTION.AUTH_LOGIN_SUCCESS,
@@ -156,6 +172,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 session.user.userRoleName = token.userRoleName;
                 session.user.academicInstitutionId = token.academicInstitutionId;
                 session.user.institutionSlug = token.institutionSlug;
+                session.user.isDemo = token.isDemo ?? false;
+                session.user.demoSessionId = token.demoSessionId ?? null;
             }
             return session;
         },
@@ -171,6 +189,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 actorRole: (token.userRoleName as string) ?? null,
                 status: 'success',
             });
+            // Modo demo: al cerrar sesión se borra lo creado por esa sesión.
+            if (token.isDemo === true && typeof token.demoSessionId === 'string') {
+                await deleteDemoSessionExams(token.demoSessionId);
+            }
         },
     },
     pages: {

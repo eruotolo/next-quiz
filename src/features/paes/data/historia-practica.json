@@ -23,10 +23,22 @@
             "number": 2,
             "statement": "¿Cuál fue el principal resultado político de la Revolución Francesa (1789)?",
             "options": [
-                { "id": "hi-02-a", "text": "El fortalecimiento de la monarquía absoluta en Europa.", "isCorrect": false },
+                {
+                    "id": "hi-02-a",
+                    "text": "El fortalecimiento de la monarquía absoluta en Europa.",
+                    "isCorrect": false
+                },
                 { "id": "hi-02-b", "text": "La expansión del Imperio Romano.", "isCorrect": false },
-                { "id": "hi-02-c", "text": "El cuestionamiento del absolutismo y la proclamación de los derechos del hombre.", "isCorrect": true },
-                { "id": "hi-02-d", "text": "La creación de la Organización de Naciones Unidas.", "isCorrect": false }
+                {
+                    "id": "hi-02-c",
+                    "text": "El cuestionamiento del absolutismo y la proclamación de los derechos del hombre.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "hi-02-d",
+                    "text": "La creación de la Organización de Naciones Unidas.",
+                    "isCorrect": false
+                }
             ],
             "eje": "Historia universal"
         },
@@ -36,7 +48,11 @@
             "statement": "¿Qué organización es responsable de garantizar la paz y seguridad internacional tras la Segunda Guerra Mundial?",
             "options": [
                 { "id": "hi-03-a", "text": "La Liga de las Naciones", "isCorrect": false },
-                { "id": "hi-03-b", "text": "La Organización de Naciones Unidas (ONU)", "isCorrect": true },
+                {
+                    "id": "hi-03-b",
+                    "text": "La Organización de Naciones Unidas (ONU)",
+                    "isCorrect": true
+                },
                 { "id": "hi-03-c", "text": "La Unión Europea", "isCorrect": false },
                 { "id": "hi-03-d", "text": "El Fondo Monetario Internacional", "isCorrect": false }
             ],
@@ -84,7 +100,11 @@
             "statement": "La Primera Guerra Mundial (1914-1918) fue desencadenada principalmente por",
             "options": [
                 { "id": "hi-07-a", "text": "La invasión alemana a Polonia.", "isCorrect": false },
-                { "id": "hi-07-b", "text": "El asesinato del Archiduque Francisco Fernando en Sarajevo.", "isCorrect": true },
+                {
+                    "id": "hi-07-b",
+                    "text": "El asesinato del Archiduque Francisco Fernando en Sarajevo.",
+                    "isCorrect": true
+                },
                 { "id": "hi-07-c", "text": "La Revolución Rusa de 1917.", "isCorrect": false },
                 { "id": "hi-07-d", "text": "El hundimiento del Lusitania.", "isCorrect": false }
             ],
@@ -110,7 +130,11 @@
                 { "id": "hi-09-a", "text": "Bernardo O'Higgins", "isCorrect": false },
                 { "id": "hi-09-b", "text": "José Joaquín Prieto", "isCorrect": false },
                 { "id": "hi-09-c", "text": "Diego Portales", "isCorrect": false },
-                { "id": "hi-09-d", "text": "Joaquín Prieto (bajo la Constitución vigente)", "isCorrect": true }
+                {
+                    "id": "hi-09-d",
+                    "text": "Joaquín Prieto (bajo la Constitución vigente)",
+                    "isCorrect": true
+                }
             ],
             "eje": "Historia de Chile"
         },
@@ -119,10 +143,26 @@
             "number": 10,
             "statement": "El concepto de «soberanía popular» indica que el poder político proviene de",
             "options": [
-                { "id": "hi-10-a", "text": "La voluntad de Dios expresada por la Iglesia.", "isCorrect": false },
-                { "id": "hi-10-b", "text": "El pueblo, que delega su representación a las autoridades.", "isCorrect": true },
-                { "id": "hi-10-c", "text": "El ejército y las fuerzas armadas del Estado.", "isCorrect": false },
-                { "id": "hi-10-d", "text": "La aristocracia y las élites económicas dominantes.", "isCorrect": false }
+                {
+                    "id": "hi-10-a",
+                    "text": "La voluntad de Dios expresada por la Iglesia.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "hi-10-b",
+                    "text": "El pueblo, que delega su representación a las autoridades.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "hi-10-c",
+                    "text": "El ejército y las fuerzas armadas del Estado.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "hi-10-d",
+                    "text": "La aristocracia y las élites económicas dominantes.",
+                    "isCorrect": false
+                }
             ],
             "eje": "Educación cívica"
         },
@@ -131,10 +171,26 @@
             "number": 11,
             "statement": "¿Qué proceso se denomina «Reconquista» en la historia de la América colonial?",
             "options": [
-                { "id": "hi-11-a", "text": "La recuperación española del control de las colonias tras los movimientos independentistas de 1810.", "isCorrect": true },
-                { "id": "hi-11-b", "text": "La conquista de territorios indígenas por parte de los colonizadores europeos.", "isCorrect": false },
-                { "id": "hi-11-c", "text": "La rebelión de los pueblos originarios contra el dominio español.", "isCorrect": false },
-                { "id": "hi-11-d", "text": "El proceso de colonización de América del Sur por España.", "isCorrect": false }
+                {
+                    "id": "hi-11-a",
+                    "text": "La recuperación española del control de las colonias tras los movimientos independentistas de 1810.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "hi-11-b",
+                    "text": "La conquista de territorios indígenas por parte de los colonizadores europeos.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "hi-11-c",
+                    "text": "La rebelión de los pueblos originarios contra el dominio español.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "hi-11-d",
+                    "text": "El proceso de colonización de América del Sur por España.",
+                    "isCorrect": false
+                }
             ],
             "eje": "Historia de Chile"
         },
@@ -155,9 +211,21 @@
             "number": 13,
             "statement": "¿Qué acontecimiento marcó el fin de la Segunda Guerra Mundial en Europa?",
             "options": [
-                { "id": "hi-13-a", "text": "El bombardeo atómico de Hiroshima (1945)", "isCorrect": false },
-                { "id": "hi-13-b", "text": "La rendición incondicional de Alemania en mayo de 1945", "isCorrect": true },
-                { "id": "hi-13-c", "text": "El Desembarco de Normandía (1944)", "isCorrect": false },
+                {
+                    "id": "hi-13-a",
+                    "text": "El bombardeo atómico de Hiroshima (1945)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "hi-13-b",
+                    "text": "La rendición incondicional de Alemania en mayo de 1945",
+                    "isCorrect": true
+                },
+                {
+                    "id": "hi-13-c",
+                    "text": "El Desembarco de Normandía (1944)",
+                    "isCorrect": false
+                },
                 { "id": "hi-13-d", "text": "La batalla de Stalingrado (1943)", "isCorrect": false }
             ],
             "eje": "Historia universal"
@@ -182,7 +250,11 @@
                 { "id": "hi-15-a", "text": "La Corte Suprema", "isCorrect": false },
                 { "id": "hi-15-b", "text": "El Senado", "isCorrect": false },
                 { "id": "hi-15-c", "text": "El Tribunal Constitucional", "isCorrect": true },
-                { "id": "hi-15-d", "text": "La Contraloría General de la República", "isCorrect": false }
+                {
+                    "id": "hi-15-d",
+                    "text": "La Contraloría General de la República",
+                    "isCorrect": false
+                }
             ],
             "eje": "Educación cívica"
         }

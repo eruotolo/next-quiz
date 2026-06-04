@@ -22,7 +22,9 @@ function isTruthy(val: unknown): boolean {
 }
 
 function normalizeType(raw: unknown): 'UNICA' | 'MULTIPLE' {
-    const s = String(raw ?? '').toLowerCase().trim();
+    const s = String(raw ?? '')
+        .toLowerCase()
+        .trim();
     if (s === 'multiple' || s === 'múltiple' || s === 'multi') return 'MULTIPLE';
     return 'UNICA';
 }
@@ -50,7 +52,10 @@ export function parseExcelFile(buffer: ArrayBuffer): ParseResult {
         if (!text) return; // skip blank rows silently
 
         const questionType = normalizeType(row.tipo);
-        const points = Math.max(1, Math.min(100, Number.parseInt(String(row.puntos ?? '1'), 10) || 1));
+        const points = Math.max(
+            1,
+            Math.min(100, Number.parseInt(String(row.puntos ?? '1'), 10) || 1),
+        );
 
         const options: { text: string; isCorrect: boolean }[] = [];
         for (let n = 1; n <= 6; n++) {
@@ -60,7 +65,10 @@ export function parseExcelFile(buffer: ArrayBuffer): ParseResult {
         }
 
         if (options.length < 2) {
-            errors.push({ row: rowNum, message: `Fila ${rowNum}: se necesitan al menos 2 opciones.` });
+            errors.push({
+                row: rowNum,
+                message: `Fila ${rowNum}: se necesitan al menos 2 opciones.`,
+            });
             return;
         }
 

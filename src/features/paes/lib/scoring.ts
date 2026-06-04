@@ -1,4 +1,9 @@
-import type { PaesEjeResult, PaesExam, PaesQuestionResult, PaesResult } from '@/features/paes/types/paes.types';
+import type {
+    PaesEjeResult,
+    PaesExam,
+    PaesQuestionResult,
+    PaesResult,
+} from '@/features/paes/types/paes.types';
 
 // Approximation: 150 base + linear scale to ~850 max.
 // Real PAES scale is percentile-based (confidential table).
@@ -9,10 +14,7 @@ export function estimatePaesScore(correctCount: number, totalCount: number): num
     return Math.round(150 + pct * 700);
 }
 
-export function computePaesResults(
-    exam: PaesExam,
-    answersMap: Map<string, string[]>,
-): PaesResult {
+export function computePaesResults(exam: PaesExam, answersMap: Map<string, string[]>): PaesResult {
     let correct = 0;
     let incorrect = 0;
     let unanswered = 0;

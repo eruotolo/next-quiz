@@ -1,8 +1,14 @@
 import { auth } from '@/features/auth/auth';
 import { DashboardClient } from '@/features/dashboard/components/DashboardClient';
+import { demoExamFilter } from '@/features/demo/lib/demo';
 import { calcGrade } from '@/features/results/lib/grade';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
+import {
+    examProfessorFilter,
+    groupProfessorFilter,
+    resultProfessorFilter,
+} from '@/shared/lib/scoping';
 import { redirect } from 'next/navigation';
 
 interface Props {
@@ -41,6 +47,14 @@ export default async function InstitutionDashboardPage({ params }: Props) {
         institutionName = inst?.name ?? slug;
     }
 
+    // Scope de profesor: solo sus grupos, exámenes y resultados.
+    const isProfesor = session.user.userRoleName === USER_ROLE.PROFESOR;
+    const profExamFilter = isProfesor ? examProfessorFilter(session.user.id) : {};
+    const profGroupFilter = isProfesor ? groupProfessorFilter(session.user.id) : {};
+    const profResultFilter = isProfesor ? resultProfessorFilter(session.user.id) : {};
+    // Modo demo: los exámenes mostrados se acotan a la sesión del visitante.
+    const demoFilter = demoExamFilter(session.user);
+
     const [
         totalStudents,
         totalExams,
@@ -51,12 +65,26 @@ export default async function InstitutionDashboardPage({ params }: Props) {
         ungroupedStudents,
     ] = await Promise.all([
         prisma.user.count({
-            where: { userRole: { name: USER_ROLE.STUDENT }, academicInstitutionId: institutionId },
+            where: {
+                userRole: { name: USER_ROLE.STUDENT },
+                academicInstitutionId: institutionId,
+                ...(isProfesor && { group: profGroupFilter }),
+            },
         }),
-        prisma.exam.count(),
-        prisma.group.findMany({ orderBy: { name: 'asc' } }),
+        prisma.exam.count({
+            where: { academicInstitutionId: institutionId, ...profExamFilter, ...demoFilter },
+        }),
+        prisma.group.findMany({
+            where: { academicInstitutionId: institutionId, ...profGroupFilter },
+            orderBy: { name: 'asc' },
+        }),
         prisma.exam.findMany({
-            where: { active: true },
+            where: {
+                active: true,
+                academicInstitutionId: institutionId,
+                ...profExamFilter,
+                ...demoFilter,
+            },
             select: {
                 id: true,
                 title: true,
@@ -78,7 +106,7 @@ export default async function InstitutionDashboardPage({ params }: Props) {
             take: 5,
         }),
         prisma.result.findMany({
-            where: { student: { academicInstitutionId: institutionId } },
+            where: { student: { academicInstitutionId: institutionId }, ...profResultFilter },
             select: {
                 id: true,
                 score: true,
@@ -99,7 +127,7 @@ export default async function InstitutionDashboardPage({ params }: Props) {
             take: 5,
         }),
         prisma.result.findMany({
-            where: { student: { academicInstitutionId: institutionId } },
+            where: { student: { academicInstitutionId: institutionId }, ...profResultFilter },
             select: {
                 score: true,
                 maxScore: true,
@@ -134,7 +162,7 @@ export default async function InstitutionDashboardPage({ params }: Props) {
     const uniqueStudentsWithResults = new Set(
         await prisma.result
             .findMany({
-                where: { student: { academicInstitutionId: institutionId } },
+                where: { student: { academicInstitutionId: institutionId }, ...profResultFilter },
                 select: { studentId: true },
             })
             .then((rows) => rows.map((r) => r.studentId)),

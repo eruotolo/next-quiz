@@ -1,3 +1,3 @@
 export default function PublicLoading(): React.JSX.Element {
-    return <div className="min-h-screen bg-paper-warm" />;
+    return <div className="bg-paper-warm min-h-screen" />;
 }

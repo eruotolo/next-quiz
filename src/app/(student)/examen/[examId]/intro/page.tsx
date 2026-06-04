@@ -1,15 +1,41 @@
-import { prisma } from '@/shared/lib/prisma';
+﻿import { prisma } from '@/shared/lib/prisma';
 import { getStudentSession } from '@/features/exam-session/lib/session';
+import { ExamIntroStart } from '@/features/exam-session/components/ExamIntroStart';
 import { LogoMark, LogoWordmark } from '@/shared/components/branding/logo';
-import { Button } from '@/shared/components/ui/button';
-import { Clock, Shield, Wifi, BookOpen, ArrowRight } from 'lucide-react';
-import Link from 'next/link';
+import { Avatar } from '@/shared/components/ui/avatar';
+import { Check } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
 interface PageProps {
     params: Promise<{ examId: string }>;
 }
 
+const closesFormatter = new Intl.DateTimeFormat('es-CL', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+});
+const closesDateFormatter = new Intl.DateTimeFormat('es-CL', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+});
+
+function startOfDay(d: Date): number {
+    const x = new Date(d);
+    x.setHours(0, 0, 0, 0);
+    return x.getTime();
+}
+
+function closesLabel(date: Date, now: Date): string {
+    const diff = Math.round((startOfDay(date) - startOfDay(now)) / (24 * 60 * 60 * 1000));
+    const time = closesFormatter.format(date);
+    if (diff === 0) return `Hoy ${time}`;
+    if (diff === 1) return `Mañana ${time}`;
+    return `${closesDateFormatter.format(date)} ${time}`;
+}
+
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: arma los datos del examen (vigilancia, tipo, cierre, nota) e instrucciones en una sola vista; separarlo dispersaría la presentación
 export default async function ExamIntroPage({ params }: PageProps): Promise<React.JSX.Element> {
     const { examId } = await params;
     const session = await getStudentSession();
@@ -21,142 +47,212 @@ export default async function ExamIntroPage({ params }: PageProps): Promise<Reac
         select: {
             id: true,
             title: true,
+            subject: true,
+            unit: true,
             timeLimit: true,
             antiCheatEnabled: true,
+            lockTabSwitch: true,
             passingGrade: true,
-            questions: { select: { id: true, points: true } },
+            passingPercentage: true,
+            closesAt: true,
+            questions: { select: { questionType: true } },
+            createdBy: { select: { name: true, lastname: true } },
             groups: { select: { name: true }, take: 1 },
         },
     });
 
     if (!exam) redirect('/examen/login');
 
-    const totalPoints = exam.questions.reduce((sum, q) => sum + q.points, 0);
     const student = await prisma.user.findUnique({
         where: { id: session.studentId },
-        select: { name: true, lastname: true },
+        select: {
+            name: true,
+            lastname: true,
+            academicInstitution: { select: { name: true } },
+        },
     });
+    if (!student) redirect('/examen/login');
+
+    const now = new Date();
+    const fullName = `${student.name} ${student.lastname}`;
+    const groupName = exam.groups[0]?.name ?? null;
+    // El nombre del grupo puede traer la institución pegada ("Grupo A — Institución");
+    // mostramos solo la parte del grupo y la institución por separado.
+    const groupShort = groupName ? (groupName.split('—')[0]?.trim() ?? groupName) : null;
+    const subjectUnit = [exam.subject, exam.unit].filter(Boolean).join(' · ');
+    const institutionName = student.academicInstitution?.name ?? null;
+    const topbarLabel = [institutionName, groupShort, exam.title].filter(Boolean).join(' · ');
+    const teacher = exam.createdBy ? `${exam.createdBy.name} ${exam.createdBy.lastname}` : null;
+    const hasMultiple = exam.questions.some((q) => q.questionType === 'MULTIPLE');
+    const questionTypeLabel = hasMultiple ? 'selección múltiple' : 'selección única';
+    const surveillanceLabel = !exam.antiCheatEnabled
+        ? 'Libre'
+        : exam.lockTabSwitch
+          ? 'Restricción total'
+          : 'Anti-trampa (3 salidas)';
+
+    const tabInstruction = !exam.antiCheatEnabled
+        ? {
+              title: 'Respondé con tranquilidad',
+              text: 'Tus respuestas se guardan automáticamente a medida que avanzás.',
+          }
+        : exam.lockTabSwitch
+          ? {
+                title: 'No salgas de la pestaña: una salida cierra el examen',
+                text: 'Si cambiás de pestaña o de aplicación, aunque sea una vez, el examen se entrega automáticamente al instante con lo que hayas respondido.',
+            }
+          : {
+                title: 'No salgas de la pestaña: 3 salidas cierran el examen',
+                text: 'Aulika detecta cada vez que dejás la pestaña. Las dos primeras veces te avisamos; en la tercera, el examen se entrega automáticamente con lo que hayas respondido hasta ese momento.',
+            };
 
     const instructions = [
         {
-            icon: Clock,
-            text: `Tenés ${exam.timeLimit} minutos. El cronómetro comienza cuando iniciás.`,
+            title: `Tendrás ${exam.timeLimit} minutos para ${exam.questions.length} preguntas`,
+            text: 'El cronómetro empieza al hacer clic en «Comenzar».',
         },
         {
-            icon: BookOpen,
-            text: `${exam.questions.length} preguntas · ${totalPoints} puntos en total. Podés navegar libremente.`,
+            title: 'Una pregunta a la vez',
+            text: 'Podés avanzar y retroceder. Las respuestas quedan guardadas.',
         },
+        tabInstruction,
         {
-            icon: Shield,
-            text: exam.antiCheatEnabled
-                ? 'Anti-copia activo. Si salís de esta pestaña 3 veces, el examen se envía automáticamente.'
-                : 'Respondé con honestidad. Tus respuestas se guardan automáticamente.',
-        },
-        {
-            icon: Wifi,
-            text: 'Si perdés conexión, al reconectarte el examen continúa desde donde quedaste.',
+            title: 'No necesitás internet perfecto',
+            text: 'Si te desconectás, retomamos desde donde quedaste.',
         },
     ];
 
+    const examData = [
+        institutionName && { label: 'Institución', value: institutionName },
+        teacher && { label: 'Profesor/a', value: teacher },
+        groupShort && {
+            label: 'Curso',
+            value: [groupShort, exam.subject].filter(Boolean).join(' · '),
+        },
+        { label: 'Preguntas', value: `${exam.questions.length} · ${questionTypeLabel}` },
+        { label: 'Duración', value: `${exam.timeLimit} minutos` },
+        exam.closesAt && { label: 'Cierra', value: closesLabel(exam.closesAt, now) },
+        {
+            label: 'Nota base',
+            value: `${exam.passingGrade.toFixed(1)} al ${exam.passingPercentage}%`,
+        },
+        { label: 'Vigilancia', value: surveillanceLabel },
+    ].filter((row): row is { label: string; value: string } => Boolean(row));
+
     return (
-        <div className="flex min-h-screen flex-col bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             {/* Top bar */}
-            <header className="flex items-center gap-3 border-b border-border bg-white px-6 py-3.5">
-                <LogoMark size={26} />
-                <div className="h-4 w-px bg-border" />
-                <LogoWordmark size={14} color="#75716b" />
-            </header>
-
-            {/* Content */}
-            <div className="flex flex-1 items-center justify-center p-6 py-12">
-                <div className="grid w-full max-w-4xl gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-                    {/* Left — main card */}
-                    <div className="rounded-[18px] border border-border bg-white p-8 lg:p-10">
-                        <span className="font-mono text-[10px] uppercase tracking-[0.1em] text-mute">
-                            {exam.groups[0]?.name ?? 'Examen'}
-                        </span>
-                        <h1 className="mt-2 font-display text-[40px] font-semibold leading-tight tracking-[-0.03em] text-ink lg:text-[48px]">
-                            {exam.title}
-                        </h1>
-
-                        <div className="mt-8 space-y-4">
-                            <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-mute">
-                                Instrucciones
-                            </p>
-                            {instructions.map((item) => (
-                                <div key={item.text} className="flex items-start gap-3">
-                                    <div className="flex size-8 shrink-0 items-center justify-center rounded-[6px] bg-paper-warm">
-                                        <item.icon size={14} className="text-ink-dim" />
-                                    </div>
-                                    <p className="text-[14px] leading-relaxed text-ink-dim">{item.text}</p>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="mt-8 border-t border-border pt-6">
-                            <p className="mb-4 text-[13px] text-mute">
-                                Al comenzar confirmás que leíste las instrucciones y que realizarás el
-                                examen de forma individual.
-                            </p>
-                            <Button variant="ink" size="lg" asChild>
-                                <Link href={`/examen/${examId}`}>
-                                    Comenzar examen
-                                    <ArrowRight className="size-4" />
-                                </Link>
-                            </Button>
-                        </div>
-                    </div>
-
-                    {/* Right — info sidebar */}
-                    <div className="flex flex-col gap-4">
-                        {/* Exam data card */}
-                        <div className="rounded-[14px] border border-border bg-white p-5">
-                            <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.08em] text-mute">
-                                Datos del examen
-                            </p>
-                            <div className="space-y-3">
-                                {[
-                                    { label: 'Preguntas', value: String(exam.questions.length) },
-                                    { label: 'Duración', value: `${exam.timeLimit} min` },
-                                    { label: 'Puntaje total', value: String(totalPoints) },
-                                    { label: 'Nota de aprobación', value: exam.passingGrade.toFixed(1) },
-                                ].map((row) => (
-                                    <div
-                                        key={row.label}
-                                        className="flex items-center justify-between border-b border-border pb-3 last:border-0 last:pb-0"
-                                    >
-                                        <span className="text-[13px] text-ink-dim">{row.label}</span>
-                                        <span className="font-mono text-[13px] font-semibold text-ink">
-                                            {row.value}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Student reminder — ink card */}
-                        {student && (
-                            <div
-                                className="rounded-[14px] p-5"
-                                style={{
-                                    background: [
-                                        'radial-gradient(ellipse at 80% 20%, rgba(214,255,31,0.18) 0%, transparent 60%)',
-                                        '#0b0b11',
-                                    ].join(', '),
-                                }}
-                            >
-                                <span className="mb-3 inline-block rounded-full bg-lime/20 px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.1em] text-lime">
-                                    {student.name.toUpperCase()}, NO OLVIDES
-                                </span>
-                                <p className="text-[13px] leading-relaxed text-white/60">
-                                    Tus respuestas se guardan automáticamente. Si la conexión falla,
-                                    abrí la misma URL y continuá desde donde estabas.
-                                </p>
-                            </div>
+            <header className="border-border flex items-center justify-between border-b bg-white px-8 py-4">
+                <div className="flex items-center gap-3">
+                    <LogoMark size={28} />
+                    <LogoWordmark size={16} color="#0b0b11" />
+                    <div className="bg-border ml-1 h-4 w-px" />
+                    <span className="text-mute max-w-[420px] truncate font-mono text-[11px] tracking-[0.08em] uppercase">
+                        {topbarLabel}
+                    </span>
+                </div>
+                <div className="flex items-center gap-3">
+                    <Avatar name={fullName} size={36} />
+                    <div className="hidden leading-tight sm:block">
+                        <p className="text-ink text-[13px] font-semibold">{fullName}</p>
+                        {groupShort && <p className="text-mute text-[11px]">{groupShort}</p>}
+                        {institutionName && (
+                            <p className="text-mute text-[11px]">{institutionName}</p>
                         )}
                     </div>
                 </div>
-            </div>
+            </header>
+
+            <main className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-10 lg:grid-cols-[1.4fr_0.6fr]">
+                {/* Main card */}
+                <div className="border-border overflow-hidden rounded-[18px] border bg-white">
+                    {/* Header */}
+                    <div className="p-8 lg:p-10">
+                        {subjectUnit && (
+                            <span className="bg-paper-warm text-ink-dim rounded-full px-3 py-1 font-mono text-[10px] tracking-[0.1em] uppercase">
+                                {subjectUnit}
+                            </span>
+                        )}
+                        <h1 className="font-display text-ink mt-3 text-[40px] leading-[1.05] font-semibold tracking-[-0.03em] lg:text-[46px]">
+                            Examen {exam.title}
+                        </h1>
+                        <p className="text-ink-dim mt-4 max-w-lg text-[14px] leading-relaxed">
+                            Tomate tu tiempo. Vas a leer una pregunta a la vez, podés marcar las que
+                            dudes y volver a ellas antes de cerrar.
+                        </p>
+                    </div>
+
+                    {/* Instructions */}
+                    <div className="border-border border-t px-8 py-7 lg:px-10">
+                        <p className="text-mute mb-4 font-mono text-[10px] tracking-[0.1em] uppercase">
+                            Antes de empezar
+                        </p>
+                        <div className="space-y-4">
+                            {instructions.map((item) => (
+                                <div key={item.title} className="flex items-start gap-3">
+                                    <span className="bg-primary-wash text-primary mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full">
+                                        <Check size={13} strokeWidth={3} />
+                                    </span>
+                                    <div>
+                                        <p className="text-ink text-[14px] font-semibold">
+                                            {item.title}
+                                        </p>
+                                        <p className="text-mute text-[13px] leading-snug">
+                                            {item.text}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Accept + start */}
+                    <div className="border-border border-t px-8 py-6 lg:px-10">
+                        <ExamIntroStart />
+                    </div>
+                </div>
+
+                {/* Sidebar */}
+                <aside className="flex flex-col gap-4">
+                    {/* Exam data */}
+                    <div className="border-border rounded-[16px] border bg-white p-6">
+                        <p className="text-ink mb-4 text-[15px] font-semibold">Datos del examen</p>
+                        <div className="space-y-3">
+                            {examData.map((row) => (
+                                <div
+                                    key={row.label}
+                                    className="border-border flex items-center justify-between border-b border-dashed pb-3 last:border-0 last:pb-0"
+                                >
+                                    <span className="text-mute text-[13px]">{row.label}</span>
+                                    <span className="text-ink text-[13px] font-semibold">
+                                        {row.value}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Reminder — ink card */}
+                    <div
+                        className="rounded-[16px] p-6"
+                        style={{
+                            background: [
+                                'radial-gradient(ellipse at 80% 10%, rgba(214,255,31,0.16) 0%, transparent 55%)',
+                                '#0b0b11',
+                            ].join(', '),
+                        }}
+                    >
+                        <span className="bg-lime/20 text-lime mb-3 inline-block rounded-full px-2.5 py-0.5 font-mono text-[9px] tracking-[0.1em] uppercase">
+                            {student.name.toUpperCase()}, NO OLVIDES
+                        </span>
+                        <p className="text-[13px] leading-relaxed text-white/60">
+                            Si tu equipo se queda sin batería o se cae internet, abrí Aulika de nuevo
+                            con tu RUT y retomás donde quedaste. Las respuestas que ya guardaste se
+                            quedan ahí.
+                        </p>
+                    </div>
+                </aside>
+            </main>
         </div>
     );
 }

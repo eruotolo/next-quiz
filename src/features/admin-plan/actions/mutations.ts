@@ -34,7 +34,8 @@ export async function updatePlanLimits(
     });
 
     const parsed = planLimitsUpdateSchema.safeParse(data);
-    if (!parsed.success) return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
+    if (!parsed.success)
+        return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
 
     await prisma.planLimits.update({
         where: { plan: parsed.data.plan as Plan },
@@ -134,7 +135,9 @@ export async function getSubscriptions(
     const rows: SubscriptionRow[] = rawRows
         .map((r) => {
             const meta = (r.metadata as Record<string, string> | null) ?? {};
-            const payerName = meta.payerName ? `${meta.payerName} ${meta.payerLastname ?? ''}`.trim() : null;
+            const payerName = meta.payerName
+                ? `${meta.payerName} ${meta.payerLastname ?? ''}`.trim()
+                : null;
             const payerEmail = meta.payerEmail ?? null;
             return {
                 id: r.id,
@@ -180,7 +183,8 @@ export async function cancelSubscription(
     });
 
     if (!sub) return { data: null, error: 'Suscripción no encontrada.' };
-    if (sub.status === SubscriptionStatus.cancelled) return { data: null, error: 'Ya está cancelada.' };
+    if (sub.status === SubscriptionStatus.cancelled)
+        return { data: null, error: 'Ya está cancelada.' };
 
     if (sub.mpSubscriptionId) {
         const token = process.env.MP_ACCESS_TOKEN;
@@ -224,7 +228,8 @@ export async function pauseSubscription(
     });
 
     if (!sub) return { data: null, error: 'Suscripción no encontrada.' };
-    if (sub.status !== SubscriptionStatus.active) return { data: null, error: 'Solo se pueden pausar suscripciones activas.' };
+    if (sub.status !== SubscriptionStatus.active)
+        return { data: null, error: 'Solo se pueden pausar suscripciones activas.' };
 
     if (sub.mpSubscriptionId) {
         const token = process.env.MP_ACCESS_TOKEN;
@@ -263,7 +268,8 @@ export async function reactivateSubscription(
     });
 
     if (!sub) return { data: null, error: 'Suscripción no encontrada.' };
-    if (sub.status !== SubscriptionStatus.paused) return { data: null, error: 'Solo se pueden reactivar suscripciones pausadas.' };
+    if (sub.status !== SubscriptionStatus.paused)
+        return { data: null, error: 'Solo se pueden reactivar suscripciones pausadas.' };
 
     if (sub.mpSubscriptionId) {
         const token = process.env.MP_ACCESS_TOKEN;
@@ -321,12 +327,13 @@ export async function exportSubscriptionsCSV(
         },
     });
 
-    const header = 'ID,Fecha,Pagador,Email,Institución,Plan,Modalidad,Monto,Estado,Inicio,Vencimiento,ID MP\n';
+    const header =
+        'ID,Fecha,Pagador,Email,Institución,Plan,Modalidad,Monto,Estado,Inicio,Vencimiento,ID MP\n';
     const csvRows = rows.map((r) => {
         const meta = (r.metadata as Record<string, string> | null) ?? {};
         const payerName = `${meta.payerName ?? ''} ${meta.payerLastname ?? ''}`.trim();
         const payerEmail = meta.payerEmail ?? '';
-        const fmt = (d: Date | null): string => d ? d.toISOString().split('T')[0] ?? '' : '';
+        const fmt = (d: Date | null): string => (d ? (d.toISOString().split('T')[0] ?? '') : '');
         const esc = (v: string): string => `"${v.replace(/"/g, '""')}"`;
 
         return [
@@ -360,7 +367,10 @@ export type BillingStats = {
     byPlan: Array<{ plan: Plan; count: number; mrr: number }>;
 };
 
-export async function getBillingStats(): Promise<{ data: BillingStats | null; error: string | null }> {
+export async function getBillingStats(): Promise<{
+    data: BillingStats | null;
+    error: string | null;
+}> {
     await requireSuperAdmin().catch(() => {
         throw new Error('Unauthorized');
     });
@@ -726,22 +736,25 @@ export async function exportPaymentsCSV(
         },
     });
 
-    const fmt = (d: Date | null): string => d ? d.toISOString().split('T')[0] ?? '' : '';
+    const fmt = (d: Date | null): string => (d ? (d.toISOString().split('T')[0] ?? '') : '');
     const esc = (v: string): string => `"${v.replace(/"/g, '""')}"`;
 
-    const header = 'ID,Fecha,Institución,Plan,Modalidad,Monto,Estado,ID MP,Período Inicio,Período Fin\n';
-    const csvRows = rows.map((r) => [
-        r.id,
-        fmt(r.createdAt),
-        esc(r.subscription.academicInstitution?.name ?? ''),
-        r.subscription.plan,
-        r.subscription.billing === 'monthly' ? 'Mensual' : 'Anual',
-        r.amount,
-        r.status,
-        r.mpPaymentId ?? '',
-        fmt(r.periodStart),
-        fmt(r.periodEnd),
-    ].join(','));
+    const header =
+        'ID,Fecha,Institución,Plan,Modalidad,Monto,Estado,ID MP,Período Inicio,Período Fin\n';
+    const csvRows = rows.map((r) =>
+        [
+            r.id,
+            fmt(r.createdAt),
+            esc(r.subscription.academicInstitution?.name ?? ''),
+            r.subscription.plan,
+            r.subscription.billing === 'monthly' ? 'Mensual' : 'Anual',
+            r.amount,
+            r.status,
+            r.mpPaymentId ?? '',
+            fmt(r.periodStart),
+            fmt(r.periodEnd),
+        ].join(','),
+    );
 
     return { data: header + csvRows.join('\n'), error: null };
 }

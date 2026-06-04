@@ -61,7 +61,10 @@ export async function updateCustomPlan(id: string, data: unknown): Promise<Actio
         const parsed = customPlanSchema.safeParse(data);
         if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? 'Datos inválidos');
 
-        const res = await prisma.customPlan.updateMany({ where: { id }, data: normalize(parsed.data) });
+        const res = await prisma.customPlan.updateMany({
+            where: { id },
+            data: normalize(parsed.data),
+        });
         if (res.count === 0) return fail('Plan interno no encontrado.');
 
         revalidatePath('/config/plan-limits');

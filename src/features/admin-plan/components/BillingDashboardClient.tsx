@@ -35,12 +35,15 @@ interface RevenueChartProps {
 function RevenueChart({ data }: RevenueChartProps): React.JSX.Element {
     const max = Math.max(...data.map((d) => d.amount), 1);
     return (
-        <div className="flex items-end gap-1 h-[80px]">
+        <div className="flex h-[80px] items-end gap-1">
             {data.map((d) => {
                 const pct = (d.amount / max) * 100;
                 const hasValue = d.amount > 0;
                 return (
-                    <div key={d.month} className="flex flex-1 flex-col items-center gap-1 group relative">
+                    <div
+                        key={d.month}
+                        className="group relative flex flex-1 flex-col items-center gap-1"
+                    >
                         <div
                             className="w-full rounded-t-[3px] transition-all duration-300"
                             style={{
@@ -50,7 +53,7 @@ function RevenueChart({ data }: RevenueChartProps): React.JSX.Element {
                             }}
                         />
                         {hasValue && (
-                            <div className="absolute bottom-full mb-1 hidden group-hover:block z-10 rounded-[6px] bg-ink px-2 py-1 text-[10px] text-white whitespace-nowrap shadow-lg">
+                            <div className="bg-ink absolute bottom-full z-10 mb-1 hidden rounded-[6px] px-2 py-1 text-[10px] whitespace-nowrap text-white shadow-lg group-hover:block">
                                 {formatCLP(d.amount)}
                             </div>
                         )}
@@ -81,49 +84,49 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
             {/* Stat cards */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <Card
-                    className="p-6 shadow-sm border-border"
+                    className="border-border p-6 shadow-sm"
                     style={{ backgroundColor: '#1f2eff', borderColor: '#1a27d9' }}
                 >
                     <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-[10px] bg-white/15">
                         <CreditCard size={18} className="text-white" />
                     </div>
-                    <p className="font-display text-[36px] font-bold leading-none tracking-[-0.03em] text-white">
+                    <p className="font-display text-[36px] leading-none font-bold tracking-[-0.03em] text-white">
                         {formatCLP(stats.mrr)}
                     </p>
-                    <p className="mt-2 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-white/60">
+                    <p className="mt-2 font-mono text-[10px] font-bold tracking-[0.1em] text-white/60 uppercase">
                         MRR · Ingreso mensual recurrente
                     </p>
                 </Card>
 
-                <Card className="bg-white border-border shadow-sm p-6">
+                <Card className="border-border bg-white p-6 shadow-sm">
                     <div
                         className="mb-4 flex h-9 w-9 items-center justify-center rounded-[10px]"
                         style={{ backgroundColor: '#e6f4ed', color: '#0f7c4a' }}
                     >
                         <Users size={18} />
                     </div>
-                    <p className="font-display text-[36px] font-bold leading-none tracking-[-0.03em] text-ink">
+                    <p className="font-display text-ink text-[36px] leading-none font-bold tracking-[-0.03em]">
                         {stats.activeCount}
                     </p>
-                    <p className="mt-2 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-mute">
+                    <p className="text-mute mt-2 font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                         Suscripciones activas
                     </p>
                     {stats.pausedCount > 0 && (
-                        <p className="mt-1 text-[12px] text-mute">{stats.pausedCount} pausadas</p>
+                        <p className="text-mute mt-1 text-[12px]">{stats.pausedCount} pausadas</p>
                     )}
                 </Card>
 
-                <Card className="bg-white border-border shadow-sm p-6">
+                <Card className="border-border bg-white p-6 shadow-sm">
                     <div
                         className="mb-4 flex h-9 w-9 items-center justify-center rounded-[10px]"
                         style={{ backgroundColor: '#fff2d4', color: '#b7791f' }}
                     >
                         <TrendingUp size={18} />
                     </div>
-                    <p className="font-display text-[36px] font-bold leading-none tracking-[-0.03em] text-ink">
+                    <p className="font-display text-ink text-[36px] leading-none font-bold tracking-[-0.03em]">
                         {formatCLP(lastMonthRevenue)}
                     </p>
-                    <p className="mt-2 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-mute">
+                    <p className="text-mute mt-2 font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                         Ingresos este mes
                     </p>
                     {growthPct !== null && (
@@ -131,39 +134,42 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
                             className="mt-1 text-[12px] font-medium"
                             style={{ color: growthPct >= 0 ? '#0f7c4a' : '#d5301f' }}
                         >
-                            {growthPct >= 0 ? '+' : ''}{growthPct}% vs mes anterior
+                            {growthPct >= 0 ? '+' : ''}
+                            {growthPct}% vs mes anterior
                         </p>
                     )}
                 </Card>
 
-                <Card className="bg-white border-border shadow-sm p-6">
+                <Card className="border-border bg-white p-6 shadow-sm">
                     <div
                         className="mb-4 flex h-9 w-9 items-center justify-center rounded-[10px]"
                         style={{ backgroundColor: '#fee2e2', color: '#d5301f' }}
                     >
                         <XCircle size={18} />
                     </div>
-                    <p className="font-display text-[36px] font-bold leading-none tracking-[-0.03em] text-ink">
+                    <p className="font-display text-ink text-[36px] leading-none font-bold tracking-[-0.03em]">
                         {stats.cancelledCount}
                     </p>
-                    <p className="mt-2 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-mute">
+                    <p className="text-mute mt-2 font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                         Canceladas
                     </p>
                     {stats.pendingCount > 0 && (
-                        <p className="mt-1 text-[12px] text-mute">{stats.pendingCount} pendientes</p>
+                        <p className="text-mute mt-1 text-[12px]">
+                            {stats.pendingCount} pendientes
+                        </p>
                     )}
                 </Card>
             </div>
 
             {/* Revenue chart + plan distribution */}
             <div className="grid gap-4 lg:grid-cols-2">
-                <Card className="bg-white border-border shadow-sm p-6">
+                <Card className="border-border bg-white p-6 shadow-sm">
                     <div className="mb-4 flex items-center justify-between">
                         <div>
-                            <h3 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-mute">
+                            <h3 className="text-mute font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
                                 Ingresos · últimos 12 meses
                             </h3>
-                            <p className="mt-1 font-display text-[22px] font-bold text-ink">
+                            <p className="font-display text-ink mt-1 text-[22px] font-bold">
                                 {formatCLP(totalRevenue)}
                             </p>
                         </div>
@@ -176,7 +182,7 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
                             .map((d) => (
                                 <span
                                     key={d.month}
-                                    className="flex-1 text-center font-mono text-[9px] text-mute"
+                                    className="text-mute flex-1 text-center font-mono text-[9px]"
                                 >
                                     {formatMonth(d.month)}
                                 </span>
@@ -184,12 +190,14 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
                     </div>
                 </Card>
 
-                <Card className="bg-white border-border shadow-sm p-6">
-                    <h3 className="mb-4 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-mute">
+                <Card className="border-border bg-white p-6 shadow-sm">
+                    <h3 className="text-mute mb-4 font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
                         Distribución por plan
                     </h3>
                     {stats.byPlan.length === 0 ? (
-                        <p className="py-8 text-center text-[13px] text-mute">Sin suscripciones activas</p>
+                        <p className="text-mute py-8 text-center text-[13px]">
+                            Sin suscripciones activas
+                        </p>
                     ) : (
                         <div className="space-y-4">
                             {stats.byPlan.map((p) => {
@@ -197,14 +205,14 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
                                 return (
                                     <div key={p.plan}>
                                         <div className="mb-1.5 flex items-center justify-between">
-                                            <span className="text-[13px] font-medium text-ink">
+                                            <span className="text-ink text-[13px] font-medium">
                                                 {PLAN_LABELS[p.plan]}
                                             </span>
-                                            <span className="font-mono text-[11px] text-mute">
+                                            <span className="text-mute font-mono text-[11px]">
                                                 {p.count} · {formatCLP(p.mrr)}/mes
                                             </span>
                                         </div>
-                                        <div className="h-2 overflow-hidden rounded-full bg-paper-warm">
+                                        <div className="bg-paper-warm h-2 overflow-hidden rounded-full">
                                             <div
                                                 className="h-full rounded-full transition-all duration-500"
                                                 style={{
@@ -252,7 +260,7 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
                     <Link
                         key={item.href}
                         href={item.href}
-                        className="group flex items-center gap-4 rounded-[16px] border border-border bg-white p-4 shadow-sm transition-all hover:shadow-md"
+                        className="group border-border flex items-center gap-4 rounded-[16px] border bg-white p-4 shadow-sm transition-all hover:shadow-md"
                         style={{ borderLeftWidth: 3, borderLeftColor: item.color }}
                     >
                         <div
@@ -262,10 +270,13 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
                             <item.icon size={16} />
                         </div>
                         <div className="min-w-0 flex-1">
-                            <p className="text-[13px] font-bold text-ink">{item.label}</p>
-                            <p className="mt-0.5 text-[11px] text-mute">{item.sub}</p>
+                            <p className="text-ink text-[13px] font-bold">{item.label}</p>
+                            <p className="text-mute mt-0.5 text-[11px]">{item.sub}</p>
                         </div>
-                        <ArrowRight size={14} className="shrink-0 text-mute transition-transform group-hover:translate-x-0.5" />
+                        <ArrowRight
+                            size={14}
+                            className="text-mute shrink-0 transition-transform group-hover:translate-x-0.5"
+                        />
                     </Link>
                 ))}
             </div>

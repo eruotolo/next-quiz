@@ -18,7 +18,9 @@ interface Props {
     params: Promise<{ id: string }>;
 }
 
-export default async function SubscriptionDetailPage({ params }: Props): Promise<React.JSX.Element> {
+export default async function SubscriptionDetailPage({
+    params,
+}: Props): Promise<React.JSX.Element> {
     const { id } = await params;
     const result = await getSubscriptionById(id);
 
@@ -27,7 +29,7 @@ export default async function SubscriptionDetailPage({ params }: Props): Promise
     const { data: detail } = result;
 
     return (
-        <div className="flex flex-col min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             <AdminTopBar
                 breadcrumb={['Panel Global', 'Suscripciones', `${detail.id.slice(0, 8)}…`]}
                 title="Detalle de suscripción"

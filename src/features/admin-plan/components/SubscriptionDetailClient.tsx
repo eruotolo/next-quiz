@@ -101,7 +101,7 @@ interface WebhookEventRowProps {
 function WebhookEventRow({ event }: WebhookEventRowProps): React.JSX.Element {
     const [expanded, setExpanded] = useState(false);
     return (
-        <div className="rounded-[10px] border border-border bg-paper-warm text-[12px]">
+        <div className="border-border bg-paper-warm rounded-[10px] border text-[12px]">
             <button
                 type="button"
                 onClick={() => setExpanded((v) => !v)}
@@ -112,21 +112,25 @@ function WebhookEventRow({ event }: WebhookEventRowProps): React.JSX.Element {
                 >
                     {event.processed ? 'OK' : 'Error'}
                 </span>
-                <span className="font-mono text-mute">{event.topic}</span>
-                <span className="flex-1 truncate text-ink-dim">{event.externalId}</span>
-                <span className="shrink-0 font-mono text-mute">{formatDateShort(event.receivedAt)}</span>
-                {expanded
-                    ? <ChevronUp size={13} className="shrink-0 text-mute" />
-                    : <ChevronDown size={13} className="shrink-0 text-mute" />}
+                <span className="text-mute font-mono">{event.topic}</span>
+                <span className="text-ink-dim flex-1 truncate">{event.externalId}</span>
+                <span className="text-mute shrink-0 font-mono">
+                    {formatDateShort(event.receivedAt)}
+                </span>
+                {expanded ? (
+                    <ChevronUp size={13} className="text-mute shrink-0" />
+                ) : (
+                    <ChevronDown size={13} className="text-mute shrink-0" />
+                )}
             </button>
             {expanded && (
-                <div className="border-t border-border px-3 pb-3 pt-2">
+                <div className="border-border border-t px-3 pt-2 pb-3">
                     {event.error && (
                         <p className="mb-2 rounded-[6px] bg-red-50 px-3 py-1.5 text-[11px] text-red-600">
                             {event.error}
                         </p>
                     )}
-                    <pre className="overflow-x-auto rounded-[6px] bg-ink/5 px-3 py-2 text-[10px] leading-relaxed text-ink-dim">
+                    <pre className="bg-ink/5 text-ink-dim overflow-x-auto rounded-[6px] px-3 py-2 text-[10px] leading-relaxed">
                         {JSON.stringify(event.rawPayload, null, 2)}
                     </pre>
                 </div>
@@ -141,17 +145,17 @@ interface PaymentsTableProps {
 
 function PaymentsTable({ payments }: PaymentsTableProps): React.JSX.Element {
     if (payments.length === 0) {
-        return <p className="py-6 text-center text-[13px] text-mute">Sin pagos registrados</p>;
+        return <p className="text-mute py-6 text-center text-[13px]">Sin pagos registrados</p>;
     }
     return (
         <div className="overflow-x-auto">
             <table className="w-full text-[13px]">
                 <thead>
-                    <tr className="border-b border-border bg-paper">
+                    <tr className="border-border bg-paper border-b">
                         {['Fecha', 'Monto', 'Estado', 'Período', 'ID MP'].map((h) => (
                             <th
                                 key={h}
-                                className="px-4 py-2.5 text-left font-mono text-[10px] uppercase tracking-[0.1em] text-mute whitespace-nowrap"
+                                className="text-mute px-4 py-2.5 text-left font-mono text-[10px] tracking-[0.1em] whitespace-nowrap uppercase"
                             >
                                 {h}
                             </th>
@@ -160,24 +164,26 @@ function PaymentsTable({ payments }: PaymentsTableProps): React.JSX.Element {
                 </thead>
                 <tbody>
                     {payments.map((p) => (
-                        <tr key={p.id} className="border-b border-border last:border-0">
-                            <td className="px-4 py-3 whitespace-nowrap text-mute">
+                        <tr key={p.id} className="border-border border-b last:border-0">
+                            <td className="text-mute px-4 py-3 whitespace-nowrap">
                                 {formatDateShort(p.paidAt ?? p.createdAt)}
                             </td>
-                            <td className="px-4 py-3 whitespace-nowrap font-medium text-ink">
+                            <td className="text-ink px-4 py-3 font-medium whitespace-nowrap">
                                 {formatCLP(p.amount)}
                             </td>
                             <td className="px-4 py-3">
-                                <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${PAYMENT_STATUS_COLORS[p.status]}`}>
+                                <span
+                                    className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${PAYMENT_STATUS_COLORS[p.status]}`}
+                                >
                                     {PAYMENT_STATUS_LABELS[p.status]}
                                 </span>
                             </td>
-                            <td className="px-4 py-3 whitespace-nowrap text-mute">
+                            <td className="text-mute px-4 py-3 whitespace-nowrap">
                                 {p.periodStart
                                     ? `${formatDateShort(p.periodStart)} → ${formatDateShort(p.periodEnd)}`
                                     : '—'}
                             </td>
-                            <td className="px-4 py-3 font-mono text-[11px] text-mute">
+                            <td className="text-mute px-4 py-3 font-mono text-[11px]">
                                 {p.mpPaymentId ?? '—'}
                             </td>
                         </tr>
@@ -191,18 +197,21 @@ function PaymentsTable({ payments }: PaymentsTableProps): React.JSX.Element {
 interface ActionsCardProps {
     id: string;
     status: SubscriptionStatus;
-    onAction: (
-        action: () => Promise<{ data: null; error: string | null }>,
-        msg: string,
-    ) => void;
+    onAction: (action: () => Promise<{ data: null; error: string | null }>, msg: string) => void;
     isPending: boolean;
 }
 
-function ActionsCard({ id, status, onAction, isPending }: ActionsCardProps): React.JSX.Element | null {
-    if (status === SubscriptionStatus.cancelled || status === SubscriptionStatus.failed) return null;
+function ActionsCard({
+    id,
+    status,
+    onAction,
+    isPending,
+}: ActionsCardProps): React.JSX.Element | null {
+    if (status === SubscriptionStatus.cancelled || status === SubscriptionStatus.failed)
+        return null;
     return (
-        <Card className="bg-white border-border shadow-sm p-5">
-            <h3 className="mb-3 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-mute">
+        <Card className="border-border bg-white p-5 shadow-sm">
+            <h3 className="text-mute mb-3 font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
                 Acciones
             </h3>
             <div className="flex flex-col gap-2">
@@ -214,7 +223,11 @@ function ActionsCard({ id, status, onAction, isPending }: ActionsCardProps): Rea
                         disabled={isPending}
                         onClick={() => onAction(() => pauseSubscription(id), 'Suscripción pausada')}
                     >
-                        {isPending ? <Loader2 size={14} className="animate-spin" /> : <PauseCircle size={14} />}
+                        {isPending ? (
+                            <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                            <PauseCircle size={14} />
+                        )}
                         Pausar suscripción
                     </Button>
                 )}
@@ -224,20 +237,30 @@ function ActionsCard({ id, status, onAction, isPending }: ActionsCardProps): Rea
                         size="sm"
                         className="justify-start gap-2 text-green-700 hover:bg-green-50"
                         disabled={isPending}
-                        onClick={() => onAction(() => reactivateSubscription(id), 'Suscripción reactivada')}
+                        onClick={() =>
+                            onAction(() => reactivateSubscription(id), 'Suscripción reactivada')
+                        }
                     >
-                        {isPending ? <Loader2 size={14} className="animate-spin" /> : <PlayCircle size={14} />}
+                        {isPending ? (
+                            <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                            <PlayCircle size={14} />
+                        )}
                         Reactivar suscripción
                     </Button>
                 )}
                 <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start gap-2 text-destructive hover:bg-destructive/10"
+                    className="text-destructive hover:bg-destructive/10 justify-start gap-2"
                     disabled={isPending}
                     onClick={() => onAction(() => cancelSubscription(id), 'Suscripción cancelada')}
                 >
-                    {isPending ? <Loader2 size={14} className="animate-spin" /> : <XCircle size={14} />}
+                    {isPending ? (
+                        <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                        <XCircle size={14} />
+                    )}
                     Cancelar suscripción
                 </Button>
             </div>
@@ -280,7 +303,9 @@ export function SubscriptionDetailClient({ detail }: Props): React.JSX.Element {
         ['Actualizada', formatDate(detail.updatedAt)],
         ['Inicio', formatDate(detail.startedAt)],
         ['Vencimiento', formatDate(detail.expiresAt)],
-        ...(detail.cancelledAt ? [['Cancelada', formatDate(detail.cancelledAt)] as [string, string]] : []),
+        ...(detail.cancelledAt
+            ? [['Cancelada', formatDate(detail.cancelledAt)] as [string, string]]
+            : []),
         ...(detail.pausedAt ? [['Pausada', formatDate(detail.pausedAt)] as [string, string]] : []),
     ];
 
@@ -288,57 +313,68 @@ export function SubscriptionDetailClient({ detail }: Props): React.JSX.Element {
         <div className="space-y-6">
             {/* Subscription data */}
             <div className="grid gap-4 lg:grid-cols-3">
-                <Card className="bg-white border-border shadow-sm p-6 lg:col-span-2">
+                <Card className="border-border bg-white p-6 shadow-sm lg:col-span-2">
                     <div className="mb-4 flex items-center justify-between">
-                        <h2 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-mute">
+                        <h2 className="text-mute font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
                             Datos de la suscripción
                         </h2>
-                        <span className={`rounded-full px-3 py-1 text-[12px] font-semibold ${STATUS_COLORS[detail.status]}`}>
+                        <span
+                            className={`rounded-full px-3 py-1 text-[12px] font-semibold ${STATUS_COLORS[detail.status]}`}
+                        >
                             {STATUS_LABELS[detail.status]}
                         </span>
                     </div>
                     <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-3">
                         {infoFields.map(([label, value]) => (
                             <div key={label}>
-                                <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-mute">{label}</dt>
-                                <dd className="mt-0.5 font-medium text-ink break-all">{value}</dd>
+                                <dt className="text-mute font-mono text-[10px] tracking-[0.1em] uppercase">
+                                    {label}
+                                </dt>
+                                <dd className="text-ink mt-0.5 font-medium break-all">{value}</dd>
                             </div>
                         ))}
                     </dl>
                     {detail.mpSubscriptionId && (
-                        <div className="mt-4 rounded-[10px] bg-paper-warm p-3">
-                            <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-mute">ID MercadoPago</p>
-                            <p className="mt-0.5 font-mono text-[12px] text-ink break-all">{detail.mpSubscriptionId}</p>
+                        <div className="bg-paper-warm mt-4 rounded-[10px] p-3">
+                            <p className="text-mute font-mono text-[10px] tracking-[0.1em] uppercase">
+                                ID MercadoPago
+                            </p>
+                            <p className="text-ink mt-0.5 font-mono text-[12px] break-all">
+                                {detail.mpSubscriptionId}
+                            </p>
                         </div>
                     )}
                 </Card>
 
                 <div className="space-y-4">
                     {detail.metadata && (
-                        <Card className="bg-white border-border shadow-sm p-5">
-                            <h3 className="mb-3 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-mute">
+                        <Card className="border-border bg-white p-5 shadow-sm">
+                            <h3 className="text-mute mb-3 font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
                                 Pagador
                             </h3>
                             <div className="space-y-2 text-[13px]">
-                                <p className="font-semibold text-ink">
-                                    {detail.metadata.payerName} {detail.metadata.payerLastname ?? ''}
+                                <p className="text-ink font-semibold">
+                                    {detail.metadata.payerName}{' '}
+                                    {detail.metadata.payerLastname ?? ''}
                                 </p>
                                 <p className="text-mute">{detail.metadata.payerEmail ?? '—'}</p>
                             </div>
                         </Card>
                     )}
 
-                    <Card className="bg-white border-border shadow-sm p-5">
-                        <h3 className="mb-3 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-mute">
+                    <Card className="border-border bg-white p-5 shadow-sm">
+                        <h3 className="text-mute mb-3 font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
                             Institución
                         </h3>
                         {detail.institutionName ? (
                             <div className="flex items-center justify-between">
-                                <p className="text-[13px] font-semibold text-ink">{detail.institutionName}</p>
+                                <p className="text-ink text-[13px] font-semibold">
+                                    {detail.institutionName}
+                                </p>
                                 {detail.institutionSlug && (
                                     <Link
                                         href={`/${detail.institutionSlug}`}
-                                        className="flex items-center gap-1 text-[12px] text-primary hover:underline"
+                                        className="text-primary flex items-center gap-1 text-[12px] hover:underline"
                                     >
                                         Ver panel
                                         <ExternalLink size={12} />
@@ -362,34 +398,40 @@ export function SubscriptionDetailClient({ detail }: Props): React.JSX.Element {
             </div>
 
             {/* Payments */}
-            <Card className="bg-white border-border shadow-sm p-6">
-                <h2 className="mb-4 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-mute">
+            <Card className="border-border bg-white p-6 shadow-sm">
+                <h2 className="text-mute mb-4 font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
                     Historial de pagos · {detail.payments.length} registros
                 </h2>
                 <PaymentsTable payments={detail.payments} />
             </Card>
 
             {/* Webhook events */}
-            <Card className="bg-white border-border shadow-sm p-6">
+            <Card className="border-border bg-white p-6 shadow-sm">
                 <button
                     type="button"
                     onClick={() => setWebhookOpen((v) => !v)}
                     className="flex w-full items-center justify-between"
                 >
-                    <h2 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-mute">
+                    <h2 className="text-mute font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
                         Eventos webhook · {detail.webhookEvents.length} registros
                     </h2>
-                    {webhookOpen
-                        ? <ChevronUp size={14} className="text-mute" />
-                        : <ChevronDown size={14} className="text-mute" />}
+                    {webhookOpen ? (
+                        <ChevronUp size={14} className="text-mute" />
+                    ) : (
+                        <ChevronDown size={14} className="text-mute" />
+                    )}
                 </button>
                 {webhookOpen && (
                     <div className="mt-4 space-y-2">
-                        {detail.webhookEvents.length === 0
-                            ? <p className="py-4 text-center text-[13px] text-mute">Sin eventos registrados</p>
-                            : detail.webhookEvents.map((ev) => (
+                        {detail.webhookEvents.length === 0 ? (
+                            <p className="text-mute py-4 text-center text-[13px]">
+                                Sin eventos registrados
+                            </p>
+                        ) : (
+                            detail.webhookEvents.map((ev) => (
                                 <WebhookEventRow key={ev.id} event={ev} />
-                            ))}
+                            ))
+                        )}
                     </div>
                 )}
             </Card>

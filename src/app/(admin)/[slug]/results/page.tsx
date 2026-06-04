@@ -1,4 +1,6 @@
 import { prisma } from '@/shared/lib/prisma';
+import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
+import { examProfessorFilter } from '@/shared/lib/scoping';
 import {
     ResultsClient,
     type ExamGroup,
@@ -11,7 +13,17 @@ interface PageProps {
 
 export default async function ResultsPage({ params }: PageProps): Promise<React.JSX.Element> {
     const { slug } = await params;
+    const { institutionId, institutionName, isProfesor, userId } =
+        await requireInstitutionPageAccess(slug);
+
+    // Scope: resultados de la institución; el Profesor solo ve los de sus grupos.
     const results = await prisma.result.findMany({
+        where: {
+            exam: {
+                academicInstitutionId: institutionId,
+                ...(isProfesor && examProfessorFilter(userId)),
+            },
+        },
         include: {
             student: { select: { name: true, lastname: true, rut: true } },
             exam: {
@@ -60,7 +72,7 @@ export default async function ResultsPage({ params }: PageProps): Promise<React.
             score: r.score,
             maxScore: r.maxScore,
             completedAt: r.completedAt.toISOString(),
-            answers: r.answers as Record<string, string>,
+            answers: r.answers as Record<string, string[] | string>,
         };
         byExam.get(key)?.results.push(row);
     }
@@ -73,7 +85,12 @@ export default async function ResultsPage({ params }: PageProps): Promise<React.
                 <h1 className="text-foreground text-2xl font-bold">Resultados</h1>
                 <p className="text-muted-foreground text-sm">{results.length} entregas en total</p>
             </div>
-            <ResultsClient examGroups={examGroups} totalCount={results.length} slug={slug} />
+            <ResultsClient
+                examGroups={examGroups}
+                totalCount={results.length}
+                slug={slug}
+                institutionName={institutionName}
+            />
         </div>
     );
 }

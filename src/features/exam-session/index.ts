@@ -11,5 +11,3 @@ export {
 } from './lib/session';
 export type { SafeOption, SafeQuestion, SafeExam } from './types/exam.types';
 export { ExamCarousel } from './components/ExamCarousel';
-export { QuestionCard } from './components/QuestionCard';
-export { Timer } from './components/Timer';

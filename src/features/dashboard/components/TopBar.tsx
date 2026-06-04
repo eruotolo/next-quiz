@@ -26,21 +26,17 @@ export function TopBar({
         >
             <div className="flex flex-col gap-0.5">
                 {breadcrumb && (
-                    <p className="font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-mute">
+                    <p className="text-mute font-mono text-[10px] font-medium tracking-[0.1em] uppercase">
                         {breadcrumb}
                     </p>
                 )}
-                <h1 className="font-display text-[28px] font-semibold leading-none tracking-[-0.025em] text-ink">
+                <h1 className="font-display text-ink text-[28px] leading-none font-semibold tracking-[-0.025em]">
                     {title}
                 </h1>
-                {subtitle && (
-                    <p className="mt-0.5 text-[13px] text-ink-dim">{subtitle}</p>
-                )}
+                {subtitle && <p className="text-ink-dim mt-0.5 text-[13px]">{subtitle}</p>}
             </div>
 
-            {actions && (
-                <div className="flex shrink-0 items-center gap-2">{actions}</div>
-            )}
+            {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
         </div>
     );
 }

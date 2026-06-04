@@ -18,7 +18,7 @@ export default async function PlanLimitsPage(): Promise<React.JSX.Element> {
     ]);
 
     return (
-        <div className="flex flex-col min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             <AdminTopBar
                 breadcrumb={['Aulika · Plataforma', 'Panel Global', 'Límites de planes']}
                 title="Límites de planes"

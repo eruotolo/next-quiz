@@ -9,7 +9,7 @@ import {
 } from '@/features/students/actions/mutations';
 import type { ImportStudentsResult } from '@/features/students/actions/mutations';
 import { toast } from 'sonner';
-import { RutInput } from '@/features/students/components/RutInput';
+import { RutField } from '@/shared/components/ui/rut-field';
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
@@ -35,7 +35,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/shared/components/ui/table';
 import { TablePaginator } from '@/shared/components/ui/table-paginator';
 import { Avatar } from '@/shared/components/ui/avatar';
 import { Tag } from '@/shared/components/ui/badge';
@@ -346,7 +353,8 @@ export function StudentsClient({
     const filteredStudents = students.filter((s) => {
         const q = search.trim().toLowerCase();
         if (q) {
-            const haystack = `${s.name} ${s.lastname} ${s.email} ${formatRut(s.rut)} ${s.rut}`.toLowerCase();
+            const haystack =
+                `${s.name} ${s.lastname} ${s.email} ${formatRut(s.rut)} ${s.rut}`.toLowerCase();
             if (!haystack.includes(q)) return false;
         }
         if (groupFilter !== 'all' && s.groupId !== groupFilter) return false;
@@ -356,7 +364,10 @@ export function StudentsClient({
     });
     const pageCount = Math.max(1, Math.ceil(filteredStudents.length / PAGE_SIZE));
     const currentPage = Math.min(page, pageCount);
-    const pageStudents = filteredStudents.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+    const pageStudents = filteredStudents.slice(
+        (currentPage - 1) * PAGE_SIZE,
+        currentPage * PAGE_SIZE,
+    );
 
     const handleImport = (): void => {
         if (validRows.length === 0) return;
@@ -366,7 +377,9 @@ export function StudentsClient({
                 setImportResult({
                     created: 0,
                     skipped: 0,
-                    errors: [{ row: 0, message: result.error ?? 'Error inesperado. Intentá de nuevo.' }],
+                    errors: [
+                        { row: 0, message: result.error ?? 'Error inesperado. Intentá de nuevo.' },
+                    ],
                 });
                 return;
             }
@@ -376,14 +389,16 @@ export function StudentsClient({
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             {/* Header */}
             <AdminTopBar
                 breadcrumb={[institutionName, 'Estudiantes']}
                 title="Estudiantes"
                 subtitle={
-                    <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-mute">
-                        {students.length} registrados · {students.filter(s => s.active).length} activos · {students.filter(s => !s.groupId).length} pendientes de asignación a grupo
+                    <span className="text-mute font-mono text-[11px] tracking-[0.08em] uppercase">
+                        {students.length} registrados · {students.filter((s) => s.active).length}{' '}
+                        activos · {students.filter((s) => !s.groupId).length} pendientes de
+                        asignación a grupo
                     </span>
                 }
                 actions={
@@ -417,9 +432,9 @@ export function StudentsClient({
             />
 
             {/* Filter bar */}
-            <div className="flex items-center gap-2 border-b border-border bg-white px-8 py-4">
-                <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-mute" />
+            <div className="border-border flex items-center gap-2 border-b bg-white px-8 py-4">
+                <div className="relative max-w-sm flex-1">
+                    <Search className="text-mute absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                     <Input
                         placeholder="Buscar por nombre, email o RUT…"
                         value={search}
@@ -427,7 +442,7 @@ export function StudentsClient({
                             setSearch(e.target.value);
                             setPage(1);
                         }}
-                        className="pl-9 h-[38px] border-border bg-white focus-visible:ring-primary/20"
+                        className="border-border focus-visible:ring-primary/20 h-[38px] bg-white pl-9"
                     />
                 </div>
                 <Select
@@ -437,13 +452,15 @@ export function StudentsClient({
                         setPage(1);
                     }}
                 >
-                    <SelectTrigger className="h-[38px] w-[170px] border-border bg-white">
+                    <SelectTrigger className="border-border h-[38px] w-[170px] bg-white">
                         <SelectValue placeholder="Curso · Todos" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border-border shadow-xl">
+                    <SelectContent className="border-border rounded-xl shadow-xl">
                         <SelectItem value="all">Curso · Todos</SelectItem>
                         {groups.map((g) => (
-                            <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
+                            <SelectItem key={g.id} value={g.id}>
+                                {g.name}
+                            </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
@@ -454,28 +471,28 @@ export function StudentsClient({
                         setPage(1);
                     }}
                 >
-                    <SelectTrigger className="h-[38px] w-[160px] border-border bg-white">
+                    <SelectTrigger className="border-border h-[38px] w-[160px] bg-white">
                         <SelectValue placeholder="Estado · Todos" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border-border shadow-xl">
+                    <SelectContent className="border-border rounded-xl shadow-xl">
                         <SelectItem value="all">Estado · Todos</SelectItem>
                         <SelectItem value="active">Activos</SelectItem>
                         <SelectItem value="inactive">Inactivos</SelectItem>
                     </SelectContent>
                 </Select>
                 <div className="flex-1" />
-                <span className="font-mono text-[11px] text-mute uppercase tracking-wider">
+                <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
                     {filteredStudents.length} visibles · {students.length} totales
                 </span>
             </div>
 
             {/* Main content */}
-            <main className="flex-1 p-8 overflow-auto">
+            <main className="flex-1 overflow-auto p-8">
                 {students.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
-                        <GraduationCap size={48} className="mb-4 text-mute/20" />
-                        <p className="text-lg font-medium text-ink">Todavía no hay estudiantes</p>
-                        <p className="mt-1 text-sm text-mute">
+                        <GraduationCap size={48} className="text-mute/20 mb-4" />
+                        <p className="text-ink text-lg font-medium">Todavía no hay estudiantes</p>
+                        <p className="text-mute mt-1 text-sm">
                             {canCreate
                                 ? 'Creá el primero o importá desde Excel.'
                                 : 'No tenés estudiantes asignados en tus grupos.'}
@@ -498,12 +515,15 @@ export function StudentsClient({
                         )}
                     </Card>
                 ) : (
-                    <Card className="p-0 overflow-visible border-border shadow-sm">
+                    <Card className="border-border overflow-visible p-0 shadow-sm">
                         <Table>
                             <TableHeader className="bg-paper">
-                                <TableRow className="hover:bg-transparent border-b border-border">
+                                <TableRow className="border-border border-b hover:bg-transparent">
                                     <TableHead className="w-12 text-center">
-                                        <input type="checkbox" className="size-4 rounded border-border cursor-pointer" />
+                                        <input
+                                            type="checkbox"
+                                            className="border-border size-4 cursor-pointer rounded"
+                                        />
                                     </TableHead>
                                     <TableHead>Nombre</TableHead>
                                     <TableHead className="w-[160px]">RUT</TableHead>
@@ -517,79 +537,111 @@ export function StudentsClient({
                             <TableBody>
                                 {pageStudents.length === 0 && (
                                     <TableRow className="hover:bg-transparent">
-                                        <TableCell colSpan={8} className="py-12 text-center text-sm text-mute">
+                                        <TableCell
+                                            colSpan={8}
+                                            className="text-mute py-12 text-center text-sm"
+                                        >
                                             No hay estudiantes que coincidan con los filtros.
                                         </TableCell>
                                     </TableRow>
                                 )}
                                 {pageStudents.map((s) => (
-                                    <TableRow key={s.id} className="group h-16 border-b border-border last:border-0">
+                                    <TableRow
+                                        key={s.id}
+                                        className="group border-border h-16 border-b last:border-0"
+                                    >
                                         <TableCell className="text-center">
-                                            <input type="checkbox" className="size-4 rounded border-border cursor-pointer" />
+                                            <input
+                                                type="checkbox"
+                                                className="border-border size-4 cursor-pointer rounded"
+                                            />
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-3">
                                                 <Avatar
                                                     name={`${s.name} ${s.lastname}`}
                                                     size={32}
-                                                    className="ring-1 ring-border shadow-sm"
+                                                    className="ring-border shadow-sm ring-1"
                                                 />
                                                 <div className="flex flex-col">
-                                                    <span className={cn(
-                                                        "text-[13.5px] font-bold text-ink",
-                                                        !s.active && "text-mute opacity-50"
-                                                    )}>
+                                                    <span
+                                                        className={cn(
+                                                            'text-ink text-[13.5px] font-bold',
+                                                            !s.active && 'text-mute opacity-50',
+                                                        )}
+                                                    >
                                                         {s.name} {s.lastname}
                                                     </span>
-                                                    <span className="text-[11.5px] text-mute">
+                                                    <span className="text-mute text-[11.5px]">
                                                         {s.email}
                                                     </span>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="font-mono text-[12px] text-ink-dim">
+                                        <TableCell className="text-ink-dim font-mono text-[12px]">
                                             {formatRut(s.rut)}
                                         </TableCell>
                                         <TableCell>
                                             {s.group ? (
-                                                <Tag tone="outline" className="font-mono text-[11px] h-6 border-border bg-paper-warm/50">
+                                                <Tag
+                                                    tone="outline"
+                                                    className="border-border bg-paper-warm/50 h-6 font-mono text-[11px]"
+                                                >
                                                     {s.group.name}
                                                 </Tag>
                                             ) : (
-                                                <span className="text-[11.5px] text-mute">—</span>
+                                                <span className="text-mute text-[11.5px]">—</span>
                                             )}
                                         </TableCell>
                                         <TableCell>
                                             <Tag
-                                                tone={s.active ? "success" : "default"}
-                                                className="font-bold text-[10.5px] h-6 px-2.5"
+                                                tone={s.active ? 'success' : 'default'}
+                                                className="h-6 px-2.5 text-[10.5px] font-bold"
                                             >
                                                 {s.active ? 'Activa' : 'Inactiva'}
                                             </Tag>
                                         </TableCell>
-                                        <TableCell className="font-mono text-[12.5px] text-right text-mute">
+                                        <TableCell className="text-mute text-right font-mono text-[12.5px]">
                                             —
                                         </TableCell>
-                                        <TableCell className="text-right text-mute">
-                                            —
-                                        </TableCell>
+                                        <TableCell className="text-mute text-right">—</TableCell>
                                         <TableCell className="text-right">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon-sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <MoreHorizontal size={16} className="text-mute" />
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon-sm"
+                                                        className="opacity-0 transition-opacity group-hover:opacity-100"
+                                                    >
+                                                        <MoreHorizontal
+                                                            size={16}
+                                                            className="text-mute"
+                                                        />
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="w-44 rounded-xl shadow-xl border-border">
-                                                    <DropdownMenuItem onClick={() => openEdit(s)} className="gap-2 py-2 cursor-pointer">
+                                                <DropdownMenuContent
+                                                    align="end"
+                                                    className="border-border w-44 rounded-xl shadow-xl"
+                                                >
+                                                    <DropdownMenuItem
+                                                        onClick={() => openEdit(s)}
+                                                        className="cursor-pointer gap-2 py-2"
+                                                    >
                                                         <Edit2 size={14} /> Editar
                                                     </DropdownMenuItem>
                                                     {canToggleActive && (
-                                                        <DropdownMenuItem onClick={() => handleToggleActive(s)} className="gap-2 py-2 cursor-pointer">
-                                                            <Power size={14} /> {s.active ? 'Desactivar' : 'Activar'}
+                                                        <DropdownMenuItem
+                                                            onClick={() => handleToggleActive(s)}
+                                                            className="cursor-pointer gap-2 py-2"
+                                                        >
+                                                            <Power size={14} />{' '}
+                                                            {s.active ? 'Desactivar' : 'Activar'}
                                                         </DropdownMenuItem>
                                                     )}
-                                                    <DropdownMenuItem onClick={() => openDelete(s)} className="text-destructive gap-2 py-2 cursor-pointer focus:bg-danger-wash focus:text-destructive">
+                                                    <DropdownMenuItem
+                                                        onClick={() => openDelete(s)}
+                                                        className="text-destructive focus:bg-danger-wash focus:text-destructive cursor-pointer gap-2 py-2"
+                                                    >
                                                         <Trash2 size={14} /> Eliminar
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -611,10 +663,14 @@ export function StudentsClient({
 
             {/* Dialogs */}
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="sm:max-w-lg rounded-[22px] border-border shadow-2xl">
+                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-lg">
                     <DialogHeader>
-                        <DialogTitle className="font-display text-2xl">{editing ? 'Editar estudiante' : 'Nuevo estudiante'}</DialogTitle>
-                        <DialogDescription className="sr-only">Formulario para crear o editar un estudiante.</DialogDescription>
+                        <DialogTitle className="font-display text-2xl">
+                            {editing ? 'Editar estudiante' : 'Nuevo estudiante'}
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Formulario para crear o editar un estudiante.
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="flex flex-col gap-4 py-4">
                         {errors.general && (
@@ -624,57 +680,109 @@ export function StudentsClient({
                         )}
                         <div className="grid grid-cols-2 gap-3">
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="stu-name" className="text-[12.5px] font-bold text-ink">Nombre</label>
+                                <label
+                                    htmlFor="stu-name"
+                                    className="text-ink text-[12.5px] font-bold"
+                                >
+                                    Nombre
+                                </label>
                                 <Input
                                     id="stu-name"
                                     value={form.name}
                                     onChange={(e) => setField('name', e.target.value)}
-                                    className={cn("h-11 rounded-[10px] border-border bg-white", errors.name && 'border-destructive')}
+                                    className={cn(
+                                        'border-border h-11 rounded-[10px] bg-white',
+                                        errors.name && 'border-destructive',
+                                    )}
                                     autoFocus
                                 />
-                                {errors.name && <p className="text-destructive text-xs font-medium">{errors.name}</p>}
+                                {errors.name && (
+                                    <p className="text-destructive text-xs font-medium">
+                                        {errors.name}
+                                    </p>
+                                )}
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="stu-lastname" className="text-[12.5px] font-bold text-ink">Apellido</label>
+                                <label
+                                    htmlFor="stu-lastname"
+                                    className="text-ink text-[12.5px] font-bold"
+                                >
+                                    Apellido
+                                </label>
                                 <Input
                                     id="stu-lastname"
                                     value={form.lastname}
                                     onChange={(e) => setField('lastname', e.target.value)}
-                                    className={cn("h-11 rounded-[10px] border-border bg-white", errors.lastname && 'border-destructive')}
+                                    className={cn(
+                                        'border-border h-11 rounded-[10px] bg-white',
+                                        errors.lastname && 'border-destructive',
+                                    )}
                                 />
-                                {errors.lastname && <p className="text-destructive text-xs font-medium">{errors.lastname}</p>}
+                                {errors.lastname && (
+                                    <p className="text-destructive text-xs font-medium">
+                                        {errors.lastname}
+                                    </p>
+                                )}
                             </div>
                         </div>
                         <div className="flex flex-col gap-1.5">
-                            <label htmlFor="stu-email" className="text-[12.5px] font-bold text-ink">Email</label>
+                            <label htmlFor="stu-email" className="text-ink text-[12.5px] font-bold">
+                                Email
+                            </label>
                             <Input
                                 id="stu-email"
                                 type="email"
                                 value={form.email}
                                 onChange={(e) => setField('email', e.target.value)}
-                                className={cn("h-11 rounded-[10px] border-border bg-white", errors.email && 'border-destructive')}
+                                className={cn(
+                                    'border-border h-11 rounded-[10px] bg-white',
+                                    errors.email && 'border-destructive',
+                                )}
                             />
-                            {errors.email && <p className="text-destructive text-xs font-medium">{errors.email}</p>}
+                            {errors.email && (
+                                <p className="text-destructive text-xs font-medium">
+                                    {errors.email}
+                                </p>
+                            )}
                         </div>
-                        <RutInput
-                            label="RUT"
-                            value={form.rut}
-                            onChange={(v) => setField('rut', v)}
-                            error={errors.rut}
-                        />
                         <div className="flex flex-col gap-1.5">
-                            <span className="text-[12.5px] font-bold text-ink">Grupo</span>
-                            <Select value={form.groupId} onValueChange={(v) => setField('groupId', v)}>
-                                <SelectTrigger className={cn("h-11 rounded-[10px] border-border bg-white", errors.groupId && 'border-destructive')}>
+                            <span className="text-ink text-[12.5px] font-bold">RUT</span>
+                            <RutField
+                                value={form.rut}
+                                onChange={(v) => setField('rut', v)}
+                                className="border-border h-11 rounded-[10px] bg-white"
+                            />
+                            {errors.rut && (
+                                <p className="text-destructive text-[12px]">{errors.rut}</p>
+                            )}
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <span className="text-ink text-[12.5px] font-bold">Grupo</span>
+                            <Select
+                                value={form.groupId}
+                                onValueChange={(v) => setField('groupId', v)}
+                            >
+                                <SelectTrigger
+                                    className={cn(
+                                        'border-border h-11 rounded-[10px] bg-white',
+                                        errors.groupId && 'border-destructive',
+                                    )}
+                                >
                                     <SelectValue placeholder="Seleccioná un grupo" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl border-border shadow-xl">
+                                <SelectContent className="border-border rounded-xl shadow-xl">
                                     {groups.map((g) => (
-                                        <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
+                                        <SelectItem key={g.id} value={g.id}>
+                                            {g.name}
+                                        </SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
-                            {errors.groupId && <p className="text-destructive text-xs font-medium">{errors.groupId}</p>}
+                            {errors.groupId && (
+                                <p className="text-destructive text-xs font-medium">
+                                    {errors.groupId}
+                                </p>
+                            )}
                         </div>
                     </div>
                     <DialogFooter className="gap-2 sm:justify-end">
@@ -687,7 +795,7 @@ export function StudentsClient({
                             Cancelar
                         </Button>
                         <Button variant="ink" size="md" disabled={isPending} onClick={handleSave}>
-                            {isPending && <Loader2 className="animate-spin mr-2" />}
+                            {isPending && <Loader2 className="mr-2 animate-spin" />}
                             {editing ? 'Guardar cambios' : 'Crear estudiante'}
                         </Button>
                     </DialogFooter>
@@ -696,14 +804,22 @@ export function StudentsClient({
 
             {/* Delete dialog */}
             <Dialog open={isDelOpen} onOpenChange={setIsDelOpen}>
-                <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
+                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle className="font-display text-2xl text-destructive">Eliminar estudiante</DialogTitle>
-                        <DialogDescription className="sr-only">Confirmación para eliminar el estudiante de forma permanente.</DialogDescription>
+                        <DialogTitle className="font-display text-destructive text-2xl">
+                            Eliminar estudiante
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Confirmación para eliminar el estudiante de forma permanente.
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
-                        <p className="text-[14px] leading-relaxed text-ink-dim">
-                            ¿Estás seguro de eliminar a <strong className="text-ink">{toDelete?.name} {toDelete?.lastname}</strong>? Esta acción no se puede deshacer.
+                        <p className="text-ink-dim text-[14px] leading-relaxed">
+                            ¿Estás seguro de eliminar a{' '}
+                            <strong className="text-ink">
+                                {toDelete?.name} {toDelete?.lastname}
+                            </strong>
+                            ? Esta acción no se puede deshacer.
                         </p>
                     </div>
                     {deleteError && (
@@ -711,7 +827,7 @@ export function StudentsClient({
                             {deleteError}
                         </p>
                     )}
-                    <DialogFooter className="gap-2 sm:justify-end mt-2">
+                    <DialogFooter className="mt-2 gap-2 sm:justify-end">
                         <Button
                             variant="ghost"
                             size="md"
@@ -726,7 +842,7 @@ export function StudentsClient({
                             disabled={isPending}
                             onClick={handleDelete}
                         >
-                            {isPending && <Loader2 className="animate-spin mr-2" />}
+                            {isPending && <Loader2 className="mr-2 animate-spin" />}
                             Eliminar
                         </Button>
                     </DialogFooter>
@@ -735,10 +851,14 @@ export function StudentsClient({
 
             {/* Import dialog */}
             <Dialog open={importOpen} onOpenChange={handleImportOpenChange}>
-                <DialogContent className="sm:max-w-lg rounded-[22px] border-border shadow-2xl">
+                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-lg">
                     <DialogHeader>
-                        <DialogTitle className="font-display text-2xl">Importar estudiantes</DialogTitle>
-                        <DialogDescription className="sr-only">Importá estudiantes de forma masiva desde un archivo.</DialogDescription>
+                        <DialogTitle className="font-display text-2xl">
+                            Importar estudiantes
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Importá estudiantes de forma masiva desde un archivo.
+                        </DialogDescription>
                     </DialogHeader>
 
                     <input
@@ -752,29 +872,35 @@ export function StudentsClient({
                     {importResult ? (
                         <div className="flex flex-col gap-3 py-2">
                             {importResult.created > 0 && (
-                                <div className="bg-success-wash flex items-center gap-3 rounded-[14px] px-4 py-3 border border-success/20">
+                                <div className="bg-success-wash border-success/20 flex items-center gap-3 rounded-[14px] border px-4 py-3">
                                     <CheckCircle2 size={18} className="text-success shrink-0" />
                                     <p className="text-success text-[13px] font-bold">
-                                        {importResult.created} estudiante{importResult.created !== 1 ? 's' : ''} importado{importResult.created !== 1 ? 's' : ''}
+                                        {importResult.created} estudiante
+                                        {importResult.created !== 1 ? 's' : ''} importado
+                                        {importResult.created !== 1 ? 's' : ''}
                                     </p>
                                 </div>
                             )}
                             {importResult.skipped > 0 && (
-                                <div className="bg-paper-warm flex items-center gap-3 rounded-[14px] px-4 py-3 border border-border">
+                                <div className="bg-paper-warm border-border flex items-center gap-3 rounded-[14px] border px-4 py-3">
                                     <Info size={18} className="text-mute shrink-0" />
                                     <p className="text-mute text-[13px] font-medium">
-                                        {importResult.skipped} omitido{importResult.skipped !== 1 ? 's' : ''} (ya existían)
+                                        {importResult.skipped} omitido
+                                        {importResult.skipped !== 1 ? 's' : ''} (ya existían)
                                     </p>
                                 </div>
                             )}
                             {importResult.errors.length > 0 && (
-                                <div className="bg-danger-wash rounded-[14px] px-4 py-3 border border-destructive/20">
+                                <div className="bg-danger-wash border-destructive/20 rounded-[14px] border px-4 py-3">
                                     <p className="text-destructive mb-1 text-[13px] font-bold">
-                                        {importResult.errors.length} fila{importResult.errors.length !== 1 ? 's' : ''} con errores:
+                                        {importResult.errors.length} fila
+                                        {importResult.errors.length !== 1 ? 's' : ''} con errores:
                                     </p>
                                     <ul className="text-destructive/80 max-h-28 space-y-0.5 overflow-y-auto font-mono text-[10.5px]">
                                         {importResult.errors.map((e) => (
-                                            <li key={`${e.row}-${e.message}`}>• Fila {e.row}: {e.message}</li>
+                                            <li key={`${e.row}-${e.message}`}>
+                                                • Fila {e.row}: {e.message}
+                                            </li>
                                         ))}
                                     </ul>
                                 </div>
@@ -782,27 +908,37 @@ export function StudentsClient({
                         </div>
                     ) : parsedRows !== null ? (
                         <div className="flex flex-col gap-3 py-2">
-                            <div className="bg-paper-warm flex items-center gap-3 rounded-[14px] px-4 py-3 border border-border">
+                            <div className="bg-paper-warm border-border flex items-center gap-3 rounded-[14px] border px-4 py-3">
                                 <FileSpreadsheet size={18} className="text-mute shrink-0" />
                                 <div className="min-w-0 flex-1">
-                                    <p className="text-ink truncate text-[13px] font-bold">{importFile?.name}</p>
-                                    <p className="text-mute text-[11px] font-mono">
+                                    <p className="text-ink truncate text-[13px] font-bold">
+                                        {importFile?.name}
+                                    </p>
+                                    <p className="text-mute font-mono text-[11px]">
                                         {parsedRows.length} FILAS ENCONTRADAS
                                     </p>
                                 </div>
-                                <button type="button" onClick={resetImport} className="text-mute hover:text-ink transition-colors">
+                                <button
+                                    type="button"
+                                    onClick={resetImport}
+                                    className="text-mute hover:text-ink transition-colors"
+                                >
                                     <X size={16} />
                                 </button>
                             </div>
 
                             {parseErrors.length > 0 && (
-                                <div className="bg-warning-wash rounded-[14px] px-4 py-3 border border-warning/20">
-                                    <div className="mb-1.5 flex items-center gap-2 text-warning">
+                                <div className="bg-warning-wash border-warning/20 rounded-[14px] border px-4 py-3">
+                                    <div className="text-warning mb-1.5 flex items-center gap-2">
                                         <AlertTriangle size={15} />
-                                        <p className="text-[13px] font-bold">Errores de validación:</p>
+                                        <p className="text-[13px] font-bold">
+                                            Errores de validación:
+                                        </p>
                                     </div>
                                     <ul className="text-warning-foreground/80 max-h-28 space-y-0.5 overflow-y-auto font-mono text-[10.5px]">
-                                        {parseErrors.map((e) => <li key={e}>• {e}</li>)}
+                                        {parseErrors.map((e) => (
+                                            <li key={e}>• {e}</li>
+                                        ))}
                                     </ul>
                                 </div>
                             )}
@@ -811,27 +947,49 @@ export function StudentsClient({
                         <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
-                            className="flex flex-col items-center gap-4 rounded-[22px] border-2 border-dashed border-border bg-paper-warm/30 py-12 transition-colors hover:bg-paper-warm/50 group"
+                            className="border-border bg-paper-warm/30 hover:bg-paper-warm/50 group flex flex-col items-center gap-4 rounded-[22px] border-2 border-dashed py-12 transition-colors"
                         >
-                            <div className="bg-white p-4 rounded-full shadow-sm ring-1 ring-border group-hover:scale-110 transition-transform">
+                            <div className="ring-border rounded-full bg-white p-4 shadow-sm ring-1 transition-transform group-hover:scale-110">
                                 <Upload size={28} className="text-primary" />
                             </div>
                             <div className="text-center">
-                                <p className="text-[16px] font-bold text-ink">Seleccioná el archivo Excel</p>
-                                <p className="text-[13px] text-mute mt-1">Formato .xlsx con las columnas de la plantilla</p>
+                                <p className="text-ink text-[16px] font-bold">
+                                    Seleccioná el archivo Excel
+                                </p>
+                                <p className="text-mute mt-1 text-[13px]">
+                                    Formato .xlsx con las columnas de la plantilla
+                                </p>
                             </div>
                         </button>
                     )}
 
-                    <DialogFooter className="gap-2 sm:justify-end mt-2">
+                    <DialogFooter className="mt-2 gap-2 sm:justify-end">
                         {importResult ? (
-                            <Button variant="ink" size="md" onClick={() => handleImportOpenChange(false)}>Cerrar</Button>
+                            <Button
+                                variant="ink"
+                                size="md"
+                                onClick={() => handleImportOpenChange(false)}
+                            >
+                                Cerrar
+                            </Button>
                         ) : (
                             <>
-                                <Button variant="ghost" size="md" onClick={() => handleImportOpenChange(false)} disabled={isPending}>Cancelar</Button>
+                                <Button
+                                    variant="ghost"
+                                    size="md"
+                                    onClick={() => handleImportOpenChange(false)}
+                                    disabled={isPending}
+                                >
+                                    Cancelar
+                                </Button>
                                 {validRows.length > 0 && (
-                                    <Button variant="primary" size="md" disabled={isPending} onClick={handleImport}>
-                                        {isPending && <Loader2 className="animate-spin mr-2" />}
+                                    <Button
+                                        variant="primary"
+                                        size="md"
+                                        disabled={isPending}
+                                        onClick={handleImport}
+                                    >
+                                        {isPending && <Loader2 className="mr-2 animate-spin" />}
                                         Importar {validRows.length} estudiantes
                                     </Button>
                                 )}

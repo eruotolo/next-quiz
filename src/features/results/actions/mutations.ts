@@ -44,7 +44,8 @@ export async function recalculateResult(
             const correctSet = new Set(q.options.map((o) => o.id));
             const studentSet = new Set(answerMap[q.id] ?? []);
             const isCorrect =
-                correctSet.size === studentSet.size && [...correctSet].every((oid) => studentSet.has(oid));
+                correctSet.size === studentSet.size &&
+                [...correctSet].every((oid) => studentSet.has(oid));
             if (isCorrect) score += q.points;
         }
 

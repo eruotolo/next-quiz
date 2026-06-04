@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import type * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
@@ -11,6 +11,7 @@ import {
     ChevronDown,
     CreditCard,
     Globe,
+    HelpCircle,
     GraduationCap,
     Home,
     Layers,
@@ -19,6 +20,7 @@ import {
     ScrollText,
     Search,
     Settings,
+    Sparkles,
     UserCog,
     Users,
     Wallet,
@@ -49,11 +51,17 @@ const ADMIN_NAV: NavItem[] = [
     { path: '/results', label: 'Resultados', icon: BarChart3 },
     { path: '/liveresults', label: 'En vivo', icon: Activity, live: true },
     { path: '/settings', label: 'Ajustes', icon: Settings },
+    { path: '/ayuda', label: 'Ayuda', icon: HelpCircle },
 ];
 
 const SUPER_NAV: NavItem[] = [
     { path: '/config', label: 'Panel', icon: Home, exact: true },
-    { path: '/config/institutions', label: 'Instituciones', icon: Building2, countKey: 'institutions' },
+    {
+        path: '/config/institutions',
+        label: 'Instituciones',
+        icon: Building2,
+        countKey: 'institutions',
+    },
     { path: '/config/students', label: 'Alumnos', icon: GraduationCap, countKey: 'students' },
     { path: '/config/admins', label: 'Administradores', icon: UserCog, countKey: 'admins' },
     { path: '/config/plan-limits', label: 'Planes', icon: Layers },
@@ -65,7 +73,11 @@ const SUPER_NAV: NavItem[] = [
 ];
 
 // ── ⌘K Command Palette ────────────────────────────────────────────────────
-function CommandPalette({ open, onOpenChange, slug }: {
+function CommandPalette({
+    open,
+    onOpenChange,
+    slug,
+}: {
     open: boolean;
     onOpenChange: (v: boolean) => void;
     slug?: string;
@@ -86,40 +98,40 @@ function CommandPalette({ open, onOpenChange, slug }: {
         <div
             className={cn(
                 'fixed inset-0 z-[200] flex items-start justify-center pt-[15vh] transition-all',
-                open ? 'visible opacity-100' : 'invisible opacity-0 pointer-events-none',
+                open ? 'visible opacity-100' : 'pointer-events-none invisible opacity-0',
             )}
         >
             {/* Overlay */}
             <button
                 type="button"
                 aria-label="Cerrar buscador"
-                className="absolute inset-0 bg-ink/30 backdrop-blur-sm"
+                className="bg-ink/30 absolute inset-0 backdrop-blur-sm"
                 onClick={() => onOpenChange(false)}
             />
 
             {/* Dialog */}
-            <div className="relative z-10 w-full max-w-[520px] rounded-[22px] border border-border bg-white shadow-2xl overflow-hidden">
+            <div className="border-border relative z-10 w-full max-w-[520px] overflow-hidden rounded-[22px] border bg-white shadow-2xl">
                 <Command className="[&_[cmdk-input-wrapper]]:border-0">
-                    <div className="flex items-center gap-3 border-b border-border px-4 py-3">
-                        <Search className="size-4 shrink-0 text-mute" />
+                    <div className="border-border flex items-center gap-3 border-b px-4 py-3">
+                        <Search className="text-mute size-4 shrink-0" />
                         <Command.Input
                             placeholder="Buscar páginas, alumnos, exámenes…"
-                            className="flex-1 bg-transparent text-[14px] text-ink placeholder:text-mute outline-none"
+                            className="text-ink placeholder:text-mute flex-1 bg-transparent text-[14px] outline-none"
                             autoFocus
                         />
-                        <kbd className="inline-flex items-center rounded-[4px] border border-border bg-paper-warm px-1.5 font-mono text-[10px] text-mute">
+                        <kbd className="border-border bg-paper-warm text-mute inline-flex items-center rounded-[4px] border px-1.5 font-mono text-[10px]">
                             ESC
                         </kbd>
                     </div>
 
                     <Command.List className="max-h-[320px] overflow-y-auto p-2">
-                        <Command.Empty className="py-8 text-center font-mono text-[12px] text-mute">
+                        <Command.Empty className="text-mute py-8 text-center font-mono text-[12px]">
                             Sin resultados
                         </Command.Empty>
 
                         <Command.Group
                             heading={
-                                <span className="px-2 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-mute">
+                                <span className="text-mute px-2 py-1 font-mono text-[10px] tracking-[0.08em] uppercase">
                                     Navegación
                                 </span>
                             }
@@ -129,7 +141,7 @@ function CommandPalette({ open, onOpenChange, slug }: {
                                     key={item.path}
                                     value={item.label}
                                     onSelect={() => run(item.path)}
-                                    className="flex cursor-pointer items-center gap-3 rounded-[8px] px-3 py-2.5 text-[13px] text-ink aria-selected:bg-primary-wash aria-selected:text-primary"
+                                    className="text-ink aria-selected:bg-primary-wash aria-selected:text-primary flex cursor-pointer items-center gap-3 rounded-[8px] px-3 py-2.5 text-[13px]"
                                 >
                                     {item.label}
                                 </Command.Item>
@@ -164,8 +176,10 @@ interface SidebarProps {
     userRole?: string | null;
     counts?: SidebarCounts;
     institutionList?: InstitutionOption[];
+    showPlanPromo?: boolean;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: sidebar con switcher de institución, command palette, nav por rol y banner promo en un solo componente
 export function Sidebar({
     slug,
     isSuper = false,
@@ -174,6 +188,7 @@ export function Sidebar({
     userRole,
     counts,
     institutionList,
+    showPlanPromo = false,
 }: SidebarProps): React.JSX.Element {
     const pathname = usePathname();
     const router = useRouter();
@@ -217,13 +232,17 @@ export function Sidebar({
 
     return (
         <>
-            <CommandPalette open={cmdOpen} onOpenChange={setCmdOpen} slug={isSuper ? undefined : slug} />
+            <CommandPalette
+                open={cmdOpen}
+                onOpenChange={setCmdOpen}
+                slug={isSuper ? undefined : slug}
+            />
 
-            <aside className="fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-border bg-white">
+            <aside className="border-border fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r bg-white">
                 {/* Org switcher */}
-                <div className="border-b border-border p-4">
+                <div className="border-border border-b p-4">
                     <div ref={switcherRef} className="relative">
-                        <div className="flex items-center gap-2.5 rounded-[10px] border border-border bg-paper-warm p-2 shadow-sm">
+                        <div className="border-border bg-paper-warm flex items-center gap-2.5 rounded-[10px] border p-2 shadow-sm">
                             <Link href="/" className="shrink-0 transition-opacity hover:opacity-70">
                                 <LogoMark size={32} radius={8} className="shadow-sm" />
                             </Link>
@@ -236,17 +255,17 @@ export function Sidebar({
                                 )}
                             >
                                 <div className="min-w-0 flex-1 text-left">
-                                    <p className="truncate text-[12.5px] font-bold leading-tight text-ink">
+                                    <p className="text-ink truncate text-[12.5px] leading-tight font-bold">
                                         {orgLabel}
                                     </p>
-                                    <p className="font-mono text-[10px] leading-none text-mute">
+                                    <p className="text-mute font-mono text-[10px] leading-none">
                                         {orgSub}
                                     </p>
                                 </div>
                                 <ChevronDown
                                     size={14}
                                     className={cn(
-                                        'shrink-0 text-mute transition-transform duration-200',
+                                        'text-mute shrink-0 transition-transform duration-200',
                                         switcherOpen && 'rotate-180',
                                     )}
                                 />
@@ -254,18 +273,21 @@ export function Sidebar({
                         </div>
 
                         {switcherOpen && canSwitch && (
-                            <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-[10px] border border-border bg-white shadow-lg">
+                            <div className="border-border absolute top-full right-0 left-0 z-50 mt-1 overflow-hidden rounded-[10px] border bg-white shadow-lg">
                                 {!isSuper && (
                                     <>
                                         <button
                                             type="button"
-                                            onClick={() => { router.push('/config'); setSwitcherOpen(false); }}
-                                            className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-[12.5px] font-medium text-ink-dim transition-colors hover:bg-primary-wash hover:text-primary"
+                                            onClick={() => {
+                                                router.push('/config');
+                                                setSwitcherOpen(false);
+                                            }}
+                                            className="text-ink-dim hover:bg-primary-wash hover:text-primary flex w-full items-center gap-2 px-3 py-2.5 text-left text-[12.5px] font-medium transition-colors"
                                         >
                                             <Settings size={14} className="shrink-0" />
                                             Panel de Configuración
                                         </button>
-                                        <div className="border-t border-border" />
+                                        <div className="border-border border-t" />
                                     </>
                                 )}
                                 <div className="max-h-[220px] overflow-y-auto py-1">
@@ -273,17 +295,22 @@ export function Sidebar({
                                         <button
                                             key={inst.slug}
                                             type="button"
-                                            onClick={() => { router.push(`/${inst.slug}`); setSwitcherOpen(false); }}
+                                            onClick={() => {
+                                                router.push(`/${inst.slug}`);
+                                                setSwitcherOpen(false);
+                                            }}
                                             className={cn(
                                                 'flex w-full items-center gap-2 px-3 py-2 text-left text-[12.5px] transition-colors',
                                                 inst.slug === slug
-                                                    ? 'bg-primary-wash font-semibold text-primary'
+                                                    ? 'bg-primary-wash text-primary font-semibold'
                                                     : 'text-ink-dim hover:bg-paper-warm hover:text-ink',
                                             )}
                                         >
                                             <span className="flex-1 truncate">{inst.name}</span>
                                             {inst.slug === slug && (
-                                                <span className="font-mono text-[10px] text-primary">✓</span>
+                                                <span className="text-primary font-mono text-[10px]">
+                                                    ✓
+                                                </span>
                                             )}
                                         </button>
                                     ))}
@@ -296,11 +323,11 @@ export function Sidebar({
                     <button
                         type="button"
                         onClick={() => setCmdOpen(true)}
-                        className="mt-3 flex w-full items-center gap-2 rounded-[8px] bg-paper-warm px-2.5 py-1.5 text-left transition-colors hover:bg-border"
+                        className="bg-paper-warm hover:bg-border mt-3 flex w-full items-center gap-2 rounded-[8px] px-2.5 py-1.5 text-left transition-colors"
                     >
-                        <Search className="size-3.5 shrink-0 text-mute" />
-                        <span className="flex-1 font-sans text-[12px] text-mute">Buscar…</span>
-                        <kbd className="inline-flex items-center rounded-[4px] border border-border bg-white px-1.5 font-mono text-[9px] text-mute">
+                        <Search className="text-mute size-3.5 shrink-0" />
+                        <span className="text-mute flex-1 font-sans text-[12px]">Buscar…</span>
+                        <kbd className="border-border text-mute inline-flex items-center rounded-[4px] border bg-white px-1.5 font-mono text-[9px]">
                             ⌘K
                         </kbd>
                     </button>
@@ -328,22 +355,26 @@ export function Sidebar({
                                             size={18}
                                             className={cn(
                                                 'shrink-0',
-                                                isActive ? 'text-primary' : 'text-mute group-hover:text-ink-dim',
+                                                isActive
+                                                    ? 'text-primary'
+                                                    : 'text-mute group-hover:text-ink-dim',
                                             )}
                                         />
                                         <span className="flex-1">{label}</span>
                                         {badge != null && (
-                                            <span className={cn(
-                                                "font-mono text-[10px] font-bold",
-                                                isActive ? "text-primary" : "text-mute"
-                                            )}>
+                                            <span
+                                                className={cn(
+                                                    'font-mono text-[10px] font-bold',
+                                                    isActive ? 'text-primary' : 'text-mute',
+                                                )}
+                                            >
                                                 {badge}
                                             </span>
                                         )}
                                         {live && (
                                             <span className="relative flex size-2">
-                                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-coral opacity-75" />
-                                                <span className="relative inline-flex size-2 rounded-full bg-coral shadow-[0_0_0_3px_rgba(255,90,77,0.2)]" />
+                                                <span className="bg-coral absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+                                                <span className="bg-coral relative inline-flex size-2 rounded-full shadow-[0_0_0_3px_rgba(255,90,77,0.2)]" />
                                             </span>
                                         )}
                                     </Link>
@@ -353,20 +384,50 @@ export function Sidebar({
                     </ul>
                 </nav>
 
+                {/* Banner promocional de upgrade (Free/Docente) */}
+                {showPlanPromo && slug && (
+                    <div className="border-border border-t p-3">
+                        <div
+                            className="relative overflow-hidden rounded-[12px] p-4 text-white"
+                            style={{
+                                background:
+                                    'radial-gradient(ellipse at 80% 0%, rgba(214,255,31,0.25) 0%, transparent 55%), #1f2eff',
+                            }}
+                        >
+                            <p className="text-[12.5px] leading-tight font-bold">
+                                Potenciá tu institución
+                            </p>
+                            <p className="mt-1 text-[11px] leading-snug text-white/70">
+                                Más aulas, estudiantes y exámenes con un plan superior.
+                            </p>
+                            <Link
+                                href={`/${slug}/upgrade`}
+                                className="bg-lime text-ink mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11.5px] font-bold transition-opacity hover:opacity-90"
+                            >
+                                <Sparkles size={13} />
+                                Mejorar plan
+                            </Link>
+                        </div>
+                    </div>
+                )}
+
                 {/* User block */}
-                <div className="border-t border-border p-3">
+                <div className="border-border border-t p-3">
                     <div className="flex items-center gap-2.5 rounded-[12px] px-2 py-2">
-                        <Link href="/perfil" className="flex min-w-0 flex-1 items-center gap-2.5 rounded-[8px] transition-colors hover:bg-paper-warm">
+                        <Link
+                            href="/perfil"
+                            className="hover:bg-paper-warm flex min-w-0 flex-1 items-center gap-2.5 rounded-[8px] transition-colors"
+                        >
                             <Avatar
                                 name={userName ?? 'Admin'}
                                 size={34}
-                                className="shrink-0 ring-1 ring-border shadow-sm"
+                                className="ring-border shrink-0 shadow-sm ring-1"
                             />
                             <div className="min-w-0 flex-1">
-                                <p className="truncate text-[12.5px] font-bold leading-tight text-ink">
+                                <p className="text-ink truncate text-[12.5px] leading-tight font-bold">
                                     {userName ?? 'Admin'}
                                 </p>
-                                <p className="truncate font-sans text-[10.5px] leading-none text-mute">
+                                <p className="text-mute truncate font-sans text-[10.5px] leading-none">
                                     {userRole ?? ''}
                                 </p>
                             </div>
@@ -374,7 +435,7 @@ export function Sidebar({
                         <Link
                             href="/"
                             title="Ir al sitio web"
-                            className="flex shrink-0 items-center justify-center text-mute transition-colors hover:text-ink"
+                            className="text-mute hover:text-ink flex shrink-0 items-center justify-center transition-colors"
                         >
                             <Globe size={16} />
                         </Link>

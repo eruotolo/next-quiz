@@ -1,3 +1,3 @@
 export default function PaesLoading(): React.JSX.Element {
-    return <div className="min-h-screen bg-paper" />;
+    return <div className="bg-paper min-h-screen" />;
 }

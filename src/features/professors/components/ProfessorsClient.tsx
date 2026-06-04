@@ -5,7 +5,7 @@ import {
     deleteProfessor,
     updateProfessor,
 } from '@/features/professors/actions/mutations';
-import { RutInput } from '@/features/students/components/RutInput';
+import { RutField } from '@/shared/components/ui/rut-field';
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
@@ -25,7 +25,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/shared/components/ui/table';
 import { TablePaginator } from '@/shared/components/ui/table-paginator';
 import { Avatar } from '@/shared/components/ui/avatar';
 import { Tag } from '@/shared/components/ui/badge';
@@ -50,6 +57,7 @@ interface Props {
     professors: ProfessorWithRelations[];
     groups: Group[];
     slug: string;
+    institutionName: string;
 }
 
 interface FormState {
@@ -74,7 +82,12 @@ const emptyForm: FormState = {
     groupIds: [],
 };
 
-export function ProfessorsClient({ professors, groups, slug }: Props): React.ReactElement {
+export function ProfessorsClient({
+    professors,
+    groups,
+    slug,
+    institutionName,
+}: Props): React.ReactElement {
     const router = useRouter();
     const [page, setPage] = useState(1);
     const PAGE_SIZE = 10;
@@ -180,10 +193,10 @@ export function ProfessorsClient({ professors, groups, slug }: Props): React.Rea
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             {/* Header */}
             <AdminTopBar
-                breadcrumb={['Colegio Antártica', 'Profesores']}
+                breadcrumb={[institutionName, 'Profesores']}
                 title="Cuerpo Docente"
                 subtitle={`${professors.length} profesionales registrados en el equipo`}
                 actions={
@@ -195,36 +208,40 @@ export function ProfessorsClient({ professors, groups, slug }: Props): React.Rea
             />
 
             {/* Filter bar */}
-            <div className="flex items-center gap-2 border-b border-border bg-white px-8 py-4">
-                <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-mute" />
+            <div className="border-border flex items-center gap-2 border-b bg-white px-8 py-4">
+                <div className="relative max-w-sm flex-1">
+                    <Search className="text-mute absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                     <Input
                         placeholder="Buscar por nombre o RUT…"
-                        className="pl-9 h-[38px] border-border bg-white"
+                        className="border-border h-[38px] bg-white pl-9"
                     />
                 </div>
                 <div className="flex-1" />
-                <span className="font-mono text-[11px] text-mute uppercase tracking-wider">
+                <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
                     {professors.length} registrados
                 </span>
             </div>
 
-            <main className="flex-1 p-8 overflow-auto">
+            <main className="flex-1 overflow-auto p-8">
                 {professors.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
-                        <UserCog size={48} className="mb-4 text-mute/20" />
-                        <p className="text-lg font-medium text-ink">No hay profesores registrados</p>
-                        <p className="mt-1 text-sm text-mute">Agregá el primero para comenzar a gestionar grupos.</p>
+                        <UserCog size={48} className="text-mute/20 mb-4" />
+                        <p className="text-ink text-lg font-medium">
+                            No hay profesores registrados
+                        </p>
+                        <p className="text-mute mt-1 text-sm">
+                            Agregá el primero para comenzar a gestionar grupos.
+                        </p>
                         <Button variant="primary" size="md" onClick={openCreate} className="mt-6">
                             <Plus size={16} />
                             Agregar profesor
                         </Button>
                     </Card>
                 ) : (
-                    <Card className="p-0 overflow-visible border-border shadow-sm">
+                    <Card className="border-border overflow-visible p-0 shadow-sm">
                         <Table>
                             <TableHeader className="bg-paper">
-                                <TableRow className="hover:bg-transparent border-b border-border">
+                                <TableRow className="border-border border-b hover:bg-transparent">
                                     <TableHead>Profesor / Administrador</TableHead>
                                     <TableHead className="w-[160px]">RUT</TableHead>
                                     <TableHead className="w-[140px]">Rol</TableHead>
@@ -233,64 +250,99 @@ export function ProfessorsClient({ professors, groups, slug }: Props): React.Rea
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {professors.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((p) => (
-                                    <TableRow key={p.id} className="group h-16 border-b border-border last:border-0">
-                                        <TableCell>
-                                            <div className="flex items-center gap-3">
-                                                <Avatar
-                                                    name={`${p.name} ${p.lastname}`}
-                                                    size={32}
-                                                    className="ring-1 ring-border shadow-sm"
-                                                />
-                                                <div className="flex flex-col">
-                                                    <span className="text-[13.5px] font-bold text-ink leading-tight">{p.name} {p.lastname}</span>
-                                                    <span className="text-[11.5px] text-mute">{p.email}</span>
+                                {professors
+                                    .slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+                                    .map((p) => (
+                                        <TableRow
+                                            key={p.id}
+                                            className="group border-border h-16 border-b last:border-0"
+                                        >
+                                            <TableCell>
+                                                <div className="flex items-center gap-3">
+                                                    <Avatar
+                                                        name={`${p.name} ${p.lastname}`}
+                                                        size={32}
+                                                        className="ring-border shadow-sm ring-1"
+                                                    />
+                                                    <div className="flex flex-col">
+                                                        <span className="text-ink text-[13.5px] leading-tight font-bold">
+                                                            {p.name} {p.lastname}
+                                                        </span>
+                                                        <span className="text-mute text-[11.5px]">
+                                                            {p.email}
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="font-mono text-[12px] text-mute">
-                                            {formatRut(p.rut)}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Tag
-                                                tone={p.userRole?.name === 'Administrador' ? "primary" : "default"}
-                                                className="font-bold text-[10px] h-5"
-                                            >
-                                                {p.userRole?.name ?? 'Profesor'}
-                                            </Tag>
-                                        </TableCell>
-                                        <TableCell>
-                                            {p.professorGroups.length > 0 ? (
-                                                <div className="flex flex-wrap gap-1">
-                                                    {p.professorGroups.map((g) => (
-                                                        <Tag key={g.id} tone="outline" className="font-mono text-[10px] h-5 bg-paper-warm/50 border-border">
-                                                            {g.name}
-                                                        </Tag>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <span className="text-[11.5px] text-mute">—</span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon-sm" className="h-9 w-9">
-                                                        <MoreHorizontal size={18} className="text-mute" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="rounded-xl border-border shadow-xl w-44">
-                                                    <DropdownMenuItem onClick={() => openEdit(p)} className="gap-2 py-2.5 cursor-pointer">
-                                                        <Edit2 size={14} /> Editar datos
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => openDelete(p)} className="text-destructive gap-2 py-2.5 cursor-pointer focus:bg-danger-wash focus:text-destructive">
-                                                        <Trash2 size={14} /> Eliminar acceso
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                            </TableCell>
+                                            <TableCell className="text-mute font-mono text-[12px]">
+                                                {formatRut(p.rut)}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Tag
+                                                    tone={
+                                                        p.userRole?.name === 'Administrador'
+                                                            ? 'primary'
+                                                            : 'default'
+                                                    }
+                                                    className="h-5 text-[10px] font-bold"
+                                                >
+                                                    {p.userRole?.name ?? 'Profesor'}
+                                                </Tag>
+                                            </TableCell>
+                                            <TableCell>
+                                                {p.professorGroups.length > 0 ? (
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {p.professorGroups.map((g) => (
+                                                            <Tag
+                                                                key={g.id}
+                                                                tone="outline"
+                                                                className="bg-paper-warm/50 border-border h-5 font-mono text-[10px]"
+                                                            >
+                                                                {g.name}
+                                                            </Tag>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-mute text-[11.5px]">
+                                                        —
+                                                    </span>
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon-sm"
+                                                            className="h-9 w-9"
+                                                        >
+                                                            <MoreHorizontal
+                                                                size={18}
+                                                                className="text-mute"
+                                                            />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent
+                                                        align="end"
+                                                        className="border-border w-44 rounded-xl shadow-xl"
+                                                    >
+                                                        <DropdownMenuItem
+                                                            onClick={() => openEdit(p)}
+                                                            className="cursor-pointer gap-2 py-2.5"
+                                                        >
+                                                            <Edit2 size={14} /> Editar datos
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            onClick={() => openDelete(p)}
+                                                            className="text-destructive focus:bg-danger-wash focus:text-destructive cursor-pointer gap-2 py-2.5"
+                                                        >
+                                                            <Trash2 size={14} /> Eliminar acceso
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
                             </TableBody>
                         </Table>
                         <TablePaginator
@@ -305,109 +357,181 @@ export function ProfessorsClient({ professors, groups, slug }: Props): React.Rea
 
             {/* Create/Edit dialog */}
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="sm:max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
-                    <div className="px-6 py-5 border-b border-border bg-paper">
-                        <DialogTitle className="font-display text-2xl text-ink">{editing ? 'Ajustes del perfil' : 'Nuevo profesor'}</DialogTitle>
-                        <DialogDescription className="sr-only">Formulario para crear o editar un profesor.</DialogDescription>
+                <DialogContent className="border-border overflow-hidden rounded-[22px] p-0 shadow-2xl sm:max-w-lg">
+                    <div className="border-border bg-paper border-b px-6 py-5">
+                        <DialogTitle className="font-display text-ink text-2xl">
+                            {editing ? 'Ajustes del perfil' : 'Nuevo profesor'}
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Formulario para crear o editar un profesor.
+                        </DialogDescription>
                     </div>
-                    
+
                     <div className="flex-1 space-y-4 overflow-y-auto px-6 py-6">
                         {errors.general && (
-                            <p className="rounded-[10px] bg-danger-wash px-4 py-3 text-sm text-destructive font-bold border border-destructive/10">
+                            <p className="bg-danger-wash text-destructive border-destructive/10 rounded-[10px] border px-4 py-3 text-sm font-bold">
                                 {errors.general}
                             </p>
                         )}
-                        
+
                         <div className="grid grid-cols-2 gap-3">
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="prof-name" className="text-[13px] font-bold text-ink">Nombre</label>
+                                <label
+                                    htmlFor="prof-name"
+                                    className="text-ink text-[13px] font-bold"
+                                >
+                                    Nombre
+                                </label>
                                 <Input
                                     id="prof-name"
                                     value={form.name}
                                     onChange={(e) => setField('name', e.target.value)}
-                                    className={cn("h-11 rounded-[10px] bg-white border-border", errors.name && 'border-destructive')}
+                                    className={cn(
+                                        'border-border h-11 rounded-[10px] bg-white',
+                                        errors.name && 'border-destructive',
+                                    )}
                                     autoFocus
                                 />
-                                {errors.name && <p className="text-xs text-destructive font-medium">{errors.name}</p>}
+                                {errors.name && (
+                                    <p className="text-destructive text-xs font-medium">
+                                        {errors.name}
+                                    </p>
+                                )}
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="prof-lastname" className="text-[13px] font-bold text-ink">Apellido</label>
+                                <label
+                                    htmlFor="prof-lastname"
+                                    className="text-ink text-[13px] font-bold"
+                                >
+                                    Apellido
+                                </label>
                                 <Input
                                     id="prof-lastname"
                                     value={form.lastname}
                                     onChange={(e) => setField('lastname', e.target.value)}
-                                    className={cn("h-11 rounded-[10px] bg-white border-border", errors.lastname && 'border-destructive')}
+                                    className={cn(
+                                        'border-border h-11 rounded-[10px] bg-white',
+                                        errors.lastname && 'border-destructive',
+                                    )}
                                 />
-                                {errors.lastname && <p className="text-xs text-destructive font-medium">{errors.lastname}</p>}
+                                {errors.lastname && (
+                                    <p className="text-destructive text-xs font-medium">
+                                        {errors.lastname}
+                                    </p>
+                                )}
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="prof-email" className="text-[13px] font-bold text-ink">Email</label>
+                                <label
+                                    htmlFor="prof-email"
+                                    className="text-ink text-[13px] font-bold"
+                                >
+                                    Email
+                                </label>
                                 <Input
                                     id="prof-email"
                                     type="email"
                                     value={form.email}
                                     onChange={(e) => setField('email', e.target.value)}
-                                    className={cn("h-11 rounded-[10px] bg-white border-border", errors.email && 'border-destructive')}
+                                    className={cn(
+                                        'border-border h-11 rounded-[10px] bg-white',
+                                        errors.email && 'border-destructive',
+                                    )}
                                 />
-                                {errors.email && <p className="text-xs text-destructive font-medium">{errors.email}</p>}
+                                {errors.email && (
+                                    <p className="text-destructive text-xs font-medium">
+                                        {errors.email}
+                                    </p>
+                                )}
                             </div>
-                            <RutInput
-                                label="RUT"
-                                value={form.rut}
-                                onChange={(v) => setField('rut', v)}
-                                error={errors.rut}
-                            />
+                            <div className="flex flex-col gap-1.5">
+                                <span className="text-ink text-[13px] font-bold">RUT</span>
+                                <RutField
+                                    value={form.rut}
+                                    onChange={(v) => setField('rut', v)}
+                                    className="border-border h-11 rounded-[10px] bg-white"
+                                />
+                                {errors.rut && (
+                                    <p className="text-destructive text-[12px]">{errors.rut}</p>
+                                )}
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="prof-password" className="text-[13px] font-bold text-ink">Contraseña</label>
+                                <label
+                                    htmlFor="prof-password"
+                                    className="text-ink text-[13px] font-bold"
+                                >
+                                    Contraseña
+                                </label>
                                 <Input
                                     id="prof-password"
                                     type="password"
                                     value={form.password}
                                     onChange={(e) => setField('password', e.target.value)}
                                     placeholder={editing ? '••••••••' : undefined}
-                                    className={cn("h-11 rounded-[10px] bg-white border-border", errors.password && 'border-destructive')}
+                                    className={cn(
+                                        'border-border h-11 rounded-[10px] bg-white',
+                                        errors.password && 'border-destructive',
+                                    )}
                                 />
-                                {errors.password && <p className="text-xs text-destructive font-medium">{errors.password}</p>}
+                                {errors.password && (
+                                    <p className="text-destructive text-xs font-medium">
+                                        {errors.password}
+                                    </p>
+                                )}
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="prof-phone" className="text-[13px] font-bold text-ink">Teléfono</label>
+                                <label
+                                    htmlFor="prof-phone"
+                                    className="text-ink text-[13px] font-bold"
+                                >
+                                    Teléfono
+                                </label>
                                 <Input
                                     id="prof-phone"
                                     type="tel"
                                     value={form.phone}
                                     onChange={(e) => setField('phone', e.target.value)}
                                     placeholder="+56 9..."
-                                    className="h-11 rounded-[10px] bg-white border-border"
+                                    className="border-border h-11 rounded-[10px] bg-white"
                                 />
                             </div>
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <span className="text-[13px] font-bold text-ink">Rol en el sistema</span>
+                            <span className="text-ink text-[13px] font-bold">
+                                Rol en el sistema
+                            </span>
                             <Select
                                 value={form.roleName}
-                                onValueChange={(v) => setField('roleName', v as 'Profesor' | 'Administrador')}
+                                onValueChange={(v) =>
+                                    setField('roleName', v as 'Profesor' | 'Administrador')
+                                }
                             >
-                                <SelectTrigger className="h-11 rounded-[10px] bg-white border-border">
+                                <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
                                     <SelectValue />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl border-border shadow-xl">
-                                    <SelectItem value="Profesor">Profesor (Solo sus grupos)</SelectItem>
-                                    <SelectItem value="Administrador">Administrador (Toda la institución)</SelectItem>
+                                <SelectContent className="border-border rounded-xl shadow-xl">
+                                    <SelectItem value="Profesor">
+                                        Profesor (Solo sus grupos)
+                                    </SelectItem>
+                                    <SelectItem value="Administrador">
+                                        Administrador (Toda la institución)
+                                    </SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
 
                         {groups.length > 0 && (
                             <div className="flex flex-col gap-2">
-                                <span className="text-[13px] font-bold text-ink">Grupos asociados</span>
-                                <div className="max-h-[140px] overflow-y-auto rounded-[12px] border border-border bg-paper-warm/20 p-2">
+                                <span className="text-ink text-[13px] font-bold">
+                                    Grupos asociados
+                                </span>
+                                <div className="border-border bg-paper-warm/20 max-h-[140px] overflow-y-auto rounded-[12px] border p-2">
                                     <div className="grid grid-cols-1 gap-1">
                                         {groups.map((g) => (
                                             <label
@@ -418,9 +542,11 @@ export function ProfessorsClient({ professors, groups, slug }: Props): React.Rea
                                                     type="checkbox"
                                                     checked={form.groupIds.includes(g.id)}
                                                     onChange={() => toggleGroup(g.id)}
-                                                    className="accent-primary h-4 w-4 rounded border-border"
+                                                    className="accent-primary border-border h-4 w-4 rounded"
                                                 />
-                                                <span className="text-[13.5px] font-medium text-ink">{g.name}</span>
+                                                <span className="text-ink text-[13.5px] font-medium">
+                                                    {g.name}
+                                                </span>
                                             </label>
                                         ))}
                                     </div>
@@ -428,11 +554,24 @@ export function ProfessorsClient({ professors, groups, slug }: Props): React.Rea
                             </div>
                         )}
                     </div>
-                    
-                    <div className="px-6 py-4 border-t border-border flex justify-end gap-2 bg-white">
-                        <Button variant="ghost" size="md" onClick={() => setIsOpen(false)} disabled={isPending}>Cancelar</Button>
-                        <Button variant="ink" size="md" disabled={isPending} onClick={handleSave} className="min-w-[140px]">
-                            {isPending && <Loader2 className="animate-spin mr-2" />}
+
+                    <div className="border-border flex justify-end gap-2 border-t bg-white px-6 py-4">
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setIsOpen(false)}
+                            disabled={isPending}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="ink"
+                            size="md"
+                            disabled={isPending}
+                            onClick={handleSave}
+                            className="min-w-[140px]"
+                        >
+                            {isPending && <Loader2 className="mr-2 animate-spin" />}
                             {editing ? 'Guardar cambios' : 'Crear profesor'}
                         </Button>
                     </div>
@@ -441,14 +580,22 @@ export function ProfessorsClient({ professors, groups, slug }: Props): React.Rea
 
             {/* Delete dialog */}
             <Dialog open={isDelOpen} onOpenChange={setIsDelOpen}>
-                <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
+                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle className="font-display text-2xl text-destructive">Eliminar acceso</DialogTitle>
-                        <DialogDescription className="sr-only">Confirmación para eliminar el acceso del profesor.</DialogDescription>
+                        <DialogTitle className="font-display text-destructive text-2xl">
+                            Eliminar acceso
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Confirmación para eliminar el acceso del profesor.
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
-                        <p className="text-[14px] leading-relaxed text-ink-dim">
-                            ¿Estás seguro de eliminar el acceso de <strong className="text-ink">{toDelete?.name} {toDelete?.lastname}</strong>? No podrá volver a ingresar al sistema.
+                        <p className="text-ink-dim text-[14px] leading-relaxed">
+                            ¿Estás seguro de eliminar el acceso de{' '}
+                            <strong className="text-ink">
+                                {toDelete?.name} {toDelete?.lastname}
+                            </strong>
+                            ? No podrá volver a ingresar al sistema.
                         </p>
                     </div>
                     {deleteError && (
@@ -456,10 +603,22 @@ export function ProfessorsClient({ professors, groups, slug }: Props): React.Rea
                             {deleteError}
                         </p>
                     )}
-                    <DialogFooter className="gap-2 sm:justify-end mt-2">
-                        <Button variant="ghost" size="md" onClick={() => setIsDelOpen(false)} disabled={isPending}>Cancelar</Button>
-                        <Button variant="danger" size="md" disabled={isPending} onClick={handleDelete}>
-                            {isPending && <Loader2 className="animate-spin mr-2" />}
+                    <DialogFooter className="mt-2 gap-2 sm:justify-end">
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setIsDelOpen(false)}
+                            disabled={isPending}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="danger"
+                            size="md"
+                            disabled={isPending}
+                            onClick={handleDelete}
+                        >
+                            {isPending && <Loader2 className="mr-2 animate-spin" />}
                             Eliminar
                         </Button>
                     </DialogFooter>

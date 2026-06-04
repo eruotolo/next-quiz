@@ -27,7 +27,10 @@ export const institutionSettingsSchema = z.object({
     email: z.string().email('Email inválido').optional().or(z.literal('')),
     // SEO
     seoTitle: z.string().max(70, 'El título SEO no debe exceder los 70 caracteres').optional(),
-    seoDescription: z.string().max(160, 'La descripción SEO no debe exceder los 160 caracteres').optional(),
+    seoDescription: z
+        .string()
+        .max(160, 'La descripción SEO no debe exceder los 160 caracteres')
+        .optional(),
     seoKeywords: z.array(z.string()).optional(),
 });
 

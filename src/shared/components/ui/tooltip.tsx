@@ -12,7 +12,9 @@ function TooltipProvider({
     return <TooltipPrimitive.Provider delayDuration={delayDuration} {...props} />;
 }
 
-function Tooltip({ ...props }: React.ComponentProps<typeof TooltipPrimitive.Root>): React.JSX.Element {
+function Tooltip({
+    ...props
+}: React.ComponentProps<typeof TooltipPrimitive.Root>): React.JSX.Element {
     return (
         <TooltipProvider>
             <TooltipPrimitive.Root {...props} />
@@ -39,7 +41,7 @@ function TooltipContent({
                 sideOffset={sideOffset}
                 className={cn(
                     'animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-                    'z-50 max-w-[220px] rounded-[8px] bg-ink px-3 py-1.5 font-mono text-[11px] text-white shadow-md',
+                    'bg-ink z-50 max-w-[220px] rounded-[8px] px-3 py-1.5 font-mono text-[11px] text-white shadow-md',
                     className,
                 )}
                 {...props}

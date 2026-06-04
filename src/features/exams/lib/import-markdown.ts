@@ -29,7 +29,9 @@ export function parseMarkdownFile(text: string): ParseResult {
         const ptsMatch = header.match(/\[(\d+)\s*pts?\]/i);
         const typeMatch = header.match(/\[(unica|única|multiple|múltiple|multi)\]/i);
 
-        const points = ptsMatch?.[1] ? Math.max(1, Math.min(100, Number.parseInt(ptsMatch[1], 10))) : 1;
+        const points = ptsMatch?.[1]
+            ? Math.max(1, Math.min(100, Number.parseInt(ptsMatch[1], 10)))
+            : 1;
         const questionType = typeMatch?.[1] ? normalizeType(typeMatch[1]) : 'UNICA';
 
         // Remove the bracket annotations from the header to get the question text

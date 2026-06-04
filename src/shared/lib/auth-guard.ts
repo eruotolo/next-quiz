@@ -1,6 +1,7 @@
 ﻿import { auth } from '@/features/auth/auth';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE, type UserRoleName } from '@/shared/lib/roles';
+import { redirect } from 'next/navigation';
 
 /**
  * Contexto resuelto de una institución para acciones scoped a /[slug]/*.
@@ -15,6 +16,8 @@ export interface InstitutionContext {
     userRole: UserRoleName;
     isSuperAdmin: boolean;
     isProfesor: boolean;
+    isDemo: boolean;
+    demoSessionId: string | null;
 }
 
 const INSTITUTION_ROLES: UserRoleName[] = [
@@ -55,6 +58,8 @@ export async function requireInstitutionAccess(
         userRole,
         isSuperAdmin,
         isProfesor,
+        isDemo: session.user.isDemo,
+        demoSessionId: session.user.demoSessionId,
     };
 
     if (isSuperAdmin) {
@@ -72,6 +77,36 @@ export async function requireInstitutionAccess(
         throw new Error('No autorizado');
     }
     return { ...base, institutionId };
+}
+
+/** Contexto de página: el de institución más el nombre para breadcrumbs. */
+export interface InstitutionPageContext extends InstitutionContext {
+    institutionName: string;
+}
+
+/**
+ * Variante para páginas de `/[slug]/*`: misma autorización que
+ * `requireInstitutionAccess` pero redirige en vez de lanzar Error y resuelve
+ * el nombre de la institución (centraliza el fetch de breadcrumb).
+ * SuperAdmin con slug inexistente vuelve a /config; el resto a /login.
+ */
+export async function requireInstitutionPageAccess(
+    requestSlug: string,
+): Promise<InstitutionPageContext> {
+    const session = await auth();
+    if (!session?.user) redirect('/login');
+
+    const isSuperAdmin = session.user.userRoleName === USER_ROLE.SUPER_ADMIN;
+    try {
+        const ctx = await requireInstitutionAccess(requestSlug);
+        const inst = await prisma.academicInstitution.findUnique({
+            where: { id: ctx.institutionId },
+            select: { name: true },
+        });
+        return { ...ctx, institutionName: inst?.name ?? requestSlug };
+    } catch {
+        redirect(isSuperAdmin ? '/config' : '/login');
+    }
 }
 
 /** Guard exclusivo de SuperAdmin para acciones globales (sin scope de institución). */

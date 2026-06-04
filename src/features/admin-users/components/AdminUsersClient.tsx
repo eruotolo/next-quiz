@@ -6,7 +6,10 @@ import {
     updateAdminUser,
 } from '@/features/admin-users/actions/mutations';
 import type { AdminUserRow } from '@/features/admin-users/actions/queries';
-import { adminUserCreateSchema, adminUserUpdateSchema } from '@/features/admin-users/schemas/admin-user.schemas';
+import {
+    adminUserCreateSchema,
+    adminUserUpdateSchema,
+} from '@/features/admin-users/schemas/admin-user.schemas';
 import type { InstitutionRow } from '@/features/institutions/actions/queries';
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
@@ -27,7 +30,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/shared/components/ui/table';
 import { TablePaginator } from '@/shared/components/ui/table-paginator';
 import { Avatar } from '@/shared/components/ui/avatar';
 import { Tag } from '@/shared/components/ui/badge';
@@ -36,7 +46,18 @@ import { formatRut } from '@/shared/lib/rut';
 import { USER_ROLE } from '@/shared/lib/roles';
 import type { PaginatedResult } from '@/shared/types/pagination';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff, Loader2, Pencil, Plus, Trash2, Search, Building2, MoreHorizontal, ShieldCheck } from 'lucide-react';
+import {
+    Eye,
+    EyeOff,
+    Loader2,
+    Pencil,
+    Plus,
+    Trash2,
+    Search,
+    Building2,
+    MoreHorizontal,
+    ShieldCheck,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
 import { useState, useTransition } from 'react';
@@ -75,10 +96,10 @@ function RoleSelect({
 }): React.JSX.Element {
     return (
         <Select value={value} onValueChange={onChange}>
-            <SelectTrigger className="h-11 rounded-[10px] bg-white border-border">
+            <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
                 <SelectValue placeholder="Seleccioná un rol" />
             </SelectTrigger>
-            <SelectContent className="rounded-xl border-border shadow-xl">
+            <SelectContent className="border-border rounded-xl shadow-xl">
                 <SelectItem value={USER_ROLE.ADMIN}>Administrador</SelectItem>
                 <SelectItem value={USER_ROLE.SUPER_ADMIN}>SuperAdministrador</SelectItem>
             </SelectContent>
@@ -113,34 +134,78 @@ function CreateAdminForm({
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-4">
             <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                    <label htmlFor="create-name" className="text-[13px] font-bold text-ink">Nombre</label>
-                    <Input id="create-name" {...register('name')} className={cn("h-11 rounded-[10px] bg-white border-border", errors.name && 'border-destructive')} />
-                    {errors.name && <p className="text-xs text-destructive font-medium">{errors.name.message}</p>}
+                    <label htmlFor="create-name" className="text-ink text-[13px] font-bold">
+                        Nombre
+                    </label>
+                    <Input
+                        id="create-name"
+                        {...register('name')}
+                        className={cn(
+                            'border-border h-11 rounded-[10px] bg-white',
+                            errors.name && 'border-destructive',
+                        )}
+                    />
+                    {errors.name && (
+                        <p className="text-destructive text-xs font-medium">
+                            {errors.name.message}
+                        </p>
+                    )}
                 </div>
                 <div className="flex flex-col gap-1.5">
-                    <label htmlFor="create-lastname" className="text-[13px] font-bold text-ink">Apellido</label>
-                    <Input id="create-lastname" {...register('lastname')} className={cn("h-11 rounded-[10px] bg-white border-border", errors.lastname && 'border-destructive')} />
-                    {errors.lastname && <p className="text-xs text-destructive font-medium">{errors.lastname.message}</p>}
+                    <label htmlFor="create-lastname" className="text-ink text-[13px] font-bold">
+                        Apellido
+                    </label>
+                    <Input
+                        id="create-lastname"
+                        {...register('lastname')}
+                        className={cn(
+                            'border-border h-11 rounded-[10px] bg-white',
+                            errors.lastname && 'border-destructive',
+                        )}
+                    />
+                    {errors.lastname && (
+                        <p className="text-destructive text-xs font-medium">
+                            {errors.lastname.message}
+                        </p>
+                    )}
                 </div>
             </div>
             <div className="flex flex-col gap-1.5">
-                <label htmlFor="create-email" className="text-[13px] font-bold text-ink">Email</label>
-                <Input id="create-email" type="email" {...register('email')} className={cn("h-11 rounded-[10px] bg-white border-border", errors.email && 'border-destructive')} />
-                {errors.email && <p className="text-xs text-destructive font-medium">{errors.email.message}</p>}
+                <label htmlFor="create-email" className="text-ink text-[13px] font-bold">
+                    Email
+                </label>
+                <Input
+                    id="create-email"
+                    type="email"
+                    {...register('email')}
+                    className={cn(
+                        'border-border h-11 rounded-[10px] bg-white',
+                        errors.email && 'border-destructive',
+                    )}
+                />
+                {errors.email && (
+                    <p className="text-destructive text-xs font-medium">{errors.email.message}</p>
+                )}
             </div>
             <div className="flex flex-col gap-1.5">
-                <span className="text-[13px] font-bold text-ink">RUT</span>
+                <span className="text-ink text-[13px] font-bold">RUT</span>
                 <Controller
                     name="rut"
                     control={control}
                     render={({ field }) => (
-                        <RutField value={field.value ?? ''} onChange={field.onChange} className="h-11 rounded-[10px] bg-white border-border" />
+                        <RutField
+                            value={field.value ?? ''}
+                            onChange={field.onChange}
+                            className="border-border h-11 rounded-[10px] bg-white"
+                        />
                     )}
                 />
-                {errors.rut && <p className="text-xs text-destructive font-medium">{errors.rut.message}</p>}
+                {errors.rut && (
+                    <p className="text-destructive text-xs font-medium">{errors.rut.message}</p>
+                )}
             </div>
             <div className="flex flex-col gap-1.5">
-                <span className="text-[13px] font-bold text-ink">Rol de Acceso</span>
+                <span className="text-ink text-[13px] font-bold">Rol de Acceso</span>
                 <Controller
                     name="role"
                     control={control}
@@ -148,20 +213,22 @@ function CreateAdminForm({
                         <RoleSelect value={field.value} onChange={field.onChange} />
                     )}
                 />
-                {errors.role && <p className="text-xs text-destructive font-medium">{errors.role.message}</p>}
+                {errors.role && (
+                    <p className="text-destructive text-xs font-medium">{errors.role.message}</p>
+                )}
             </div>
             {!isSuperAdmin && (
                 <div className="flex flex-col gap-1.5">
-                    <span className="text-[13px] font-bold text-ink">Institución</span>
+                    <span className="text-ink text-[13px] font-bold">Institución</span>
                     <Controller
                         name="academicInstitutionId"
                         control={control}
                         render={({ field }) => (
                             <Select value={field.value ?? ''} onValueChange={field.onChange}>
-                                <SelectTrigger className="h-11 rounded-[10px] bg-white border-border">
+                                <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
                                     <SelectValue placeholder="Seleccioná una institución" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl border-border shadow-xl">
+                                <SelectContent className="border-border rounded-xl shadow-xl">
                                     {institutions.map((i) => (
                                         <SelectItem key={i.id} value={i.id}>
                                             {i.name}
@@ -172,18 +239,21 @@ function CreateAdminForm({
                         )}
                     />
                     {errors.academicInstitutionId && (
-                        <p className="text-xs text-destructive font-medium">{errors.academicInstitutionId.message}</p>
+                        <p className="text-destructive text-xs font-medium">
+                            {errors.academicInstitutionId.message}
+                        </p>
                     )}
                 </div>
             )}
-            <div className="bg-paper-warm/50 rounded-[12px] p-4 border border-border">
-                <p className="text-[12px] text-mute leading-relaxed font-medium">
-                    Se generará una contraseña temporal segura y se enviará automáticamente al email del usuario para su primer acceso.
+            <div className="bg-paper-warm/50 border-border rounded-[12px] border p-4">
+                <p className="text-mute text-[12px] leading-relaxed font-medium">
+                    Se generará una contraseña temporal segura y se enviará automáticamente al email
+                    del usuario para su primer acceso.
                 </p>
             </div>
             <div className="mt-4 flex justify-end gap-2">
                 <Button type="submit" disabled={isPending} variant="ink" size="md">
-                    {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Crear usuario administrador
                 </Button>
             </div>
@@ -232,34 +302,78 @@ function UpdateAdminForm({
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-4">
             <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                    <label htmlFor="edit-name" className="text-[13px] font-bold text-ink">Nombre</label>
-                    <Input id="edit-name" {...register('name')} className={cn("h-11 rounded-[10px] bg-white border-border", errors.name && 'border-destructive')} />
-                    {errors.name && <p className="text-xs text-destructive font-medium">{errors.name.message}</p>}
+                    <label htmlFor="edit-name" className="text-ink text-[13px] font-bold">
+                        Nombre
+                    </label>
+                    <Input
+                        id="edit-name"
+                        {...register('name')}
+                        className={cn(
+                            'border-border h-11 rounded-[10px] bg-white',
+                            errors.name && 'border-destructive',
+                        )}
+                    />
+                    {errors.name && (
+                        <p className="text-destructive text-xs font-medium">
+                            {errors.name.message}
+                        </p>
+                    )}
                 </div>
                 <div className="flex flex-col gap-1.5">
-                    <label htmlFor="edit-lastname" className="text-[13px] font-bold text-ink">Apellido</label>
-                    <Input id="edit-lastname" {...register('lastname')} className={cn("h-11 rounded-[10px] bg-white border-border", errors.lastname && 'border-destructive')} />
-                    {errors.lastname && <p className="text-xs text-destructive font-medium">{errors.lastname.message}</p>}
+                    <label htmlFor="edit-lastname" className="text-ink text-[13px] font-bold">
+                        Apellido
+                    </label>
+                    <Input
+                        id="edit-lastname"
+                        {...register('lastname')}
+                        className={cn(
+                            'border-border h-11 rounded-[10px] bg-white',
+                            errors.lastname && 'border-destructive',
+                        )}
+                    />
+                    {errors.lastname && (
+                        <p className="text-destructive text-xs font-medium">
+                            {errors.lastname.message}
+                        </p>
+                    )}
                 </div>
             </div>
             <div className="flex flex-col gap-1.5">
-                <label htmlFor="edit-email" className="text-[13px] font-bold text-ink">Email</label>
-                <Input id="edit-email" type="email" {...register('email')} className={cn("h-11 rounded-[10px] bg-white border-border", errors.email && 'border-destructive')} />
-                {errors.email && <p className="text-xs text-destructive font-medium">{errors.email.message}</p>}
+                <label htmlFor="edit-email" className="text-ink text-[13px] font-bold">
+                    Email
+                </label>
+                <Input
+                    id="edit-email"
+                    type="email"
+                    {...register('email')}
+                    className={cn(
+                        'border-border h-11 rounded-[10px] bg-white',
+                        errors.email && 'border-destructive',
+                    )}
+                />
+                {errors.email && (
+                    <p className="text-destructive text-xs font-medium">{errors.email.message}</p>
+                )}
             </div>
             <div className="flex flex-col gap-1.5">
-                <span className="text-[13px] font-bold text-ink">RUT</span>
+                <span className="text-ink text-[13px] font-bold">RUT</span>
                 <Controller
                     name="rut"
                     control={control}
                     render={({ field }) => (
-                        <RutField value={field.value ?? ''} onChange={field.onChange} className="h-11 rounded-[10px] bg-white border-border" />
+                        <RutField
+                            value={field.value ?? ''}
+                            onChange={field.onChange}
+                            className="border-border h-11 rounded-[10px] bg-white"
+                        />
                     )}
                 />
-                {errors.rut && <p className="text-xs text-destructive font-medium">{errors.rut.message}</p>}
+                {errors.rut && (
+                    <p className="text-destructive text-xs font-medium">{errors.rut.message}</p>
+                )}
             </div>
             <div className="flex flex-col gap-1.5">
-                <span className="text-[13px] font-bold text-ink">Rol</span>
+                <span className="text-ink text-[13px] font-bold">Rol</span>
                 <Controller
                     name="role"
                     control={control}
@@ -267,20 +381,22 @@ function UpdateAdminForm({
                         <RoleSelect value={field.value} onChange={field.onChange} />
                     )}
                 />
-                {errors.role && <p className="text-xs text-destructive font-medium">{errors.role.message}</p>}
+                {errors.role && (
+                    <p className="text-destructive text-xs font-medium">{errors.role.message}</p>
+                )}
             </div>
             {!isSuperAdmin && (
                 <div className="flex flex-col gap-1.5">
-                    <span className="text-[13px] font-bold text-ink">Institución</span>
+                    <span className="text-ink text-[13px] font-bold">Institución</span>
                     <Controller
                         name="academicInstitutionId"
                         control={control}
                         render={({ field }) => (
                             <Select value={field.value ?? ''} onValueChange={field.onChange}>
-                                <SelectTrigger className="h-11 rounded-[10px] bg-white border-border">
+                                <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
                                     <SelectValue placeholder="Seleccioná una institución" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl border-border shadow-xl">
+                                <SelectContent className="border-border rounded-xl shadow-xl">
                                     {institutions.map((i) => (
                                         <SelectItem key={i.id} value={i.id}>
                                             {i.name}
@@ -291,14 +407,18 @@ function UpdateAdminForm({
                         )}
                     />
                     {errors.academicInstitutionId && (
-                        <p className="text-xs text-destructive font-medium">{errors.academicInstitutionId.message}</p>
+                        <p className="text-destructive text-xs font-medium">
+                            {errors.academicInstitutionId.message}
+                        </p>
                     )}
                 </div>
             )}
             <div className="flex flex-col gap-1.5">
-                <label htmlFor="edit-password" className="text-[13px] font-bold text-ink">
+                <label htmlFor="edit-password" className="text-ink text-[13px] font-bold">
                     Nueva contraseña
-                    <span className="ml-2 font-normal text-mute">(dejá en blanco para no cambiarla)</span>
+                    <span className="text-mute ml-2 font-normal">
+                        (dejá en blanco para no cambiarla)
+                    </span>
                 </label>
                 <div className="relative">
                     <Input
@@ -306,24 +426,31 @@ function UpdateAdminForm({
                         type={showPassword ? 'text' : 'password'}
                         {...register('password')}
                         placeholder="Mínimo 8 caracteres"
-                        className={cn('h-11 rounded-[10px] bg-white border-border pr-10', errors.password && 'border-destructive')}
+                        className={cn(
+                            'border-border h-11 rounded-[10px] bg-white pr-10',
+                            errors.password && 'border-destructive',
+                        )}
                         autoComplete="new-password"
                     />
                     <button
                         type="button"
                         onClick={() => setShowPassword((v) => !v)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-mute hover:text-ink transition-colors"
+                        className="text-mute hover:text-ink absolute top-1/2 right-3 -translate-y-1/2 transition-colors"
                         tabIndex={-1}
                         aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                     >
                         {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                 </div>
-                {errors.password && <p className="text-xs text-destructive font-medium">{errors.password.message}</p>}
+                {errors.password && (
+                    <p className="text-destructive text-xs font-medium">
+                        {errors.password.message}
+                    </p>
+                )}
             </div>
             <div className="mt-4 flex justify-end gap-2">
                 <Button type="submit" disabled={isPending} variant="ink" size="md">
-                    {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Guardar cambios
                 </Button>
             </div>
@@ -331,7 +458,12 @@ function UpdateAdminForm({
     );
 }
 
-export function AdminUsersClient({ result, institutions, q: initialQ, institutionId: initialInstitutionId }: Props): React.JSX.Element {
+export function AdminUsersClient({
+    result,
+    institutions,
+    q: initialQ,
+    institutionId: initialInstitutionId,
+}: Props): React.JSX.Element {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [search, setSearch] = useState(initialQ);
@@ -365,7 +497,9 @@ export function AdminUsersClient({ result, institutions, q: initialQ, institutio
             if (res.data?.emailSent) {
                 toast.success('Usuario creado. Se enviaron las credenciales por email.');
             } else {
-                toast.warning(`Usuario creado, pero no se pudo enviar el email: ${res.error ?? 'error desconocido'}`);
+                toast.warning(
+                    `Usuario creado, pero no se pudo enviar el email: ${res.error ?? 'error desconocido'}`,
+                );
             }
             setCreateOpen(false);
             router.refresh();
@@ -401,14 +535,19 @@ export function AdminUsersClient({ result, institutions, q: initialQ, institutio
     }
 
     return (
-        <div className="flex flex-col min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             {/* Header */}
             <AdminTopBar
                 breadcrumb={['Sistema', 'Administradores']}
                 title="Gestión de Accesos"
                 subtitle={`${result.total} usuarios con privilegios de gestión en la plataforma`}
                 actions={
-                    <Button variant="ink" size="md" onClick={() => setCreateOpen(true)} className="gap-2">
+                    <Button
+                        variant="ink"
+                        size="md"
+                        onClick={() => setCreateOpen(true)}
+                        className="gap-2"
+                    >
                         <Plus size={16} />
                         Nuevo usuario
                     </Button>
@@ -416,17 +555,17 @@ export function AdminUsersClient({ result, institutions, q: initialQ, institutio
             />
 
             {/* Filter bar */}
-            <div className="flex items-center gap-2 border-b border-border bg-white px-8 py-4">
-                <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-mute" />
+            <div className="border-border flex items-center gap-2 border-b bg-white px-8 py-4">
+                <form onSubmit={handleSearchSubmit} className="relative max-w-sm flex-1">
+                    <Search className="text-mute absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                     <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Buscar por nombre, email o RUT..."
-                        className="pl-9 h-[38px] border-border bg-white"
+                        className="border-border h-[38px] bg-white pl-9"
                     />
                 </form>
-                
+
                 <div className="flex items-center gap-2">
                     <Building2 size={16} className="text-mute ml-4" />
                     <Select
@@ -437,10 +576,10 @@ export function AdminUsersClient({ result, institutions, q: initialQ, institutio
                             pushUrl({ institutionId: val, page: 1 });
                         }}
                     >
-                        <SelectTrigger className="h-[38px] w-52 border-border bg-white">
+                        <SelectTrigger className="border-border h-[38px] w-52 bg-white">
                             <SelectValue placeholder="Todas las instituciones" />
                         </SelectTrigger>
-                        <SelectContent className="rounded-xl border-border shadow-xl">
+                        <SelectContent className="border-border rounded-xl shadow-xl">
                             <SelectItem value="__all__">Todas las instituciones</SelectItem>
                             {institutions.map((i) => (
                                 <SelectItem key={i.id} value={i.id}>
@@ -452,27 +591,36 @@ export function AdminUsersClient({ result, institutions, q: initialQ, institutio
                 </div>
 
                 <div className="flex-1" />
-                <span className="font-mono text-[11px] text-mute uppercase tracking-wider">
+                <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
                     {result.total} registrados
                 </span>
             </div>
 
-            <main className="flex-1 p-8 overflow-auto">
+            <main className="flex-1 overflow-auto p-8">
                 {result.items.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
-                        <ShieldCheck size={48} className="mb-4 text-mute/20" />
-                        <p className="text-lg font-medium text-ink">No hay administradores registrados</p>
-                        <p className="mt-1 text-sm text-mute">Crea el primer usuario con acceso al panel de control.</p>
-                        <Button variant="primary" size="md" onClick={() => setCreateOpen(true)} className="mt-6">
+                        <ShieldCheck size={48} className="text-mute/20 mb-4" />
+                        <p className="text-ink text-lg font-medium">
+                            No hay administradores registrados
+                        </p>
+                        <p className="text-mute mt-1 text-sm">
+                            Crea el primer usuario con acceso al panel de control.
+                        </p>
+                        <Button
+                            variant="primary"
+                            size="md"
+                            onClick={() => setCreateOpen(true)}
+                            className="mt-6"
+                        >
                             <Plus size={16} />
                             Nuevo usuario
                         </Button>
                     </Card>
                 ) : (
-                    <Card className="p-0 overflow-visible border-border shadow-sm">
+                    <Card className="border-border overflow-visible p-0 shadow-sm">
                         <Table>
                             <TableHeader className="bg-paper">
-                                <TableRow className="hover:bg-transparent border-b border-border">
+                                <TableRow className="border-border border-b hover:bg-transparent">
                                     <TableHead>Nombre / Email</TableHead>
                                     <TableHead className="w-[160px]">RUT</TableHead>
                                     <TableHead className="w-[140px]">Rol</TableHead>
@@ -482,27 +630,38 @@ export function AdminUsersClient({ result, institutions, q: initialQ, institutio
                             </TableHeader>
                             <TableBody>
                                 {result.items.map((row) => (
-                                    <TableRow key={row.id} className="group h-16 border-b border-border last:border-0">
+                                    <TableRow
+                                        key={row.id}
+                                        className="group border-border h-16 border-b last:border-0"
+                                    >
                                         <TableCell>
                                             <div className="flex items-center gap-3">
                                                 <Avatar
                                                     name={`${row.name} ${row.lastname}`}
                                                     size={32}
-                                                    className="ring-1 ring-border shadow-sm"
+                                                    className="ring-border shadow-sm ring-1"
                                                 />
                                                 <div className="flex flex-col">
-                                                    <span className="text-[13.5px] font-bold text-ink leading-tight">{row.name} {row.lastname}</span>
-                                                    <span className="text-[11.5px] text-mute">{row.email}</span>
+                                                    <span className="text-ink text-[13.5px] leading-tight font-bold">
+                                                        {row.name} {row.lastname}
+                                                    </span>
+                                                    <span className="text-mute text-[11.5px]">
+                                                        {row.email}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="font-mono text-[12px] text-mute">
+                                        <TableCell className="text-mute font-mono text-[12px]">
                                             {formatRut(row.rut)}
                                         </TableCell>
                                         <TableCell>
                                             <Tag
-                                                tone={row.role === USER_ROLE.SUPER_ADMIN ? "primary" : "default"}
-                                                className="font-bold text-[10px] h-5"
+                                                tone={
+                                                    row.role === USER_ROLE.SUPER_ADMIN
+                                                        ? 'primary'
+                                                        : 'default'
+                                                }
+                                                className="h-5 text-[10px] font-bold"
                                             >
                                                 {ROLE_LABEL[row.role] ?? row.role}
                                             </Tag>
@@ -510,28 +669,51 @@ export function AdminUsersClient({ result, institutions, q: initialQ, institutio
                                         <TableCell>
                                             {row.institution ? (
                                                 <div className="flex items-center gap-2">
-                                                    <Building2 size={12} className="text-primary/60" />
-                                                    <span className="text-[12.5px] font-medium text-ink-dim">{row.institution.name}</span>
+                                                    <Building2
+                                                        size={12}
+                                                        className="text-primary/60"
+                                                    />
+                                                    <span className="text-ink-dim text-[12.5px] font-medium">
+                                                        {row.institution.name}
+                                                    </span>
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center gap-2">
                                                     <ShieldCheck size={12} className="text-iris" />
-                                                    <span className="text-[12px] font-bold text-iris uppercase tracking-widest italic">Aulika Global</span>
+                                                    <span className="text-iris text-[12px] font-bold tracking-widest uppercase italic">
+                                                        Aulika Global
+                                                    </span>
                                                 </div>
                                             )}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon-sm" className="h-9 w-9">
-                                                        <MoreHorizontal size={18} className="text-mute" />
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon-sm"
+                                                        className="h-9 w-9"
+                                                    >
+                                                        <MoreHorizontal
+                                                            size={18}
+                                                            className="text-mute"
+                                                        />
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="rounded-xl border-border shadow-xl w-44">
-                                                    <DropdownMenuItem onClick={() => setEditRow(row)} className="gap-2 py-2.5 cursor-pointer">
+                                                <DropdownMenuContent
+                                                    align="end"
+                                                    className="border-border w-44 rounded-xl shadow-xl"
+                                                >
+                                                    <DropdownMenuItem
+                                                        onClick={() => setEditRow(row)}
+                                                        className="cursor-pointer gap-2 py-2.5"
+                                                    >
                                                         <Pencil size={14} /> Editar acceso
                                                     </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => setDeleteRow(row)} className="text-destructive gap-2 py-2.5 cursor-pointer focus:bg-danger-wash focus:text-destructive">
+                                                    <DropdownMenuItem
+                                                        onClick={() => setDeleteRow(row)}
+                                                        className="text-destructive focus:bg-danger-wash focus:text-destructive cursor-pointer gap-2 py-2.5"
+                                                    >
                                                         <Trash2 size={14} /> Eliminar acceso
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -553,10 +735,14 @@ export function AdminUsersClient({ result, institutions, q: initialQ, institutio
 
             {/* Create dialog */}
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-                <DialogContent className="max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
-                    <div className="px-6 py-5 border-b border-border bg-paper">
-                        <DialogTitle className="font-display text-2xl text-ink">Nuevo Administrador</DialogTitle>
-                        <DialogDescription className="sr-only">Formulario para crear un nuevo administrador.</DialogDescription>
+                <DialogContent className="border-border max-w-lg overflow-hidden rounded-[22px] p-0 shadow-2xl">
+                    <div className="border-border bg-paper border-b px-6 py-5">
+                        <DialogTitle className="font-display text-ink text-2xl">
+                            Nuevo Administrador
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Formulario para crear un nuevo administrador.
+                        </DialogDescription>
                     </div>
                     <div className="px-6">
                         <CreateAdminForm
@@ -570,10 +756,14 @@ export function AdminUsersClient({ result, institutions, q: initialQ, institutio
 
             {/* Edit dialog */}
             <Dialog open={!!editRow} onOpenChange={(o) => !o && setEditRow(null)}>
-                <DialogContent className="max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
-                    <div className="px-6 py-5 border-b border-border bg-paper">
-                        <DialogTitle className="font-display text-2xl text-ink">Editar Usuario</DialogTitle>
-                        <DialogDescription className="sr-only">Formulario para editar los datos del usuario.</DialogDescription>
+                <DialogContent className="border-border max-w-lg overflow-hidden rounded-[22px] p-0 shadow-2xl">
+                    <div className="border-border bg-paper border-b px-6 py-5">
+                        <DialogTitle className="font-display text-ink text-2xl">
+                            Editar Usuario
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Formulario para editar los datos del usuario.
+                        </DialogDescription>
                     </div>
                     <div className="px-6">
                         {editRow && (
@@ -590,20 +780,40 @@ export function AdminUsersClient({ result, institutions, q: initialQ, institutio
 
             {/* Delete confirmation */}
             <Dialog open={!!deleteRow} onOpenChange={(o) => !o && setDeleteRow(null)}>
-                <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
+                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle className="font-display text-2xl text-destructive">Eliminar acceso</DialogTitle>
-                        <DialogDescription className="sr-only">Confirmación para eliminar el acceso del usuario.</DialogDescription>
+                        <DialogTitle className="font-display text-destructive text-2xl">
+                            Eliminar acceso
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Confirmación para eliminar el acceso del usuario.
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
-                        <p className="text-[14px] leading-relaxed text-ink-dim">
-                            ¿Estás seguro de eliminar el acceso de <strong className="text-ink">{deleteRow?.name} {deleteRow?.lastname}</strong>? Esta acción revocará todos sus permisos.
+                        <p className="text-ink-dim text-[14px] leading-relaxed">
+                            ¿Estás seguro de eliminar el acceso de{' '}
+                            <strong className="text-ink">
+                                {deleteRow?.name} {deleteRow?.lastname}
+                            </strong>
+                            ? Esta acción revocará todos sus permisos.
                         </p>
                     </div>
-                    <DialogFooter className="gap-2 sm:justify-end mt-2">
-                        <Button variant="ghost" size="md" onClick={() => setDeleteRow(null)} disabled={isPending}>Cancelar</Button>
-                        <Button variant="danger" size="md" onClick={handleDelete} disabled={isPending}>
-                            {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    <DialogFooter className="mt-2 gap-2 sm:justify-end">
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setDeleteRow(null)}
+                            disabled={isPending}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="danger"
+                            size="md"
+                            onClick={handleDelete}
+                            disabled={isPending}
+                        >
+                            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Eliminar
                         </Button>
                     </DialogFooter>

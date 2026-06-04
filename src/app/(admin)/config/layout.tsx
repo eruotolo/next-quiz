@@ -27,7 +27,7 @@ export default async function ConfigLayout({ children }: Props): Promise<React.J
     ]);
 
     return (
-        <div className="flex min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen">
             <Sidebar
                 isSuper
                 userName={session.user?.name}
@@ -36,9 +36,7 @@ export default async function ConfigLayout({ children }: Props): Promise<React.J
                 counts={{ institutions: institutionList.length, admins, students }}
                 institutionList={institutionList}
             />
-            <main className="ml-60 flex-1 overflow-y-auto">
-                {children}
-            </main>
+            <main className="ml-60 flex-1 overflow-y-auto">{children}</main>
         </div>
     );
 }

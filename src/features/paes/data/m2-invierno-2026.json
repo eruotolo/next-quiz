@@ -1,1343 +1,1343 @@
 {
-  "subject": "m2",
-  "title": "Matemática M2",
-  "source": "DEMRE — PAES Invierno 2026",
-  "sourceUrl": "https://demre.cl/publicaciones/2026/pruebas-oficiales-paes-invierno-p2026",
-  "timeLimitMinutes": 140,
-  "questions": [
-    {
-      "id": "m2-01",
-      "number": 1,
-      "statement": "Considera el número racional x ubicado en la recta numérica entre y , tal que la 7 5 4 3 distancia entre x y es el doble de la distancia entre y x. 7 5 ¿Cuál es el valor de x? 61",
-      "options": [
+    "subject": "m2",
+    "title": "Matemática M2",
+    "source": "DEMRE — PAES Invierno 2026",
+    "sourceUrl": "https://demre.cl/publicaciones/2026/pruebas-oficiales-paes-invierno-p2026",
+    "timeLimitMinutes": 140,
+    "questions": [
         {
-          "id": "m2-01-a",
-          "text": "105 41",
-          "isCorrect": false
+            "id": "m2-01",
+            "number": 1,
+            "statement": "Considera el número racional x ubicado en la recta numérica entre y , tal que la 7 5 4 3 distancia entre x y es el doble de la distancia entre y x. 7 5 ¿Cuál es el valor de x? 61",
+            "options": [
+                {
+                    "id": "m2-01-a",
+                    "text": "105 41",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-01-b",
+                    "text": "70 62",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-01-c",
+                    "text": "105 21",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-01-d",
+                    "text": "35",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Álgebra",
+            "isPilot": false
         },
         {
-          "id": "m2-01-b",
-          "text": "70 62",
-          "isCorrect": false
+            "id": "m2-02",
+            "number": 2,
+            "statement": "Se desea pintar el interior de una vivienda, de la cual se deben cubrir 130 m2 con dos capas de pintura. Para esto se comprarán galones de pintura que tienen un rendimiento entre 35 m2 y 45 m2 y un precio unitario de $29 200. Si se decide comprar la mínima cantidad de galones que asegure que no faltará pintura, ¿cuánto dinero se gastará?",
+            "options": [
+                {
+                    "id": "m2-02-a",
+                    "text": "$146 000",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-02-b",
+                    "text": "$175 200",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-02-c",
+                    "text": "$204 400",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-02-d",
+                    "text": "$233 600",
+                    "isCorrect": true
+                }
+            ],
+            "eje": "Álgebra",
+            "isPilot": false
         },
         {
-          "id": "m2-01-c",
-          "text": "105 21",
-          "isCorrect": true
+            "id": "m2-04",
+            "number": 4,
+            "statement": "Si el 25 % de M es N, ¿qué porcentaje de N es M?",
+            "options": [
+                {
+                    "id": "m2-04-a",
+                    "text": "4%",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-04-b",
+                    "text": "25 %",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-04-c",
+                    "text": "75 %",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-04-d",
+                    "text": "400 %",
+                    "isCorrect": true
+                }
+            ],
+            "eje": "Álgebra",
+            "isPilot": false
         },
         {
-          "id": "m2-01-d",
-          "text": "35",
-          "isCorrect": false
+            "id": "m2-05",
+            "number": 5,
+            "statement": "Considera que 1200 se aumenta en su 15 % y el número que se obtiene se disminuye en su 5 %. ¿Cuál de las siguientes expresiones representa el número final que se obtiene?",
+            "options": [
+                {
+                    "id": "m2-05-a",
+                    "text": "1200 · 1,15 · 0,95",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-05-b",
+                    "text": "1200 · 0,15 · 0,05",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-05-c",
+                    "text": "1200 · 1,15 − 1200 · 0,95",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-05-d",
+                    "text": "1200 · 0,15 − 1200 · 0,05",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Álgebra",
+            "isPilot": false
+        },
+        {
+            "id": "m2-06",
+            "number": 6,
+            "statement": "Para medir la popularidad de un artista en redes sociales, se analizó la cantidad de búsquedas diarias que tuvo durante tres días seguidos. Se detectó que el artista descendió un 4 % cada día respecto al día anterior, presentando 276 480 búsquedas el último día. ¿Cuál es la cantidad de búsquedas que se realizaron de este artista el primer día? 276 480",
+            "options": [
+                {
+                    "id": "m2-06-a",
+                    "text": "0,962 276 480",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-06-b",
+                    "text": "0,042",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-06-c",
+                    "text": "276 480 · 0,962",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-06-d",
+                    "text": "276 480 · 0,042",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Álgebra",
+            "isPilot": false
+        },
+        {
+            "id": "m2-07",
+            "number": 7,
+            "statement": "Al terminar cada día trabajado en una obra de construcción, se calcula el porcentaje de la obra que queda por realizar, usando la siguiente expresión: 100 · (1 − k) % ¿Qué representa k en esta expresión?",
+            "options": [
+                {
+                    "id": "m2-07-a",
+                    "text": "El porcentaje de avance de la obra durante el último día trabajado, escrito en decimal.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-07-b",
+                    "text": "El porcentaje de avance de la obra hasta el último día trabajado, escrito en decimal.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-07-c",
+                    "text": "El porcentaje de avance de la obra de cada uno de los días de trabajo, escrito en decimal.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-07-d",
+                    "text": "El porcentaje que queda por realizar de la obra al término del último día de trabajo, escrito en decimal.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Álgebra",
+            "isPilot": false
+        },
+        {
+            "id": "m2-08",
+            "number": 8,
+            "statement": "En la tabla adjunta se presenta la masa de dos partículas. Partícula Masa Protón 1,67 · 10−27 kg Electrón 9,11 · 10−31 kg ¿Cuál es la diferencia positiva entre las masas de las partículas?",
+            "options": [
+                {
+                    "id": "m2-08-a",
+                    "text": "(9,11 − 1,67) · 10−58 kg",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-08-b",
+                    "text": "(9,11 − 1,67) · 10−4 kg 1,67 − 9,11 · 10−4 · 10−27 kg \u0001",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-08-c",
+                    "text": "1,67 − 9,11 · 10−4 · 10−31 kg \u0001",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-08-d",
+                    "text": "√ √ Ä√ ä3",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Álgebra",
+            "isPilot": false
+        },
+        {
+            "id": "m2-09",
+            "number": 9,
+            "statement": "Para expresar 8 · 3 16 − 2 como la multiplicación de dos números, se realiza el siguiente procedimiento, en el cual se comete un error. Ä√ ä3 √ Paso 1: se resuelve la potencia 2 , obteniéndose 2 2. Ä√ ä √ √ Paso 2: se realiza la multiplicación de raíces 8 · 3 16, obteniéndose 6 128. √ 6 √ Paso 3: se descompone y reduce la raíz 128, obteniéndose 2 6 2. √ 6 √ Ä√ 6 √ ä Paso 4: se factoriza la resta 2 2 − 2 2, obteniéndose 2 2− 2 . ¿En cuál de los pasos se cometió el error?",
+            "options": [
+                {
+                    "id": "m2-09-a",
+                    "text": "En el Paso 1",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-09-b",
+                    "text": "En el Paso 2",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-09-c",
+                    "text": "En el Paso 3",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-09-d",
+                    "text": "En el Paso 4",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Álgebra",
+            "isPilot": false
+        },
+        {
+            "id": "m2-10",
+            "number": 10,
+            "statement": "Si log 2 ≈ 0,30 y log 3 ≈ 0,48, ¿cuál de las siguientes expresiones corresponde a una aproximación de log2 15?",
+            "options": [
+                {
+                    "id": "m2-10-a",
+                    "text": "0,70 + 0,48 4,8 + 0,30",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-10-b",
+                    "text": "0,30 1 + 0,48",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-10-c",
+                    "text": "2 · 0,30 0,70 + 0,48",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-10-d",
+                    "text": "0,30",
+                    "isCorrect": true
+                }
+            ],
+            "eje": "Álgebra",
+            "isPilot": false
+        },
+        {
+            "id": "m2-11",
+            "number": 11,
+            "statement": "En un laboratorio se estudiaron dos cultivos de bacterias, para los cuales se registraron los siguientes datos: Cantidad inicial de bacterias Minutos que tardan en duplicarse Cultivo A 100 10 Cultivo B 200 20 ¿Cuántas bacterias en total tendrán los dos cultivos transcurridos 40 minutos desde el inicio del estudio?",
+            "options": [
+                {
+                    "id": "m2-11-a",
+                    "text": "400",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-11-b",
+                    "text": "800",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-11-c",
+                    "text": "2400",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-11-d",
+                    "text": "4800 W",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Álgebra",
+            "isPilot": false
+        },
+        {
+            "id": "m2-12",
+            "number": 12,
+            "statement": "El nivel de intensidad sonora β , en dB, y la intensidad acústica I, en , se m2 relacionan mediante la expresión β = 10 · log(I) + 120, tal que β ≥ 0 . En la siguiente tabla se presentan los niveles máximos permisibles de intensidad sonora en zonas residenciales durante el día según la legislación chilena. De 7:00 a 21:00 De 21:00 a 7:00 55 dB 45 dB ¿Cuál es el máximo permisible de intensidad acústica en zonas residenciales a las 23:00? W",
+            "options": [
+                {
+                    "id": "m2-12-a",
+                    "text": "10−6,5 m2 W",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-12-b",
+                    "text": "10−7,5 m2 W",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-12-c",
+                    "text": "107,5 m2 W",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-12-d",
+                    "text": "1016,5 m2 »",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Álgebra",
+            "isPilot": false
+        },
+        {
+            "id": "m2-13",
+            "number": 13,
+            "statement": "¿Cuál de las siguientes expresiones es igual a n (3n )2 · 6(n2 ) · 4n ? 2",
+            "options": [
+                {
+                    "id": "m2-13-a",
+                    "text": "62n",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-13-b",
+                    "text": "6n+2",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-13-c",
+                    "text": "3n · 6n · 4",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-13-d",
+                    "text": "32 · 62n · 4",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Álgebra",
+            "isPilot": false
+        },
+        {
+            "id": "m2-14",
+            "number": 14,
+            "statement": "En cierto tipo de cuenta de ahorro, una institución financiera ofrece un interés compuesto mensual de 1,5 % al capital que se deposite. Una persona abre una de estas cuentas de ahorro y deposita un capital inicial de $350 000 y lo tiene tres meses sin realizar retiros ni depósitos. ¿Cuál de las siguientes expresiones representa el interés que se produce en ese periodo de tiempo?",
+            "options": [
+                {
+                    "id": "m2-14-a",
+                    "text": "$350 000 · 0,0153",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-14-b",
+                    "text": "$350 000 · 1,153",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-14-c",
+                    "text": "$350 000 · (1,0153 − 1)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-14-d",
+                    "text": "$350 000 · (1,153 − 1)",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Álgebra",
+            "isPilot": false
+        },
+        {
+            "id": "m2-15",
+            "number": 15,
+            "statement": "¿Cuál de las siguientes expresiones es igual a (3a + 5b)(5b − 3a) − (5b − 3a)2 ?",
+            "options": [
+                {
+                    "id": "m2-15-a",
+                    "text": "−30ab",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-15-b",
+                    "text": "6a (5b − 3a)",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-15-c",
+                    "text": "10b (3a − 5b)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-15-d",
+                    "text": "2 (9a2 − 25b2 − 15ab)",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Funciones",
+            "isPilot": false
+        },
+        {
+            "id": "m2-16",
+            "number": 16,
+            "statement": "Una persona compró un marco de p cm de largo para colocar una foto cuyos lados están en razón 16 : 9 y que aún no imprime. Debe dejarle un paspartú de tres centímetros, el cual corresponde a un espacio en blanco entre el marco y la foto, tal como se representa en la siguiente figura: Para imprimir la foto del tamaño correcto y sin perder su proporción, le piden la medida de la diagonal que tiene que tener la foto en pulgadas. Si una pulgada es equivalente a 2,54 centímetros, ¿cuál de las siguientes expresiones representa la medida de la diagonal que tiene que entregar, en pulgadas? … 337",
+            "options": [
+                {
+                    "id": "m2-16-a",
+                    "text": "p· 256 … 337",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-16-b",
+                    "text": "2,54 · (p − 6) · 256 … 337 (p − 6) ·",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-16-c",
+                    "text": "256 2,54 … 337 p·",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-16-d",
+                    "text": "256 2,54",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Funciones",
+            "isPilot": false
+        },
+        {
+            "id": "m2-17",
+            "number": 17,
+            "statement": "En la siguiente figura se representa la gráfica de una relación de proporcionalidad inversa y la gráfica de una relación de proporcionalidad directa. m ¿Cuál de las siguientes expresiones es igual a , en términos de b y q? c q",
+            "options": [
+                {
+                    "id": "m2-17-a",
+                    "text": "b q2",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-17-b",
+                    "text": "b2 b",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-17-c",
+                    "text": "q b",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-17-d",
+                    "text": "q2",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Funciones",
+            "isPilot": false
+        },
+        {
+            "id": "m2-18",
+            "number": 18,
+            "statement": "El volumen y la presión de un gas se comportan de manera inversamente proporcional cuando la temperatura es constante. En el siguiente gráfico se presentan algunos valores del comportamiento de un gas en particular. Si se considera que el gas tiene una presión de p atmósferas, ¿cuál de las siguientes expresiones representa la variación absoluta en el volumen del gas, en litros, cuando la presión disminuye en dos atmósferas? 20",
+            "options": [
+                {
+                    "id": "m2-18-a",
+                    "text": "−2 p",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-18-b",
+                    "text": "2 20",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-18-c",
+                    "text": "p−2 40",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-18-d",
+                    "text": "p(p − 2)",
+                    "isCorrect": true
+                }
+            ],
+            "eje": "Funciones",
+            "isPilot": false
+        },
+        {
+            "id": "m2-19",
+            "number": 19,
+            "statement": "La densidad ρ de un cuerpo, en gramos por centímetro cúbico, se calcula como m ρ= , tal que m es la masa del cuerpo, en gramos, y V es su volumen, V en centímetros cúbicos. g Considera dos esferas macizas, una de plata de densidad ρplata = 10,5 y la g cm3 otra de piedra de alabastro de densidad ρalabastro = 2,7 . cm3 Si ambas esferas tienen un volumen de 81 cm3 , ¿cuál es la diferencia positiva de sus masas?",
+            "options": [
+                {
+                    "id": "m2-19-a",
+                    "text": "1069,2 g",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-19-b",
+                    "text": "850,5 g",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-19-c",
+                    "text": "631,8 g",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-19-d",
+                    "text": "218,7 g 1",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Funciones",
+            "isPilot": false
+        },
+        {
+            "id": "m2-21",
+            "number": 21,
+            "statement": "El costo de producción de un artículo es de $14 000 por unidad, además de un costo fijo de $260 000. Si se venden todos los artículos producidos a $25 000 cada uno, ¿cuál de las siguientes inecuaciones permite determinar el intervalo de las cantidades x de artículos que se deben producir para obtener una ganancia de al menos $3 000 000?",
+            "options": [
+                {
+                    "id": "m2-21-a",
+                    "text": "25 000x − 14 000x ≤ 3 000 000 − 260 000",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-21-b",
+                    "text": "25 000x − 14 000x ≤ 3 000 000 + 260 000",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-21-c",
+                    "text": "25 000x − 14 000x ≥ 3 000 000 − 260 000",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-21-d",
+                    "text": "25 000x − 14 000x ≥ 3 000 000 + 260 000 2 r x 5",
+                    "isCorrect": true
+                }
+            ],
+            "eje": "Funciones",
+            "isPilot": false
+        },
+        {
+            "id": "m2-22",
+            "number": 22,
+            "statement": "Considera la inecuación x + < − , en x, tal que su conjunto solución es 3 4 6 12 1 ò ï −∞, − y r es un número real. 3 ¿Cuál es el valor de r?",
+            "options": [
+                {
+                    "id": "m2-22-a",
+                    "text": "1 2",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-22-b",
+                    "text": "3 1",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-22-c",
+                    "text": "− 2",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-22-d",
+                    "text": "−1",
+                    "isCorrect": true
+                }
+            ],
+            "eje": "Funciones",
+            "isPilot": false
+        },
+        {
+            "id": "m2-23",
+            "number": 23,
+            "statement": "Para medir la temperatura se utilizan comúnmente las escalas Celsius, Fahrenheit y Kelvin. Considera que la relación entre grados Celsius (c) y grados Fahrenheit (f) está dada 5 por la ecuación c = · (f − 32). 9 Para transformar de grados Celsius a Kelvin (k) hay que sumar 273,15 a la magnitud en grados Celsius. ¿Cuál de las siguientes ecuaciones relaciona correctamente la temperatura en Kelvin con la temperatura en grados Fahrenheit? 9",
+            "options": [
+                {
+                    "id": "m2-23-a",
+                    "text": "f= · (k + 273,15) + 32 5 9",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-23-b",
+                    "text": "f= · (k − 273,15) + 32 5 9",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-23-c",
+                    "text": "f= · k + 273,15 + 32 5 9",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-23-d",
+                    "text": "f= · k − 273,15 + 32 5",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Funciones",
+            "isPilot": false
+        },
+        {
+            "id": "m2-24",
+            "number": 24,
+            "statement": "Una persona viajó en vehículo a la playa recorriendo dos tramos de igual longitud. km El primer tramo lo recorrió con una rapidez media de 120 y el segundo tramo, h km con una rapidez media de 80 , recorriendo ambos tramos en un total de 6 horas. h ¿Cuánto tiempo más demoró en recorrer el segundo tramo en comparación con el primero?",
+            "options": [
+                {
+                    "id": "m2-24-a",
+                    "text": "2 h 50 min",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-24-b",
+                    "text": "2 h 30 min",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-24-c",
+                    "text": "1 h 20 min",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-24-d",
+                    "text": "1 h 12 min",
+                    "isCorrect": true
+                }
+            ],
+            "eje": "Funciones",
+            "isPilot": false
+        },
+        {
+            "id": "m2-25",
+            "number": 25,
+            "statement": "Una persona tiene 50 monedas, algunas de $500 y otras de $100, tal que todas juntas masan 375 g. Para determinar cuánto dinero tiene, establece lo siguiente: Esta persona añade cinco monedas de $500 a lo que ya tenía, y plantea un nuevo sistema de ecuaciones, en el que x e y reflejan la cantidad actual de monedas de cada tipo que tiene. ¿Cuál de los siguientes sistemas permite determinar los valores de x e y actualizados?",
+            "options": [
+                {
+                    "id": "m2-25-a",
+                    "text": "(x + 5) + y = 50 6,5x + 9y = 375 + 5 · 6,5",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-25-b",
+                    "text": "x + (y + 5) = 50 6,5x + 9y = 375 + 5 · 9",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-25-c",
+                    "text": "x + y = 50 + 5 6,5x + 9y = 375 + 5 · 6,5",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-25-d",
+                    "text": "x + y = 50 + 5 6,5x + 9y = 375 + 5 · 9",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Funciones",
+            "isPilot": false
+        },
+        {
+            "id": "m2-26",
+            "number": 26,
+            "statement": "En una panadería, el precio de venta del kilogramo de pan es de $p, el cual se calcula para obtener un 25 % de ganancia sobre el costo de producción. Si el costo de producción aumenta en $q y se quiere seguir obteniendo un 25 % de ganancia sobre este, ¿cuál de las siguientes funciones modela el nuevo precio de venta de x kilogramos de pan?",
+            "options": [
+                {
+                    "id": "m2-26-a",
+                    "text": "h(x) = (p + 1,25q) · x",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-26-b",
+                    "text": "g(x) = (p + q) · 1,25x",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-26-c",
+                    "text": "p(x) = (0,75p + q) · x",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-26-d",
+                    "text": "m(x) = (0,25p + q) · x",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Funciones",
+            "isPilot": false
+        },
+        {
+            "id": "m2-27",
+            "number": 27,
+            "statement": "Considera la función f definida por f(x) = ax2 + bx + c, tal que a, b y c son números reales distintos de cero. ¿Cuál de las siguientes funciones representa la gráfica de la función f reflejada con respecto al eje X?",
+            "options": [
+                {
+                    "id": "m2-27-a",
+                    "text": "p(x) = −ax2 + bx + c",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-27-b",
+                    "text": "q(x) = −ax2 − bx − c",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-27-c",
+                    "text": "s(x) = −ax2 + bx − c",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-27-d",
+                    "text": "t(x) = ax2 − bx + c",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Funciones",
+            "isPilot": true
+        },
+        {
+            "id": "m2-28",
+            "number": 28,
+            "statement": "Considera la gráfica de la función cuadrática f , con dominio el conjunto de los números reales, de la forma f(x) = ax2 + bx + c. ¿Cuál de las siguientes expresiones es igual a b?",
+            "options": [
+                {
+                    "id": "m2-28-a",
+                    "text": "−3a 3",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-28-b",
+                    "text": "− a 2 3",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-28-c",
+                    "text": "a 2",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-28-d",
+                    "text": "3a 9",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Funciones",
+            "isPilot": false
+        },
+        {
+            "id": "m2-30",
+            "number": 30,
+            "statement": "En las especificaciones de un cohete en miniatura, se registra una función que modela la altura que alcanzaría el cohete desde su lanzamiento hasta que toca el suelo. La función registrada es h(x) = −5x2 + 80x, tal que h representa la altura, en metros, con respecto al tiempo x transcurrido desde que fue lanzado el cohete, en segundos. ¿Cuál es la altura máxima que alcanzaría este cohete?",
+            "options": [
+                {
+                    "id": "m2-30-a",
+                    "text": "320 metros",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-30-b",
+                    "text": "560 metros",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-30-c",
+                    "text": "700 metros",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-30-d",
+                    "text": "960 metros",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Geometría analítica",
+            "isPilot": false
+        },
+        {
+            "id": "m2-31",
+            "number": 31,
+            "statement": "Considera la función f , con dominio el conjunto de los números reales, definida por f(x) = x2 − bx + c. La gráfica de f pasa por los puntos (−p, 0) y (2p, 0), con p > 0. ¿En qué cuadrante se encuentra el vértice de la parábola?",
+            "options": [
+                {
+                    "id": "m2-31-a",
+                    "text": "En el primer cuadrante",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-31-b",
+                    "text": "En el segundo cuadrante",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-31-c",
+                    "text": "En el tercer cuadrante",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-31-d",
+                    "text": "En el cuarto cuadrante W",
+                    "isCorrect": true
+                }
+            ],
+            "eje": "Geometría analítica",
+            "isPilot": false
+        },
+        {
+            "id": "m2-32",
+            "number": 32,
+            "statement": "La radiación emitida por un cuerpo negro, en 2 , se puede calcular como σ · T4 , m tal que T es su temperatura en Kelvin (K) y σ es una constante. W Un cuerpo negro que emite una radiación de 5,678 tiene una temperatura m2 de 100 K. ¿Cuál es la radiación de un cuerpo negro que tiene una temperatura de 200 K? W",
+            "options": [
+                {
+                    "id": "m2-32-a",
+                    "text": "11,356 m2 W",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-32-b",
+                    "text": "34,068 m2 W",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-32-c",
+                    "text": "45,424 m2 W",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-32-d",
+                    "text": "90,848 m2",
+                    "isCorrect": true
+                }
+            ],
+            "eje": "Geometría analítica",
+            "isPilot": false
+        },
+        {
+            "id": "m2-33",
+            "number": 33,
+            "statement": "Considera el triángulo rectángulo ABC de la figura adjunta, al que se le ha trazado su altura CD. Para calcular la medida de CD, se realiza el siguiente procedimiento, en el cual se comete un error. √ Paso 1: se calcula la medida de AB como 32 + 42 y se obtiene que mide 5 cm. Paso 2: se aplica el teorema de Pitágoras en los triángulos ADC y CDB y se obtienen las igualdades 42 + AD2 = CD2 y 32 + (5 − AD)2 = CD2 , respectivamente. Paso 3: se igualan las ecuaciones obtenidas en el Paso 2 y, al resolver la ecuación 9 42 + AD2 = 32 + (5 − AD)2 , se obtiene que AD = cm. 5 Paso 4: se reemplaza el valor de AD en la igualdad 42 + AD2 = CD2 y, al √ 481 despejar, se obtiene que CD = cm. 5 ¿En cuál de los pasos se cometió el error?",
+            "options": [
+                {
+                    "id": "m2-33-a",
+                    "text": "En el Paso 1",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-33-b",
+                    "text": "En el Paso 2",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-33-c",
+                    "text": "En el Paso 3",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-33-d",
+                    "text": "En el Paso 4",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Geometría analítica",
+            "isPilot": false
+        },
+        {
+            "id": "m2-34",
+            "number": 34,
+            "statement": "Sobre un cuadrado de lado L cm y centro O, se dibuja otro cuadrado de centro O, a cuyo lado es del lado del cuadrado anterior, con a y b números enteros positivos. b Luego, se pinta de color gris la superficie delimitada por los contornos de estos dos cuadrados, tal como se representa a continuación: a Luego, sobre esta figura, se dibuja otro cuadrado de centro O cuyo lado es del lado b del último cuadrado dibujado y se pinta la superficie delimitada por los contornos de estos cuadrados, tal como se representa a continuación: Si se repite cinco veces el proceso de pintar la superficie delimitada entre los cuadrados, ¿cuál es el área, en cm2 , de la última superficie pintada? a \u0010 a \u00115 ã Å\u0010 \u00114",
+            "options": [
+                {
+                    "id": "m2-34-a",
+                    "text": "L2 − b b a \u0010 a \u00114 ã Å\u0010 \u00115 2",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-34-b",
+                    "text": "L − b b a \u0010 a \u00118 ã Å\u0010 \u001110",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-34-c",
+                    "text": "L2 − b b a \u0010 a \u001110 ã Å\u0010 \u00118 2",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-34-d",
+                    "text": "L − b b",
+                    "isCorrect": true
+                }
+            ],
+            "eje": "Geometría analítica",
+            "isPilot": true
+        },
+        {
+            "id": "m2-35",
+            "number": 35,
+            "statement": "Julieta compró un espejo con forma de hexágono regular, el cual está inscrito en una base circular de madera de 40 cm de diámetro, tal como se representa en la siguiente figura. Para que el espejo combine con la decoración de su baño, cubrirá las partes visibles de la base de madera con un mosaico de cerámicas. ¿Cuál es el área de la base de madera que debe cubrir Julieta con el mosaico de cerámicas, en cm2 ? √",
+            "options": [
+                {
+                    "id": "m2-35-a",
+                    "text": "400π − 600 3 √",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-35-b",
+                    "text": "400π − 100 3 √",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-35-c",
+                    "text": "1600π − 1200 3 √",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-35-d",
+                    "text": "1600π − 600 3 a",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Geometría analítica",
+            "isPilot": false
+        },
+        {
+            "id": "m2-37",
+            "number": 37,
+            "statement": "En el gráfico de la figura adjunta se representan los vectores u , v y w. →Ä→ →ä ¿Cuáles son las coordenadas del vector v − u +2 w ?",
+            "options": [
+                {
+                    "id": "m2-37-a",
+                    "text": "(−6, 1)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-37-b",
+                    "text": "(0, 5)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-37-c",
+                    "text": "(0, −1)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-37-d",
+                    "text": "(0, 7)",
+                    "isCorrect": true
+                }
+            ],
+            "eje": "Geometría analítica",
+            "isPilot": false
+        },
+        {
+            "id": "m2-39",
+            "number": 39,
+            "statement": "Se dibuja un triángulo en el primer cuadrante del plano cartesiano. p Si a este triángulo se le aplica una homotecia de razón − con centro en el origen del 2 plano cartesiano, ¿cuál de las siguientes afirmaciones se puede deducir en relación con el triángulo homotético?",
+            "options": [
+                {
+                    "id": "m2-39-a",
+                    "text": "Cuando p = 4, su perímetro es el doble del perímetro del original.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-39-b",
+                    "text": "Cuando p = 2, su área es mayor que el área del original.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-39-c",
+                    "text": "Cuando p < 0, su perímetro es menor que el perímetro del original.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-39-d",
+                    "text": "Cuando p > 0, se ubica en el primer cuadrante.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Geometría analítica",
+            "isPilot": false
+        },
+        {
+            "id": "m2-41",
+            "number": 41,
+            "statement": "Un cuadrado de lado L ubicado sobre los ejes del plano cartesiano se rota en sentido horario en torno a uno de sus vértices, tal como se representa en la siguiente figura: ¿Cuál es la coordenada x del punto P luego de la rotación?",
+            "options": [
+                {
+                    "id": "m2-41-a",
+                    "text": "L · cos(θ)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-41-b",
+                    "text": "L · sen(θ)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-41-c",
+                    "text": "L − L · cos(θ)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-41-d",
+                    "text": "L − L · sen(θ)",
+                    "isCorrect": true
+                }
+            ],
+            "eje": "Geometría analítica",
+            "isPilot": false
+        },
+        {
+            "id": "m2-42",
+            "number": 42,
+            "statement": "Cuando un rayo de luz pasa de un medio a otro, el ángulo de incidencia θ1 en el primer medio y el ángulo de refracción θ2 con el que entra al otro medio son distintos. Este cambio de ángulo depende de los índices de refracción (n1 y n2 ) de ambos medios, y está dado por la ecuación n1 · sen(θ1 ) = n2 · sen(θ2 ). La siguiente figura representa esta situación: Considera un rayo que pasa de un medio de índice de refracción m a otro de índice de refracción p, tal que la medida del ángulo de incidencia es el doble de la medida del ángulo de refracción. Si para todo ángulo α se cumple que sen(2α) = 2 · sen(α) · cos(α), ¿cuál de las siguientes expresiones representa al coseno del ángulo de refracción? 2p",
+            "options": [
+                {
+                    "id": "m2-42-a",
+                    "text": "m 2m",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-42-b",
+                    "text": "p m",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-42-c",
+                    "text": "2p p",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-42-d",
+                    "text": "2m",
+                    "isCorrect": true
+                }
+            ],
+            "eje": "Geometría analítica",
+            "isPilot": false
+        },
+        {
+            "id": "m2-44",
+            "number": 44,
+            "statement": "Una prueba tiene un puntaje máximo de 60 puntos. La calificación, en términos del puntaje P obtenido, se calcula mediante las siguientes expresiones: P − 36 • Para puntajes menores o iguales que 36 puntos: +4 12 P − 60 • Para puntajes mayores que 36 puntos: +7 8 Considera que los estudiantes de un curso que obtuvieron la menor y mayor calificación en la prueba lograron un 40 % y un 80 % del puntaje máximo, respectivamente. ¿Cuál es la diferencia entre la calificación mayor y la calificación menor de los estudiantes de este curso?",
+            "options": [
+                {
+                    "id": "m2-44-a",
+                    "text": "2,0",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-44-b",
+                    "text": "2,5",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-44-c",
+                    "text": "3,0",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-44-d",
+                    "text": "4,5",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Probabilidad y estadística",
+            "isPilot": false
+        },
+        {
+            "id": "m2-45",
+            "number": 45,
+            "statement": "En la siguiente figura se presentan los diagramas de cajón de una característica para tres grupos de datos, A, B y C. ¿Cuál de los siguientes argumentos justifica que el rango intercuartílico de los datos del grupo C es menor que el rango intercuartílico de los datos del grupo A y que el rango intercuartílico de los datos del grupo B?",
+            "options": [
+                {
+                    "id": "m2-45-a",
+                    "text": "Que la diferencia entre el valor máximo y mínimo de C es menor que la diferencia entre el valor máximo y mínimo de A y de B.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-45-b",
+                    "text": "Que el cuartil 1 es el mismo para los tres grupos de datos y el cuartil 3 de C es menor que el cuartil 3 de A y de B.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-45-c",
+                    "text": "Que la diferencia entre el percentil 75 y el valor máximo de C es menor que la de A y de B.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-45-d",
+                    "text": "Que el cuartil 3 de C es menor que el cuartil 3 de A y de B y el cuartil 2 es el mismo para los tres grupos de datos.",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Probabilidad y estadística",
+            "isPilot": false
+        },
+        {
+            "id": "m2-46",
+            "number": 46,
+            "statement": "Considera los datos 4, 8, 5, p y q, cuyo promedio es 5. ¿Cuál de las siguientes condiciones permite asegurar que su desviación estándar es menor que 5?",
+            "options": [
+                {
+                    "id": "m2-46-a",
+                    "text": "p=q",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-46-b",
+                    "text": "pq < 100",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-46-c",
+                    "text": "p+q=8",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-46-d",
+                    "text": "p<8−q",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Probabilidad y estadística",
+            "isPilot": false
+        },
+        {
+            "id": "m2-47",
+            "number": 47,
+            "statement": "Se dibujaron varias figuras siguiendo una secuencia de puntos, tal como se representa en la siguiente imagen: Si se dibujaron 1000 figuras siguiendo esta secuencia y se selecciona una de ellas al azar, ¿cuál es la probabilidad de que esta tenga dibujados al menos 32 puntos? 30",
+            "options": [
+                {
+                    "id": "m2-47-a",
+                    "text": "1000 31",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-47-b",
+                    "text": "1000 969",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-47-c",
+                    "text": "1000 970",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-47-d",
+                    "text": "1000",
+                    "isCorrect": true
+                }
+            ],
+            "eje": "Probabilidad y estadística",
+            "isPilot": false
+        },
+        {
+            "id": "m2-49",
+            "number": 49,
+            "statement": "En un juego de lotería cada cartón tiene tres números del 1 al 99, los cuales no se repiten. Este juego se gana si los tres números que se sortean coinciden con los números del cartón. Una persona compró un cartón que tiene los siguientes números: Si los números ganadores se eligen al azar, no se repiten y no importa el orden en que estos se saquen, ¿cuál es la probabilidad de que la persona gane? 1",
+            "options": [
+                {
+                    "id": "m2-49-a",
+                    "text": "993 1",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-49-b",
+                    "text": "99 · 98 · 97 3",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-49-c",
+                    "text": "99 · 98 · 97 6",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-49-d",
+                    "text": "99 · 98 · 97",
+                    "isCorrect": true
+                }
+            ],
+            "eje": "Probabilidad y estadística",
+            "isPilot": false
+        },
+        {
+            "id": "m2-51",
+            "number": 51,
+            "statement": "En un grupo de 100 hombres y 100 mujeres, cada uno de ellos tiene un piercing o tatuajes, pero no ambos. De los hombres, 25 indican tener piercing y el resto tener tatuajes; de las mujeres, 35 indican tener piercing y el resto declara tener tatuajes. Si se selecciona al azar a una persona de las entrevistadas, ¿cuál es la probabilidad de que esta persona sea hombre dado que tiene tatuajes? 75",
+            "options": [
+                {
+                    "id": "m2-51-a",
+                    "text": "200 75",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-51-b",
+                    "text": "140 100",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-51-c",
+                    "text": "140 75",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-51-d",
+                    "text": "100 b",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Probabilidad y estadística",
+            "isPilot": false
+        },
+        {
+            "id": "m2-52",
+            "number": 52,
+            "statement": "Considera la igualdad z = log a 5 + log . b a Se puede determinar el valor de z, si se conoce el valor de: (1) ab a (2) b",
+            "options": [
+                {
+                    "id": "m2-52-a",
+                    "text": "(1) por sí sola",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-52-b",
+                    "text": "(2) por sí sola",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-52-c",
+                    "text": "Ambas juntas, (1) y (2)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-52-d",
+                    "text": "Cada una por sí sola, (1) ó (2) E) Se requiere información adicional",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Probabilidad y estadística",
+            "isPilot": false
+        },
+        {
+            "id": "m2-53",
+            "number": 53,
+            "statement": "Considera los números reales x e y, con x ̸= y y x ̸= −y. \u00012 x2 − y2 Se puede determinar el número que representa la expresión , si se (x + y)2 sabe que: (1) x − y = 10 (2) x+y=6",
+            "options": [
+                {
+                    "id": "m2-53-a",
+                    "text": "(1) por sí sola",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-53-b",
+                    "text": "(2) por sí sola",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-53-c",
+                    "text": "Ambas juntas, (1) y (2)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-53-d",
+                    "text": "Cada una por sí sola, (1) ó (2) E) Se requiere información adicional",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Probabilidad y estadística",
+            "isPilot": false
+        },
+        {
+            "id": "m2-54",
+            "number": 54,
+            "statement": "Una persona forrará por completo un cofre utilizando un tipo de tela llamada arpillera. El cofre tiene la forma de un prisma recto de base cuadrada y su tapa tiene la forma de la mitad de un cilindro, tal como se representa a continuación: Considera que la arpillera tiene un costo de $3500 por metro cuadrado. Se puede determinar cuánto le costará forrar el cofre, si se conoce: (1) la medida del radio del cilindro. (2) la medida del ancho, alto y largo del cofre.",
+            "options": [
+                {
+                    "id": "m2-54-a",
+                    "text": "(1) por sí sola",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-54-b",
+                    "text": "(2) por sí sola",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-54-c",
+                    "text": "Ambas juntas, (1) y (2)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-54-d",
+                    "text": "Cada una por sí sola, (1) ó (2) E) Se requiere información adicional",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Probabilidad y estadística",
+            "isPilot": true
+        },
+        {
+            "id": "m2-55",
+            "number": 55,
+            "statement": "En una urna se tienen 5 bolitas entre bolitas azules y rojas, todas del mismo tipo. Al extraer dos bolitas sin reposición, se puede determinar la probabilidad de que la segunda sea azul dado que la primera fue roja, si: (1) al sacar cinco bolitas con reposición se conoce la probabilidad de que todas sean azules. (2) al sacar dos bolitas sin reposición se conoce la probabilidad de que una sea azul y la otra sea roja.",
+            "options": [
+                {
+                    "id": "m2-55-a",
+                    "text": "(1) por sí sola",
+                    "isCorrect": true
+                },
+                {
+                    "id": "m2-55-b",
+                    "text": "(2) por sí sola",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-55-c",
+                    "text": "Ambas juntas, (1) y (2)",
+                    "isCorrect": false
+                },
+                {
+                    "id": "m2-55-d",
+                    "text": "Cada una por sí sola, (1) ó (2) E) Se requiere información adicional IMPORTANTE ■ Este folleto está protegido bajo Registro de Propiedad Intelectual de la Universidad de Chile. ■ Está prohibida la reproducción, transmisión total o parcial de este folleto, por cualquier medio o método. ■ Es obligatorio devolver íntegramente este folleto antes de abandonar la sala. ■ Es obligatorio devolver la hoja de respuestas antes de abandonar la sala. Proceso de Admisión 2 0 2 6",
+                    "isCorrect": false
+                }
+            ],
+            "eje": "Probabilidad y estadística",
+            "isPilot": true
         }
-      ],
-      "eje": "Álgebra",
-      "isPilot": false
-    },
-    {
-      "id": "m2-02",
-      "number": 2,
-      "statement": "Se desea pintar el interior de una vivienda, de la cual se deben cubrir 130 m2 con dos capas de pintura. Para esto se comprarán galones de pintura que tienen un rendimiento entre 35 m2 y 45 m2 y un precio unitario de $29 200. Si se decide comprar la mínima cantidad de galones que asegure que no faltará pintura, ¿cuánto dinero se gastará?",
-      "options": [
-        {
-          "id": "m2-02-a",
-          "text": "$146 000",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-02-b",
-          "text": "$175 200",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-02-c",
-          "text": "$204 400",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-02-d",
-          "text": "$233 600",
-          "isCorrect": true
-        }
-      ],
-      "eje": "Álgebra",
-      "isPilot": false
-    },
-    {
-      "id": "m2-04",
-      "number": 4,
-      "statement": "Si el 25 % de M es N, ¿qué porcentaje de N es M?",
-      "options": [
-        {
-          "id": "m2-04-a",
-          "text": "4%",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-04-b",
-          "text": "25 %",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-04-c",
-          "text": "75 %",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-04-d",
-          "text": "400 %",
-          "isCorrect": true
-        }
-      ],
-      "eje": "Álgebra",
-      "isPilot": false
-    },
-    {
-      "id": "m2-05",
-      "number": 5,
-      "statement": "Considera que 1200 se aumenta en su 15 % y el número que se obtiene se disminuye en su 5 %. ¿Cuál de las siguientes expresiones representa el número final que se obtiene?",
-      "options": [
-        {
-          "id": "m2-05-a",
-          "text": "1200 · 1,15 · 0,95",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-05-b",
-          "text": "1200 · 0,15 · 0,05",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-05-c",
-          "text": "1200 · 1,15 − 1200 · 0,95",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-05-d",
-          "text": "1200 · 0,15 − 1200 · 0,05",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Álgebra",
-      "isPilot": false
-    },
-    {
-      "id": "m2-06",
-      "number": 6,
-      "statement": "Para medir la popularidad de un artista en redes sociales, se analizó la cantidad de búsquedas diarias que tuvo durante tres días seguidos. Se detectó que el artista descendió un 4 % cada día respecto al día anterior, presentando 276 480 búsquedas el último día. ¿Cuál es la cantidad de búsquedas que se realizaron de este artista el primer día? 276 480",
-      "options": [
-        {
-          "id": "m2-06-a",
-          "text": "0,962 276 480",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-06-b",
-          "text": "0,042",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-06-c",
-          "text": "276 480 · 0,962",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-06-d",
-          "text": "276 480 · 0,042",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Álgebra",
-      "isPilot": false
-    },
-    {
-      "id": "m2-07",
-      "number": 7,
-      "statement": "Al terminar cada día trabajado en una obra de construcción, se calcula el porcentaje de la obra que queda por realizar, usando la siguiente expresión: 100 · (1 − k) % ¿Qué representa k en esta expresión?",
-      "options": [
-        {
-          "id": "m2-07-a",
-          "text": "El porcentaje de avance de la obra durante el último día trabajado, escrito en decimal.",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-07-b",
-          "text": "El porcentaje de avance de la obra hasta el último día trabajado, escrito en decimal.",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-07-c",
-          "text": "El porcentaje de avance de la obra de cada uno de los días de trabajo, escrito en decimal.",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-07-d",
-          "text": "El porcentaje que queda por realizar de la obra al término del último día de trabajo, escrito en decimal.",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Álgebra",
-      "isPilot": false
-    },
-    {
-      "id": "m2-08",
-      "number": 8,
-      "statement": "En la tabla adjunta se presenta la masa de dos partículas. Partícula Masa Protón 1,67 · 10−27 kg Electrón 9,11 · 10−31 kg ¿Cuál es la diferencia positiva entre las masas de las partículas?",
-      "options": [
-        {
-          "id": "m2-08-a",
-          "text": "(9,11 − 1,67) · 10−58 kg",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-08-b",
-          "text": "(9,11 − 1,67) · 10−4 kg 1,67 − 9,11 · 10−4 · 10−27 kg \u0001",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-08-c",
-          "text": "1,67 − 9,11 · 10−4 · 10−31 kg \u0001",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-08-d",
-          "text": "√ √ Ä√ ä3",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Álgebra",
-      "isPilot": false
-    },
-    {
-      "id": "m2-09",
-      "number": 9,
-      "statement": "Para expresar 8 · 3 16 − 2 como la multiplicación de dos números, se realiza el siguiente procedimiento, en el cual se comete un error. Ä√ ä3 √ Paso 1: se resuelve la potencia 2 , obteniéndose 2 2. Ä√ ä √ √ Paso 2: se realiza la multiplicación de raíces 8 · 3 16, obteniéndose 6 128. √ 6 √ Paso 3: se descompone y reduce la raíz 128, obteniéndose 2 6 2. √ 6 √ Ä√ 6 √ ä Paso 4: se factoriza la resta 2 2 − 2 2, obteniéndose 2 2− 2 . ¿En cuál de los pasos se cometió el error?",
-      "options": [
-        {
-          "id": "m2-09-a",
-          "text": "En el Paso 1",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-09-b",
-          "text": "En el Paso 2",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-09-c",
-          "text": "En el Paso 3",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-09-d",
-          "text": "En el Paso 4",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Álgebra",
-      "isPilot": false
-    },
-    {
-      "id": "m2-10",
-      "number": 10,
-      "statement": "Si log 2 ≈ 0,30 y log 3 ≈ 0,48, ¿cuál de las siguientes expresiones corresponde a una aproximación de log2 15?",
-      "options": [
-        {
-          "id": "m2-10-a",
-          "text": "0,70 + 0,48 4,8 + 0,30",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-10-b",
-          "text": "0,30 1 + 0,48",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-10-c",
-          "text": "2 · 0,30 0,70 + 0,48",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-10-d",
-          "text": "0,30",
-          "isCorrect": true
-        }
-      ],
-      "eje": "Álgebra",
-      "isPilot": false
-    },
-    {
-      "id": "m2-11",
-      "number": 11,
-      "statement": "En un laboratorio se estudiaron dos cultivos de bacterias, para los cuales se registraron los siguientes datos: Cantidad inicial de bacterias Minutos que tardan en duplicarse Cultivo A 100 10 Cultivo B 200 20 ¿Cuántas bacterias en total tendrán los dos cultivos transcurridos 40 minutos desde el inicio del estudio?",
-      "options": [
-        {
-          "id": "m2-11-a",
-          "text": "400",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-11-b",
-          "text": "800",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-11-c",
-          "text": "2400",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-11-d",
-          "text": "4800 W",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Álgebra",
-      "isPilot": false
-    },
-    {
-      "id": "m2-12",
-      "number": 12,
-      "statement": "El nivel de intensidad sonora β , en dB, y la intensidad acústica I, en , se m2 relacionan mediante la expresión β = 10 · log(I) + 120, tal que β ≥ 0 . En la siguiente tabla se presentan los niveles máximos permisibles de intensidad sonora en zonas residenciales durante el día según la legislación chilena. De 7:00 a 21:00 De 21:00 a 7:00 55 dB 45 dB ¿Cuál es el máximo permisible de intensidad acústica en zonas residenciales a las 23:00? W",
-      "options": [
-        {
-          "id": "m2-12-a",
-          "text": "10−6,5 m2 W",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-12-b",
-          "text": "10−7,5 m2 W",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-12-c",
-          "text": "107,5 m2 W",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-12-d",
-          "text": "1016,5 m2 »",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Álgebra",
-      "isPilot": false
-    },
-    {
-      "id": "m2-13",
-      "number": 13,
-      "statement": "¿Cuál de las siguientes expresiones es igual a n (3n )2 · 6(n2 ) · 4n ? 2",
-      "options": [
-        {
-          "id": "m2-13-a",
-          "text": "62n",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-13-b",
-          "text": "6n+2",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-13-c",
-          "text": "3n · 6n · 4",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-13-d",
-          "text": "32 · 62n · 4",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Álgebra",
-      "isPilot": false
-    },
-    {
-      "id": "m2-14",
-      "number": 14,
-      "statement": "En cierto tipo de cuenta de ahorro, una institución financiera ofrece un interés compuesto mensual de 1,5 % al capital que se deposite. Una persona abre una de estas cuentas de ahorro y deposita un capital inicial de $350 000 y lo tiene tres meses sin realizar retiros ni depósitos. ¿Cuál de las siguientes expresiones representa el interés que se produce en ese periodo de tiempo?",
-      "options": [
-        {
-          "id": "m2-14-a",
-          "text": "$350 000 · 0,0153",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-14-b",
-          "text": "$350 000 · 1,153",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-14-c",
-          "text": "$350 000 · (1,0153 − 1)",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-14-d",
-          "text": "$350 000 · (1,153 − 1)",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Álgebra",
-      "isPilot": false
-    },
-    {
-      "id": "m2-15",
-      "number": 15,
-      "statement": "¿Cuál de las siguientes expresiones es igual a (3a + 5b)(5b − 3a) − (5b − 3a)2 ?",
-      "options": [
-        {
-          "id": "m2-15-a",
-          "text": "−30ab",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-15-b",
-          "text": "6a (5b − 3a)",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-15-c",
-          "text": "10b (3a − 5b)",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-15-d",
-          "text": "2 (9a2 − 25b2 − 15ab)",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Funciones",
-      "isPilot": false
-    },
-    {
-      "id": "m2-16",
-      "number": 16,
-      "statement": "Una persona compró un marco de p cm de largo para colocar una foto cuyos lados están en razón 16 : 9 y que aún no imprime. Debe dejarle un paspartú de tres centímetros, el cual corresponde a un espacio en blanco entre el marco y la foto, tal como se representa en la siguiente figura: Para imprimir la foto del tamaño correcto y sin perder su proporción, le piden la medida de la diagonal que tiene que tener la foto en pulgadas. Si una pulgada es equivalente a 2,54 centímetros, ¿cuál de las siguientes expresiones representa la medida de la diagonal que tiene que entregar, en pulgadas? … 337",
-      "options": [
-        {
-          "id": "m2-16-a",
-          "text": "p· 256 … 337",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-16-b",
-          "text": "2,54 · (p − 6) · 256 … 337 (p − 6) ·",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-16-c",
-          "text": "256 2,54 … 337 p·",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-16-d",
-          "text": "256 2,54",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Funciones",
-      "isPilot": false
-    },
-    {
-      "id": "m2-17",
-      "number": 17,
-      "statement": "En la siguiente figura se representa la gráfica de una relación de proporcionalidad inversa y la gráfica de una relación de proporcionalidad directa. m ¿Cuál de las siguientes expresiones es igual a , en términos de b y q? c q",
-      "options": [
-        {
-          "id": "m2-17-a",
-          "text": "b q2",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-17-b",
-          "text": "b2 b",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-17-c",
-          "text": "q b",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-17-d",
-          "text": "q2",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Funciones",
-      "isPilot": false
-    },
-    {
-      "id": "m2-18",
-      "number": 18,
-      "statement": "El volumen y la presión de un gas se comportan de manera inversamente proporcional cuando la temperatura es constante. En el siguiente gráfico se presentan algunos valores del comportamiento de un gas en particular. Si se considera que el gas tiene una presión de p atmósferas, ¿cuál de las siguientes expresiones representa la variación absoluta en el volumen del gas, en litros, cuando la presión disminuye en dos atmósferas? 20",
-      "options": [
-        {
-          "id": "m2-18-a",
-          "text": "−2 p",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-18-b",
-          "text": "2 20",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-18-c",
-          "text": "p−2 40",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-18-d",
-          "text": "p(p − 2)",
-          "isCorrect": true
-        }
-      ],
-      "eje": "Funciones",
-      "isPilot": false
-    },
-    {
-      "id": "m2-19",
-      "number": 19,
-      "statement": "La densidad ρ de un cuerpo, en gramos por centímetro cúbico, se calcula como m ρ= , tal que m es la masa del cuerpo, en gramos, y V es su volumen, V en centímetros cúbicos. g Considera dos esferas macizas, una de plata de densidad ρplata = 10,5 y la g cm3 otra de piedra de alabastro de densidad ρalabastro = 2,7 . cm3 Si ambas esferas tienen un volumen de 81 cm3 , ¿cuál es la diferencia positiva de sus masas?",
-      "options": [
-        {
-          "id": "m2-19-a",
-          "text": "1069,2 g",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-19-b",
-          "text": "850,5 g",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-19-c",
-          "text": "631,8 g",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-19-d",
-          "text": "218,7 g 1",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Funciones",
-      "isPilot": false
-    },
-    {
-      "id": "m2-21",
-      "number": 21,
-      "statement": "El costo de producción de un artículo es de $14 000 por unidad, además de un costo fijo de $260 000. Si se venden todos los artículos producidos a $25 000 cada uno, ¿cuál de las siguientes inecuaciones permite determinar el intervalo de las cantidades x de artículos que se deben producir para obtener una ganancia de al menos $3 000 000?",
-      "options": [
-        {
-          "id": "m2-21-a",
-          "text": "25 000x − 14 000x ≤ 3 000 000 − 260 000",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-21-b",
-          "text": "25 000x − 14 000x ≤ 3 000 000 + 260 000",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-21-c",
-          "text": "25 000x − 14 000x ≥ 3 000 000 − 260 000",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-21-d",
-          "text": "25 000x − 14 000x ≥ 3 000 000 + 260 000 2 r x 5",
-          "isCorrect": true
-        }
-      ],
-      "eje": "Funciones",
-      "isPilot": false
-    },
-    {
-      "id": "m2-22",
-      "number": 22,
-      "statement": "Considera la inecuación x + < − , en x, tal que su conjunto solución es 3 4 6 12 1 ò ï −∞, − y r es un número real. 3 ¿Cuál es el valor de r?",
-      "options": [
-        {
-          "id": "m2-22-a",
-          "text": "1 2",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-22-b",
-          "text": "3 1",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-22-c",
-          "text": "− 2",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-22-d",
-          "text": "−1",
-          "isCorrect": true
-        }
-      ],
-      "eje": "Funciones",
-      "isPilot": false
-    },
-    {
-      "id": "m2-23",
-      "number": 23,
-      "statement": "Para medir la temperatura se utilizan comúnmente las escalas Celsius, Fahrenheit y Kelvin. Considera que la relación entre grados Celsius (c) y grados Fahrenheit (f) está dada 5 por la ecuación c = · (f − 32). 9 Para transformar de grados Celsius a Kelvin (k) hay que sumar 273,15 a la magnitud en grados Celsius. ¿Cuál de las siguientes ecuaciones relaciona correctamente la temperatura en Kelvin con la temperatura en grados Fahrenheit? 9",
-      "options": [
-        {
-          "id": "m2-23-a",
-          "text": "f= · (k + 273,15) + 32 5 9",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-23-b",
-          "text": "f= · (k − 273,15) + 32 5 9",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-23-c",
-          "text": "f= · k + 273,15 + 32 5 9",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-23-d",
-          "text": "f= · k − 273,15 + 32 5",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Funciones",
-      "isPilot": false
-    },
-    {
-      "id": "m2-24",
-      "number": 24,
-      "statement": "Una persona viajó en vehículo a la playa recorriendo dos tramos de igual longitud. km El primer tramo lo recorrió con una rapidez media de 120 y el segundo tramo, h km con una rapidez media de 80 , recorriendo ambos tramos en un total de 6 horas. h ¿Cuánto tiempo más demoró en recorrer el segundo tramo en comparación con el primero?",
-      "options": [
-        {
-          "id": "m2-24-a",
-          "text": "2 h 50 min",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-24-b",
-          "text": "2 h 30 min",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-24-c",
-          "text": "1 h 20 min",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-24-d",
-          "text": "1 h 12 min",
-          "isCorrect": true
-        }
-      ],
-      "eje": "Funciones",
-      "isPilot": false
-    },
-    {
-      "id": "m2-25",
-      "number": 25,
-      "statement": "Una persona tiene 50 monedas, algunas de $500 y otras de $100, tal que todas juntas masan 375 g. Para determinar cuánto dinero tiene, establece lo siguiente: Esta persona añade cinco monedas de $500 a lo que ya tenía, y plantea un nuevo sistema de ecuaciones, en el que x e y reflejan la cantidad actual de monedas de cada tipo que tiene. ¿Cuál de los siguientes sistemas permite determinar los valores de x e y actualizados?",
-      "options": [
-        {
-          "id": "m2-25-a",
-          "text": "(x + 5) + y = 50 6,5x + 9y = 375 + 5 · 6,5",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-25-b",
-          "text": "x + (y + 5) = 50 6,5x + 9y = 375 + 5 · 9",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-25-c",
-          "text": "x + y = 50 + 5 6,5x + 9y = 375 + 5 · 6,5",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-25-d",
-          "text": "x + y = 50 + 5 6,5x + 9y = 375 + 5 · 9",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Funciones",
-      "isPilot": false
-    },
-    {
-      "id": "m2-26",
-      "number": 26,
-      "statement": "En una panadería, el precio de venta del kilogramo de pan es de $p, el cual se calcula para obtener un 25 % de ganancia sobre el costo de producción. Si el costo de producción aumenta en $q y se quiere seguir obteniendo un 25 % de ganancia sobre este, ¿cuál de las siguientes funciones modela el nuevo precio de venta de x kilogramos de pan?",
-      "options": [
-        {
-          "id": "m2-26-a",
-          "text": "h(x) = (p + 1,25q) · x",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-26-b",
-          "text": "g(x) = (p + q) · 1,25x",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-26-c",
-          "text": "p(x) = (0,75p + q) · x",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-26-d",
-          "text": "m(x) = (0,25p + q) · x",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Funciones",
-      "isPilot": false
-    },
-    {
-      "id": "m2-27",
-      "number": 27,
-      "statement": "Considera la función f definida por f(x) = ax2 + bx + c, tal que a, b y c son números reales distintos de cero. ¿Cuál de las siguientes funciones representa la gráfica de la función f reflejada con respecto al eje X?",
-      "options": [
-        {
-          "id": "m2-27-a",
-          "text": "p(x) = −ax2 + bx + c",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-27-b",
-          "text": "q(x) = −ax2 − bx − c",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-27-c",
-          "text": "s(x) = −ax2 + bx − c",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-27-d",
-          "text": "t(x) = ax2 − bx + c",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Funciones",
-      "isPilot": true
-    },
-    {
-      "id": "m2-28",
-      "number": 28,
-      "statement": "Considera la gráfica de la función cuadrática f , con dominio el conjunto de los números reales, de la forma f(x) = ax2 + bx + c. ¿Cuál de las siguientes expresiones es igual a b?",
-      "options": [
-        {
-          "id": "m2-28-a",
-          "text": "−3a 3",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-28-b",
-          "text": "− a 2 3",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-28-c",
-          "text": "a 2",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-28-d",
-          "text": "3a 9",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Funciones",
-      "isPilot": false
-    },
-    {
-      "id": "m2-30",
-      "number": 30,
-      "statement": "En las especificaciones de un cohete en miniatura, se registra una función que modela la altura que alcanzaría el cohete desde su lanzamiento hasta que toca el suelo. La función registrada es h(x) = −5x2 + 80x, tal que h representa la altura, en metros, con respecto al tiempo x transcurrido desde que fue lanzado el cohete, en segundos. ¿Cuál es la altura máxima que alcanzaría este cohete?",
-      "options": [
-        {
-          "id": "m2-30-a",
-          "text": "320 metros",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-30-b",
-          "text": "560 metros",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-30-c",
-          "text": "700 metros",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-30-d",
-          "text": "960 metros",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Geometría analítica",
-      "isPilot": false
-    },
-    {
-      "id": "m2-31",
-      "number": 31,
-      "statement": "Considera la función f , con dominio el conjunto de los números reales, definida por f(x) = x2 − bx + c. La gráfica de f pasa por los puntos (−p, 0) y (2p, 0), con p > 0. ¿En qué cuadrante se encuentra el vértice de la parábola?",
-      "options": [
-        {
-          "id": "m2-31-a",
-          "text": "En el primer cuadrante",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-31-b",
-          "text": "En el segundo cuadrante",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-31-c",
-          "text": "En el tercer cuadrante",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-31-d",
-          "text": "En el cuarto cuadrante W",
-          "isCorrect": true
-        }
-      ],
-      "eje": "Geometría analítica",
-      "isPilot": false
-    },
-    {
-      "id": "m2-32",
-      "number": 32,
-      "statement": "La radiación emitida por un cuerpo negro, en 2 , se puede calcular como σ · T4 , m tal que T es su temperatura en Kelvin (K) y σ es una constante. W Un cuerpo negro que emite una radiación de 5,678 tiene una temperatura m2 de 100 K. ¿Cuál es la radiación de un cuerpo negro que tiene una temperatura de 200 K? W",
-      "options": [
-        {
-          "id": "m2-32-a",
-          "text": "11,356 m2 W",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-32-b",
-          "text": "34,068 m2 W",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-32-c",
-          "text": "45,424 m2 W",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-32-d",
-          "text": "90,848 m2",
-          "isCorrect": true
-        }
-      ],
-      "eje": "Geometría analítica",
-      "isPilot": false
-    },
-    {
-      "id": "m2-33",
-      "number": 33,
-      "statement": "Considera el triángulo rectángulo ABC de la figura adjunta, al que se le ha trazado su altura CD. Para calcular la medida de CD, se realiza el siguiente procedimiento, en el cual se comete un error. √ Paso 1: se calcula la medida de AB como 32 + 42 y se obtiene que mide 5 cm. Paso 2: se aplica el teorema de Pitágoras en los triángulos ADC y CDB y se obtienen las igualdades 42 + AD2 = CD2 y 32 + (5 − AD)2 = CD2 , respectivamente. Paso 3: se igualan las ecuaciones obtenidas en el Paso 2 y, al resolver la ecuación 9 42 + AD2 = 32 + (5 − AD)2 , se obtiene que AD = cm. 5 Paso 4: se reemplaza el valor de AD en la igualdad 42 + AD2 = CD2 y, al √ 481 despejar, se obtiene que CD = cm. 5 ¿En cuál de los pasos se cometió el error?",
-      "options": [
-        {
-          "id": "m2-33-a",
-          "text": "En el Paso 1",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-33-b",
-          "text": "En el Paso 2",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-33-c",
-          "text": "En el Paso 3",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-33-d",
-          "text": "En el Paso 4",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Geometría analítica",
-      "isPilot": false
-    },
-    {
-      "id": "m2-34",
-      "number": 34,
-      "statement": "Sobre un cuadrado de lado L cm y centro O, se dibuja otro cuadrado de centro O, a cuyo lado es del lado del cuadrado anterior, con a y b números enteros positivos. b Luego, se pinta de color gris la superficie delimitada por los contornos de estos dos cuadrados, tal como se representa a continuación: a Luego, sobre esta figura, se dibuja otro cuadrado de centro O cuyo lado es del lado b del último cuadrado dibujado y se pinta la superficie delimitada por los contornos de estos cuadrados, tal como se representa a continuación: Si se repite cinco veces el proceso de pintar la superficie delimitada entre los cuadrados, ¿cuál es el área, en cm2 , de la última superficie pintada? a \u0010 a \u00115 ã Å\u0010 \u00114",
-      "options": [
-        {
-          "id": "m2-34-a",
-          "text": "L2 − b b a \u0010 a \u00114 ã Å\u0010 \u00115 2",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-34-b",
-          "text": "L − b b a \u0010 a \u00118 ã Å\u0010 \u001110",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-34-c",
-          "text": "L2 − b b a \u0010 a \u001110 ã Å\u0010 \u00118 2",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-34-d",
-          "text": "L − b b",
-          "isCorrect": true
-        }
-      ],
-      "eje": "Geometría analítica",
-      "isPilot": true
-    },
-    {
-      "id": "m2-35",
-      "number": 35,
-      "statement": "Julieta compró un espejo con forma de hexágono regular, el cual está inscrito en una base circular de madera de 40 cm de diámetro, tal como se representa en la siguiente figura. Para que el espejo combine con la decoración de su baño, cubrirá las partes visibles de la base de madera con un mosaico de cerámicas. ¿Cuál es el área de la base de madera que debe cubrir Julieta con el mosaico de cerámicas, en cm2 ? √",
-      "options": [
-        {
-          "id": "m2-35-a",
-          "text": "400π − 600 3 √",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-35-b",
-          "text": "400π − 100 3 √",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-35-c",
-          "text": "1600π − 1200 3 √",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-35-d",
-          "text": "1600π − 600 3 a",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Geometría analítica",
-      "isPilot": false
-    },
-    {
-      "id": "m2-37",
-      "number": 37,
-      "statement": "En el gráfico de la figura adjunta se representan los vectores u , v y w. →Ä→ →ä ¿Cuáles son las coordenadas del vector v − u +2 w ?",
-      "options": [
-        {
-          "id": "m2-37-a",
-          "text": "(−6, 1)",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-37-b",
-          "text": "(0, 5)",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-37-c",
-          "text": "(0, −1)",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-37-d",
-          "text": "(0, 7)",
-          "isCorrect": true
-        }
-      ],
-      "eje": "Geometría analítica",
-      "isPilot": false
-    },
-    {
-      "id": "m2-39",
-      "number": 39,
-      "statement": "Se dibuja un triángulo en el primer cuadrante del plano cartesiano. p Si a este triángulo se le aplica una homotecia de razón − con centro en el origen del 2 plano cartesiano, ¿cuál de las siguientes afirmaciones se puede deducir en relación con el triángulo homotético?",
-      "options": [
-        {
-          "id": "m2-39-a",
-          "text": "Cuando p = 4, su perímetro es el doble del perímetro del original.",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-39-b",
-          "text": "Cuando p = 2, su área es mayor que el área del original.",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-39-c",
-          "text": "Cuando p < 0, su perímetro es menor que el perímetro del original.",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-39-d",
-          "text": "Cuando p > 0, se ubica en el primer cuadrante.",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Geometría analítica",
-      "isPilot": false
-    },
-    {
-      "id": "m2-41",
-      "number": 41,
-      "statement": "Un cuadrado de lado L ubicado sobre los ejes del plano cartesiano se rota en sentido horario en torno a uno de sus vértices, tal como se representa en la siguiente figura: ¿Cuál es la coordenada x del punto P luego de la rotación?",
-      "options": [
-        {
-          "id": "m2-41-a",
-          "text": "L · cos(θ)",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-41-b",
-          "text": "L · sen(θ)",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-41-c",
-          "text": "L − L · cos(θ)",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-41-d",
-          "text": "L − L · sen(θ)",
-          "isCorrect": true
-        }
-      ],
-      "eje": "Geometría analítica",
-      "isPilot": false
-    },
-    {
-      "id": "m2-42",
-      "number": 42,
-      "statement": "Cuando un rayo de luz pasa de un medio a otro, el ángulo de incidencia θ1 en el primer medio y el ángulo de refracción θ2 con el que entra al otro medio son distintos. Este cambio de ángulo depende de los índices de refracción (n1 y n2 ) de ambos medios, y está dado por la ecuación n1 · sen(θ1 ) = n2 · sen(θ2 ). La siguiente figura representa esta situación: Considera un rayo que pasa de un medio de índice de refracción m a otro de índice de refracción p, tal que la medida del ángulo de incidencia es el doble de la medida del ángulo de refracción. Si para todo ángulo α se cumple que sen(2α) = 2 · sen(α) · cos(α), ¿cuál de las siguientes expresiones representa al coseno del ángulo de refracción? 2p",
-      "options": [
-        {
-          "id": "m2-42-a",
-          "text": "m 2m",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-42-b",
-          "text": "p m",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-42-c",
-          "text": "2p p",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-42-d",
-          "text": "2m",
-          "isCorrect": true
-        }
-      ],
-      "eje": "Geometría analítica",
-      "isPilot": false
-    },
-    {
-      "id": "m2-44",
-      "number": 44,
-      "statement": "Una prueba tiene un puntaje máximo de 60 puntos. La calificación, en términos del puntaje P obtenido, se calcula mediante las siguientes expresiones: P − 36 • Para puntajes menores o iguales que 36 puntos: +4 12 P − 60 • Para puntajes mayores que 36 puntos: +7 8 Considera que los estudiantes de un curso que obtuvieron la menor y mayor calificación en la prueba lograron un 40 % y un 80 % del puntaje máximo, respectivamente. ¿Cuál es la diferencia entre la calificación mayor y la calificación menor de los estudiantes de este curso?",
-      "options": [
-        {
-          "id": "m2-44-a",
-          "text": "2,0",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-44-b",
-          "text": "2,5",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-44-c",
-          "text": "3,0",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-44-d",
-          "text": "4,5",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Probabilidad y estadística",
-      "isPilot": false
-    },
-    {
-      "id": "m2-45",
-      "number": 45,
-      "statement": "En la siguiente figura se presentan los diagramas de cajón de una característica para tres grupos de datos, A, B y C. ¿Cuál de los siguientes argumentos justifica que el rango intercuartílico de los datos del grupo C es menor que el rango intercuartílico de los datos del grupo A y que el rango intercuartílico de los datos del grupo B?",
-      "options": [
-        {
-          "id": "m2-45-a",
-          "text": "Que la diferencia entre el valor máximo y mínimo de C es menor que la diferencia entre el valor máximo y mínimo de A y de B.",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-45-b",
-          "text": "Que el cuartil 1 es el mismo para los tres grupos de datos y el cuartil 3 de C es menor que el cuartil 3 de A y de B.",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-45-c",
-          "text": "Que la diferencia entre el percentil 75 y el valor máximo de C es menor que la de A y de B.",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-45-d",
-          "text": "Que el cuartil 3 de C es menor que el cuartil 3 de A y de B y el cuartil 2 es el mismo para los tres grupos de datos.",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Probabilidad y estadística",
-      "isPilot": false
-    },
-    {
-      "id": "m2-46",
-      "number": 46,
-      "statement": "Considera los datos 4, 8, 5, p y q, cuyo promedio es 5. ¿Cuál de las siguientes condiciones permite asegurar que su desviación estándar es menor que 5?",
-      "options": [
-        {
-          "id": "m2-46-a",
-          "text": "p=q",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-46-b",
-          "text": "pq < 100",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-46-c",
-          "text": "p+q=8",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-46-d",
-          "text": "p<8−q",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Probabilidad y estadística",
-      "isPilot": false
-    },
-    {
-      "id": "m2-47",
-      "number": 47,
-      "statement": "Se dibujaron varias figuras siguiendo una secuencia de puntos, tal como se representa en la siguiente imagen: Si se dibujaron 1000 figuras siguiendo esta secuencia y se selecciona una de ellas al azar, ¿cuál es la probabilidad de que esta tenga dibujados al menos 32 puntos? 30",
-      "options": [
-        {
-          "id": "m2-47-a",
-          "text": "1000 31",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-47-b",
-          "text": "1000 969",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-47-c",
-          "text": "1000 970",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-47-d",
-          "text": "1000",
-          "isCorrect": true
-        }
-      ],
-      "eje": "Probabilidad y estadística",
-      "isPilot": false
-    },
-    {
-      "id": "m2-49",
-      "number": 49,
-      "statement": "En un juego de lotería cada cartón tiene tres números del 1 al 99, los cuales no se repiten. Este juego se gana si los tres números que se sortean coinciden con los números del cartón. Una persona compró un cartón que tiene los siguientes números: Si los números ganadores se eligen al azar, no se repiten y no importa el orden en que estos se saquen, ¿cuál es la probabilidad de que la persona gane? 1",
-      "options": [
-        {
-          "id": "m2-49-a",
-          "text": "993 1",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-49-b",
-          "text": "99 · 98 · 97 3",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-49-c",
-          "text": "99 · 98 · 97 6",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-49-d",
-          "text": "99 · 98 · 97",
-          "isCorrect": true
-        }
-      ],
-      "eje": "Probabilidad y estadística",
-      "isPilot": false
-    },
-    {
-      "id": "m2-51",
-      "number": 51,
-      "statement": "En un grupo de 100 hombres y 100 mujeres, cada uno de ellos tiene un piercing o tatuajes, pero no ambos. De los hombres, 25 indican tener piercing y el resto tener tatuajes; de las mujeres, 35 indican tener piercing y el resto declara tener tatuajes. Si se selecciona al azar a una persona de las entrevistadas, ¿cuál es la probabilidad de que esta persona sea hombre dado que tiene tatuajes? 75",
-      "options": [
-        {
-          "id": "m2-51-a",
-          "text": "200 75",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-51-b",
-          "text": "140 100",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-51-c",
-          "text": "140 75",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-51-d",
-          "text": "100 b",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Probabilidad y estadística",
-      "isPilot": false
-    },
-    {
-      "id": "m2-52",
-      "number": 52,
-      "statement": "Considera la igualdad z = log a 5 + log . b a Se puede determinar el valor de z, si se conoce el valor de: (1) ab a (2) b",
-      "options": [
-        {
-          "id": "m2-52-a",
-          "text": "(1) por sí sola",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-52-b",
-          "text": "(2) por sí sola",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-52-c",
-          "text": "Ambas juntas, (1) y (2)",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-52-d",
-          "text": "Cada una por sí sola, (1) ó (2) E) Se requiere información adicional",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Probabilidad y estadística",
-      "isPilot": false
-    },
-    {
-      "id": "m2-53",
-      "number": 53,
-      "statement": "Considera los números reales x e y, con x ̸= y y x ̸= −y. \u00012 x2 − y2 Se puede determinar el número que representa la expresión , si se (x + y)2 sabe que: (1) x − y = 10 (2) x+y=6",
-      "options": [
-        {
-          "id": "m2-53-a",
-          "text": "(1) por sí sola",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-53-b",
-          "text": "(2) por sí sola",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-53-c",
-          "text": "Ambas juntas, (1) y (2)",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-53-d",
-          "text": "Cada una por sí sola, (1) ó (2) E) Se requiere información adicional",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Probabilidad y estadística",
-      "isPilot": false
-    },
-    {
-      "id": "m2-54",
-      "number": 54,
-      "statement": "Una persona forrará por completo un cofre utilizando un tipo de tela llamada arpillera. El cofre tiene la forma de un prisma recto de base cuadrada y su tapa tiene la forma de la mitad de un cilindro, tal como se representa a continuación: Considera que la arpillera tiene un costo de $3500 por metro cuadrado. Se puede determinar cuánto le costará forrar el cofre, si se conoce: (1) la medida del radio del cilindro. (2) la medida del ancho, alto y largo del cofre.",
-      "options": [
-        {
-          "id": "m2-54-a",
-          "text": "(1) por sí sola",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-54-b",
-          "text": "(2) por sí sola",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-54-c",
-          "text": "Ambas juntas, (1) y (2)",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-54-d",
-          "text": "Cada una por sí sola, (1) ó (2) E) Se requiere información adicional",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Probabilidad y estadística",
-      "isPilot": true
-    },
-    {
-      "id": "m2-55",
-      "number": 55,
-      "statement": "En una urna se tienen 5 bolitas entre bolitas azules y rojas, todas del mismo tipo. Al extraer dos bolitas sin reposición, se puede determinar la probabilidad de que la segunda sea azul dado que la primera fue roja, si: (1) al sacar cinco bolitas con reposición se conoce la probabilidad de que todas sean azules. (2) al sacar dos bolitas sin reposición se conoce la probabilidad de que una sea azul y la otra sea roja.",
-      "options": [
-        {
-          "id": "m2-55-a",
-          "text": "(1) por sí sola",
-          "isCorrect": true
-        },
-        {
-          "id": "m2-55-b",
-          "text": "(2) por sí sola",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-55-c",
-          "text": "Ambas juntas, (1) y (2)",
-          "isCorrect": false
-        },
-        {
-          "id": "m2-55-d",
-          "text": "Cada una por sí sola, (1) ó (2) E) Se requiere información adicional IMPORTANTE ■ Este folleto está protegido bajo Registro de Propiedad Intelectual de la Universidad de Chile. ■ Está prohibida la reproducción, transmisión total o parcial de este folleto, por cualquier medio o método. ■ Es obligatorio devolver íntegramente este folleto antes de abandonar la sala. ■ Es obligatorio devolver la hoja de respuestas antes de abandonar la sala. Proceso de Admisión 2 0 2 6",
-          "isCorrect": false
-        }
-      ],
-      "eje": "Probabilidad y estadística",
-      "isPilot": true
-    }
-  ]
+    ]
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import type { DemoExam } from '@/features/demo/types/demo.types';
-import { Timer } from '@/features/exam-session/components/Timer';
+import { Timer } from '@/shared/components/ui/timer';
 import { LogoMark, LogoWordmark } from '@/shared/components/branding/logo';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
@@ -18,7 +18,10 @@ interface DemoExamCarouselProps {
     initialSeconds: number;
 }
 
-export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps): React.JSX.Element {
+export function DemoExamCarousel({
+    exam,
+    initialSeconds,
+}: DemoExamCarouselProps): React.JSX.Element {
     const [phase, setPhase] = useState<'exam' | 'results'>('exam');
     const [retryCount, setRetryCount] = useState(0);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -74,7 +77,9 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
         if (!currentQuestion) return;
         if (currentQuestion.questionType === 'MULTIPLE') {
             setSelectedOptionIds((prev) =>
-                prev.includes(optionId) ? prev.filter((id) => id !== optionId) : [...prev, optionId],
+                prev.includes(optionId)
+                    ? prev.filter((id) => id !== optionId)
+                    : [...prev, optionId],
             );
         } else {
             setSelectedOptionIds([optionId]);
@@ -164,18 +169,12 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
     }, [phase]);
 
     if (phase === 'results') {
-        return (
-            <DemoResultsScreen
-                exam={exam}
-                answersMap={answersMap}
-                onRetry={handleRetry}
-            />
-        );
+        return <DemoResultsScreen exam={exam} answersMap={answersMap} onRetry={handleRetry} />;
     }
 
     if (!currentQuestion) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-paper">
+            <div className="bg-paper flex min-h-screen items-center justify-center">
                 <p className="text-mute">Este examen no tiene preguntas disponibles.</p>
             </div>
         );
@@ -190,22 +189,22 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
     const isMarked = markedSet.has(currentQuestion.id);
 
     return (
-        <div className="flex min-h-screen flex-col bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             {/* Top bar */}
-            <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-white px-6 py-3">
+            <header className="border-border sticky top-0 z-10 flex items-center justify-between border-b bg-white px-6 py-3">
                 <div className="flex items-center gap-3">
                     <LogoMark size={26} />
-                    <div className="h-4 w-px bg-border" />
-                    <span className="max-w-[200px] truncate font-mono text-[11px] uppercase tracking-[0.08em] text-mute">
+                    <div className="bg-border h-4 w-px" />
+                    <span className="text-mute max-w-[200px] truncate font-mono text-[11px] tracking-[0.08em] uppercase">
                         {exam.title}
                     </span>
                 </div>
                 <div className="flex items-center gap-4">
-                    <span className="rounded-full bg-warning-wash px-2.5 py-1 font-mono text-[10px] font-semibold text-warning">
+                    <span className="bg-warning-wash text-warning rounded-full px-2.5 py-1 font-mono text-[10px] font-semibold">
                         DEMO
                     </span>
-                    <span className="flex items-center gap-1.5 font-mono text-[10px] text-mute">
-                        <span className="size-1.5 animate-pulse rounded-full bg-success" />
+                    <span className="text-mute flex items-center gap-1.5 font-mono text-[10px]">
+                        <span className="bg-success size-1.5 animate-pulse rounded-full" />
                         Autoguardado
                     </span>
                     <LogoWordmark size={14} color="#75716b" />
@@ -213,9 +212,9 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
             </header>
 
             {/* Progress bar */}
-            <div className="h-1 bg-border">
+            <div className="bg-border h-1">
                 <div
-                    className="h-full bg-primary transition-all duration-500 ease-out"
+                    className="bg-primary h-full transition-all duration-500 ease-out"
                     style={{ width: `${progressPct}%` }}
                 />
             </div>
@@ -223,10 +222,10 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
             {/* Content */}
             <div className="flex flex-1">
                 {/* Sidebar */}
-                <aside className="hidden w-[260px] shrink-0 flex-col gap-5 border-r border-border bg-white p-5 lg:flex">
+                <aside className="border-border hidden w-[260px] shrink-0 flex-col gap-5 border-r bg-white p-5 lg:flex">
                     {/* Question map */}
                     <div>
-                        <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.1em] text-mute">
+                        <p className="text-mute mb-3 font-mono text-[10px] tracking-[0.1em] uppercase">
                             Mapa de preguntas
                         </p>
                         <div className="grid grid-cols-4 gap-1.5">
@@ -241,16 +240,16 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
                                         onClick={() => handleJump(idx)}
                                         className={cn(
                                             'relative h-11 rounded-[6px] font-mono text-[11px] font-semibold transition-colors',
-                                            isCurrent && 'border-2 border-lime bg-lime text-ink',
+                                            isCurrent && 'border-lime bg-lime text-ink border-2',
                                             !isCurrent && isDone && 'bg-primary text-white',
                                             !isCurrent &&
                                                 !isDone &&
-                                                'border border-border bg-white text-mute hover:border-primary/40',
+                                                'border-border text-mute hover:border-primary/40 border bg-white',
                                         )}
                                     >
                                         {String(idx + 1).padStart(2, '0')}
                                         {qIsMarked && (
-                                            <span className="absolute right-0.5 top-0.5 size-2 rounded-full bg-coral" />
+                                            <span className="bg-coral absolute top-0.5 right-0.5 size-2 rounded-full" />
                                         )}
                                     </button>
                                 );
@@ -262,15 +261,24 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
                                 { color: 'bg-primary', label: 'Respondida' },
                                 { color: 'bg-lime border border-lime', label: 'Actual' },
                                 { color: 'border border-border', label: 'Pendiente' },
-                                { color: 'border border-border relative', label: 'Marcada', dot: true },
+                                {
+                                    color: 'border border-border relative',
+                                    label: 'Marcada',
+                                    dot: true,
+                                },
                             ].map((item) => (
                                 <div
                                     key={item.label}
-                                    className="flex items-center gap-1.5 font-mono text-[9px] text-mute"
+                                    className="text-mute flex items-center gap-1.5 font-mono text-[9px]"
                                 >
-                                    <div className={cn('relative size-3 shrink-0 rounded-sm', item.color)}>
+                                    <div
+                                        className={cn(
+                                            'relative size-3 shrink-0 rounded-sm',
+                                            item.color,
+                                        )}
+                                    >
                                         {item.dot && (
-                                            <span className="absolute -right-0.5 -top-0.5 size-1.5 rounded-full bg-coral" />
+                                            <span className="bg-coral absolute -top-0.5 -right-0.5 size-1.5 rounded-full" />
                                         )}
                                     </div>
                                     {item.label}
@@ -281,7 +289,7 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
 
                     {/* Timer */}
                     <div
-                        className="flex flex-col items-center rounded-[10px] bg-ink py-5"
+                        className="bg-ink flex flex-col items-center rounded-[10px] py-5"
                         style={
                             {
                                 '--foreground': '#ffffff',
@@ -289,10 +297,14 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
                             } as React.CSSProperties
                         }
                     >
-                        <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">
+                        <p className="mb-3 font-mono text-[10px] tracking-[0.1em] text-white/40 uppercase">
                             Tiempo
                         </p>
-                        <Timer key={retryCount} initialSeconds={initialSeconds} onTimeout={handleTimeout} />
+                        <Timer
+                            key={retryCount}
+                            initialSeconds={initialSeconds}
+                            onTimeout={handleTimeout}
+                        />
                     </div>
                 </aside>
 
@@ -309,19 +321,19 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
                                 exit="exit"
                                 transition={{ duration: 0.18, ease: 'easeInOut' }}
                             >
-                                <div className="rounded-[18px] border border-border bg-white p-8 shadow-sm lg:p-10">
+                                <div className="border-border rounded-[18px] border bg-white p-8 shadow-sm lg:p-10">
                                     {/* Question header */}
                                     <div className="mb-7 flex items-center justify-between">
                                         <div className="flex items-center gap-2">
-                                            <span className="rounded-full bg-primary px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-white">
+                                            <span className="bg-primary rounded-full px-3 py-1 font-mono text-[10px] font-semibold tracking-[0.08em] text-white uppercase">
                                                 Pregunta {currentIndex + 1} de {totalQuestions}
                                             </span>
-                                            <span className="rounded-full bg-paper-warm px-3 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-mute">
+                                            <span className="bg-paper-warm text-mute rounded-full px-3 py-1 font-mono text-[10px] tracking-[0.08em] uppercase">
                                                 {currentQuestion.points} pt
                                                 {currentQuestion.points !== 1 ? 's' : ''}
                                             </span>
                                             {currentQuestion.questionType === 'MULTIPLE' && (
-                                                <span className="rounded-full border border-lime/50 bg-lime/15 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-ink">
+                                                <span className="border-lime/50 bg-lime/15 text-ink rounded-full border px-3 py-1 font-mono text-[10px] tracking-[0.08em] uppercase">
                                                     Múltiple
                                                 </span>
                                             )}
@@ -330,7 +342,7 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
                                             type="button"
                                             onClick={handleToggleMark}
                                             className={cn(
-                                                'flex items-center gap-1.5 rounded-[6px] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] transition-colors',
+                                                'flex items-center gap-1.5 rounded-[6px] px-3 py-1.5 font-mono text-[10px] tracking-[0.08em] uppercase transition-colors',
                                                 isMarked
                                                     ? 'bg-coral/10 text-coral'
                                                     : 'bg-paper-warm text-mute hover:bg-coral/10 hover:text-coral',
@@ -342,7 +354,7 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
                                     </div>
 
                                     {/* Question text */}
-                                    <h2 className="mb-8 font-display text-[26px] font-semibold leading-snug tracking-[-0.02em] text-ink lg:text-[30px]">
+                                    <h2 className="font-display text-ink mb-8 text-[26px] leading-snug font-semibold tracking-[-0.02em] lg:text-[30px]">
                                         {currentQuestion.text}
                                     </h2>
 
@@ -353,7 +365,9 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
                                     >
                                         {currentQuestion.options.map((option, idx) => {
                                             const label = LABELS[idx] ?? String(idx + 1);
-                                            const isSelected = selectedOptionIds.includes(option.id);
+                                            const isSelected = selectedOptionIds.includes(
+                                                option.id,
+                                            );
                                             return (
                                                 <button
                                                     key={option.id}
@@ -362,10 +376,10 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
                                                     aria-pressed={isSelected}
                                                     className={cn(
                                                         'flex w-full items-center gap-4 rounded-[12px] border px-5 py-[18px] text-left transition-all',
-                                                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+                                                        'focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
                                                         isSelected
                                                             ? 'border-primary bg-primary-wash shadow-sm'
-                                                            : 'border-border bg-white hover:border-primary/40 hover:bg-primary-wash/30',
+                                                            : 'border-border hover:border-primary/40 hover:bg-primary-wash/30 bg-white',
                                                     )}
                                                 >
                                                     <span
@@ -381,7 +395,9 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
                                                     <span
                                                         className={cn(
                                                             'flex-1 text-[15px]',
-                                                            isSelected ? 'font-medium text-primary' : 'text-ink',
+                                                            isSelected
+                                                                ? 'text-primary font-medium'
+                                                                : 'text-ink',
                                                         )}
                                                     >
                                                         {option.text}
@@ -397,7 +413,7 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
                                                             strokeWidth="3"
                                                             strokeLinecap="round"
                                                             strokeLinejoin="round"
-                                                            className="shrink-0 text-primary"
+                                                            className="text-primary shrink-0"
                                                         >
                                                             <polyline points="20 6 9 17 4 12" />
                                                         </svg>
@@ -408,7 +424,7 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
                                     </fieldset>
 
                                     {/* Navigation footer */}
-                                    <div className="mt-8 flex items-center justify-between border-t border-border pt-6">
+                                    <div className="border-border mt-8 flex items-center justify-between border-t pt-6">
                                         <Button
                                             variant="ghost"
                                             size="default"
@@ -418,7 +434,7 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
                                             ← Anterior
                                         </Button>
 
-                                        <span className="hidden font-mono text-[10px] text-mute sm:block">
+                                        <span className="text-mute hidden font-mono text-[10px] sm:block">
                                             {answeredSet.has(currentQuestion.id)
                                                 ? 'Respuesta guardada'
                                                 : 'Sin responder aún'}

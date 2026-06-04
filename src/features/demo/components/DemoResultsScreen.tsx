@@ -28,7 +28,8 @@ function computeResults(exam: DemoExam, answersMap: Map<string, string[]>): Demo
         const correctIds = new Set(q.options.filter((o) => o.isCorrect).map((o) => o.id));
         const selectedIds = new Set(selected);
         const isCorrect =
-            correctIds.size === selectedIds.size && [...correctIds].every((id) => selectedIds.has(id));
+            correctIds.size === selectedIds.size &&
+            [...correctIds].every((id) => selectedIds.has(id));
 
         if (isCorrect) {
             score += q.points;
@@ -60,18 +61,18 @@ export function DemoResultsScreen({
     const pct = results.maxScore > 0 ? Math.round((results.score / results.maxScore) * 100) : 0;
 
     return (
-        <div className="min-h-screen bg-paper">
+        <div className="bg-paper min-h-screen">
             {/* Header */}
-            <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-white px-6 py-3">
+            <header className="border-border sticky top-0 z-10 flex items-center justify-between border-b bg-white px-6 py-3">
                 <div className="flex items-center gap-3">
                     <LogoMark size={26} />
-                    <div className="h-4 w-px bg-border" />
-                    <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-mute">
+                    <div className="bg-border h-4 w-px" />
+                    <span className="text-mute font-mono text-[11px] tracking-[0.08em] uppercase">
                         {exam.title} — Resultados
                     </span>
                 </div>
                 <div className="flex items-center gap-3">
-                    <span className="rounded-full bg-warning-wash px-2.5 py-1 font-mono text-[10px] font-semibold text-warning">
+                    <span className="bg-warning-wash text-warning rounded-full px-2.5 py-1 font-mono text-[10px] font-semibold">
                         DEMO
                     </span>
                     <LogoWordmark size={14} color="#75716b" />
@@ -80,16 +81,16 @@ export function DemoResultsScreen({
 
             <div className="mx-auto max-w-3xl px-4 py-10">
                 {/* Summary card */}
-                <div className="mb-8 overflow-hidden rounded-[18px] border border-border bg-white shadow-sm">
-                    <div className="border-b border-border px-8 py-6">
+                <div className="border-border mb-8 overflow-hidden rounded-[18px] border bg-white shadow-sm">
+                    <div className="border-border border-b px-8 py-6">
                         <div className="flex items-start justify-between gap-4">
                             <div>
-                                <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.1em] text-mute">
+                                <p className="text-mute mb-1 font-mono text-[10px] tracking-[0.1em] uppercase">
                                     Resultado final
                                 </p>
-                                <h1 className="font-display text-[34px] font-semibold leading-none tracking-[-0.03em] text-ink">
+                                <h1 className="font-display text-ink text-[34px] leading-none font-semibold tracking-[-0.03em]">
                                     {results.score}{' '}
-                                    <span className="text-[20px] font-normal text-mute">
+                                    <span className="text-mute text-[20px] font-normal">
                                         / {results.maxScore} pts
                                     </span>
                                 </h1>
@@ -101,12 +102,12 @@ export function DemoResultsScreen({
                                     passing ? 'bg-success/8' : 'bg-destructive/8',
                                 )}
                             >
-                                <p className="mb-0.5 font-mono text-[9px] uppercase tracking-[0.1em] text-mute">
+                                <p className="text-mute mb-0.5 font-mono text-[9px] tracking-[0.1em] uppercase">
                                     Nota
                                 </p>
                                 <span
                                     className={cn(
-                                        'font-display text-[36px] font-bold leading-none tracking-[-0.04em]',
+                                        'font-display text-[36px] leading-none font-bold tracking-[-0.04em]',
                                         passing ? 'text-success' : 'text-destructive',
                                     )}
                                 >
@@ -127,7 +128,7 @@ export function DemoResultsScreen({
                     </div>
 
                     {/* Stats row */}
-                    <div className="grid grid-cols-4 divide-x divide-border">
+                    <div className="divide-border grid grid-cols-4 divide-x">
                         {[
                             {
                                 label: 'Correctas',
@@ -154,7 +155,7 @@ export function DemoResultsScreen({
                                 <span className={cn('font-mono text-[22px] font-bold', stat.color)}>
                                     {stat.value}
                                 </span>
-                                <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-mute">
+                                <span className="text-mute font-mono text-[9px] tracking-[0.08em] uppercase">
                                     {stat.label}
                                 </span>
                             </div>
@@ -164,7 +165,7 @@ export function DemoResultsScreen({
 
                 {/* Question breakdown */}
                 <div className="mb-6">
-                    <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.1em] text-mute">
+                    <p className="text-mute mb-3 font-mono text-[10px] tracking-[0.1em] uppercase">
                         Corrección detallada
                     </p>
                     <div className="flex flex-col gap-4">
@@ -175,8 +176,8 @@ export function DemoResultsScreen({
                 </div>
 
                 {/* Footer actions */}
-                <div className="flex flex-col items-center gap-4 rounded-[16px] border border-border bg-white px-8 py-6 text-center">
-                    <p className="font-mono text-[11px] uppercase tracking-[0.08em] text-mute">
+                <div className="border-border flex flex-col items-center gap-4 rounded-[16px] border bg-white px-8 py-6 text-center">
+                    <p className="text-mute font-mono text-[11px] tracking-[0.08em] uppercase">
                         Esta es una demo del sistema de exámenes aulika
                     </p>
                     <Button variant="primary" size="default" onClick={onRetry}>
@@ -221,11 +222,11 @@ function QuestionReview({ qr, idx }: QuestionReviewProps): React.JSX.Element {
                 )}
             >
                 <div className="flex items-center gap-3">
-                    <span className="rounded-full bg-paper-warm px-2.5 py-1 font-mono text-[10px] text-mute">
+                    <span className="bg-paper-warm text-mute rounded-full px-2.5 py-1 font-mono text-[10px]">
                         Pregunta {idx + 1}
                     </span>
                     {question.questionType === 'MULTIPLE' && (
-                        <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-mute">
+                        <span className="text-mute font-mono text-[9px] tracking-[0.08em] uppercase">
                             Múltiple
                         </span>
                     )}
@@ -235,21 +236,21 @@ function QuestionReview({ qr, idx }: QuestionReviewProps): React.JSX.Element {
                     {isCorrect ? (
                         <>
                             <CheckCircle2 size={14} className="text-success" />
-                            <span className="font-mono text-[11px] font-semibold text-success">
+                            <span className="text-success font-mono text-[11px] font-semibold">
                                 Correcta
                             </span>
                         </>
                     ) : isUnanswered ? (
                         <>
                             <Circle size={14} className="text-mute" />
-                            <span className="font-mono text-[11px] font-semibold text-mute">
+                            <span className="text-mute font-mono text-[11px] font-semibold">
                                 Sin responder
                             </span>
                         </>
                     ) : (
                         <>
                             <XCircle size={14} className="text-destructive" />
-                            <span className="font-mono text-[11px] font-semibold text-destructive">
+                            <span className="text-destructive font-mono text-[11px] font-semibold">
                                 Incorrecta
                             </span>
                         </>
@@ -259,7 +260,7 @@ function QuestionReview({ qr, idx }: QuestionReviewProps): React.JSX.Element {
 
             {/* Question text + options */}
             <div className="px-6 py-5">
-                <p className="mb-5 text-[16px] font-semibold leading-snug text-ink">
+                <p className="text-ink mb-5 text-[16px] leading-snug font-semibold">
                     {question.text}
                 </p>
 
@@ -278,15 +279,10 @@ function QuestionReview({ qr, idx }: QuestionReviewProps): React.JSX.Element {
                                 key={option.id}
                                 className={cn(
                                     'flex items-center gap-3 rounded-[10px] border px-4 py-3',
-                                    isSelectedCorrect &&
-                                        'border-success/40 bg-success/8',
-                                    isSelectedWrong &&
-                                        'border-destructive/40 bg-destructive/8',
-                                    isMissedCorrect &&
-                                        'border-success/40 bg-success/5',
-                                    !wasSelected &&
-                                        !isMissedCorrect &&
-                                        'border-border bg-white',
+                                    isSelectedCorrect && 'border-success/40 bg-success/8',
+                                    isSelectedWrong && 'border-destructive/40 bg-destructive/8',
+                                    isMissedCorrect && 'border-success/40 bg-success/5',
+                                    !wasSelected && !isMissedCorrect && 'border-border bg-white',
                                 )}
                             >
                                 <span
@@ -306,9 +302,9 @@ function QuestionReview({ qr, idx }: QuestionReviewProps): React.JSX.Element {
                                 <span
                                     className={cn(
                                         'flex-1 text-[14px]',
-                                        isSelectedCorrect && 'font-medium text-success',
-                                        isSelectedWrong && 'font-medium text-destructive',
-                                        isMissedCorrect && 'font-medium text-success',
+                                        isSelectedCorrect && 'text-success font-medium',
+                                        isSelectedWrong && 'text-destructive font-medium',
+                                        isMissedCorrect && 'text-success font-medium',
                                         !wasSelected && !isMissedCorrect && 'text-mute',
                                     )}
                                 >
@@ -316,17 +312,17 @@ function QuestionReview({ qr, idx }: QuestionReviewProps): React.JSX.Element {
                                 </span>
 
                                 {isSelectedCorrect && (
-                                    <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.08em] text-success">
+                                    <span className="text-success font-mono text-[9px] font-semibold tracking-[0.08em] uppercase">
                                         Tu respuesta ✓
                                     </span>
                                 )}
                                 {isSelectedWrong && (
-                                    <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.08em] text-destructive">
+                                    <span className="text-destructive font-mono text-[9px] font-semibold tracking-[0.08em] uppercase">
                                         Tu respuesta ✗
                                     </span>
                                 )}
                                 {isMissedCorrect && (
-                                    <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.08em] text-success">
+                                    <span className="text-success font-mono text-[9px] font-semibold tracking-[0.08em] uppercase">
                                         Correcta
                                     </span>
                                 )}

@@ -33,7 +33,8 @@ function detectLectoraEje(text) {
         t.includes('¿cuántos') ||
         t.includes('¿cuándo') ||
         t.includes('¿dónde')
-    ) return 'Localizar y recuperar información';
+    )
+        return 'Localizar y recuperar información';
 
     if (
         t.includes('relación') ||
@@ -49,7 +50,8 @@ function detectLectoraEje(text) {
         t.includes('secuencia') ||
         t.includes('¿cuál es la relación') ||
         t.includes('¿por qué')
-    ) return 'Relacionar e interpretar';
+    )
+        return 'Relacionar e interpretar';
 
     return 'Reflexionar y evaluar';
 }
@@ -91,7 +93,8 @@ function detectCienciasEje(text) {
         t.includes('metabolismo') ||
         t.includes('tejido') ||
         t.includes('especie')
-    ) return 'Biología';
+    )
+        return 'Biología';
 
     if (
         t.includes('mol') ||
@@ -107,7 +110,8 @@ function detectCienciasEje(text) {
         t.includes('elemento') ||
         t.includes('oxidación') ||
         t.includes('reducción')
-    ) return 'Química';
+    )
+        return 'Química';
 
     return 'Física';
 }
@@ -126,7 +130,8 @@ function convertQuestion(q, index, ejeResolver) {
     // Skip if text is missing
     if (!q.text || q.text.trim().length < 5) return null;
     // Skip if any option is missing
-    if (!q.options || OPTION_KEYS.some((k) => !q.options[k] || q.options[k].trim().length < 2)) return null;
+    if (!q.options || OPTION_KEYS.some((k) => !q.options[k] || q.options[k].trim().length < 2))
+        return null;
 
     const id = `${index.prefix}-${String(q.number).padStart(2, '0')}`;
     const correctKey = q.correct_answer?.trim().toUpperCase();
@@ -180,10 +185,8 @@ function processSubject(subjectId, prefix, ejeResolver) {
 // ──────────────────────────────────────────────────
 
 // Competencia Lectora
-const lectoraQuestions = processSubject(
-    'competencia_lectora',
-    'cl',
-    (q) => detectLectoraEje(q.text),
+const lectoraQuestions = processSubject('competencia_lectora', 'cl', (q) =>
+    detectLectoraEje(q.text),
 );
 const lectora = buildExam({
     subject: 'lectora',
@@ -193,11 +196,7 @@ const lectora = buildExam({
 });
 
 // Matemática M1
-const m1Questions = processSubject(
-    'matematica_m1',
-    'm1',
-    (q) => detectM1Eje(q.number),
-);
+const m1Questions = processSubject('matematica_m1', 'm1', (q) => detectM1Eje(q.number));
 const m1 = buildExam({
     subject: 'm1',
     title: 'Matemática M1',
@@ -206,11 +205,7 @@ const m1 = buildExam({
 });
 
 // Matemática M2
-const m2Questions = processSubject(
-    'matematica_m2',
-    'm2',
-    (q) => detectM2Eje(q.number),
-);
+const m2Questions = processSubject('matematica_m2', 'm2', (q) => detectM2Eje(q.number));
 const m2 = buildExam({
     subject: 'm2',
     title: 'Matemática M2',
@@ -219,11 +214,7 @@ const m2 = buildExam({
 });
 
 // Historia
-const historiaQuestions = processSubject(
-    'historia',
-    'hi',
-    (q) => detectHistoriaEje(q.number),
-);
+const historiaQuestions = processSubject('historia', 'hi', (q) => detectHistoriaEje(q.number));
 const historia = buildExam({
     subject: 'historia',
     title: 'Historia y Ciencias Sociales',
@@ -234,10 +225,8 @@ const historia = buildExam({
 // Ciencias — usamos la versión Biología completa (50 comunes + 30 electivo Bio = 80 preguntas)
 // Es la opción más frecuente y la más representativa del bloque completo.
 // El enunciado de la prueba aclara que preguntas 51-80 son el electivo Biología.
-const cienciasQuestions = processSubject(
-    'ciencias_biologia',
-    'ci',
-    (q) => (q.number <= 50 ? detectCienciasEje(q.text) : 'Biología'),
+const cienciasQuestions = processSubject('ciencias_biologia', 'ci', (q) =>
+    q.number <= 50 ? detectCienciasEje(q.text) : 'Biología',
 );
 
 const ciencias = buildExam({
@@ -266,4 +255,6 @@ for (const [filename, exam] of exams) {
     console.log(`✓ ${filename} — ${exam.questions.length} preguntas`);
 }
 
-console.log('\nDone. Update DATA_LOADERS in [subject]/page.tsx to point to *-invierno-2026.json files.');
+console.log(
+    '\nDone. Update DATA_LOADERS in [subject]/page.tsx to point to *-invierno-2026.json files.',
+);

@@ -10,6 +10,7 @@ interface PageProps {
     params: Promise<{ examId: string }>;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: gates secuenciales del examen (sesión, oneAttempt, uniqueIp, intento, respuestas) — separarlos dispersaría las validaciones
 export default async function ExamPage({ params }: PageProps) {
     const { examId } = await params;
     const session = await getStudentSession();
@@ -65,6 +66,14 @@ export default async function ExamPage({ params }: PageProps) {
         }
     }
 
+    // Intento persistente: el tiempo restante autoritativo vive en la DB.
+    // Sin intento iniciado (endsAt nulo) → primero las instrucciones.
+    const attempt = await prisma.examAttempt.findUnique({
+        where: { attemptKey: session.attemptKey },
+        select: { endsAt: true },
+    });
+    if (!attempt?.endsAt) redirect(`/examen/${examId}/intro`);
+
     const orderedQuestions: SafeQuestion[] = exam.randomizeQuestions
         ? seededShuffle(exam.questions, buildQuestionSeed(session.attemptKey, exam.id))
         : exam.questions;
@@ -78,7 +87,32 @@ export default async function ExamPage({ params }: PageProps) {
         questions: orderedQuestions,
     };
 
-    const remainingSeconds = Math.max(0, Math.ceil((session.endsAt - Date.now()) / 1000));
+    // Respuestas ya guardadas del intento: hidratan la UI al reanudar o
+    // navegar hacia atrás (la selección guardada vuelve a mostrarse).
+    const answerRows = await prisma.answer.findMany({
+        where: { attemptKey: session.attemptKey },
+        select: { questionId: true, optionId: true, markedForReview: true },
+    });
+    const initialAnswers: Record<string, string[]> = {};
+    const markedQuestionIds = new Set<string>();
+    for (const row of answerRows) {
+        const prev = initialAnswers[row.questionId];
+        if (prev) {
+            prev.push(row.optionId);
+        } else {
+            initialAnswers[row.questionId] = [row.optionId];
+        }
+        if (row.markedForReview) markedQuestionIds.add(row.questionId);
+    }
 
-    return <ExamCarousel exam={safeExam} initialSeconds={remainingSeconds} />;
+    const remainingSeconds = Math.max(0, Math.ceil((attempt.endsAt.getTime() - Date.now()) / 1000));
+
+    return (
+        <ExamCarousel
+            exam={safeExam}
+            initialSeconds={remainingSeconds}
+            initialAnswers={initialAnswers}
+            initialMarked={[...markedQuestionIds]}
+        />
+    );
 }

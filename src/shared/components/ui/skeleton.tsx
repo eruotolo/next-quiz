@@ -6,7 +6,7 @@ function Skeleton({ className, ...props }: React.ComponentProps<'div'>): React.J
     return (
         <div
             data-slot="skeleton"
-            className={cn('animate-pulse rounded-[8px] bg-border', className)}
+            className={cn('bg-border animate-pulse rounded-[8px]', className)}
             {...props}
         />
     );

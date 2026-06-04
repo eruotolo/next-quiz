@@ -21,7 +21,10 @@ export function fail<T = null>(error: string): ActionResult<T> {
  * Convierte un error desconocido en un mensaje seguro para el cliente.
  * Reconoce el constraint único de Prisma para dar un mensaje claro.
  */
-export function toActionError(err: unknown, fallback = 'Ocurrió un error. Intentá de nuevo.'): string {
+export function toActionError(
+    err: unknown,
+    fallback = 'Ocurrió un error. Intentá de nuevo.',
+): string {
     if (err instanceof Error) {
         if (err.message.includes('Unique constraint') || err.message.includes('Unique')) {
             return 'Ya existe un registro con esos datos (email o RUT duplicado).';

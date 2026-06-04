@@ -5,22 +5,35 @@ import { prisma } from '@/shared/lib/prisma';
 import { logAudit } from '@/shared/lib/audit';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
-import { assignPlanSchema, institutionSchema } from '@/features/institutions/schemas/institution.schemas';
-import { activateInstitutionPlan, downgradeInstitutionToFree } from '@/features/subscriptions/lib/plan-sync';
+import {
+    assignPlanSchema,
+    institutionSchema,
+} from '@/features/institutions/schemas/institution.schemas';
+import {
+    activateInstitutionPlan,
+    downgradeInstitutionToFree,
+} from '@/features/subscriptions/lib/plan-sync';
 import { revalidatePath } from 'next/cache';
 
 async function requireSuperAdmin(): Promise<{ id: string; email: string; userRoleName: string }> {
     const session = await auth();
     if (session?.user.userRoleName !== USER_ROLE.SUPER_ADMIN) throw new Error('Unauthorized');
-    return { id: session.user.id, email: session.user.email ?? '', userRoleName: session.user.userRoleName };
+    return {
+        id: session.user.id,
+        email: session.user.email ?? '',
+        userRoleName: session.user.userRoleName,
+    };
 }
 
-export async function createInstitution(data: unknown): Promise<{ data: { id: string } | null; error: string | null }> {
+export async function createInstitution(
+    data: unknown,
+): Promise<{ data: { id: string } | null; error: string | null }> {
     const actor = await requireSuperAdmin().catch(() => null);
     if (!actor) return { data: null, error: 'No autorizado' };
 
     const parsed = institutionSchema.safeParse(data);
-    if (!parsed.success) return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
+    if (!parsed.success)
+        return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
 
     try {
         const institution = await prisma.academicInstitution.create({
@@ -38,17 +51,24 @@ export async function createInstitution(data: unknown): Promise<{ data: { id: st
         revalidatePath('/config/institutions');
         return { data: { id: institution.id }, error: null };
     } catch (err) {
-        const msg = err instanceof Error && err.message.includes('Unique') ? 'El nombre o slug ya está en uso.' : 'Error al crear la institución.';
+        const msg =
+            err instanceof Error && err.message.includes('Unique')
+                ? 'El nombre o slug ya está en uso.'
+                : 'Error al crear la institución.';
         return { data: null, error: msg };
     }
 }
 
-export async function updateInstitution(id: string, data: unknown): Promise<{ data: null; error: string | null }> {
+export async function updateInstitution(
+    id: string,
+    data: unknown,
+): Promise<{ data: null; error: string | null }> {
     const actor = await requireSuperAdmin().catch(() => null);
     if (!actor) return { data: null, error: 'No autorizado' };
 
     const parsed = institutionSchema.safeParse(data);
-    if (!parsed.success) return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
+    if (!parsed.success)
+        return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
 
     try {
         await prisma.academicInstitution.update({ where: { id }, data: parsed.data });
@@ -63,7 +83,10 @@ export async function updateInstitution(id: string, data: unknown): Promise<{ da
         revalidatePath('/config/institutions');
         return { data: null, error: null };
     } catch (err) {
-        const msg = err instanceof Error && err.message.includes('Unique') ? 'El nombre o slug ya está en uso.' : 'Error al actualizar la institución.';
+        const msg =
+            err instanceof Error && err.message.includes('Unique')
+                ? 'El nombre o slug ya está en uso.'
+                : 'Error al actualizar la institución.';
         return { data: null, error: msg };
     }
 }
@@ -105,7 +128,8 @@ export async function setInstitutionPlan(
     if (!actor) return { data: null, error: 'No autorizado' };
 
     const parsed = assignPlanSchema.safeParse(data);
-    if (!parsed.success) return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
+    if (!parsed.success)
+        return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
 
     try {
         const institution = await prisma.academicInstitution.findUnique({
@@ -134,7 +158,11 @@ export async function setInstitutionPlan(
             actorRole: actor.userRoleName,
             entity: 'AcademicInstitution',
             entityId: id,
-            metadata: { plan: parsed.data.plan, planExpiresAt: parsed.data.planExpiresAt ?? null, manual: true },
+            metadata: {
+                plan: parsed.data.plan,
+                planExpiresAt: parsed.data.planExpiresAt ?? null,
+                manual: true,
+            },
         });
         revalidatePath('/config/institutions');
         return { data: null, error: null };
@@ -153,7 +181,10 @@ export async function assignInstitutionCustomPlan(
     try {
         const [institution, customPlan] = await Promise.all([
             prisma.academicInstitution.findUnique({ where: { id }, select: { id: true } }),
-            prisma.customPlan.findUnique({ where: { id: customPlanId }, select: { id: true, name: true } }),
+            prisma.customPlan.findUnique({
+                where: { id: customPlanId },
+                select: { id: true, name: true },
+            }),
         ]);
         if (!institution) return { data: null, error: 'Institución no encontrada.' };
         if (!customPlan) return { data: null, error: 'Plan interno no encontrado.' };
@@ -179,7 +210,10 @@ export async function assignInstitutionCustomPlan(
     }
 }
 
-export async function toggleInstitutionActive(id: string, active: boolean): Promise<{ data: null; error: string | null }> {
+export async function toggleInstitutionActive(
+    id: string,
+    active: boolean,
+): Promise<{ data: null; error: string | null }> {
     const actor = await requireSuperAdmin().catch(() => null);
     if (!actor) return { data: null, error: 'No autorizado' };
 

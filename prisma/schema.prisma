@@ -57,6 +57,9 @@ model AcademicInstitution {
     country              String
     email                String?
     active               Boolean        @default(true)
+    // Institución sandbox del modo demo público. Su contenido es efímero y se
+    // limpia por sesión (al cerrar sesión) y por cron diario de respaldo.
+    isDemo               Boolean        @default(false)
     plan                 Plan           @default(FREE)
     activatedAt          DateTime?
     planExpiresAt        DateTime?
@@ -108,7 +111,7 @@ model User {
     lastname              String
     email                 String               @unique
     rut                   String               @unique
-    phone                 String?              @unique
+    phone                 String?
     password              String?
     userRoleId            String?              @db.Uuid
     userRole              UserRole?            @relation(fields: [userRoleId], references: [id], onDelete: SetNull)
@@ -121,6 +124,7 @@ model User {
     active                Boolean              @default(true)
     results               Result[]
     answers               Answer[]
+    examAttempts          ExamAttempt[]
     createdExams          Exam[]               @relation("ExamCreatedBy")
     auditLogs             AuditLog[]
     createdAt             DateTime             @default(now())
@@ -157,7 +161,6 @@ model Exam {
     unit                  String?
     scheduledAt           DateTime?
     closesAt              DateTime?
-    randomizeOptions      Boolean              @default(false)
     randomizeQuestions    Boolean              @default(false)
     lockTabSwitch         Boolean              @default(false)
     oneAttempt            Boolean              @default(true)
@@ -166,16 +169,21 @@ model Exam {
     academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
     createdById           String?              @db.Uuid
     createdBy             User?                @relation("ExamCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+    // Aísla los exámenes creados por cada visitante del modo demo (un id por
+    // login). Null para exámenes reales. Permite cupo FREE y limpieza por sesión.
+    demoSessionId         String?
     groups                Group[]
     questions             Question[]
     results               Result[]
     answers               Answer[]
+    attempts              ExamAttempt[]
     createdAt             DateTime             @default(now())
     updatedAt             DateTime             @updatedAt
 
     @@index([active])
     @@index([academicInstitutionId])
     @@index([createdById])
+    @@index([demoSessionId])
 }
 
 model Question {
@@ -238,6 +246,25 @@ model Answer {
     @@unique([attemptKey, questionId, optionId])
     @@index([attemptKey])
     @@index([studentId])
+    @@index([examId])
+}
+
+// Intento en curso de un examen. Permite reanudar tras un re-login sin
+// resetear el tiempo ni perder respuestas (la corrección lee por attemptKey).
+// endsAt nulo = el estudiante todavía no presionó "Comenzar examen".
+model ExamAttempt {
+    id         String    @id @default(uuid()) @db.Uuid
+    attemptKey String    @unique
+    studentId  String    @db.Uuid
+    student    User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+    examId     String    @db.Uuid
+    exam       Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
+    startedAt  DateTime?
+    endsAt     DateTime?
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+
+    @@unique([studentId, examId])
     @@index([examId])
 }
 

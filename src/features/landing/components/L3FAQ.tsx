@@ -38,15 +38,15 @@ export function L3FAQ(): React.JSX.Element {
         <section className="bg-white py-24" id="faq">
             <div className="mx-auto max-w-[760px] px-6">
                 <div className="mb-12 text-center">
-                    <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.12em] text-mute">
+                    <p className="text-mute mb-3 font-mono text-[11px] tracking-[0.12em] uppercase">
                         Preguntas frecuentes
                     </p>
-                    <h2 className="font-display text-[48px] font-semibold tracking-[-0.03em] text-ink">
+                    <h2 className="font-display text-ink text-[48px] font-semibold tracking-[-0.03em]">
                         Dudas comunes
                     </h2>
                 </div>
 
-                <div className="divide-y divide-border">
+                <div className="divide-border divide-y">
                     {FAQS.map((faq) => (
                         <div key={faq.q} className="py-1">
                             <button
@@ -54,21 +54,23 @@ export function L3FAQ(): React.JSX.Element {
                                 onClick={() => setOpen(open === faq.q ? null : faq.q)}
                                 className="flex w-full items-center justify-between gap-4 py-5 text-left"
                             >
-                                <span className="text-[16px] font-medium text-ink">{faq.q}</span>
+                                <span className="text-ink text-[16px] font-medium">{faq.q}</span>
                                 <Plus
                                     className={cn(
-                                        'size-5 shrink-0 text-mute transition-transform duration-200',
-                                        open === faq.q && 'rotate-45 text-primary',
+                                        'text-mute size-5 shrink-0 transition-transform duration-200',
+                                        open === faq.q && 'text-primary rotate-45',
                                     )}
                                 />
                             </button>
                             <div
                                 className={cn(
                                     'overflow-hidden transition-all duration-200',
-                                    open === faq.q ? 'max-h-64 opacity-100 pb-5' : 'max-h-0 opacity-0',
+                                    open === faq.q
+                                        ? 'max-h-64 pb-5 opacity-100'
+                                        : 'max-h-0 opacity-0',
                                 )}
                             >
-                                <p className="text-[15px] leading-relaxed text-ink-dim">{faq.a}</p>
+                                <p className="text-ink-dim text-[15px] leading-relaxed">{faq.a}</p>
                             </div>
                         </div>
                     ))}

@@ -61,22 +61,21 @@ function PaginationPrevious({ className, ...props }: React.ComponentProps<'a'>):
 
 function PaginationNext({ className, ...props }: React.ComponentProps<'a'>): React.JSX.Element {
     return (
-        <PaginationLink
-            aria-label="Go to next page"
-            className={cn('gap-1', className)}
-            {...props}
-        >
+        <PaginationLink aria-label="Go to next page" className={cn('gap-1', className)} {...props}>
             <ChevronRight className="size-4" />
         </PaginationLink>
     );
 }
 
-function PaginationEllipsis({ className, ...props }: React.ComponentProps<'span'>): React.JSX.Element {
+function PaginationEllipsis({
+    className,
+    ...props
+}: React.ComponentProps<'span'>): React.JSX.Element {
     return (
         <span
             aria-hidden
             data-slot="pagination-ellipsis"
-            className={cn('flex size-8 items-center justify-center text-mute', className)}
+            className={cn('text-mute flex size-8 items-center justify-center', className)}
             {...props}
         >
             <MoreHorizontal className="size-4" />

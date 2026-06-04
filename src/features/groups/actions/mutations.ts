@@ -45,7 +45,10 @@ async function normalizeGroupData(
     };
 }
 
-export async function createGroup(slug: string, data: unknown): Promise<ActionResult<{ id: string }>> {
+export async function createGroup(
+    slug: string,
+    data: unknown,
+): Promise<ActionResult<{ id: string }>> {
     try {
         const ctx = await requireInstitutionAccess(slug, [...ADMIN_ONLY]);
         const parsed = groupSchema.safeParse(data);

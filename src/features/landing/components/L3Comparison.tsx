@@ -21,45 +21,62 @@ export function L3Comparison(): React.JSX.Element {
     return (
         <section className="bg-paper-warm py-24 md:py-32" id="comparativa">
             <div className="mx-auto max-w-[1400px] px-6 md:px-14">
-                <Tag tone="primary" size="sm" className="font-bold">COMPARATIVA</Tag>
-                <h2 className="mt-5 font-display text-[42px] md:text-[56px] font-medium tracking-[-0.03em] leading-[1.05] text-ink max-w-[840px] mb-16">
+                <Tag tone="primary" size="sm" className="font-bold">
+                    COMPARATIVA
+                </Tag>
+                <h2 className="font-display text-ink mt-5 mb-16 max-w-[840px] text-[42px] leading-[1.05] font-medium tracking-[-0.03em] md:text-[56px]">
                     Forms es una hoja en blanco. Moodle es un buque carguero.
                     <br />
-                    <em className="text-primary not-italic italic">Aulika es una herramienta de aula.</em>
+                    <em className="text-primary italic not-italic">
+                        Aulika es una herramienta de aula.
+                    </em>
                 </h2>
 
-                <div className="overflow-hidden rounded-[22px] border border-border bg-white shadow-xl">
-                    <div className="grid grid-cols-[2fr_1fr_1fr_1.2fr] bg-paper border-b border-border px-8 py-5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-mute">
+                <div className="border-border overflow-hidden rounded-[22px] border bg-white shadow-xl">
+                    <div className="bg-paper border-border text-mute grid grid-cols-[2fr_1fr_1fr_1.2fr] border-b px-8 py-5 font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
                         <span>Característica</span>
                         <span className="text-center">Google Forms</span>
                         <span className="text-center">Moodle</span>
-                        <span className="text-center text-primary">Aulika</span>
+                        <span className="text-primary text-center">Aulika</span>
                     </div>
 
-                    <div className="divide-y divide-border">
+                    <div className="divide-border divide-y">
                         {COMPARISON_ROWS.map(([label, a, b, c], i) => (
-                            <div key={label as string} className="grid grid-cols-[2fr_1fr_1fr_1.2fr] px-8 py-4 items-center group transition-colors hover:bg-paper-warm/30">
-                                <span className="text-[14.5px] font-bold text-ink">{label as string}</span>
+                            <div
+                                key={label as string}
+                                className="group hover:bg-paper-warm/30 grid grid-cols-[2fr_1fr_1fr_1.2fr] items-center px-8 py-4 transition-colors"
+                            >
+                                <span className="text-ink text-[14.5px] font-bold">
+                                    {label as string}
+                                </span>
                                 {[a, b, c].map((val, j) => {
                                     const isAulika = j === 2;
                                     return (
-                                        <div key={j} className="flex justify-center items-center">
+                                        <div key={j} className="flex items-center justify-center">
                                             {typeof val === 'boolean' ? (
                                                 val ? (
-                                                    <div className={cn(
-                                                        "size-6 rounded-full flex items-center justify-center",
-                                                        isAulika ? "bg-primary text-white" : "bg-success/20 text-success"
-                                                    )}>
+                                                    <div
+                                                        className={cn(
+                                                            'flex size-6 items-center justify-center rounded-full',
+                                                            isAulika
+                                                                ? 'bg-primary text-white'
+                                                                : 'bg-success/20 text-success',
+                                                        )}
+                                                    >
                                                         <Check size={14} strokeWidth={3} />
                                                     </div>
                                                 ) : (
                                                     <X size={16} className="text-mute opacity-30" />
                                                 )
                                             ) : (
-                                                <span className={cn(
-                                                    "font-mono text-[12px] font-bold",
-                                                    isAulika ? "text-primary bg-primary-wash px-2 py-0.5 rounded-full" : "text-mute"
-                                                )}>
+                                                <span
+                                                    className={cn(
+                                                        'font-mono text-[12px] font-bold',
+                                                        isAulika
+                                                            ? 'text-primary bg-primary-wash rounded-full px-2 py-0.5'
+                                                            : 'text-mute',
+                                                    )}
+                                                >
                                                     {val as string}
                                                 </span>
                                             )}

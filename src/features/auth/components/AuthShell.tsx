@@ -22,38 +22,45 @@ export function AuthShell({ children, side }: AuthShellProps): React.JSX.Element
                 }}
             >
                 {/* Logo */}
-                <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
+                <Link
+                    href="/"
+                    className="flex items-center gap-3 transition-opacity hover:opacity-80"
+                >
                     <LogoMark size={34} variant="tinta" />
                     <LogoWordmark size={22} color="#ffffff" />
                 </Link>
 
                 {/* Optional side content */}
                 {side ? (
-                    <div className="flex-1 flex items-center py-12">{side}</div>
+                    <div className="flex flex-1 items-center py-12">{side}</div>
                 ) : (
-                    <div className="flex-1 flex flex-col justify-center py-12 space-y-4">
-                        <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/30">
+                    <div className="flex flex-1 flex-col justify-center space-y-4 py-12">
+                        <p className="font-mono text-[11px] tracking-[0.12em] text-white/30 uppercase">
                             Plataforma educativa
                         </p>
-                        <h2 className="font-display text-[44px] font-semibold leading-tight tracking-[-0.035em] text-white">
+                        <h2 className="font-display text-[44px] leading-tight font-semibold tracking-[-0.035em] text-white">
                             Crea, aplica y corrige exámenes en minutos.
                         </h2>
                         <p className="text-[15px] leading-relaxed text-white/50">
-                            Para colegios, preuniversitarios e instituciones de educación superior chilenas.
+                            Para colegios, preuniversitarios e instituciones de educación superior
+                            chilenas.
                         </p>
                     </div>
                 )}
 
                 {/* Footer */}
-                <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-white/25">
+                <p className="font-mono text-[10px] tracking-[0.1em] text-white/25 uppercase">
                     © 2026 Aulika · Todos los derechos reservados
                 </p>
             </aside>
 
             {/* Right — paper form area */}
-            <main className="flex flex-col items-center justify-center bg-paper px-8 py-12">
+            <main className="bg-paper flex flex-col items-center justify-center px-8 py-12">
                 {/* Mobile logo */}
-                <Link href="/" className="mb-8 flex items-center gap-2.5 transition-opacity hover:opacity-80 lg:hidden">
+                <Link
+                    href="/"
+                    className="mb-8 flex items-center gap-2.5 transition-opacity hover:opacity-80 lg:hidden"
+                >
                     <LogoMark size={30} />
                     <LogoWordmark size={20} color="#0b0b11" />
                 </Link>

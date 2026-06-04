@@ -16,17 +16,18 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/shared/components/ui/table';
 import { TablePaginator } from '@/shared/components/ui/table-paginator';
 import { cn } from '@/shared/lib/utils';
-import {
-    getPayments,
-    exportPaymentsCSV,
-} from '@/features/admin-plan/actions/mutations';
-import type {
-    PaginatedPayments,
-    PaymentFilters,
-} from '@/features/admin-plan/actions/mutations';
+import { getPayments, exportPaymentsCSV } from '@/features/admin-plan/actions/mutations';
+import type { PaginatedPayments, PaymentFilters } from '@/features/admin-plan/actions/mutations';
 import { type Plan, PaymentStatus } from '@prisma/client';
 
 const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
@@ -113,14 +114,19 @@ export function PaymentsClient({ initial }: Props): React.JSX.Element {
     }
 
     return (
-        <div className="flex flex-col min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             <AdminTopBar
                 breadcrumb={['Aulika · Plataforma', 'Panel Global', 'Pagos']}
                 title="Pagos"
                 subtitle={`${data.total} cobros registrados`}
                 icon={<Wallet size={18} />}
                 actions={
-                    <Button variant="ghost" size="sm" onClick={() => void handleExport()} className="gap-1.5">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => void handleExport()}
+                        className="gap-1.5"
+                    >
                         <Download size={14} />
                         Exportar CSV
                     </Button>
@@ -128,87 +134,120 @@ export function PaymentsClient({ initial }: Props): React.JSX.Element {
             />
 
             {/* Filter bar */}
-            <div className="flex flex-wrap items-center gap-2 border-b border-border bg-white px-8 py-4">
-                <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-mute" />
+            <div className="border-border flex flex-wrap items-center gap-2 border-b bg-white px-8 py-4">
+                <div className="relative max-w-sm flex-1">
+                    <Search className="text-mute absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                     <Input
                         type="search"
                         value={search}
                         onChange={(e) => handleSearch(e.target.value)}
                         placeholder="Buscar institución..."
-                        className="pl-9 h-[38px] border-border bg-white"
+                        className="border-border h-[38px] bg-white pl-9"
                     />
                 </div>
 
                 <Select
                     value={filters.plan ?? 'all'}
-                    onValueChange={(v) => applyFilters({ ...filters, plan: v === 'all' ? undefined : (v as Plan), page: 1 })}
+                    onValueChange={(v) =>
+                        applyFilters({
+                            ...filters,
+                            plan: v === 'all' ? undefined : (v as Plan),
+                            page: 1,
+                        })
+                    }
                 >
-                    <SelectTrigger className="h-[38px] w-44 border-border bg-white text-sm">
+                    <SelectTrigger className="border-border h-[38px] w-44 bg-white text-sm">
                         <SelectValue placeholder="Plan" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border-border shadow-xl">
+                    <SelectContent className="border-border rounded-xl shadow-xl">
                         <SelectItem value="all">Todos los planes</SelectItem>
                         {(['DOCENTE', 'COLEGIO', 'INSTITUCIONAL'] as Plan[]).map((p) => (
-                            <SelectItem key={p} value={p}>{PLAN_LABELS[p]}</SelectItem>
+                            <SelectItem key={p} value={p}>
+                                {PLAN_LABELS[p]}
+                            </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
 
                 <Select
                     value={filters.status ?? 'all'}
-                    onValueChange={(v) => applyFilters({ ...filters, status: v === 'all' ? undefined : (v as PaymentStatus), page: 1 })}
+                    onValueChange={(v) =>
+                        applyFilters({
+                            ...filters,
+                            status: v === 'all' ? undefined : (v as PaymentStatus),
+                            page: 1,
+                        })
+                    }
                 >
-                    <SelectTrigger className="h-[38px] w-40 border-border bg-white text-sm">
+                    <SelectTrigger className="border-border h-[38px] w-40 bg-white text-sm">
                         <SelectValue placeholder="Estado" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border-border shadow-xl">
+                    <SelectContent className="border-border rounded-xl shadow-xl">
                         <SelectItem value="all">Todos los estados</SelectItem>
                         {(Object.values(PaymentStatus) as PaymentStatus[]).map((s) => (
-                            <SelectItem key={s} value={s}>{PAYMENT_STATUS_LABELS[s]}</SelectItem>
+                            <SelectItem key={s} value={s}>
+                                {PAYMENT_STATUS_LABELS[s]}
+                            </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
 
                 <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-mute whitespace-nowrap">Desde</span>
+                    <span className="text-mute text-[11px] whitespace-nowrap">Desde</span>
                     <Input
                         type="date"
                         value={filters.dateFrom ?? ''}
-                        onChange={(e) => applyFilters({ ...filters, dateFrom: e.target.value || undefined, page: 1 })}
-                        className="h-[38px] w-36 border-border bg-white"
+                        onChange={(e) =>
+                            applyFilters({
+                                ...filters,
+                                dateFrom: e.target.value || undefined,
+                                page: 1,
+                            })
+                        }
+                        className="border-border h-[38px] w-36 bg-white"
                     />
                 </div>
 
                 <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-mute whitespace-nowrap">Hasta</span>
+                    <span className="text-mute text-[11px] whitespace-nowrap">Hasta</span>
                     <Input
                         type="date"
                         value={filters.dateTo ?? ''}
-                        onChange={(e) => applyFilters({ ...filters, dateTo: e.target.value || undefined, page: 1 })}
-                        className="h-[38px] w-36 border-border bg-white"
+                        onChange={(e) =>
+                            applyFilters({
+                                ...filters,
+                                dateTo: e.target.value || undefined,
+                                page: 1,
+                            })
+                        }
+                        className="border-border h-[38px] w-36 bg-white"
                     />
                 </div>
 
                 <div className="flex-1" />
-                <span className="font-mono text-[11px] text-mute uppercase tracking-wider">
+                <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
                     {data.total} cobros
                 </span>
             </div>
 
-            <main className="flex-1 p-8 overflow-auto">
+            <main className="flex-1 overflow-auto p-8">
                 {data.rows.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
-                        <Wallet size={48} className="mb-4 text-mute/20" />
-                        <p className="text-lg font-medium text-ink">
+                        <Wallet size={48} className="text-mute/20 mb-4" />
+                        <p className="text-ink text-lg font-medium">
                             No hay pagos con los filtros seleccionados
                         </p>
                     </Card>
                 ) : (
-                    <Card className={cn('p-0 overflow-visible border-border shadow-sm transition-opacity', isPending && 'opacity-60')}>
+                    <Card
+                        className={cn(
+                            'border-border overflow-visible p-0 shadow-sm transition-opacity',
+                            isPending && 'opacity-60',
+                        )}
+                    >
                         <Table>
                             <TableHeader className="bg-paper">
-                                <TableRow className="hover:bg-transparent border-b border-border">
+                                <TableRow className="border-border border-b hover:bg-transparent">
                                     <TableHead>Fecha</TableHead>
                                     <TableHead>Institución</TableHead>
                                     <TableHead>Plan</TableHead>
@@ -221,25 +260,46 @@ export function PaymentsClient({ initial }: Props): React.JSX.Element {
                             </TableHeader>
                             <TableBody>
                                 {data.rows.map((row) => (
-                                    <TableRow key={row.id} className="group h-14 border-b border-border last:border-0">
-                                        <TableCell className="text-mute">{formatDate(row.paidAt ?? row.createdAt)}</TableCell>
-                                        <TableCell className="font-medium text-ink">{row.institutionName ?? '—'}</TableCell>
+                                    <TableRow
+                                        key={row.id}
+                                        className="group border-border h-14 border-b last:border-0"
+                                    >
+                                        <TableCell className="text-mute">
+                                            {formatDate(row.paidAt ?? row.createdAt)}
+                                        </TableCell>
+                                        <TableCell className="text-ink font-medium">
+                                            {row.institutionName ?? '—'}
+                                        </TableCell>
                                         <TableCell>{PLAN_LABELS[row.subscriptionPlan]}</TableCell>
-                                        <TableCell className="text-mute">{row.subscriptionBilling === 'monthly' ? 'Mensual' : 'Anual'}</TableCell>
-                                        <TableCell className="font-medium text-ink">{formatCLP(row.amount)}</TableCell>
+                                        <TableCell className="text-mute">
+                                            {row.subscriptionBilling === 'monthly'
+                                                ? 'Mensual'
+                                                : 'Anual'}
+                                        </TableCell>
+                                        <TableCell className="text-ink font-medium">
+                                            {formatCLP(row.amount)}
+                                        </TableCell>
                                         <TableCell>
-                                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${PAYMENT_STATUS_COLORS[row.status]}`}>
+                                            <span
+                                                className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${PAYMENT_STATUS_COLORS[row.status]}`}
+                                            >
                                                 {PAYMENT_STATUS_LABELS[row.status]}
                                             </span>
                                         </TableCell>
                                         <TableCell className="text-mute">
-                                            {row.periodStart ? `${formatDate(row.periodStart)} → ${formatDate(row.periodEnd)}` : '—'}
+                                            {row.periodStart
+                                                ? `${formatDate(row.periodStart)} → ${formatDate(row.periodEnd)}`
+                                                : '—'}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <Button
                                                 variant="ghost"
                                                 size="icon-sm"
-                                                onClick={() => router.push(`/config/subscriptions/${row.subscriptionId}`)}
+                                                onClick={() =>
+                                                    router.push(
+                                                        `/config/subscriptions/${row.subscriptionId}`,
+                                                    )
+                                                }
                                                 title="Ver suscripción"
                                             >
                                                 <ExternalLink size={16} className="text-primary" />

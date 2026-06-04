@@ -9,9 +9,21 @@ interface SendEmailParams {
     htmlContent: string;
 }
 
-async function getBrevoConfig(): Promise<{ apiKey: string; senderEmail: string; senderName: string } | null> {
+async function getBrevoConfig(): Promise<{
+    apiKey: string;
+    senderEmail: string;
+    senderName: string;
+} | null> {
     const configs = await prisma.appConfig.findMany({
-        where: { key: { in: [APP_CONFIG_KEY.BREVO_API_KEY, APP_CONFIG_KEY.BREVO_SENDER_EMAIL, APP_CONFIG_KEY.BREVO_SENDER_NAME] } },
+        where: {
+            key: {
+                in: [
+                    APP_CONFIG_KEY.BREVO_API_KEY,
+                    APP_CONFIG_KEY.BREVO_SENDER_EMAIL,
+                    APP_CONFIG_KEY.BREVO_SENDER_NAME,
+                ],
+            },
+        },
         select: { key: true, value: true },
     });
 
@@ -24,11 +36,16 @@ async function getBrevoConfig(): Promise<{ apiKey: string; senderEmail: string; 
     return { apiKey, senderEmail, senderName };
 }
 
-export async function sendEmail(params: SendEmailParams): Promise<{ sent: boolean; error?: string }> {
+export async function sendEmail(
+    params: SendEmailParams,
+): Promise<{ sent: boolean; error?: string }> {
     try {
         const config = await getBrevoConfig();
         if (!config) {
-            return { sent: false, error: 'Configurá la API de Brevo en Configuración antes de enviar emails.' };
+            return {
+                sent: false,
+                error: 'Configurá la API de Brevo en Configuración antes de enviar emails.',
+            };
         }
 
         const client = new BrevoClient({ apiKey: config.apiKey });

@@ -6,9 +6,16 @@ import { type NextRequest, NextResponse } from 'next/server';
 type NextAuthRequest = NextRequest & { auth: Session | null };
 
 const PUBLIC_PREFIXES = [
-    '/_next', '/api', '/favicon.ico',
-    '/examen', '/demo', '/login', '/paes',
-    '/audiencias', '/empresa', '/recursos',
+    '/_next',
+    '/api',
+    '/favicon.ico',
+    '/examen',
+    '/demo',
+    '/login',
+    '/paes',
+    '/audiencias',
+    '/empresa',
+    '/recursos',
     '/registro',
 ];
 
@@ -53,5 +60,7 @@ export default auth((req: NextAuthRequest) => {
 });
 
 export const config = {
-    matcher: ['/((?!_next|favicon\\.ico|manifest\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|ttf|otf|eot)$).*)'],
+    matcher: [
+        '/((?!_next|favicon\\.ico|manifest\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|ttf|otf|eot)$).*)',
+    ],
 };

@@ -2,7 +2,7 @@
 
 Este archivo proporciona instrucciones permanentes a Claude Code cuando trabaja en este repositorio.
 
-## ⚠️ INSTRUCCIONES CRÍTICAS (NO NEGOCIABLES)
+## ⚠️ INSTRUCCIONES CRÍTICAS (NO NEGOCIABLES — Alta Prioridad)
 
 **SIEMPRE comunicarse en ESPAÑOL** — Todas las preguntas, explicaciones, planes y respuestas deben estar en español.
 
@@ -17,92 +17,35 @@ Este archivo proporciona instrucciones permanentes a Claude Code cuando trabaja 
 **LEER CLAUDE.md ANTES DE CADA FEATURE** — Al comenzar cualquier tarea de desarrollo (nueva feature, refactor, corrección), Claude DEBE leer este archivo completo para conocer la estructura vigente, los componentes existentes y las reglas de organización. No se puede alegar desconocimiento de lo que está documentado aquí.
 
 **DRY — Regla estricta** — Antes de crear cualquier componente, hook, helper o lógica nueva, Claude DEBE verificar si ya existe algo equivalente en el proyecto. Si existe, usarlo. Si está en el lugar incorrecto, documentarlo y solicitar moverlo. Nunca duplicar:
+
 - Componentes UI → buscar en `src/shared/components/ui/` primero
 - Lógica de dominio → buscar en `src/features/{dominio}/lib/`
 - Utilidades → buscar en `src/shared/lib/`
 
-**BLOQUEO POR AGENTE NO INVOCADO** — Antes de escribir, modificar o eliminar CUALQUIER archivo de código, Claude DEBE verificar si la tarea requiere un agente especialista. Si el agente correspondiente no fue invocado en la conversación actual, Claude DEBE detenerse completamente y responder con el mensaje exacto:
+## 🤖 FLUJO DE TRABAJO CON GSTACK (reemplaza a los agentes especialistas)
 
-> "Esta tarea requiere el agente **[nombre]**. Por favor invocalo con `/[nombre]` antes de continuar."
+Los agentes `/frontend-agent`, `/backend-agent` y `/github-agent` fueron retirados. Todo el trabajo se hace directamente con las skills de **GStack** y **CodeGraph**:
 
-Claude NO puede omitir este bloqueo bajo ninguna circunstancia, aunque el usuario insista, aunque la tarea parezca simple, o aunque ya tenga el contexto suficiente para implementarla.
-
-## 🤖 AGENTES OBLIGATORIOS (SIEMPRE USAR)
-
-Todo trabajo de desarrollo en este proyecto DEBE delegarse al agente correspondiente. Esta regla NO tiene excepciones.
-
-### Agente Frontend (`/frontend-agent`)
-
-**Bloquear y solicitar `/frontend-agent`** para CUALQUIER tarea que involucre:
-- Componentes React (`src/features/*/components/`, `src/shared/components/`)
-- Páginas y layouts (`src/app/`)
-- Estilos Tailwind CSS 4
-- shadcn/ui — agregar, modificar o crear componentes
-- Sonner — toasts y notificaciones
-- Formularios con React Hook Form + Zod (lado cliente)
-- Diseño UI/UX, layouts, responsive design
-- Estados de carga, skeletons, empty states
-- Animaciones y transiciones
-
-**Skills activas:** `nextjs-shadcn`, `react-best-practices`, `nextjs-data-fetching`
-
-### Agente Backend (`/backend-agent`)
-
-**Bloquear y solicitar `/backend-agent`** para CUALQUIER tarea que involucre:
-- Server Actions (`src/features/*/actions/`)
-- Prisma ORM — queries, relaciones, transacciones
-- Schema de base de datos (`prisma/schema.prisma`)
-- PostgreSQL — optimización, índices, constraints
-- Autenticación NextAuth (`src/features/auth/`)
-- Sesión JWT de estudiante (`src/features/exam-session/lib/session.ts`)
-- Lógica de dominio (`src/features/*/lib/`)
-- Seeders (`prisma/seed.ts`, `prisma/seeders/`)
-- Validaciones Zod del lado servidor
-- Permisos, roles, seguridad
-
-**Skills activas:** `prisma-patterns`, `server-actions`, `database`
-
-### Regla de coordinación
-
-Si una tarea toca ambas capas (ej: nuevo formulario + nueva Server Action):
-1. Detener y pedir `/backend-agent` primero — define la Action y el schema servidor
-2. Una vez hecho, pedir `/frontend-agent` — construye el componente que la consume
-Claude NO puede avanzar a la capa siguiente sin que el usuario haya invocado el agente correspondiente.
-
-### Agente GitHub (`/github-agent`)
-
-**Bloquear y solicitar `/github-agent`** para CUALQUIER tarea que involucre:
-- Commits al repositorio
-- Push a GitHub
-- Pull Requests
-- Manejo de branches
-- Tags de versión
-- Cualquier operación `git`
+| Etapa                         | Herramienta                                                |
+| ----------------------------- | ---------------------------------------------------------- |
+| Explorar / entender código    | CodeGraph (`codegraph_explore` ANTES de editar)            |
+| Especificar features ambiguos | `/spec`                                                    |
+| Investigar bugs               | `/investigate`                                             |
+| Implementación                | Directa (respetando DDD, DRY y las reglas de este archivo) |
+| QA en navegador               | `/qa` (corrige) o `/qa-only` (solo reporta)                |
+| Review pre-commit             | `/review`                                                  |
+| Auditoría de diseño           | `/design-review`                                           |
+| Commit + ship                 | `/ship` (solo cuando el usuario lo pida)                   |
 
 **Formato de commit OBLIGATORIO** — todo commit usa exactamente:
+
 ```
 Tarea: {descripción en español}
 Fecha: {DD-MM-YYYY}
 Versión: {X.Y.Z}
 ```
-Claude NUNCA puede hacer un commit con otro formato, bajo ninguna circunstancia.
 
-**Skill activa:** `git-workflow`
-
-### Regla de coordinación
-
-Si una tarea toca ambas capas (ej: nuevo formulario + nueva Server Action):
-1. Detener y pedir `/backend-agent` primero — define la Action y el schema servidor
-2. Una vez hecho, pedir `/frontend-agent` — construye el componente que la consume
-3. Al finalizar, pedir `/github-agent` para el commit
-Claude NO puede avanzar a la capa siguiente sin que el usuario haya invocado el agente correspondiente.
-
-### Lo único permitido sin agente
-
-- Responder preguntas conceptuales o de arquitectura (sin tocar archivos)
-- Leer archivos para diagnóstico (sin modificar)
-- Explicar código existente
-- Planificar y describir cambios (sin implementarlos)
+Claude NUNCA puede hacer un commit con otro formato, bajo ninguna circunstancia. No commitear ni pushear sin pedido explícito del usuario.
 
 ## Project Overview
 
@@ -174,6 +117,7 @@ El SuperAdministrador es la **llave maestra** del sistema: tiene permiso para **
 - Cualquier verificación de permisos debe cortocircuitar en favor del SuperAdministrador antes de evaluar reglas de rol o institución.
 
 Patrón obligatorio en `getSessionUser()` y funciones similares:
+
 ```ts
 // SuperAdmin bypass — tiene acceso total
 if (session.user.userRoleName === USER_ROLE.SUPER_ADMIN) {
@@ -217,7 +161,9 @@ src/
 │   │   ├── layout.tsx
 │   │   └── examen/
 │   │       ├── login/page.tsx        → /examen/login
+│   │       ├── seleccion/page.tsx    → /examen/seleccion (elegir entre exámenes pendientes)
 │   │       ├── [examId]/page.tsx     → /examen/[examId]
+│   │       ├── [examId]/intro/page.tsx → /examen/[examId]/intro (instrucciones; inicia el cronómetro)
 │   │       └── resultado/[resultId]/page.tsx
 │   ├── (admin)/                      ← panel institucional + superadmin
 │   │   ├── layout.tsx
@@ -248,7 +194,6 @@ src/
 │   │   │   └── student-auth.ts      ← loginByRut
 │   │   ├── components/
 │   │   │   ├── StudentsClient.tsx
-│   │   │   ├── RutInput.tsx          ← input con máscara y validación de RUT
 │   │   │   └── StudentLoginForm.tsx
 │   │   └── schemas/student.schemas.ts ← studentSchema, studentLoginSchema
 │   ├── groups/
@@ -264,10 +209,9 @@ src/
 │   ├── exam-session/
 │   │   ├── actions/mutations.ts
 │   │   ├── components/
-│   │   │   ├── ExamCarousel.tsx
-│   │   │   ├── QuestionCard.tsx
-│   │   │   └── Timer.tsx
+│   │   │   └── ExamCarousel.tsx
 │   │   ├── lib/session.ts            ← StudentSession, ResultSession (JWT cookie)
+│   │   ├── lib/attempt.ts            ← getOrCreateAttempt, sessionEndsAtFor (ExamAttempt)
 │   │   ├── schemas/exam-session.schemas.ts
 │   │   └── types/exam.types.ts      ← SafeExam, SafeQuestion, SafeOption
 │   ├── results/
@@ -286,9 +230,9 @@ src/
 └── shared/
     ├── components/
     │   ├── ui/                       ← shadcn/ui primitivos + componentes UI reutilizables propios
-    │   │   ├── data-table.tsx        ← DataTable<T> genérico con paginación integrada
-    │   │   ├── rut-field.tsx         ← RutField input con máscara IMask (cross-feature)
-    │   │   ├── table-paginator.tsx   ← TablePaginator standalone
+    │   │   ├── rut-field.tsx         ← RutField + RUT_MASK/RUT_MASK_DEFINITIONS (cross-feature)
+    │   │   ├── table-paginator.tsx   ← TablePaginator standalone (paginación canónica)
+    │   │   ├── timer.tsx             ← Timer countdown (examen, demo, paes)
     │   │   ├── stat-tile.tsx         ← StatTile para dashboards
     │   │   └── ... (shadcn/ui)
     │   ├── layout/                   ← componentes de layout compartidos entre features
@@ -312,7 +256,7 @@ src/
 #### Dónde va cada componente (decidir en este orden)
 
 1. **¿Es un primitivo shadcn/ui o un componente UI reutilizable entre ≥2 features?**
-   → `src/shared/components/ui/` (ej: `data-table.tsx`, `rut-field.tsx`, `table-paginator.tsx`)
+   → `src/shared/components/ui/` (ej: `rut-field.tsx`, `table-paginator.tsx`, `timer.tsx`)
 
 2. **¿Es un componente de layout compartido (barra, sidebar, nav)?**
    → `src/shared/components/layout/` (ej: `AdminTopBar.tsx`)
@@ -329,31 +273,33 @@ src/
 #### Reglas DRY para componentes
 
 - **Verificar antes de crear** — Buscar en `src/shared/components/ui/` antes de crear cualquier componente UI nuevo.
-- **Un solo input RUT** — El componente canónico es `src/shared/components/ui/rut-field.tsx` (`RutField`). No crear versiones locales inline en formularios. No usar `RutInput.tsx` de students en código nuevo.
-- **Una sola tabla** — El componente canónico es `src/shared/components/ui/data-table.tsx` (`DataTable<T>`). Toda tabla nueva con paginación DEBE usar este componente, no construir `<table>` desde cero.
+- **Un solo input RUT** — El componente canónico es `src/shared/components/ui/rut-field.tsx` (`RutField`). No crear versiones locales inline en formularios. Si necesitás un envoltorio visual distinto (ej. formulario público), reutilizá las constantes `RUT_MASK` y `RUT_MASK_DEFINITIONS` que exporta ese mismo archivo en tu `IMaskInput`; no redefinas la máscara.
+- **Tablas** — El patrón canónico es la tabla shadcn (`@/shared/components/ui/table`) + `TablePaginator` para la paginación. No construir `<table>` crudo desde cero.
 - **Un solo paginador** — `src/shared/components/ui/table-paginator.tsx` (`TablePaginator`). Usar siempre que se necesite paginación standalone.
 - **Paginación por defecto: 10 filas** — Toda tabla con paginación usa `perPage={10}` salvo que se pida explícitamente otro valor.
 
 ### Imports correctos (post-DDD)
 
-| Necesitás importar          | Path correcto                                    |
-| --------------------------- | ------------------------------------------------ |
-| NextAuth (auth, handlers)   | `@/features/auth/auth`                           |
-| Prisma singleton            | `@/shared/lib/prisma`                            |
-| cn()                        | `@/shared/lib/utils`                             |
-| RUT helpers                 | `@/shared/lib/rut`                               |
-| Roles / USER_ROLE           | `@/shared/lib/roles`                             |
-| shadcn/ui componente        | `@/shared/components/ui/{componente}`            |
-| DataTable (tabla genérica)  | `@/shared/components/ui/data-table`              |
-| RutField (input RUT)        | `@/shared/components/ui/rut-field`               |
-| TablePaginator              | `@/shared/components/ui/table-paginator`         |
-| AdminTopBar                 | `@/shared/components/layout/AdminTopBar`         |
-| Logo                        | `@/shared/components/branding/logo`              |
-| Sidebar                     | `@/features/dashboard/components/Sidebar`        |
-| ExamCarousel / Timer        | `@/features/exam-session/components/...`         |
-| Cálculo de notas            | `@/features/results/lib/grade`                   |
-| Session JWT estudiante      | `@/features/exam-session/lib/session`            |
-| SafeExam / SafeQuestion     | `@/features/exam-session/types/exam.types`       |
+| Necesitás importar        | Path correcto                                              |
+| ------------------------- | ---------------------------------------------------------- |
+| NextAuth (auth, handlers) | `@/features/auth/auth`                                     |
+| Prisma singleton          | `@/shared/lib/prisma`                                      |
+| cn()                      | `@/shared/lib/utils`                                       |
+| RUT helpers               | `@/shared/lib/rut`                                         |
+| Roles / USER_ROLE         | `@/shared/lib/roles`                                       |
+| shadcn/ui componente      | `@/shared/components/ui/{componente}`                      |
+| RutField (input RUT)      | `@/shared/components/ui/rut-field`                         |
+| TablePaginator            | `@/shared/components/ui/table-paginator`                   |
+| Timer (countdown)         | `@/shared/components/ui/timer`                             |
+| Filtros de scoping (rol)  | `@/shared/lib/scoping`                                     |
+| Guard de página [slug]    | `@/shared/lib/auth-guard` (`requireInstitutionPageAccess`) |
+| AdminTopBar               | `@/shared/components/layout/AdminTopBar`                   |
+| Logo                      | `@/shared/components/branding/logo`                        |
+| Sidebar                   | `@/features/dashboard/components/Sidebar`                  |
+| ExamCarousel              | `@/features/exam-session/components/ExamCarousel`          |
+| Cálculo de notas          | `@/features/results/lib/grade`                             |
+| Session JWT estudiante    | `@/features/exam-session/lib/session`                      |
+| SafeExam / SafeQuestion   | `@/features/exam-session/types/exam.types`                 |
 
 ## Proxy (`src/proxy.ts`)
 
@@ -394,42 +340,88 @@ Lógica de protección:
 
 ### Matriz de permisos por rol
 
-Los permisos se aplican en tres capas: **proxy** (`src/proxy.ts`), **páginas** (`src/app/(admin)/...`) y **Server Actions** (`requireInstitutionAccess`). Leyenda: ✅ permitido · ⚠️ permitido con alcance limitado · ❌ denegado.
+Los permisos se aplican en tres capas: **proxy** (`src/proxy.ts`), **páginas** (`src/app/(admin)/...`) y **Server Actions** (`requireInstitutionAccess` + helpers de `src/shared/lib/scoping.ts`). Leyenda: ✅ permitido · ⚠️ permitido con alcance limitado · ❌ denegado · — no aplica.
 
-| Recurso / Acción                         | SuperAdministrador | Administrador | Profesor                    | Estudiante |
-| ---------------------------------------- | ------------------ | ------------- | --------------------------- | ---------- |
-| Panel `/config` (global)                 | ✅                 | ❌            | ❌                          | ❌         |
-| Panel institución `/[slug]`              | ✅ (cualquiera)    | ✅ (la suya)  | ✅ (la suya)                | ❌         |
-| Login al panel admin (NextAuth)          | ✅                 | ✅            | ✅                          | ❌ (RUT)   |
-| Instituciones (CRUD)                     | ✅                 | ❌            | ❌                          | ❌         |
-| Planes / Suscripciones / Facturación / Pagos / Auditoría / Config del sistema | ✅ | ❌ | ❌            | ❌         |
-| Estudiantes — ver                        | ✅                 | ✅            | ⚠️ solo sus grupos          | ❌         |
-| Estudiantes — crear                      | ✅                 | ✅            | ❌                          | ❌         |
-| Estudiantes — editar                     | ✅                 | ✅            | ⚠️ solo sus grupos          | ❌         |
-| Estudiantes — eliminar                   | ✅                 | ✅            | ❌                          | ❌         |
-| Estudiantes — activar/desactivar         | ✅                 | ✅            | ⚠️ solo sus grupos          | ❌         |
-| Profesores — ver                         | ✅                 | ✅            | ✅ (listado)                | ❌         |
-| Profesores — crear/editar/eliminar       | ✅                 | ✅            | ❌                          | ❌         |
-| Grupos — ver                             | ✅                 | ✅            | ⚠️ solo los asignados       | ❌         |
-| Grupos — crear/editar/eliminar           | ✅                 | ✅            | ❌                          | ❌         |
-| Exámenes — ver/gestionar                 | ✅                 | ✅            | ⚠️ solo los de sus grupos   | ❌         |
-| Resultados / En vivo                     | ✅                 | ✅            | ⚠️ solo sus grupos          | ❌         |
-| Ajustes de institución (`/[slug]/settings`) | ✅              | ✅            | ❌                          | ❌         |
-| Rendir exámenes (`/examen`)              | —                  | —             | —                           | ✅         |
+#### Acceso y sesión
 
-> **SuperAdministrador**: la columna refleja su rol como llave maestra — opera en cualquier institución resolviendo por el `slug` de la URL. **Profesor**: el alcance ⚠️ está acotado a los grupos donde figura como profesor/tutor (`professors: { some: { id } }`). **Estudiante**: nunca obtiene sesión NextAuth; el proxy lo redirige a `/examen/login`.
+| Recurso / Acción                          | SuperAdministrador | Administrador | Profesor     | Estudiante     |
+| ----------------------------------------- | ------------------ | ------------- | ------------ | -------------- |
+| Login panel admin (NextAuth, email+pass)  | ✅                 | ✅            | ✅           | ❌             |
+| Login estudiante (por RUT, sin contraseña)| ❌                 | ❌            | ❌           | ✅             |
+| Panel global `/config`                    | ✅                 | ❌            | ❌           | ❌             |
+| Panel institución `/[slug]`               | ✅ (cualquiera)    | ✅ (la suya)  | ✅ (la suya) | ❌             |
+| Operar en cualquier institución           | ✅ (llave maestra) | ❌            | ❌           | ❌             |
+
+#### Plataforma (solo SuperAdministrador)
+
+| Recurso / Acción                              | SuperAdministrador | Administrador | Profesor | Estudiante |
+| --------------------------------------------- | ------------------ | ------------- | -------- | ---------- |
+| Instituciones (CRUD)                          | ✅                 | ❌            | ❌       | ❌         |
+| Planes comerciales y CustomPlan (internos)    | ✅                 | ❌            | ❌       | ❌         |
+| Suscripciones                                 | ✅                 | ❌            | ❌       | ❌         |
+| Facturación / Pagos                           | ✅                 | ❌            | ❌       | ❌         |
+| Auditoría (logs)                              | ✅                 | ❌            | ❌       | ❌         |
+| Configuración del sistema                     | ✅                 | ❌            | ❌       | ❌         |
+
+#### Institución (`/[slug]`)
+
+| Recurso / Acción                          | SuperAdministrador | Administrador | Profesor                  | Estudiante |
+| ----------------------------------------- | ------------------ | ------------- | ------------------------- | ---------- |
+| Dashboard de la institución               | ✅                 | ✅            | ⚠️ datos de sus grupos    | ❌         |
+| Ajustes de institución (`/settings`)      | ✅                 | ✅            | ❌                        | ❌         |
+| **Estudiantes** — ver                     | ✅                 | ✅            | ⚠️ solo sus grupos        | ❌         |
+| **Estudiantes** — crear (individual)      | ✅                 | ✅            | ⚠️ solo sus grupos        | ❌         |
+| **Estudiantes** — importar Excel          | ✅                 | ✅            | ⚠️ solo sus grupos        | ❌         |
+| **Estudiantes** — editar                  | ✅                 | ✅            | ⚠️ solo sus grupos        | ❌         |
+| **Estudiantes** — activar/desactivar      | ✅                 | ✅            | ⚠️ solo sus grupos        | ❌         |
+| **Estudiantes** — eliminar                | ✅                 | ✅            | ❌                        | ❌         |
+| **Cuerpo docente** — ver listado          | ✅                 | ✅            | ✅                        | ❌         |
+| **Cuerpo docente** — crear/editar/eliminar| ✅                 | ✅            | ❌                        | ❌         |
+| **Grupos** — ver                          | ✅                 | ✅            | ⚠️ solo los asignados     | ❌         |
+| **Grupos** — crear/editar/eliminar        | ✅                 | ✅            | ❌                        | ❌         |
+| **Exámenes** — ver                        | ✅                 | ✅            | ⚠️ solo los de sus grupos | ❌         |
+| **Exámenes** — crear                      | ✅                 | ✅            | ⚠️ solo a sus grupos      | ❌         |
+| **Exámenes** — editar                     | ✅                 | ✅            | ⚠️ solo los de sus grupos | ❌         |
+| **Exámenes** — publicar/despublicar       | ✅                 | ✅            | ⚠️ solo los de sus grupos | ❌         |
+| **Exámenes** — eliminar                   | ✅                 | ✅            | ⚠️ solo los de sus grupos | ❌         |
+| **Preguntas** — crear/editar/eliminar/importar | ✅            | ✅            | ⚠️ solo los de sus grupos | ❌         |
+| **Resultados** finales (`/results`)       | ✅                 | ✅            | ⚠️ solo sus grupos        | ❌         |
+| **Resultados** en vivo (`/liveresults`)   | ✅                 | ✅            | ⚠️ solo sus grupos        | ❌         |
+
+#### Área del estudiante (`/examen`)
+
+| Recurso / Acción                          | SuperAdministrador | Administrador | Profesor | Estudiante |
+| ----------------------------------------- | ------------------ | ------------- | -------- | ---------- |
+| Rendir exámenes asignados                 | —                  | —             | —        | ✅         |
+| Ver sus propios resultados                | —                  | —             | —        | ✅         |
+
+> **SuperAdministrador**: llave maestra — opera en cualquier institución resolviendo por el `slug` de la URL; cualquier verificación cortocircuita a su favor. **Administrador**: acceso total dentro de **su** institución. **Profesor**: el alcance ⚠️ está acotado a los grupos donde figura como profesor (`groupProfessorFilter` → `professors: { some: { id } }`) y, por extensión, a los estudiantes, exámenes y resultados de esos grupos; al editar un examen se preservan los grupos ajenos ya asignados. **Estudiante**: nunca obtiene sesión NextAuth; el proxy lo redirige a `/examen/login` y solo accede a `/examen/*`.
+
+## Flujo del examen (estudiante)
+
+El alumno entra por `/examen/login` (RUT o email) y **siempre** aterriza en `/examen/seleccion` ("Mis exámenes"), nunca directo a un examen. Esa página clasifica sus exámenes en **Disponible ahora**, **Próximos** y **Ya rendidos**.
+
+- **Ventana del examen**: `Exam.scheduledAt` (inicio) y `Exam.closesAt` (cierre) definen cuándo es rendible. Antes del inicio el examen aparece en "Próximos" (no iniciable); después del cierre deja de ofrecerse. El gating se aplica en `startSelectedExam`.
+- **Comenzar** lleva a las instrucciones (`/examen/[examId]/intro`); el cronómetro arranca al aceptar y presionar "Comenzar examen" (`beginExam`).
+- **Auto-entrega (REGLA)**: cuando el tiempo del intento se agota, el examen se entrega **automáticamente** con lo respondido y se muestra el resultado. Cubre dos casos:
+    1. En vivo: el `Timer` dispara `autoSubmit` al llegar a cero.
+    2. Reanudación: si el alumno se desconectó y vuelve con el intento ya vencido (`ExamAttempt.endsAt` en el pasado), `startSelectedExam` lo califica con `gradeAttempt` y redirige a `/examen/resultado/[id]`. Nunca se lo devuelve al login por un intento vencido.
+- Calificación **all-or-nothing** por pregunta: acierta solo si el conjunto elegido coincide exactamente con el correcto.
 
 ## Estructura de Rutas
 
 ### Rutas Públicas
 
-| Ruta                           | Grupo de ruta | Descripción                        |
-| ------------------------------ | ------------- | ---------------------------------- |
-| `/`                            | `(public)`    | Web pública / marketing ("Muy pronto") |
-| `/examen/login`                | `(student)`   | Login de estudiante por RUT        |
-| `/examen/[examId]`             | `(student)`   | Interfaz del examen                |
-| `/examen/resultado/[resultId]` | `(student)`   | Vista de resultados del examen     |
-| `/demo/exam`                   | `(demo)`      | Demo del examen (sin auth)         |
+| Ruta                           | Grupo de ruta | Descripción                                    |
+| ------------------------------ | ------------- | ---------------------------------------------- |
+| `/`                            | `(public)`    | Web pública / marketing ("Muy pronto")         |
+| `/examen/login`                | `(student)`   | Login de estudiante por RUT                    |
+| `/examen/seleccion`            | `(student)`   | Selección entre exámenes pendientes            |
+| `/examen/[examId]/intro`       | `(student)`   | Instrucciones; "Comenzar" inicia el cronómetro |
+| `/examen/[examId]`             | `(student)`   | Interfaz del examen                            |
+| `/examen/resultado/[resultId]` | `(student)`   | Vista de resultados del examen                 |
+| `/demo/exam`                   | `(demo)`      | Demo del examen (sin auth)                     |
+| `/demo`                        | `(demo)`      | Login del modo demo (panel con datos de ejemplo) |
 
 ### Rutas Protegidas — Admin/Profesor
 
@@ -466,6 +458,39 @@ Los permisos se aplican en tres capas: **proxy** (`src/proxy.ts`), **páginas** 
 - **Imports** — Named exports. Orden: React → Next.js → terceros → @/ → relativos.
 - **TypeScript** — `strict: true`. Sin `any`. Tipo de retorno explícito en todas las funciones.
 
+## Centro de ayuda (`/[slug]/ayuda`)
+
+Guía de uso del panel embebida, **adaptada al rol** (Administrador vs Profesor). Feature en `src/features/help/`:
+
+- `lib/help-content.ts` — contenido de cada sección (propósito, pasos, alcance por rol). Es la fuente de verdad; editar acá para cambiar textos.
+- `components/HelpGuide.tsx` — render (server). El profesor no ve secciones con `professorAccess: 'none'` (p. ej. Ajustes), las de `'readonly'` se muestran sin pasos, y las de `'scoped'` llevan el badge "Tus grupos".
+
+### Capturas (`public/help/`)
+
+Nombre: `{seccion}-{admin|profesor}.webp` (p. ej. `examenes-admin.webp`). Si falta la variante `profesor`, se usa la `admin` como fallback.
+
+**Cómo regenerar una captura** (hacerlo tras cada rediseño de la pantalla correspondiente, o quedan desactualizadas):
+
+1. Levantar `pnpm dev` e iniciar sesión como Administrador o Profesor según la variante.
+2. Navegar a la sección real del panel (`/[slug]/students`, `/[slug]/exams`, etc.).
+3. Capturar el viewport a **1280px de ancho** en formato **webp** (~quality 80) y guardar reemplazando el archivo en `public/help/`.
+
+Credenciales de prueba útiles (seed local): admin `carlos.lopez@ulagos.cl`, profesor `pedro.soto@ippaci.cl`, contraseña `Admin2026!`.
+
+## Planes y upgrade self-service
+
+El plan vive en `AcademicInstitution.plan` (`Plan`: FREE · DOCENTE · COLEGIO · INSTITUCIONAL) + `planExpiresAt` + `customPlanId` (plan interno opcional asignado por el SuperAdmin).
+
+- **Página de upgrade** — `/[slug]/upgrade` (`UpgradePlans`), **solo Administrador** (el Profesor se redirige al panel). Selección estilo pricing con toggle mensual/anual; marca el plan actual.
+- **Accesos** — el banner del Sidebar (`Free`/`Docente`, solo Admin) y el `PlanUsageBanner` de límite (solo Admin) llevan a `/[slug]/upgrade`.
+- **Pago (Docente/Colegio)** — `upgradePlan(slug, plan, billing)` (`subscriptions/actions/upgrade.ts`): valida Admin, crea una `Subscription` con `academicInstitutionId`, llama `createPreapproval` (email del admin) y redirige al `init_point` de MercadoPago. **El webhook `/api/webhooks/mercadopago` activa el plan automáticamente** (`handlePreapproval` → `activateInstitutionPlan`) al autorizarse — NO tocar el webhook. Cambiar entre planes pagos cancela primero la suscripción MP vigente para no duplicar el cobro.
+- **Institucional** — no tiene pago automático: abre `QuoteDialog`, que envía un email de cotización al SuperAdministrador vía `sendEmail` (Brevo). Disponible en el dashboard y en el pricing de la home (`L3Pricing`).
+- **Precios** — fuente de verdad en `subscriptions/lib/mercadopago.ts` (`PLAN_PRICES`, `getAutoRecurring`). Los `preapproval_plan` de MP se crean con `prisma/seeders/mp-plans.ts`.
+
+## Documentación (REGLA)
+
+Siempre que se actualice el proyecto (nueva feature, cambio de flujo, refactor relevante), **documentar el cambio en este `CLAUDE.md`** en la sección correspondiente, como parte de la misma tarea. No dejar features sin documentar.
+
 ## Modelos Prisma
 
 | Modelo                | Descripción                                                             |
@@ -480,10 +505,23 @@ Los permisos se aplican en tres capas: **proxy** (`src/proxy.ts`), **páginas** 
 | `Answer`              | Respuesta del estudiante (unique por `attemptKey + questionId`)         |
 | `Result`              | Resultado final (unique por `studentId + examId`)                       |
 
+## Modo Demo público
+
+Permite a cualquier visitante probar el panel real con datos de ejemplo. Feature en `src/features/demo/` (convive con la demo de examen sin auth de `/demo/exam`).
+
+- **Acceso** — ítem **"Demo"** en `PublicNav` → `/demo` (`(demo)/demo/page.tsx`), que muestra `DemoLoginCard` con las credenciales **visibles** (`demo@aulika.cl` / `demo_aulika`). Tras el login (NextAuth Credentials normal) redirige al panel `/aulika-demo`.
+- **Usuario** — un **Profesor** de la institución demo. Como Profesor, el panel ya oculta toda publicidad de Pro (banner del Sidebar, `PlanUsageBanner` y `/upgrade` están restringidos a Administrador). Respeta los **límites del plan FREE**.
+- **Institución** — `AcademicInstitution` con `slug = 'aulika-demo'` (NO empieza con `/demo` para no chocar con el prefijo público del proxy) y flag **`isDemo = true`**. La base (institución + profesor + grupo + 10 alumnos) es **read-only** y compartida.
+- **Aislamiento por sesión** — al hacer login demo, el callback `jwt` de `auth.ts` genera un **`demoSessionId`** (un id por login) que viaja en el JWT (`session.user.demoSessionId`). Cada examen que crea el visitante se guarda con ese `demoSessionId` (`Exam.demoSessionId`), de modo que **solo ve y cuenta lo suyo** y nadie se pisa. El helper `demoExamFilter(user)` (`src/features/demo/lib/demo.ts`) centraliza el filtro y se aplica en todas las lecturas de exámenes (listado, editor, dashboard, contador del sidebar). El cupo FREE de exámenes se cuenta por sesión (`assertQuota(..., demoSessionId)`).
+- **Limpieza** — (1) al **cerrar sesión**, el event `signOut` de `auth.ts` borra los exámenes de ese `demoSessionId` (`deleteDemoSessionExams`); (2) **cron diario** de respaldo `GET /api/cron/demo-reset` (Vercel, `0 6 * * *`, protegido con `CRON_SECRET`) borra **todos** los exámenes de la institución demo (`resetDemoInstitution`) para las sesiones que no cerraron sesión. El cascade del schema limpia preguntas, opciones, intentos y resultados.
+- **Alcance** — el demo permite recorrer el panel y **crear/editar exámenes**; rendir el examen como alumno está fuera del alcance inicial.
+- **Producción** — la migración (`isDemo`, `demoSessionId`) y el seed de la demo corren en el **build** (`prisma migrate deploy && tsx prisma/seeders/demo.ts && next build`). Requiere `CRON_SECRET` en Vercel. Los seeders `bulk-demo.ts` y `local-test.ts` están en `.vercelignore` (solo local); `demo.ts` **no** se ignora (lo necesita el build).
+
 ## Seed
 
 - **`pnpm db:seed`** (`prisma/seed.ts`) — Crea los 4 roles y al SuperAdministrador (Edgardo Ruotolo). Debe ejecutarse primero, siempre. Credenciales desde env vars (`ADMIN_*`).
 - **`pnpm db:seed:local`** (`prisma/seeders/local-test.ts`) — Crea 2 instituciones, 2 grupos, 4 admins, 4 profesores, 10 estudiantes. Password de admins/profesores: `Admin2026!`. Estudiantes: login por RUT.
+- **`pnpm db:seed:demo`** (`prisma/seeders/demo.ts`) — Crea la institución demo (`aulika-demo`, `isDemo=true`, FREE), el profesor de acceso (`demo@aulika.cl` / `demo_aulika`), un grupo y 10 alumnos. Idempotente. **Corre también en el build** para que el modo demo exista en producción.
 
 ## Variables de entorno requeridas
 
@@ -497,6 +535,7 @@ ADMIN_NAME             # Nombre del SuperAdmin
 ADMIN_LASTNAME         # Apellido del SuperAdmin
 ADMIN_EMAIL            # Email del SuperAdmin
 ADMIN_RUT              # RUT del SuperAdmin (sin puntos ni guión)
+CRON_SECRET            # Secret para los cron de Vercel (cleanup-subscriptions, demo-reset)
 ```
 
 ## Convenciones de RUT chileno
@@ -504,7 +543,49 @@ ADMIN_RUT              # RUT del SuperAdmin (sin puntos ni guión)
 - Almacenado sin puntos ni guión (ej: `270396356`).
 - Validación matemática del dígito verificador obligatoria.
 - Utilities en `@/shared/lib/rut.ts`.
-- Input UI en `@/features/students/components/RutInput.tsx`.
+- Input UI canónico en `@/shared/components/ui/rut-field.tsx` (`RutField`).
 
+Última actualización: 4 de Junio de 2026 (modo demo público)
 
-Última actualización: 14 de Mayo de 2026
+## Herramientas Obligatorias (gstack + CodeGraph)
+
+**gstack está REQUERIDO** para todo el trabajo en este repositorio.
+
+### Verificación inicial
+
+Al inicio de cada sesión, verificar que gstack esté instalado:
+
+```bash
+test -d ~/.claude/skills/gstack && echo "✅ GSTACK OK" || echo "❌ GSTACK MISSING"
+```
+
+Si el resultado es `GSTACK MISSING`: **DETENERSE**. No continuar con ninguna tarea. Indicar al usuario:
+
+> gstack es requerido para todo trabajo asistido por IA en este repo.
+> Instalarlo:
+>
+> ```bash
+> git clone --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
+> cd ~/.claude/skills/gstack && ./setup --team
+> ```
+>
+> Luego reiniciar la herramienta de AI coding.
+
+No saltear skills, no ignorar errores de gstack ni trabajar evitando su ausencia.
+
+### Skills de gstack
+
+Tras la instalación quedan disponibles skills como `/qa`, `/ship`, `/review`, `/investigate` y `/browse`:
+
+- Usar `/browse` para toda navegación web.
+- Usar `~/.claude/skills/gstack/...` (ruta global) para los archivos de gstack.
+
+### CodeGraph
+
+El proyecto está indexado con **CodeGraph** (MCP `codegraph`). Consultarlo **ANTES** de escribir o editar código, no durante:
+
+- `codegraph_explore` — herramienta primaria: preguntas de arquitectura, "cómo funciona X", flujos y trazas. Devuelve el código fuente relevante agrupado por archivo en una sola llamada.
+- `codegraph_search` — ubicar un símbolo por nombre.
+- `codegraph_callers` / `codegraph_callees` / `codegraph_impact` — quién llama a X, qué llama X y qué rompería un cambio.
+
+Preferir CodeGraph sobre bucles de grep + lectura de archivos: el índice ya hizo ese trabajo.

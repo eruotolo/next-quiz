@@ -19,10 +19,12 @@ export async function updateInstitutionSettings(
     const isAdmin = session.user.userRoleName === USER_ROLE.ADMIN;
 
     if (!isSuperAdmin && !isAdmin) return { data: null, error: 'Sin permisos' };
-    if (isAdmin && session.user.institutionSlug !== slug) return { data: null, error: 'Sin permisos' };
+    if (isAdmin && session.user.institutionSlug !== slug)
+        return { data: null, error: 'Sin permisos' };
 
     const parsed = institutionSettingsSchema.safeParse(data);
-    if (!parsed.success) return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
+    if (!parsed.success)
+        return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
 
     const { email, ...rest } = parsed.data;
 

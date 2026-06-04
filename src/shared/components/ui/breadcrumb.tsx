@@ -13,7 +13,7 @@ function BreadcrumbList({ className, ...props }: React.ComponentProps<'ol'>): Re
         <ol
             data-slot="breadcrumb-list"
             className={cn(
-                'flex flex-wrap items-center gap-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-mute',
+                'text-mute flex flex-wrap items-center gap-1 font-mono text-[11px] font-medium tracking-[0.08em] uppercase',
                 className,
             )}
             {...props}
@@ -40,7 +40,7 @@ function BreadcrumbLink({
     return (
         <Comp
             data-slot="breadcrumb-link"
-            className={cn('transition-colors hover:text-ink', className)}
+            className={cn('hover:text-ink transition-colors', className)}
             {...props}
         />
     );
@@ -57,7 +57,11 @@ function BreadcrumbPage({ className, ...props }: React.ComponentProps<'span'>): 
     );
 }
 
-function BreadcrumbSeparator({ children, className, ...props }: React.ComponentProps<'li'>): React.JSX.Element {
+function BreadcrumbSeparator({
+    children,
+    className,
+    ...props
+}: React.ComponentProps<'li'>): React.JSX.Element {
     return (
         <li
             data-slot="breadcrumb-separator"
@@ -71,7 +75,10 @@ function BreadcrumbSeparator({ children, className, ...props }: React.ComponentP
     );
 }
 
-function BreadcrumbEllipsis({ className, ...props }: React.ComponentProps<'span'>): React.JSX.Element {
+function BreadcrumbEllipsis({
+    className,
+    ...props
+}: React.ComponentProps<'span'>): React.JSX.Element {
     return (
         <span
             data-slot="breadcrumb-ellipsis"

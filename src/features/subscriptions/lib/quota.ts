@@ -84,11 +84,20 @@ export class QuotaExceededError extends Error {
     }
 }
 
-async function countResource(institutionId: string, resource: QuotaResource): Promise<number> {
+async function countResource(
+    institutionId: string,
+    resource: QuotaResource,
+    demoSessionId?: string | null,
+): Promise<number> {
     if (resource === 'exam') {
         const startOfYear = new Date(new Date().getFullYear(), 0, 1);
         return prisma.exam.count({
-            where: { academicInstitutionId: institutionId, createdAt: { gte: startOfYear } },
+            where: {
+                academicInstitutionId: institutionId,
+                createdAt: { gte: startOfYear },
+                // Modo demo: el cupo FREE de exámenes es por sesión del visitante.
+                ...(demoSessionId ? { demoSessionId } : {}),
+            },
         });
     }
 
@@ -118,6 +127,7 @@ export async function assertQuota(
     resource: QuotaResource,
     callerRole: string,
     extra = 0,
+    demoSessionId?: string | null,
 ): Promise<void> {
     if (callerRole === USER_ROLE.SUPER_ADMIN) return;
     if (!institutionId) return;
@@ -129,7 +139,7 @@ export async function assertQuota(
     const max = effective.limits[limitKey];
     if (max === null || max === undefined) return;
 
-    const used = await countResource(institutionId, resource);
+    const used = await countResource(institutionId, resource, demoSessionId);
     if (used + extra >= max) {
         throw new QuotaExceededError(resource, used + extra, max, effective.label);
     }

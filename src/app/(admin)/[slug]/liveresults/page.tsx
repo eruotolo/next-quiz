@@ -1,5 +1,7 @@
 import { calcGrade } from '@/features/results/lib/grade';
 import { prisma } from '@/shared/lib/prisma';
+import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
+import { examProfessorFilter } from '@/shared/lib/scoping';
 import {
     LiveResultsClient,
     type ExamOption,
@@ -8,17 +10,25 @@ import {
 } from '@/features/results/components/LiveResultsClient';
 
 interface PageProps {
+    params: Promise<{ slug: string }>;
     searchParams: Promise<{ examId?: string }>;
 }
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
 export default async function LiveResultsPage({
+    params,
     searchParams,
 }: PageProps): Promise<React.JSX.Element> {
-    const { examId: paramExamId } = await searchParams;
+    const [{ slug }, { examId: paramExamId }] = await Promise.all([params, searchParams]);
+    const { institutionId, isProfesor, userId } = await requireInstitutionPageAccess(slug);
 
+    // Scope: exámenes activos de la institución; el Profesor solo los de sus grupos.
     const activeExams = await prisma.exam.findMany({
-        where: { active: true },
+        where: {
+            active: true,
+            academicInstitutionId: institutionId,
+            ...(isProfesor && examProfessorFilter(userId)),
+        },
         select: { id: true, title: true, active: true },
         orderBy: { createdAt: 'desc' },
     });
@@ -78,7 +88,7 @@ export default async function LiveResultsPage({
             const completedStudentIds = new Set(completedResults.map((r) => r.studentId));
             const inProgressMap = new Map<
                 string,
-                { name: string; answers: Record<string, string> }
+                { name: string; answers: Record<string, string[]> }
             >();
 
             for (const a of inProgressAnswers) {
@@ -90,7 +100,15 @@ export default async function LiveResultsPage({
                     });
                 }
                 const entry = inProgressMap.get(a.studentId);
-                if (entry) entry.answers[a.questionId] = a.optionId;
+                if (entry) {
+                    // Acumula opciones por pregunta (las MULTIPLE tienen varias filas).
+                    const prev = entry.answers[a.questionId];
+                    if (prev) {
+                        prev.push(a.optionId);
+                    } else {
+                        entry.answers[a.questionId] = [a.optionId];
+                    }
+                }
             }
 
             const rows: LiveResultRow[] = [];
@@ -130,7 +148,7 @@ export default async function LiveResultsPage({
                     grade,
                     passing: grade >= exam.passingGrade,
                     status: 'completed',
-                    answers: r.answers as Record<string, string>,
+                    answers: r.answers as Record<string, string[] | string>,
                 });
             }
 

@@ -31,11 +31,29 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Switch } from '@/shared/components/ui/switch';
 import { Tag } from '@/shared/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/shared/components/ui/table';
 import { TablePaginator } from '@/shared/components/ui/table-paginator';
 import type { PaginatedResult } from '@/shared/types/pagination';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Building2, CreditCard, ExternalLink, Loader2, Pencil, Plus, Trash2, Search, MoreHorizontal, MapPin } from 'lucide-react';
+import {
+    Building2,
+    CreditCard,
+    ExternalLink,
+    Loader2,
+    Pencil,
+    Plus,
+    Trash2,
+    Search,
+    MoreHorizontal,
+    MapPin,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type React from 'react';
@@ -69,7 +87,11 @@ const PLAN_TONE: Record<string, 'default' | 'success' | 'outline'> = {
 
 function formatDate(d: Date | null): string {
     if (!d) return '';
-    return new Date(d).toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return new Date(d).toLocaleDateString('es-CL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    });
 }
 
 interface CustomPlanOption {
@@ -98,26 +120,32 @@ function PlanForm({
     onSubmit: (payload: AssignPayload) => void;
     isPending: boolean;
 }): React.JSX.Element {
-    const [kind, setKind] = useState<'commercial' | 'custom'>(row.customPlan ? 'custom' : 'commercial');
+    const [kind, setKind] = useState<'commercial' | 'custom'>(
+        row.customPlan ? 'custom' : 'commercial',
+    );
     const [plan, setPlan] = useState<string>(row.plan);
     const [expires, setExpires] = useState<string>(
         row.planExpiresAt ? new Date(row.planExpiresAt).toISOString().slice(0, 10) : '',
     );
-    const [customPlanId, setCustomPlanId] = useState<string>(row.customPlan?.id ?? customPlans[0]?.id ?? '');
+    const [customPlanId, setCustomPlanId] = useState<string>(
+        row.customPlan?.id ?? customPlans[0]?.id ?? '',
+    );
 
     const noCustom = customPlans.length === 0;
 
     return (
         <div className="flex flex-col gap-5 py-4">
             <div className="flex flex-col gap-1.5">
-                <span className="text-[13px] font-bold text-ink">Tipo de plan</span>
+                <span className="text-ink text-[13px] font-bold">Tipo de plan</span>
                 <Select value={kind} onValueChange={(v) => setKind(v as 'commercial' | 'custom')}>
-                    <SelectTrigger className="h-11 rounded-[10px] border-border bg-white">
+                    <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
                         <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border-border shadow-xl">
+                    <SelectContent className="border-border rounded-xl shadow-xl">
                         <SelectItem value="commercial">Comercial</SelectItem>
-                        <SelectItem value="custom" disabled={noCustom}>Interno</SelectItem>
+                        <SelectItem value="custom" disabled={noCustom}>
+                            Interno
+                        </SelectItem>
                     </SelectContent>
                 </Select>
             </div>
@@ -125,20 +153,22 @@ function PlanForm({
             {kind === 'commercial' ? (
                 <>
                     <div className="flex flex-col gap-1.5">
-                        <span className="text-[13px] font-bold text-ink">Plan comercial</span>
+                        <span className="text-ink text-[13px] font-bold">Plan comercial</span>
                         <Select value={plan} onValueChange={setPlan}>
-                            <SelectTrigger className="h-11 rounded-[10px] border-border bg-white">
+                            <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
                                 <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="rounded-xl border-border shadow-xl">
+                            <SelectContent className="border-border rounded-xl shadow-xl">
                                 {Object.entries(PLAN_LABELS).map(([value, label]) => (
-                                    <SelectItem key={value} value={value}>{label}</SelectItem>
+                                    <SelectItem key={value} value={value}>
+                                        {label}
+                                    </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <label htmlFor="plan-expires" className="text-[13px] font-bold text-ink">
+                        <label htmlFor="plan-expires" className="text-ink text-[13px] font-bold">
                             Vencimiento (opcional)
                         </label>
                         <Input
@@ -149,7 +179,7 @@ function PlanForm({
                             disabled={plan === 'FREE'}
                             className="h-11 rounded-[10px]"
                         />
-                        <p className="text-[11px] text-mute">
+                        <p className="text-mute text-[11px]">
                             {plan === 'FREE'
                                 ? 'El plan Free no tiene vencimiento.'
                                 : 'Dejar en blanco para un plan sin fecha de vencimiento.'}
@@ -158,19 +188,22 @@ function PlanForm({
                 </>
             ) : (
                 <div className="flex flex-col gap-1.5">
-                    <span className="text-[13px] font-bold text-ink">Plan interno</span>
+                    <span className="text-ink text-[13px] font-bold">Plan interno</span>
                     <Select value={customPlanId} onValueChange={setCustomPlanId}>
-                        <SelectTrigger className="h-11 rounded-[10px] border-border bg-white">
+                        <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
                             <SelectValue placeholder="Seleccioná un plan interno" />
                         </SelectTrigger>
-                        <SelectContent className="rounded-xl border-border shadow-xl">
+                        <SelectContent className="border-border rounded-xl shadow-xl">
                             {customPlans.map((cp) => (
-                                <SelectItem key={cp.id} value={cp.id}>{cp.name}</SelectItem>
+                                <SelectItem key={cp.id} value={cp.id}>
+                                    {cp.name}
+                                </SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
-                    <p className="text-[11px] text-mute">
-                        Los planes internos se crean en Planes. No son visibles para el cliente final.
+                    <p className="text-mute text-[11px]">
+                        Los planes internos se crean en Planes. No son visibles para el cliente
+                        final.
                     </p>
                 </div>
             )}
@@ -184,12 +217,16 @@ function PlanForm({
                     onClick={() =>
                         onSubmit(
                             kind === 'commercial'
-                                ? { kind: 'commercial', plan, planExpiresAt: plan === 'FREE' ? '' : expires }
+                                ? {
+                                      kind: 'commercial',
+                                      plan,
+                                      planExpiresAt: plan === 'FREE' ? '' : expires,
+                                  }
                                 : { kind: 'custom', customPlanId },
                         )
                     }
                 >
-                    {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Asignar plan
                 </Button>
             </div>
@@ -223,47 +260,115 @@ function InstitutionForm({
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-4">
             <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                    <label htmlFor="inst-name" className="text-[13px] font-bold text-ink">Nombre</label>
-                    <Input id="inst-name" {...register('name')} className={cn("h-11 rounded-[10px]", errors.name && 'border-destructive')} />
-                    {errors.name && <p className="text-xs text-destructive font-medium">{errors.name.message}</p>}
+                    <label htmlFor="inst-name" className="text-ink text-[13px] font-bold">
+                        Nombre
+                    </label>
+                    <Input
+                        id="inst-name"
+                        {...register('name')}
+                        className={cn('h-11 rounded-[10px]', errors.name && 'border-destructive')}
+                    />
+                    {errors.name && (
+                        <p className="text-destructive text-xs font-medium">
+                            {errors.name.message}
+                        </p>
+                    )}
                 </div>
                 <div className="flex flex-col gap-1.5">
-                    <label htmlFor="inst-slug" className="text-[13px] font-bold text-ink">Slug (URL)</label>
-                    <Input id="inst-slug" {...register('slug')} placeholder="ej: univ-talca" className={cn("h-11 rounded-[10px]", errors.slug && 'border-destructive')} />
-                    {errors.slug && <p className="text-xs text-destructive font-medium">{errors.slug.message}</p>}
+                    <label htmlFor="inst-slug" className="text-ink text-[13px] font-bold">
+                        Slug (URL)
+                    </label>
+                    <Input
+                        id="inst-slug"
+                        {...register('slug')}
+                        placeholder="ej: univ-talca"
+                        className={cn('h-11 rounded-[10px]', errors.slug && 'border-destructive')}
+                    />
+                    {errors.slug && (
+                        <p className="text-destructive text-xs font-medium">
+                            {errors.slug.message}
+                        </p>
+                    )}
                 </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                    <label htmlFor="inst-city" className="text-[13px] font-bold text-ink">Ciudad</label>
-                    <Input id="inst-city" {...register('city')} className={cn("h-11 rounded-[10px]", errors.city && 'border-destructive')} />
-                    {errors.city && <p className="text-xs text-destructive font-medium">{errors.city.message}</p>}
+                    <label htmlFor="inst-city" className="text-ink text-[13px] font-bold">
+                        Ciudad
+                    </label>
+                    <Input
+                        id="inst-city"
+                        {...register('city')}
+                        className={cn('h-11 rounded-[10px]', errors.city && 'border-destructive')}
+                    />
+                    {errors.city && (
+                        <p className="text-destructive text-xs font-medium">
+                            {errors.city.message}
+                        </p>
+                    )}
                 </div>
                 <div className="flex flex-col gap-1.5">
-                    <label htmlFor="inst-country" className="text-[13px] font-bold text-ink">País</label>
-                    <Input id="inst-country" {...register('country')} className={cn("h-11 rounded-[10px]", errors.country && 'border-destructive')} />
-                    {errors.country && <p className="text-xs text-destructive font-medium">{errors.country.message}</p>}
+                    <label htmlFor="inst-country" className="text-ink text-[13px] font-bold">
+                        País
+                    </label>
+                    <Input
+                        id="inst-country"
+                        {...register('country')}
+                        className={cn(
+                            'h-11 rounded-[10px]',
+                            errors.country && 'border-destructive',
+                        )}
+                    />
+                    {errors.country && (
+                        <p className="text-destructive text-xs font-medium">
+                            {errors.country.message}
+                        </p>
+                    )}
                 </div>
             </div>
             <div className="flex flex-col gap-1.5">
-                <label htmlFor="inst-address" className="text-[13px] font-bold text-ink">Dirección</label>
-                <Input id="inst-address" {...register('address')} className={cn("h-11 rounded-[10px]", errors.address && 'border-destructive')} />
-                {errors.address && <p className="text-xs text-destructive font-medium">{errors.address.message}</p>}
+                <label htmlFor="inst-address" className="text-ink text-[13px] font-bold">
+                    Dirección
+                </label>
+                <Input
+                    id="inst-address"
+                    {...register('address')}
+                    className={cn('h-11 rounded-[10px]', errors.address && 'border-destructive')}
+                />
+                {errors.address && (
+                    <p className="text-destructive text-xs font-medium">{errors.address.message}</p>
+                )}
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                    <label htmlFor="inst-phone" className="text-[13px] font-bold text-ink">Teléfono</label>
-                    <Input id="inst-phone" {...register('phone')} className={cn("h-11 rounded-[10px]", errors.phone && 'border-destructive')} />
-                    {errors.phone && <p className="text-xs text-destructive font-medium">{errors.phone.message}</p>}
+                    <label htmlFor="inst-phone" className="text-ink text-[13px] font-bold">
+                        Teléfono
+                    </label>
+                    <Input
+                        id="inst-phone"
+                        {...register('phone')}
+                        className={cn('h-11 rounded-[10px]', errors.phone && 'border-destructive')}
+                    />
+                    {errors.phone && (
+                        <p className="text-destructive text-xs font-medium">
+                            {errors.phone.message}
+                        </p>
+                    )}
                 </div>
                 <div className="flex flex-col gap-1.5">
-                    <label htmlFor="inst-campus" className="text-[13px] font-bold text-ink">Campus (opcional)</label>
-                    <Input id="inst-campus" {...register('campus')} className="h-11 rounded-[10px]" />
+                    <label htmlFor="inst-campus" className="text-ink text-[13px] font-bold">
+                        Campus (opcional)
+                    </label>
+                    <Input
+                        id="inst-campus"
+                        {...register('campus')}
+                        className="h-11 rounded-[10px]"
+                    />
                 </div>
             </div>
             <div className="mt-4 flex justify-end gap-2">
                 <Button type="submit" disabled={isPending} variant="ink" size="md">
-                    {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Guardar institución
                 </Button>
             </div>
@@ -366,14 +471,19 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
     }
 
     return (
-        <div className="flex flex-col min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             {/* Header */}
             <AdminTopBar
                 breadcrumb={['Sistema', 'Instituciones']}
                 title="Instituciones"
                 subtitle={`${result.total} entidades educativas registradas en la plataforma`}
                 actions={
-                    <Button variant="ink" size="md" onClick={() => setCreateOpen(true)} className="gap-2">
+                    <Button
+                        variant="ink"
+                        size="md"
+                        onClick={() => setCreateOpen(true)}
+                        className="gap-2"
+                    >
                         <Plus size={16} />
                         Nueva institución
                     </Button>
@@ -381,96 +491,126 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
             />
 
             {/* Filter bar */}
-            <div className="flex items-center gap-2 border-b border-border bg-white px-8 py-4">
-                <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-mute" />
+            <div className="border-border flex items-center gap-2 border-b bg-white px-8 py-4">
+                <form onSubmit={handleSearchSubmit} className="relative max-w-sm flex-1">
+                    <Search className="text-mute absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                     <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Buscar institución por nombre o slug..."
-                        className="pl-9 h-[38px] border-border bg-white"
+                        className="border-border h-[38px] bg-white pl-9"
                     />
                 </form>
                 <div className="flex-1" />
-                <span className="font-mono text-[11px] text-mute uppercase tracking-wider">
+                <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
                     {result.total} registradas
                 </span>
             </div>
 
-            <main className="flex-1 p-8 overflow-auto">
+            <main className="flex-1 overflow-auto p-8">
                 {result.items.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
-                        <Building2 size={48} className="mb-4 text-mute/20" />
-                        <p className="text-lg font-medium text-ink">No hay instituciones</p>
-                        <p className="mt-1 text-sm text-mute">Comienza registrando la primera entidad educativa.</p>
-                        <Button variant="primary" size="md" onClick={() => setCreateOpen(true)} className="mt-6">
+                        <Building2 size={48} className="text-mute/20 mb-4" />
+                        <p className="text-ink text-lg font-medium">No hay instituciones</p>
+                        <p className="text-mute mt-1 text-sm">
+                            Comienza registrando la primera entidad educativa.
+                        </p>
+                        <Button
+                            variant="primary"
+                            size="md"
+                            onClick={() => setCreateOpen(true)}
+                            className="mt-6"
+                        >
                             <Plus size={16} />
                             Nueva institución
                         </Button>
                     </Card>
                 ) : (
-                    <Card className="p-0 overflow-visible border-border shadow-sm">
+                    <Card className="border-border overflow-visible p-0 shadow-sm">
                         <Table>
                             <TableHeader className="bg-paper">
-                                <TableRow className="hover:bg-transparent border-b border-border">
+                                <TableRow className="border-border border-b hover:bg-transparent">
                                     <TableHead>Nombre / Entidad</TableHead>
                                     <TableHead className="w-[180px]">Identificador</TableHead>
                                     <TableHead className="w-[160px]">Ubicación</TableHead>
                                     <TableHead className="w-[150px]">Plan</TableHead>
-                                    <TableHead className="w-[100px] text-center">Usuarios</TableHead>
+                                    <TableHead className="w-[100px] text-center">
+                                        Usuarios
+                                    </TableHead>
                                     <TableHead className="w-[110px] text-center">Estado</TableHead>
                                     <TableHead className="w-12" />
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {result.items.map((row) => (
-                                    <TableRow key={row.id} className="group h-16 border-b border-border last:border-0">
+                                    <TableRow
+                                        key={row.id}
+                                        className="group border-border h-16 border-b last:border-0"
+                                    >
                                         <TableCell>
                                             <div className="flex items-center gap-3">
-                                                <div className="size-10 rounded-[10px] bg-primary-wash flex items-center justify-center text-primary shrink-0 border border-primary/10">
+                                                <div className="bg-primary-wash text-primary border-primary/10 flex size-10 shrink-0 items-center justify-center rounded-[10px] border">
                                                     <Building2 size={20} />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-[14px] font-bold text-ink leading-tight">{row.name}</span>
-                                                    <span className="text-[11.5px] text-mute">{row.phone}</span>
+                                                    <span className="text-ink text-[14px] leading-tight font-bold">
+                                                        {row.name}
+                                                    </span>
+                                                    <span className="text-mute text-[11.5px]">
+                                                        {row.phone}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </TableCell>
                                         <TableCell>
-                                            <Tag tone="outline" className="font-mono text-[11px] h-6 bg-paper-warm/50 border-border">
+                                            <Tag
+                                                tone="outline"
+                                                className="bg-paper-warm/50 border-border h-6 font-mono text-[11px]"
+                                            >
                                                 /{row.slug}
                                             </Tag>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="flex items-center gap-1.5 text-mute">
+                                            <div className="text-mute flex items-center gap-1.5">
                                                 <MapPin size={12} className="shrink-0 opacity-60" />
-                                                <span className="text-[12px] font-medium">{row.city}, {row.country}</span>
+                                                <span className="text-[12px] font-medium">
+                                                    {row.city}, {row.country}
+                                                </span>
                                             </div>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex flex-col gap-0.5">
                                                 {row.customPlan ? (
                                                     <>
-                                                        <Tag tone="outline" className="w-fit font-bold text-[10.5px] h-6 px-2.5 border-primary/30 text-primary">
+                                                        <Tag
+                                                            tone="outline"
+                                                            className="border-primary/30 text-primary h-6 w-fit px-2.5 text-[10.5px] font-bold"
+                                                        >
                                                             {row.customPlan.name}
                                                         </Tag>
-                                                        <span className="text-[10.5px] text-mute">plan interno</span>
+                                                        <span className="text-mute text-[10.5px]">
+                                                            plan interno
+                                                        </span>
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <Tag tone={PLAN_TONE[row.plan] ?? 'default'} className="w-fit font-bold text-[10.5px] h-6 px-2.5">
+                                                        <Tag
+                                                            tone={PLAN_TONE[row.plan] ?? 'default'}
+                                                            className="h-6 w-fit px-2.5 text-[10.5px] font-bold"
+                                                        >
                                                             {PLAN_LABELS[row.plan] ?? row.plan}
                                                         </Tag>
                                                         {row.planExpiresAt && (
-                                                            <span className="text-[10.5px] text-mute">
-                                                                vence {formatDate(row.planExpiresAt)}
+                                                            <span className="text-mute text-[10.5px]">
+                                                                vence{' '}
+                                                                {formatDate(row.planExpiresAt)}
                                                             </span>
                                                         )}
                                                     </>
                                                 )}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-center font-mono text-[13px] font-bold text-ink-dim">
+                                        <TableCell className="text-ink-dim text-center font-mono text-[13px] font-bold">
                                             {row._count.users}
                                         </TableCell>
                                         <TableCell className="text-center">
@@ -485,25 +625,48 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex items-center gap-1">
-                                                <Button variant="ghost" size="icon-sm" asChild title="Ir al panel">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon-sm"
+                                                    asChild
+                                                    title="Ir al panel"
+                                                >
                                                     <Link href={`/${row.slug}`}>
-                                                        <ExternalLink size={16} className="text-primary" />
+                                                        <ExternalLink
+                                                            size={16}
+                                                            className="text-primary"
+                                                        />
                                                     </Link>
                                                 </Button>
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
                                                         <Button variant="ghost" size="icon-sm">
-                                                            <MoreHorizontal size={16} className="text-mute" />
+                                                            <MoreHorizontal
+                                                                size={16}
+                                                                className="text-mute"
+                                                            />
                                                         </Button>
                                                     </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end" className="rounded-xl border-border shadow-xl w-44">
-                                                        <DropdownMenuItem onClick={() => setEditRow(row)} className="gap-2 py-2 cursor-pointer">
+                                                    <DropdownMenuContent
+                                                        align="end"
+                                                        className="border-border w-44 rounded-xl shadow-xl"
+                                                    >
+                                                        <DropdownMenuItem
+                                                            onClick={() => setEditRow(row)}
+                                                            className="cursor-pointer gap-2 py-2"
+                                                        >
                                                             <Pencil size={14} /> Editar datos
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => setPlanRow(row)} className="gap-2 py-2 cursor-pointer">
+                                                        <DropdownMenuItem
+                                                            onClick={() => setPlanRow(row)}
+                                                            className="cursor-pointer gap-2 py-2"
+                                                        >
                                                             <CreditCard size={14} /> Asignar plan
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => setDeleteRow(row)} className="text-destructive gap-2 py-2 cursor-pointer focus:bg-danger-wash focus:text-destructive">
+                                                        <DropdownMenuItem
+                                                            onClick={() => setDeleteRow(row)}
+                                                            className="text-destructive focus:bg-danger-wash focus:text-destructive cursor-pointer gap-2 py-2"
+                                                        >
                                                             <Trash2 size={14} /> Eliminar
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
@@ -526,10 +689,14 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
 
             {/* Create dialog */}
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-                <DialogContent className="max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
-                    <div className="px-6 py-5 border-b border-border bg-paper">
-                        <DialogTitle className="font-display text-2xl text-ink">Nueva institución</DialogTitle>
-                        <DialogDescription className="sr-only">Formulario para registrar una nueva institución.</DialogDescription>
+                <DialogContent className="border-border max-w-lg overflow-hidden rounded-[22px] p-0 shadow-2xl">
+                    <div className="border-border bg-paper border-b px-6 py-5">
+                        <DialogTitle className="font-display text-ink text-2xl">
+                            Nueva institución
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Formulario para registrar una nueva institución.
+                        </DialogDescription>
                     </div>
                     <div className="px-6">
                         <InstitutionForm onSubmit={handleCreate} isPending={isPending} />
@@ -539,10 +706,14 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
 
             {/* Edit dialog */}
             <Dialog open={!!editRow} onOpenChange={(o) => !o && setEditRow(null)}>
-                <DialogContent className="max-w-lg rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
-                    <div className="px-6 py-5 border-b border-border bg-paper">
-                        <DialogTitle className="font-display text-2xl text-ink">Editar institución</DialogTitle>
-                        <DialogDescription className="sr-only">Formulario para editar los datos de la institución.</DialogDescription>
+                <DialogContent className="border-border max-w-lg overflow-hidden rounded-[22px] p-0 shadow-2xl">
+                    <div className="border-border bg-paper border-b px-6 py-5">
+                        <DialogTitle className="font-display text-ink text-2xl">
+                            Editar institución
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Formulario para editar los datos de la institución.
+                        </DialogDescription>
                     </div>
                     <div className="px-6">
                         {editRow && (
@@ -558,17 +729,24 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
 
             {/* Plan dialog */}
             <Dialog open={!!planRow} onOpenChange={(o) => !o && setPlanRow(null)}>
-                <DialogContent className="max-w-md rounded-[22px] border-border shadow-2xl overflow-hidden p-0">
-                    <div className="px-6 py-5 border-b border-border bg-paper">
-                        <DialogTitle className="font-display text-2xl text-ink">Asignar plan</DialogTitle>
-                        <DialogDescription className="sr-only">Formulario para asignar un plan a la institución.</DialogDescription>
-                        {planRow && (
-                            <p className="mt-1 text-[12.5px] text-mute">{planRow.name}</p>
-                        )}
+                <DialogContent className="border-border max-w-md overflow-hidden rounded-[22px] p-0 shadow-2xl">
+                    <div className="border-border bg-paper border-b px-6 py-5">
+                        <DialogTitle className="font-display text-ink text-2xl">
+                            Asignar plan
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Formulario para asignar un plan a la institución.
+                        </DialogDescription>
+                        {planRow && <p className="text-mute mt-1 text-[12.5px]">{planRow.name}</p>}
                     </div>
                     <div className="px-6">
                         {planRow && (
-                            <PlanForm row={planRow} customPlans={customPlans} onSubmit={handleAssignPlan} isPending={isPending} />
+                            <PlanForm
+                                row={planRow}
+                                customPlans={customPlans}
+                                onSubmit={handleAssignPlan}
+                                isPending={isPending}
+                            />
                         )}
                     </div>
                 </DialogContent>
@@ -576,20 +754,38 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
 
             {/* Delete confirmation */}
             <Dialog open={!!deleteRow} onOpenChange={(o) => !o && setDeleteRow(null)}>
-                <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
+                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle className="font-display text-2xl text-destructive">Eliminar institución</DialogTitle>
-                        <DialogDescription className="sr-only">Confirmación para eliminar la institución de forma permanente.</DialogDescription>
+                        <DialogTitle className="font-display text-destructive text-2xl">
+                            Eliminar institución
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Confirmación para eliminar la institución de forma permanente.
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="py-2">
-                        <p className="text-[14px] leading-relaxed text-ink-dim">
-                            ¿Estás seguro de eliminar <strong className="text-ink">{deleteRow?.name}</strong>? Esta acción es irreversible.
+                        <p className="text-ink-dim text-[14px] leading-relaxed">
+                            ¿Estás seguro de eliminar{' '}
+                            <strong className="text-ink">{deleteRow?.name}</strong>? Esta acción es
+                            irreversible.
                         </p>
                     </div>
-                    <DialogFooter className="gap-2 sm:justify-end mt-2">
-                        <Button variant="ghost" size="md" onClick={() => setDeleteRow(null)} disabled={isPending}>Cancelar</Button>
-                        <Button variant="danger" size="md" onClick={handleDelete} disabled={isPending}>
-                            {isPending && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    <DialogFooter className="mt-2 gap-2 sm:justify-end">
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setDeleteRow(null)}
+                            disabled={isPending}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="danger"
+                            size="md"
+                            onClick={handleDelete}
+                            disabled={isPending}
+                        >
+                            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Eliminar
                         </Button>
                     </DialogFooter>

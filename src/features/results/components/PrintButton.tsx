@@ -1,18 +1,35 @@
-'use client';
+﻿'use client';
 
-import { Button } from '@/shared/components/ui/button';
+import { Button, type buttonVariants } from '@/shared/components/ui/button';
+import { cn } from '@/shared/lib/utils';
+import type { VariantProps } from 'class-variance-authority';
 import { Download } from 'lucide-react';
 
-export function PrintButton(): React.JSX.Element {
+type ButtonVariant = VariantProps<typeof buttonVariants>['variant'];
+type ButtonSize = VariantProps<typeof buttonVariants>['size'];
+
+interface PrintButtonProps {
+    label?: string;
+    variant?: ButtonVariant;
+    size?: ButtonSize;
+    className?: string;
+}
+
+export function PrintButton({
+    label = 'Descargar PDF',
+    variant = 'outline',
+    size = 'lg',
+    className,
+}: PrintButtonProps): React.JSX.Element {
     return (
         <Button
-            variant="outline"
-            size="lg"
-            className="rounded-full font-semibold print:hidden"
+            variant={variant}
+            size={size}
+            className={cn('rounded-full font-semibold print:hidden', className)}
             onClick={() => window.print()}
         >
             <Download size={16} />
-            Descargar PDF
+            {label}
         </Button>
     );
 }

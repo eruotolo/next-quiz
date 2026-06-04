@@ -13,10 +13,18 @@ export interface ResultSessionPayload {
     studentId: string;
 }
 
+// Identidad liviana post-login, previa a elegir examen (página de selección).
+export interface StudentAuthPayload {
+    studentId: string;
+    groupId: string;
+}
+
 const STUDENT_COOKIE = 'aulika-student-session';
 const RESULT_COOKIE = 'aulika-result-session';
+const STUDENT_AUTH_COOKIE = 'aulika-student-auth';
 const STUDENT_COOKIE_LEGACY = 'student_session';
 const RESULT_COOKIE_LEGACY = 'result_session';
+const STUDENT_AUTH_TTL_SECONDS = 60 * 60 * 2;
 
 function getSecret(): Uint8Array {
     const secret = process.env.STUDENT_SESSION_SECRET;
@@ -44,8 +52,7 @@ export async function createStudentSession(payload: StudentSessionPayload): Prom
 export async function getStudentSession(): Promise<StudentSessionPayload | null> {
     const cookieStore = await cookies();
     const token =
-        cookieStore.get(STUDENT_COOKIE)?.value ??
-        cookieStore.get(STUDENT_COOKIE_LEGACY)?.value;
+        cookieStore.get(STUDENT_COOKIE)?.value ?? cookieStore.get(STUDENT_COOKIE_LEGACY)?.value;
     if (!token) return null;
 
     try {
@@ -60,6 +67,35 @@ export async function deleteStudentSession(): Promise<void> {
     const cookieStore = await cookies();
     cookieStore.delete(STUDENT_COOKIE);
     cookieStore.delete(STUDENT_COOKIE_LEGACY);
+}
+
+export async function createStudentAuthSession(payload: StudentAuthPayload): Promise<void> {
+    const token = await new SignJWT({ ...payload })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setExpirationTime(Math.floor(Date.now() / 1000) + STUDENT_AUTH_TTL_SECONDS)
+        .sign(getSecret());
+
+    const cookieStore = await cookies();
+    cookieStore.set(STUDENT_AUTH_COOKIE, token, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: STUDENT_AUTH_TTL_SECONDS,
+        path: '/',
+    });
+}
+
+export async function getStudentAuthSession(): Promise<StudentAuthPayload | null> {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(STUDENT_AUTH_COOKIE)?.value;
+    if (!token) return null;
+
+    try {
+        const { payload } = await jwtVerify(token, getSecret());
+        return payload as unknown as StudentAuthPayload;
+    } catch {
+        return null;
+    }
 }
 
 // Replaces the exam session with a short-lived result session so the student
@@ -85,8 +121,7 @@ export async function createResultSession(resultId: string, studentId: string): 
 export async function getResultSession(): Promise<ResultSessionPayload | null> {
     const cookieStore = await cookies();
     const token =
-        cookieStore.get(RESULT_COOKIE)?.value ??
-        cookieStore.get(RESULT_COOKIE_LEGACY)?.value;
+        cookieStore.get(RESULT_COOKIE)?.value ?? cookieStore.get(RESULT_COOKIE_LEGACY)?.value;
     if (!token) return null;
 
     try {

@@ -48,32 +48,26 @@ function StatTile({
     return (
         <div
             data-slot="stat-tile"
-            className={cn(
-                'flex flex-col gap-2 rounded-[14px] p-5',
-                TILE_TONES[tone],
-                className,
-            )}
+            className={cn('flex flex-col gap-2 rounded-[14px] p-5', TILE_TONES[tone], className)}
         >
             <div className="flex items-start justify-between gap-2">
                 <span
                     className={cn(
-                        'font-mono text-[10px] font-medium uppercase tracking-[0.12em]',
+                        'font-mono text-[10px] font-medium tracking-[0.12em] uppercase',
                         LABEL_TONES[tone],
                     )}
                 >
                     {label}
                 </span>
                 {icon && (
-                    <span className={cn('shrink-0 [&>svg]:size-4', LABEL_TONES[tone])}>
-                        {icon}
-                    </span>
+                    <span className={cn('shrink-0 [&>svg]:size-4', LABEL_TONES[tone])}>{icon}</span>
                 )}
             </div>
 
             <div className="flex items-end gap-2">
                 <span
                     className={cn(
-                        'font-display text-[44px] font-semibold leading-none tracking-[-0.025em]',
+                        'font-display text-[44px] leading-none font-semibold tracking-[-0.025em]',
                         VALUE_TONES[tone],
                     )}
                 >
@@ -83,9 +77,7 @@ function StatTile({
                     <span
                         className={cn(
                             'mb-1 inline-flex items-center gap-0.5 font-mono text-[11px] font-medium',
-                            isPositive
-                                ? 'text-success'
-                                : 'text-destructive',
+                            isPositive ? 'text-success' : 'text-destructive',
                             tone === 'ink' && (isPositive ? 'text-[#4ade80]' : 'text-[#f87171]'),
                         )}
                     >
@@ -99,9 +91,7 @@ function StatTile({
                 )}
             </div>
 
-            {sub && (
-                <p className={cn('text-[12px]', LABEL_TONES[tone])}>{sub}</p>
-            )}
+            {sub && <p className={cn('text-[12px]', LABEL_TONES[tone])}>{sub}</p>}
         </div>
     );
 }

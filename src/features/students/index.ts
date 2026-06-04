@@ -12,5 +12,4 @@ export {
     type StudentInput,
     type StudentLoginInput,
 } from './schemas/student.schemas';
-export { RutInput } from './components/RutInput';
 export { StudentsClient } from './components/StudentsClient';

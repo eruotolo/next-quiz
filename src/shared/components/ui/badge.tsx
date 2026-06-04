@@ -38,15 +38,10 @@ function Tag({
     size = 'md',
     asChild = false,
     ...props
-}: React.ComponentProps<'span'> &
-    VariantProps<typeof tagVariants> & { asChild?: boolean }) {
+}: React.ComponentProps<'span'> & VariantProps<typeof tagVariants> & { asChild?: boolean }) {
     const Comp = asChild ? Slot.Root : 'span';
     return (
-        <Comp
-            data-slot="tag"
-            className={cn(tagVariants({ tone, size, className }))}
-            {...props}
-        />
+        <Comp data-slot="tag" className={cn(tagVariants({ tone, size, className }))} {...props} />
     );
 }
 
@@ -59,7 +54,8 @@ const badgeVariants = cva(
                 default: 'bg-primary-wash text-primary px-2.5 py-[5px] text-[11px]',
                 secondary: 'bg-paper-warm text-ink px-2.5 py-[5px] text-[11px]',
                 destructive: 'bg-danger-wash text-destructive px-2.5 py-[5px] text-[11px]',
-                outline: 'bg-transparent text-ink-dim border border-border px-2.5 py-[5px] text-[11px]',
+                outline:
+                    'bg-transparent text-ink-dim border border-border px-2.5 py-[5px] text-[11px]',
                 success: 'bg-success-wash text-success px-2.5 py-[5px] text-[11px]',
                 warning: 'bg-warning-wash text-warning px-2.5 py-[5px] text-[11px]',
             },
@@ -73,15 +69,10 @@ function Badge({
     variant = 'default',
     asChild = false,
     ...props
-}: React.ComponentProps<'span'> &
-    VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
+}: React.ComponentProps<'span'> & VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
     const Comp = asChild ? Slot.Root : 'span';
     return (
-        <Comp
-            data-slot="badge"
-            className={cn(badgeVariants({ variant }), className)}
-            {...props}
-        />
+        <Comp data-slot="badge" className={cn(badgeVariants({ variant }), className)} {...props} />
     );
 }
 

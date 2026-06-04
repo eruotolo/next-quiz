@@ -23,13 +23,13 @@ export function PaesLanding({ subjects }: PaesLandingProps): React.JSX.Element {
             <div className="mx-auto max-w-5xl px-4">
                 {/* Intro */}
                 <div className="mb-12 text-center">
-                    <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.12em] text-mute">
+                    <p className="text-mute mb-2 font-mono text-[10px] tracking-[0.12em] uppercase">
                         Practica sin límites · Gratis
                     </p>
-                    <h1 className="mx-auto max-w-xl font-display text-[36px] font-semibold leading-tight tracking-[-0.025em] text-ink">
+                    <h1 className="font-display text-ink mx-auto max-w-xl text-[36px] leading-tight font-semibold tracking-[-0.025em]">
                         Simulador PAES.
                     </h1>
-                    <p className="mx-auto mt-4 max-w-md text-[15px] leading-relaxed text-mute">
+                    <p className="text-mute mx-auto mt-4 max-w-md text-[15px] leading-relaxed">
                         Ensayos completos cronometrados con el tiempo real de la PAES. Sin registro,
                         sin límite de intentos. Las 5 pruebas disponibles.
                     </p>
@@ -50,41 +50,41 @@ export function PaesLanding({ subjects }: PaesLandingProps): React.JSX.Element {
                                 )}
                             >
                                 <div className="flex items-start justify-between">
-                                    <div className="flex size-10 items-center justify-center rounded-[10px] bg-white/60 border border-border/50">
+                                    <div className="border-border/50 flex size-10 items-center justify-center rounded-[10px] border bg-white/60">
                                         <Icon size={20} className="text-ink" />
                                     </div>
-                                    <span className="rounded-full bg-success/10 px-2.5 py-1 font-mono text-[9px] font-semibold uppercase tracking-wider text-success">
+                                    <span className="bg-success/10 text-success rounded-full px-2.5 py-1 font-mono text-[9px] font-semibold tracking-wider uppercase">
                                         Disponible
                                     </span>
                                 </div>
                                 <div className="flex-1">
-                                    <h2 className="mb-1.5 font-display text-[17px] font-semibold leading-snug text-ink">
+                                    <h2 className="font-display text-ink mb-1.5 text-[17px] leading-snug font-semibold">
                                         {s.label}
                                     </h2>
-                                    <p className="text-[13px] leading-relaxed text-mute">
+                                    <p className="text-mute text-[13px] leading-relaxed">
                                         {s.description}
                                     </p>
                                 </div>
                                 <div className="flex items-center justify-between border-t border-black/8 pt-4">
                                     <div className="flex gap-4">
                                         <div className="flex flex-col">
-                                            <span className="font-mono text-[11px] font-semibold text-ink">
+                                            <span className="text-ink font-mono text-[11px] font-semibold">
                                                 {s.practiceQuestionCount}
                                             </span>
-                                            <span className="font-mono text-[9px] uppercase tracking-wider text-mute">
+                                            <span className="text-mute font-mono text-[9px] tracking-wider uppercase">
                                                 preguntas
                                             </span>
                                         </div>
                                         <div className="flex flex-col">
-                                            <span className="font-mono text-[11px] font-semibold text-ink">
+                                            <span className="text-ink font-mono text-[11px] font-semibold">
                                                 {formatDuration(s.timeLimitMinutes)}
                                             </span>
-                                            <span className="font-mono text-[9px] uppercase tracking-wider text-mute">
+                                            <span className="text-mute font-mono text-[9px] tracking-wider uppercase">
                                                 tiempo
                                             </span>
                                         </div>
                                     </div>
-                                    <span className="flex items-center gap-1 font-mono text-[11px] font-semibold text-ink opacity-60 group-hover:opacity-100 transition-opacity">
+                                    <span className="text-ink flex items-center gap-1 font-mono text-[11px] font-semibold opacity-60 transition-opacity group-hover:opacity-100">
                                         Empezar
                                         <ChevronRight size={12} />
                                     </span>
@@ -95,14 +95,14 @@ export function PaesLanding({ subjects }: PaesLandingProps): React.JSX.Element {
                 </div>
 
                 {/* Info footer */}
-                <div className="mt-10 rounded-[16px] border border-border bg-white p-6 text-center">
-                    <p className="mb-1 font-mono text-[11px] uppercase tracking-[0.08em] text-mute">
+                <div className="border-border mt-10 rounded-[16px] border bg-white p-6 text-center">
+                    <p className="text-mute mb-1 font-mono text-[11px] tracking-[0.08em] uppercase">
                         Acerca de este simulador
                     </p>
-                    <p className="mx-auto max-w-lg text-[13px] leading-relaxed text-mute">
+                    <p className="text-mute mx-auto max-w-lg text-[13px] leading-relaxed">
                         Banco de práctica alineado al temario oficial del DEMRE. El puntaje estimado
-                        es referencial y no constituye un puntaje oficial de la PAES. Para información oficial,
-                        visita{' '}
+                        es referencial y no constituye un puntaje oficial de la PAES. Para
+                        información oficial, visita{' '}
                         <a
                             href="https://demre.cl"
                             target="_blank"

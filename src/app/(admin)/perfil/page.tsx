@@ -17,13 +17,19 @@ export default async function PerfilPage(): Promise<React.JSX.Element> {
 
     const user = await prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { name: true, lastname: true, email: true, rut: true, userRole: { select: { name: true } } },
+        select: {
+            name: true,
+            lastname: true,
+            email: true,
+            rut: true,
+            userRole: { select: { name: true } },
+        },
     });
 
     if (!user) redirect('/login');
 
     return (
-        <div className="flex flex-col min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             <AdminTopBar
                 breadcrumb={['Mi cuenta', 'Perfil']}
                 title="Mi perfil"

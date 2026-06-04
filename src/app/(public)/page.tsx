@@ -19,7 +19,8 @@ export const metadata: Metadata = {
         'La plataforma líder para crear, aplicar y corregir evaluaciones y exámenes institucionales. Gestión de exámenes y aula virtual para colegios y universidades.',
     openGraph: {
         title: 'Aulika · La evolución de la evaluación académica',
-        description: 'Digitaliza tus evaluaciones con corrección automática y analítica instantánea. Diseñado para colegios y universidades.',
+        description:
+            'Digitaliza tus evaluaciones con corrección automática y analítica instantánea. Diseñado para colegios y universidades.',
         type: 'website',
     },
 };

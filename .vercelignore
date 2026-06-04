@@ -1,0 +1,5 @@
+﻿# Seeders de prueba de uso exclusivo local — no deben llegar a producción.
+# NOTA: prisma/seeders/demo.ts NO se ignora: el build lo ejecuta para crear el
+# sandbox del modo demo en producción.
+prisma/seeders/bulk-demo.ts
+prisma/seeders/local-test.ts

@@ -6,7 +6,9 @@ import { ChevronDown } from 'lucide-react';
 
 import { cn } from '@/shared/lib/utils';
 
-function Accordion({ ...props }: React.ComponentProps<typeof AccordionPrimitive.Root>): React.JSX.Element {
+function Accordion({
+    ...props
+}: React.ComponentProps<typeof AccordionPrimitive.Root>): React.JSX.Element {
     return <AccordionPrimitive.Root data-slot="accordion" {...props} />;
 }
 
@@ -17,7 +19,7 @@ function AccordionItem({
     return (
         <AccordionPrimitive.Item
             data-slot="accordion-item"
-            className={cn('border-b border-border', className)}
+            className={cn('border-border border-b', className)}
             {...props}
         />
     );
@@ -33,7 +35,7 @@ function AccordionTrigger({
             <AccordionPrimitive.Trigger
                 data-slot="accordion-trigger"
                 className={cn(
-                    'flex flex-1 items-center justify-between gap-4 py-4 text-left text-[14px] font-medium text-ink transition-colors hover:text-primary outline-none',
+                    'text-ink hover:text-primary flex flex-1 items-center justify-between gap-4 py-4 text-left text-[14px] font-medium transition-colors outline-none',
                     '[&>svg]:transition-transform [&>svg]:duration-200',
                     'data-[state=open]:[&>svg]:rotate-180',
                     className,
@@ -41,7 +43,7 @@ function AccordionTrigger({
                 {...props}
             >
                 {children}
-                <ChevronDown className="size-4 shrink-0 text-mute" />
+                <ChevronDown className="text-mute size-4 shrink-0" />
             </AccordionPrimitive.Trigger>
         </AccordionPrimitive.Header>
     );
@@ -58,9 +60,7 @@ function AccordionContent({
             className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden"
             {...props}
         >
-            <div className={cn('pt-0 pb-4 text-[13px] text-ink-dim', className)}>
-                {children}
-            </div>
+            <div className={cn('text-ink-dim pt-0 pb-4 text-[13px]', className)}>{children}</div>
         </AccordionPrimitive.Content>
     );
 }

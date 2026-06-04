@@ -6,9 +6,7 @@ import { prisma } from '@/shared/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 
-export async function updateMyProfile(
-    data: unknown,
-): Promise<{ error: string | null }> {
+export async function updateMyProfile(data: unknown): Promise<{ error: string | null }> {
     const session = await auth();
     if (!session?.user?.id) return { error: 'No autorizado' };
 

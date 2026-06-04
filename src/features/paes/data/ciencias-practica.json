@@ -35,10 +35,26 @@
             "number": 3,
             "statement": "Un cuerpo en caída libre aumenta su velocidad porque",
             "options": [
-                { "id": "ci-03-a", "text": "la fricción del aire lo impulsa hacia abajo.", "isCorrect": false },
-                { "id": "ci-03-b", "text": "la gravedad ejerce una fuerza constante hacia abajo.", "isCorrect": true },
-                { "id": "ci-03-c", "text": "su masa disminuye a medida que cae.", "isCorrect": false },
-                { "id": "ci-03-d", "text": "el aire caliente lo empuja hacia el suelo.", "isCorrect": false }
+                {
+                    "id": "ci-03-a",
+                    "text": "la fricción del aire lo impulsa hacia abajo.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "ci-03-b",
+                    "text": "la gravedad ejerce una fuerza constante hacia abajo.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "ci-03-c",
+                    "text": "su masa disminuye a medida que cae.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "ci-03-d",
+                    "text": "el aire caliente lo empuja hacia el suelo.",
+                    "isCorrect": false
+                }
             ],
             "eje": "Física"
         },
@@ -155,10 +171,26 @@
             "number": 13,
             "statement": "¿Qué tipo de reproducción permite la máxima variabilidad genética en los seres vivos?",
             "options": [
-                { "id": "ci-13-a", "text": "Reproducción asexual por fisión binaria.", "isCorrect": false },
-                { "id": "ci-13-b", "text": "Reproducción asexual por gemación.", "isCorrect": false },
-                { "id": "ci-13-c", "text": "Reproducción sexual con meiosis y fecundación.", "isCorrect": true },
-                { "id": "ci-13-d", "text": "Reproducción vegetativa en plantas.", "isCorrect": false }
+                {
+                    "id": "ci-13-a",
+                    "text": "Reproducción asexual por fisión binaria.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "ci-13-b",
+                    "text": "Reproducción asexual por gemación.",
+                    "isCorrect": false
+                },
+                {
+                    "id": "ci-13-c",
+                    "text": "Reproducción sexual con meiosis y fecundación.",
+                    "isCorrect": true
+                },
+                {
+                    "id": "ci-13-d",
+                    "text": "Reproducción vegetativa en plantas.",
+                    "isCorrect": false
+                }
             ],
             "eje": "Biología"
         },

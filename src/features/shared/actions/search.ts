@@ -47,7 +47,13 @@ export async function searchGlobal(
                     { rut: { contains: trimmed } },
                 ],
             },
-            select: { id: true, name: true, lastname: true, rut: true, group: { select: { name: true } } },
+            select: {
+                id: true,
+                name: true,
+                lastname: true,
+                rut: true,
+                group: { select: { name: true } },
+            },
             take: 5,
         }),
         prisma.exam.findMany({

@@ -1,19 +1,22 @@
-'use server';
+﻿'use server';
 
-import { randomUUID } from 'node:crypto';
 import { prisma } from '@/shared/lib/prisma';
 import { isValidRut, normalizeRut } from '@/shared/lib/rut';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { logAudit } from '@/shared/lib/audit';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
-import { createResultSession, createStudentSession } from '@/features/exam-session/lib/session';
+import { createStudentAuthSession } from '@/features/exam-session/lib/session';
 import { redirect } from 'next/navigation';
 
 interface ActionState {
     error?: string;
 }
 
-// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
+/**
+ * Valida la credencial del estudiante (RUT o email) y abre su sesión.
+ * Siempre redirige al panel "Mis exámenes" (/examen/seleccion), que resuelve
+ * qué mostrar (disponibles, próximos o rendidos) y desde dónde se elige rendir.
+ */
 export async function validateStudent(
     _prevState: ActionState,
     formData: FormData,
@@ -23,7 +26,12 @@ export async function validateStudent(
 
     const isEmail = raw.includes('@');
 
-    let student: { id: string; email: string; groupId: string | null } | null = null;
+    let student: {
+        id: string;
+        email: string;
+        groupId: string | null;
+        academicInstitutionId: string | null;
+    } | null = null;
 
     if (isEmail) {
         const emailLower = raw.toLowerCase();
@@ -39,7 +47,7 @@ export async function validateStudent(
         }
         student = await prisma.user.findFirst({
             where: { email: emailLower, userRole: { name: USER_ROLE.STUDENT } },
-            select: { id: true, email: true, groupId: true },
+            select: { id: true, email: true, groupId: true, academicInstitutionId: true },
         });
         if (!student) {
             await logAudit({
@@ -64,7 +72,7 @@ export async function validateStudent(
         }
         student = await prisma.user.findFirst({
             where: { rut, userRole: { name: USER_ROLE.STUDENT } },
-            select: { id: true, email: true, groupId: true },
+            select: { id: true, email: true, groupId: true, academicInstitutionId: true },
         });
         if (!student) {
             await logAudit({
@@ -93,70 +101,14 @@ export async function validateStudent(
         return { error: 'No estás asignado a ningún grupo. Verificá con tu profesor.' };
     }
 
-    const exam = await prisma.exam.findFirst({
-        where: { active: true, groups: { some: { id: student.groupId } } },
-        orderBy: { createdAt: 'desc' },
-        select: { id: true, timeLimit: true, _count: { select: { questions: true } } },
-    });
-
-    if (!exam) {
-        await logAudit({
-            action: AUDIT_ACTION.STUDENT_LOGIN_FAILURE,
-            actorId: student.id,
-            actorEmail: student.email,
-            actorRole: USER_ROLE.STUDENT,
-            status: 'failure',
-            metadata: { reason: 'no_active_exam' },
-        });
-        return { error: 'Tu grupo no tiene un examen activo en este momento.' };
-    }
-
-    if (exam._count.questions === 0) {
-        await logAudit({
-            action: AUDIT_ACTION.STUDENT_LOGIN_FAILURE,
-            actorId: student.id,
-            actorEmail: student.email,
-            actorRole: USER_ROLE.STUDENT,
-            status: 'failure',
-            metadata: { reason: 'exam_has_no_questions', examId: exam.id },
-        });
-        return {
-            error: 'El examen activo no tiene preguntas disponibles. Verificá con tu profesor.',
-        };
-    }
-
-    const existing = await prisma.result.findUnique({
-        where: { studentId_examId: { studentId: student.id, examId: exam.id } },
-    });
-    if (existing) {
-        await logAudit({
-            action: AUDIT_ACTION.STUDENT_LOGIN_SUCCESS,
-            actorId: student.id,
-            actorEmail: student.email,
-            actorRole: USER_ROLE.STUDENT,
-            entity: 'Exam',
-            entityId: exam.id,
-            status: 'success',
-            metadata: { resumedResult: existing.id },
-        });
-        await createResultSession(existing.id, student.id);
-        redirect(`/examen/resultado/${existing.id}`);
-    }
-
-    const endsAt = Date.now() + exam.timeLimit * 60 * 1000;
-    const attemptKey = randomUUID();
-
     await logAudit({
         action: AUDIT_ACTION.STUDENT_LOGIN_SUCCESS,
         actorId: student.id,
         actorEmail: student.email,
         actorRole: USER_ROLE.STUDENT,
-        entity: 'Exam',
-        entityId: exam.id,
         status: 'success',
     });
 
-    await createStudentSession({ studentId: student.id, examId: exam.id, endsAt, attemptKey });
-
-    redirect(`/examen/${exam.id}`);
+    await createStudentAuthSession({ studentId: student.id, groupId: student.groupId });
+    redirect('/examen/seleccion');
 }

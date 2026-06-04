@@ -1,10 +1,7 @@
 import { z } from 'zod';
 import { isValidRut } from '@/shared/lib/rut';
 
-const rutField = z
-    .string()
-    .min(1, 'El RUT es requerido')
-    .refine(isValidRut, 'RUT inválido');
+const rutField = z.string().min(1, 'El RUT es requerido').refine(isValidRut, 'RUT inválido');
 
 export const signupFreeSchema = z.object({
     institutionName: z.string().min(3, 'Mínimo 3 caracteres').max(200),

@@ -10,36 +10,52 @@ interface L3SubpageLayoutPAESProps {
     children: React.ReactNode;
 }
 
-export function L3SubpageLayoutPAES({ tag, title, description, children }: L3SubpageLayoutPAESProps): React.JSX.Element {
+export function L3SubpageLayoutPAES({
+    tag,
+    title,
+    description,
+    children,
+}: L3SubpageLayoutPAESProps): React.JSX.Element {
     const titleWords = title.split(' ');
-    
+
     return (
-        <article className="bg-paper-warm min-h-screen pt-32 pb-24 relative overflow-hidden">
+        <article className="bg-paper-warm relative min-h-screen overflow-hidden pt-32 pb-24">
             {/* Background Pattern */}
-            <div 
-                className="absolute inset-0 opacity-[0.03] pointer-events-none"
+            <div
+                className="pointer-events-none absolute inset-0 opacity-[0.03]"
                 style={{
-                    backgroundImage: "radial-gradient(circle, var(--ink) 1.5px, transparent 1.5px)",
+                    backgroundImage: 'radial-gradient(circle, var(--ink) 1.5px, transparent 1.5px)',
                     backgroundSize: '32px 32px',
                 }}
             />
-            
-            <div className="mx-auto max-w-[900px] px-6 relative z-10">
+
+            <div className="relative z-10 mx-auto max-w-[900px] px-6">
                 <header className="mb-20">
-                    <Tag tone="primary" size="sm" className="font-bold mb-8 border-none shadow-sm">{tag}</Tag>
-                    <h1 className="font-display text-[56px] md:text-[72px] font-medium tracking-[-0.03em] leading-[1] text-ink mb-10">
-                        {titleWords.map((word, i) => (
+                    <Tag tone="primary" size="sm" className="mb-8 border-none font-bold shadow-sm">
+                        {tag}
+                    </Tag>
+                    <h1 className="font-display text-ink mb-10 text-[56px] leading-[1] font-medium tracking-[-0.03em] md:text-[72px]">
+                        {titleWords.map((word, i) =>
                             i === titleWords.length - 1 ? (
-                                <span key={i}><em className="text-primary not-italic italic">{word}</em></span>
-                            ) : `${word} `
-                        ))}
+                                <span key={i}>
+                                    <em className="text-primary italic not-italic">{word}</em>
+                                </span>
+                            ) : (
+                                `${word} `
+                            ),
+                        )}
                     </h1>
-                    
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 bg-white/50 p-8 rounded-[32px] border border-border/50 backdrop-blur-sm">
-                        <p className="text-[18px] md:text-[20px] leading-relaxed text-ink-dim max-w-[500px]">
+
+                    <div className="border-border/50 flex flex-col justify-between gap-8 rounded-[32px] border bg-white/50 p-8 backdrop-blur-sm md:flex-row md:items-center">
+                        <p className="text-ink-dim max-w-[500px] text-[18px] leading-relaxed md:text-[20px]">
                             {description}
                         </p>
-                        <Button asChild size="lg" variant="primary" className="h-14 px-8 rounded-full font-bold shadow-xl shadow-primary/10 shrink-0">
+                        <Button
+                            asChild
+                            size="lg"
+                            variant="primary"
+                            className="shadow-primary/10 h-14 shrink-0 rounded-full px-8 font-bold shadow-xl"
+                        >
                             <Link href="/paes">
                                 Probar Demo PAES
                                 <ArrowRight className="ml-2 size-5" />
@@ -47,10 +63,8 @@ export function L3SubpageLayoutPAES({ tag, title, description, children }: L3Sub
                         </Button>
                     </div>
                 </header>
-                
-                <div className="space-y-16">
-                    {children}
-                </div>
+
+                <div className="space-y-16">{children}</div>
             </div>
         </article>
     );

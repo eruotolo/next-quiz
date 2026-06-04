@@ -7,7 +7,10 @@ import { logAudit } from '@/shared/lib/audit';
 import { sendEmail, buildAdminWelcomeEmail } from '@/shared/lib/email';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
-import { adminUserCreateSchema, adminUserUpdateSchema } from '@/features/admin-users/schemas/admin-user.schemas';
+import {
+    adminUserCreateSchema,
+    adminUserUpdateSchema,
+} from '@/features/admin-users/schemas/admin-user.schemas';
 import { assertQuota } from '@/features/subscriptions/lib/quota';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
@@ -15,7 +18,11 @@ import bcrypt from 'bcryptjs';
 async function requireSuperAdmin(): Promise<{ id: string; email: string; userRoleName: string }> {
     const session = await auth();
     if (session?.user.userRoleName !== USER_ROLE.SUPER_ADMIN) throw new Error('Unauthorized');
-    return { id: session.user.id, email: session.user.email ?? '', userRoleName: session.user.userRoleName };
+    return {
+        id: session.user.id,
+        email: session.user.email ?? '',
+        userRoleName: session.user.userRoleName,
+    };
 }
 
 export async function createAdminUser(
@@ -25,7 +32,8 @@ export async function createAdminUser(
     if (!actor) return { data: null, error: 'No autorizado' };
 
     const parsed = adminUserCreateSchema.safeParse(data);
-    if (!parsed.success) return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
+    if (!parsed.success)
+        return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
 
     const isSuperAdmin = parsed.data.role === USER_ROLE.SUPER_ADMIN;
     if (!isSuperAdmin && !parsed.data.academicInstitutionId) {
@@ -91,7 +99,8 @@ export async function updateAdminUser(
     if (!actor) return { data: null, error: 'No autorizado' };
 
     const parsed = adminUserUpdateSchema.safeParse(data);
-    if (!parsed.success) return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
+    if (!parsed.success)
+        return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
 
     const isSuperAdmin = parsed.data.role === USER_ROLE.SUPER_ADMIN;
     if (!isSuperAdmin && !parsed.data.academicInstitutionId) {

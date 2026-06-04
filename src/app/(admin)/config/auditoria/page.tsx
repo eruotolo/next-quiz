@@ -10,7 +10,9 @@ interface PageProps {
     searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function AuditoriaPage({ searchParams }: PageProps): Promise<React.JSX.Element> {
+export default async function AuditoriaPage({
+    searchParams,
+}: PageProps): Promise<React.JSX.Element> {
     const session = await auth();
     if (!session || session.user.userRoleName !== USER_ROLE.SUPER_ADMIN) redirect('/login');
 

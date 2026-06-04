@@ -1,13 +1,17 @@
 {
-  "git": {
-    "deploymentEnabled": {
-      "main": true
-    }
-  },
-  "crons": [
-    {
-      "path": "/api/cron/cleanup-subscriptions",
-      "schedule": "0 3 * * *"
-    }
-  ]
+    "git": {
+        "deploymentEnabled": {
+            "main": true
+        }
+    },
+    "crons": [
+        {
+            "path": "/api/cron/cleanup-subscriptions",
+            "schedule": "0 3 * * *"
+        },
+        {
+            "path": "/api/cron/demo-reset",
+            "schedule": "0 6 * * *"
+        }
+    ]
 }

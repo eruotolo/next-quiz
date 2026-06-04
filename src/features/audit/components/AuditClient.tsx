@@ -16,7 +16,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/shared/components/ui/table';
 import { TablePaginator } from '@/shared/components/ui/table-paginator';
 import { ScrollText, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -44,7 +51,12 @@ function truncate(str: string | null, len: number): string {
     return str.length > len ? `${str.slice(0, len)}…` : str;
 }
 
-export function AuditClient({ result, distinctActions, institutions, currentFilters }: Props): React.JSX.Element {
+export function AuditClient({
+    result,
+    distinctActions,
+    institutions,
+    currentFilters,
+}: Props): React.JSX.Element {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -54,7 +66,9 @@ export function AuditClient({ result, distinctActions, institutions, currentFilt
         const merged: Record<string, string> = {
             ...(currentFilters.q ? { q: currentFilters.q } : {}),
             ...(currentFilters.action ? { action: currentFilters.action } : {}),
-            ...(currentFilters.institutionId ? { institutionId: currentFilters.institutionId } : {}),
+            ...(currentFilters.institutionId
+                ? { institutionId: currentFilters.institutionId }
+                : {}),
             ...(currentFilters.status ? { status: currentFilters.status } : {}),
             ...(currentFilters.from ? { from: currentFilters.from } : {}),
             ...(currentFilters.to ? { to: currentFilters.to } : {}),
@@ -75,9 +89,7 @@ export function AuditClient({ result, distinctActions, institutions, currentFilt
     function handleSearch(value: string): void {
         clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(() => {
-            startTransition(() =>
-                router.replace(buildUrl({ q: value || undefined, page: '1' }))
-            );
+            startTransition(() => router.replace(buildUrl({ q: value || undefined, page: '1' })));
         }, 300);
     }
 
@@ -102,7 +114,9 @@ export function AuditClient({ result, distinctActions, institutions, currentFilt
         !!currentFilters.to;
 
     return (
-        <div className={`flex flex-col min-h-screen bg-paper transition-opacity ${isPending ? 'opacity-60' : ''}`}>
+        <div
+            className={`bg-paper flex min-h-screen flex-col transition-opacity ${isPending ? 'opacity-60' : ''}`}
+        >
             <AdminTopBar
                 breadcrumb={['Sistema', 'Auditoría']}
                 title="Auditoría"
@@ -110,22 +124,22 @@ export function AuditClient({ result, distinctActions, institutions, currentFilt
             />
 
             {/* Filter bar */}
-            <div className="flex flex-wrap items-center gap-2 border-b border-border bg-white px-8 py-3">
+            <div className="border-border flex flex-wrap items-center gap-2 border-b bg-white px-8 py-3">
                 <Input
                     placeholder="Buscar por email, IP…"
                     defaultValue={currentFilters.q ?? ''}
                     onChange={(e) => handleSearch(e.target.value)}
-                    className="h-[38px] w-56 border-border bg-white text-sm"
+                    className="border-border h-[38px] w-56 bg-white text-sm"
                 />
 
                 <Select
                     value={currentFilters.action ?? 'all'}
                     onValueChange={(v) => handleSelect('action', v)}
                 >
-                    <SelectTrigger className="h-[38px] w-44 border-border bg-white text-sm">
+                    <SelectTrigger className="border-border h-[38px] w-44 bg-white text-sm">
                         <SelectValue placeholder="Acción" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border-border shadow-xl">
+                    <SelectContent className="border-border rounded-xl shadow-xl">
                         <SelectItem value="all">Todas las acciones</SelectItem>
                         {distinctActions.map((a) => (
                             <SelectItem key={a} value={a}>
@@ -139,10 +153,10 @@ export function AuditClient({ result, distinctActions, institutions, currentFilt
                     value={currentFilters.institutionId ?? 'all'}
                     onValueChange={(v) => handleSelect('institutionId', v)}
                 >
-                    <SelectTrigger className="h-[38px] w-52 border-border bg-white text-sm">
+                    <SelectTrigger className="border-border h-[38px] w-52 bg-white text-sm">
                         <SelectValue placeholder="Institución" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border-border shadow-xl">
+                    <SelectContent className="border-border rounded-xl shadow-xl">
                         <SelectItem value="all">Todas las instituciones</SelectItem>
                         {institutions.map((i) => (
                             <SelectItem key={i.id} value={i.id}>
@@ -156,10 +170,10 @@ export function AuditClient({ result, distinctActions, institutions, currentFilt
                     value={currentFilters.status ?? 'all'}
                     onValueChange={(v) => handleSelect('status', v)}
                 >
-                    <SelectTrigger className="h-[38px] w-36 border-border bg-white text-sm">
+                    <SelectTrigger className="border-border h-[38px] w-36 bg-white text-sm">
                         <SelectValue placeholder="Estado" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border-border shadow-xl">
+                    <SelectContent className="border-border rounded-xl shadow-xl">
                         <SelectItem value="all">Todos los estados</SelectItem>
                         <SelectItem value="success">Exitoso</SelectItem>
                         <SelectItem value="failure">Fallido</SelectItem>
@@ -167,57 +181,69 @@ export function AuditClient({ result, distinctActions, institutions, currentFilt
                 </Select>
 
                 <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-mute whitespace-nowrap">Desde</span>
+                    <span className="text-mute text-[11px] whitespace-nowrap">Desde</span>
                     <Input
                         type="date"
                         defaultValue={currentFilters.from ?? ''}
                         onChange={(e) => handleDate('from', e.target.value)}
-                        className="h-[38px] w-36 border-border bg-white text-sm"
+                        className="border-border h-[38px] w-36 bg-white text-sm"
                     />
                 </div>
 
                 <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-mute whitespace-nowrap">Hasta</span>
+                    <span className="text-mute text-[11px] whitespace-nowrap">Hasta</span>
                     <Input
                         type="date"
                         defaultValue={currentFilters.to ?? ''}
                         onChange={(e) => handleDate('to', e.target.value)}
-                        className="h-[38px] w-36 border-border bg-white text-sm"
+                        className="border-border h-[38px] w-36 bg-white text-sm"
                     />
                 </div>
 
                 <div className="flex-1" />
 
                 {hasFilters && (
-                    <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1.5 text-mute hover:text-ink">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={clearFilters}
+                        className="text-mute hover:text-ink gap-1.5"
+                    >
                         <X size={13} />
                         Limpiar
                     </Button>
                 )}
 
-                <span className="font-mono text-[11px] text-mute uppercase tracking-wider">
+                <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
                     {result.total.toLocaleString('es-CL')} eventos
                 </span>
             </div>
 
-            <main className="flex-1 p-8 overflow-auto">
+            <main className="flex-1 overflow-auto p-8">
                 {result.items.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
-                        <ScrollText size={48} className="mb-4 text-mute/20" />
-                        <p className="text-lg font-medium text-ink">
-                            {hasFilters ? 'Sin eventos con los filtros aplicados' : 'Aún no hay eventos registrados'}
+                        <ScrollText size={48} className="text-mute/20 mb-4" />
+                        <p className="text-ink text-lg font-medium">
+                            {hasFilters
+                                ? 'Sin eventos con los filtros aplicados'
+                                : 'Aún no hay eventos registrados'}
                         </p>
                         {hasFilters && (
-                            <Button variant="ghost" size="sm" onClick={clearFilters} className="mt-4 text-mute">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={clearFilters}
+                                className="text-mute mt-4"
+                            >
                                 Limpiar filtros
                             </Button>
                         )}
                     </Card>
                 ) : (
-                    <Card className="p-0 overflow-visible border-border shadow-sm">
+                    <Card className="border-border overflow-visible p-0 shadow-sm">
                         <Table>
                             <TableHeader className="bg-paper">
-                                <TableRow className="hover:bg-transparent border-b border-border">
+                                <TableRow className="border-border border-b hover:bg-transparent">
                                     <TableHead>Fecha</TableHead>
                                     <TableHead>Acción</TableHead>
                                     <TableHead>Estado</TableHead>
@@ -239,7 +265,8 @@ export function AuditClient({ result, distinctActions, institutions, currentFilt
                                                 variant="outline"
                                                 className="text-[11px] font-medium whitespace-nowrap"
                                             >
-                                                {AUDIT_ACTION_LABEL[row.action as AuditActionKey] ?? row.action}
+                                                {AUDIT_ACTION_LABEL[row.action as AuditActionKey] ??
+                                                    row.action}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
@@ -254,34 +281,34 @@ export function AuditClient({ result, distinctActions, institutions, currentFilt
                                             )}
                                         </TableCell>
                                         <TableCell>
-                                            <div className="text-[13px] font-medium text-ink">
+                                            <div className="text-ink text-[13px] font-medium">
                                                 {row.actor
                                                     ? `${row.actor.name} ${row.actor.lastname}`
                                                     : truncate(row.actorEmail, 28)}
                                             </div>
                                             {row.actorRole && (
-                                                <div className="text-[11px] text-mute">
+                                                <div className="text-mute text-[11px]">
                                                     {row.actorRole}
                                                 </div>
                                             )}
                                         </TableCell>
-                                        <TableCell className="text-[12px] text-mute">
+                                        <TableCell className="text-mute text-[12px]">
                                             {row.institution?.name ?? '—'}
                                         </TableCell>
                                         <TableCell>
                                             {row.entity ? (
-                                                <span className="text-[12px] font-medium text-ink">
+                                                <span className="text-ink text-[12px] font-medium">
                                                     {row.entity}
                                                 </span>
                                             ) : (
-                                                <span className="text-[12px] text-mute">—</span>
+                                                <span className="text-mute text-[12px]">—</span>
                                             )}
                                         </TableCell>
-                                        <TableCell className="font-mono text-[12px] text-mute">
+                                        <TableCell className="text-mute font-mono text-[12px]">
                                             {row.ip ?? '—'}
                                         </TableCell>
                                         <TableCell
-                                            className="max-w-[180px] truncate text-[11px] text-mute"
+                                            className="text-mute max-w-[180px] truncate text-[11px]"
                                             title={row.userAgent ?? undefined}
                                         >
                                             {truncate(row.userAgent, 40)}

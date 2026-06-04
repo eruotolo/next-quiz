@@ -3,7 +3,7 @@
 import { createExam } from '@/features/exams/actions/mutations';
 import { createGroup } from '@/features/groups/actions/mutations';
 import { createStudent } from '@/features/students/actions/mutations';
-import { RutInput } from '@/features/students/components/RutInput';
+import { RutField } from '@/shared/components/ui/rut-field';
 import { toast } from 'sonner';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
@@ -123,8 +123,8 @@ function useCountdown(closesAt: string | null): string {
 
 function ExamRowTimer({ closesAt }: { closesAt: string | null }): React.JSX.Element {
     const remaining = useCountdown(closesAt);
-    if (!closesAt) return <span className="text-[11px] text-mute font-mono">Sin límite</span>;
-    return <span className="text-[11px] text-mute font-mono">cierra en {remaining}</span>;
+    if (!closesAt) return <span className="text-mute font-mono text-[11px]">Sin límite</span>;
+    return <span className="text-mute font-mono text-[11px]">cierra en {remaining}</span>;
 }
 
 // ── Grade color helper ─────────────────────────────────────────────────────
@@ -157,8 +157,7 @@ function initials(name: string): string {
 }
 
 function avatarColor(name: string): string {
-    const idx =
-        name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % AVATAR_COLORS.length;
+    const idx = name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % AVATAR_COLORS.length;
     return AVATAR_COLORS[idx] ?? (AVATAR_COLORS[0] as string);
 }
 
@@ -232,21 +231,21 @@ function ExamRow({
     return (
         <div className="flex items-center gap-4 px-6 py-4">
             <div className="min-w-0 flex-1">
-                <p className="text-[13.5px] font-semibold text-[#0b0b11] leading-tight truncate">
+                <p className="truncate text-[13.5px] leading-tight font-semibold text-[#0b0b11]">
                     {exam.groupNames ? `${exam.groupNames} · ` : ''}
                     {exam.subject ?? exam.title}
                     {exam.unit ? ` · ${exam.unit}` : ''}
                 </p>
-                <p className="text-[11.5px] text-[#75716b] mt-0.5">{exam.title}</p>
+                <p className="mt-0.5 text-[11.5px] text-[#75716b]">{exam.title}</p>
             </div>
-            <div className="shrink-0 text-center w-16">
+            <div className="w-16 shrink-0 text-center">
                 <p className="text-[12.5px] font-bold text-[#0b0b11]">
                     {exam.submittedCount}/{exam.totalStudents}
                 </p>
                 <p className="text-[10px] text-[#75716b]">rinden</p>
             </div>
-            <div className="shrink-0 w-28 space-y-1">
-                <div className="h-1.5 w-full rounded-full bg-[#e5e2dc] overflow-hidden">
+            <div className="w-28 shrink-0 space-y-1">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#e5e2dc]">
                     <div
                         className={cn('h-full rounded-full transition-all', progressColor(pct))}
                         style={{ width: `${Math.round(pct * 100)}%` }}
@@ -257,7 +256,7 @@ function ExamRow({
             <button
                 type="button"
                 onClick={onView}
-                className="shrink-0 flex items-center gap-1 rounded-[8px] border border-[#e5e2dc] px-3 py-1.5 text-[12px] font-medium text-[#0b0b11] hover:bg-[#fafaf7] transition-colors"
+                className="flex shrink-0 items-center gap-1 rounded-[8px] border border-[#e5e2dc] px-3 py-1.5 text-[12px] font-medium text-[#0b0b11] transition-colors hover:bg-[#fafaf7]"
             >
                 Ver <ChevronRight size={12} />
             </button>
@@ -268,7 +267,7 @@ function ExamRow({
 function ResultRow({ r }: { r: RecentResultInfo }): React.JSX.Element {
     return (
         <div className="grid grid-cols-[1fr_1fr_60px] items-center gap-2 px-6 py-3">
-            <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex min-w-0 items-center gap-2.5">
                 <div
                     className={cn(
                         'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-bold uppercase',
@@ -285,9 +284,7 @@ function ResultRow({ r }: { r: RecentResultInfo }): React.JSX.Element {
                 {r.examSubject ?? r.examTitle}
             </span>
             <div className="flex items-center justify-end gap-1">
-                <span
-                    className={cn('text-[13px] font-bold', gradeColor(r.grade, r.passingGrade))}
-                >
+                <span className={cn('text-[13px] font-bold', gradeColor(r.grade, r.passingGrade))}>
                     {r.grade.toFixed(1).replace('.', ',')}
                 </span>
                 <ChevronRight size={12} className="text-[#e5e2dc]" />
@@ -412,7 +409,9 @@ function CreateGroupDialog({
             <DialogContent className="rounded-[22px]">
                 <DialogHeader>
                     <DialogTitle className="font-display text-2xl">Nuevo grupo</DialogTitle>
-                    <DialogDescription className="sr-only">Formulario para crear un nuevo grupo.</DialogDescription>
+                    <DialogDescription className="sr-only">
+                        Formulario para crear un nuevo grupo.
+                    </DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-2 py-4">
                     <label htmlFor="group-name" className="text-[13px] font-bold text-[#0b0b11]">
@@ -430,15 +429,20 @@ function CreateGroupDialog({
                         autoFocus
                     />
                     {groupError && (
-                        <p className="text-xs font-medium text-destructive">{groupError}</p>
+                        <p className="text-destructive text-xs font-medium">{groupError}</p>
                     )}
                 </div>
                 <DialogFooter className="gap-2">
-                    <Button variant="ghost" size="md" onClick={() => onOpenChange(false)} disabled={isPending}>
+                    <Button
+                        variant="ghost"
+                        size="md"
+                        onClick={() => onOpenChange(false)}
+                        disabled={isPending}
+                    >
                         Cancelar
                     </Button>
                     <Button variant="ink" size="md" disabled={isPending} onClick={handleCreate}>
-                        {isPending && <Loader2 className="animate-spin mr-2" />}
+                        {isPending && <Loader2 className="mr-2 animate-spin" />}
                         Crear grupo
                     </Button>
                 </DialogFooter>
@@ -484,46 +488,109 @@ function CreateStudentDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-lg rounded-[22px]">
+            <DialogContent className="rounded-[22px] sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle className="font-display text-2xl">Nuevo estudiante</DialogTitle>
-                    <DialogDescription className="sr-only">Formulario para crear un nuevo estudiante.</DialogDescription>
+                    <DialogDescription className="sr-only">
+                        Formulario para crear un nuevo estudiante.
+                    </DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-4 py-4">
                     <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-1.5">
-                            <label htmlFor="s-name" className="text-[12.5px] font-bold text-[#0b0b11]">Nombre</label>
-                            <Input id="s-name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} className="h-11 rounded-[10px]" autoFocus />
-                            {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
+                            <label
+                                htmlFor="s-name"
+                                className="text-[12.5px] font-bold text-[#0b0b11]"
+                            >
+                                Nombre
+                            </label>
+                            <Input
+                                id="s-name"
+                                value={form.name}
+                                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                                className="h-11 rounded-[10px]"
+                                autoFocus
+                            />
+                            {errors.name && (
+                                <p className="text-destructive text-xs">{errors.name}</p>
+                            )}
                         </div>
                         <div className="flex flex-col gap-1.5">
-                            <label htmlFor="s-lastname" className="text-[12.5px] font-bold text-[#0b0b11]">Apellido</label>
-                            <Input id="s-lastname" value={form.lastname} onChange={(e) => setForm((f) => ({ ...f, lastname: e.target.value }))} className="h-11 rounded-[10px]" />
-                            {errors.lastname && <p className="text-xs text-destructive">{errors.lastname}</p>}
+                            <label
+                                htmlFor="s-lastname"
+                                className="text-[12.5px] font-bold text-[#0b0b11]"
+                            >
+                                Apellido
+                            </label>
+                            <Input
+                                id="s-lastname"
+                                value={form.lastname}
+                                onChange={(e) =>
+                                    setForm((f) => ({ ...f, lastname: e.target.value }))
+                                }
+                                className="h-11 rounded-[10px]"
+                            />
+                            {errors.lastname && (
+                                <p className="text-destructive text-xs">{errors.lastname}</p>
+                            )}
                         </div>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <label htmlFor="s-email" className="text-[12.5px] font-bold text-[#0b0b11]">Email</label>
-                        <Input id="s-email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} className="h-11 rounded-[10px]" />
-                        {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
+                        <label htmlFor="s-email" className="text-[12.5px] font-bold text-[#0b0b11]">
+                            Email
+                        </label>
+                        <Input
+                            id="s-email"
+                            type="email"
+                            value={form.email}
+                            onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                            className="h-11 rounded-[10px]"
+                        />
+                        {errors.email && <p className="text-destructive text-xs">{errors.email}</p>}
                     </div>
-                    <RutInput label="RUT" value={form.rut} onChange={(v) => setForm((f) => ({ ...f, rut: v }))} error={errors.rut} />
+                    <div className="flex flex-col gap-1.5">
+                        <span className="text-[12.5px] font-bold text-[#0b0b11]">RUT</span>
+                        <RutField
+                            value={form.rut}
+                            onChange={(v) => setForm((f) => ({ ...f, rut: v }))}
+                            className="border-border h-11 rounded-[10px] bg-white"
+                        />
+                        {errors.rut && <p className="text-destructive text-xs">{errors.rut}</p>}
+                    </div>
                     <div className="flex flex-col gap-1.5">
                         <span className="text-[12.5px] font-bold text-[#0b0b11]">Grupo</span>
-                        <Select value={form.groupId} onValueChange={(v) => setForm((f) => ({ ...f, groupId: v }))}>
-                            <SelectTrigger className="h-11 rounded-[10px]"><SelectValue placeholder="Seleccioná un grupo" /></SelectTrigger>
+                        <Select
+                            value={form.groupId}
+                            onValueChange={(v) => setForm((f) => ({ ...f, groupId: v }))}
+                        >
+                            <SelectTrigger className="h-11 rounded-[10px]">
+                                <SelectValue placeholder="Seleccioná un grupo" />
+                            </SelectTrigger>
                             <SelectContent className="rounded-xl">
-                                {groups.map((g) => <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>)}
+                                {groups.map((g) => (
+                                    <SelectItem key={g.id} value={g.id}>
+                                        {g.name}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
-                        {errors.groupId && <p className="text-xs text-destructive">{errors.groupId}</p>}
+                        {errors.groupId && (
+                            <p className="text-destructive text-xs">{errors.groupId}</p>
+                        )}
                     </div>
-                    {errors.general && <p className="text-xs text-destructive">{errors.general}</p>}
+                    {errors.general && <p className="text-destructive text-xs">{errors.general}</p>}
                 </div>
                 <DialogFooter className="gap-2">
-                    <Button variant="ghost" size="md" onClick={() => onOpenChange(false)} disabled={isPending}>Cancelar</Button>
+                    <Button
+                        variant="ghost"
+                        size="md"
+                        onClick={() => onOpenChange(false)}
+                        disabled={isPending}
+                    >
+                        Cancelar
+                    </Button>
                     <Button variant="ink" size="md" disabled={isPending} onClick={handleCreate}>
-                        {isPending && <Loader2 className="animate-spin mr-2" />}
+                        {isPending && <Loader2 className="mr-2 animate-spin" />}
                         Crear estudiante
                     </Button>
                 </DialogFooter>
@@ -584,47 +651,92 @@ function CreateExamDialog({
                 onOpenChange(false);
                 onSuccess();
             } catch (err: unknown) {
-                setErrors({ general: err instanceof Error ? err.message : 'Ocurrió un error. Intentá de nuevo.' });
+                setErrors({
+                    general:
+                        err instanceof Error ? err.message : 'Ocurrió un error. Intentá de nuevo.',
+                });
             }
         });
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="rounded-[22px] max-w-md">
+            <DialogContent className="max-w-md rounded-[22px]">
                 <DialogHeader>
                     <DialogTitle className="font-display text-2xl">Nuevo examen</DialogTitle>
-                    <DialogDescription className="sr-only">Formulario para crear un nuevo examen.</DialogDescription>
+                    <DialogDescription className="sr-only">
+                        Formulario para crear un nuevo examen.
+                    </DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-4 py-4">
                     <div className="flex flex-col gap-1.5">
-                        <label htmlFor="e-title" className="text-[13px] font-bold text-[#0b0b11]">Título del examen</label>
-                        <Input id="e-title" placeholder="Ej: Matemáticas — Unidad 3" value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} className="h-11 rounded-[10px]" autoFocus />
-                        {errors.title && <p className="text-xs text-destructive">{errors.title}</p>}
+                        <label htmlFor="e-title" className="text-[13px] font-bold text-[#0b0b11]">
+                            Título del examen
+                        </label>
+                        <Input
+                            id="e-title"
+                            placeholder="Ej: Matemáticas — Unidad 3"
+                            value={form.title}
+                            onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                            className="h-11 rounded-[10px]"
+                            autoFocus
+                        />
+                        {errors.title && <p className="text-destructive text-xs">{errors.title}</p>}
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <label htmlFor="e-time" className="text-[13px] font-bold text-[#0b0b11]">Tiempo límite (minutos)</label>
-                        <Input id="e-time" type="number" value={form.timeLimit} onChange={(e) => setForm((f) => ({ ...f, timeLimit: e.target.value }))} className="h-11 rounded-[10px]" />
-                        {errors.timeLimit && <p className="text-xs text-destructive">{errors.timeLimit}</p>}
+                        <label htmlFor="e-time" className="text-[13px] font-bold text-[#0b0b11]">
+                            Tiempo límite (minutos)
+                        </label>
+                        <Input
+                            id="e-time"
+                            type="number"
+                            value={form.timeLimit}
+                            onChange={(e) => setForm((f) => ({ ...f, timeLimit: e.target.value }))}
+                            className="h-11 rounded-[10px]"
+                        />
+                        {errors.timeLimit && (
+                            <p className="text-destructive text-xs">{errors.timeLimit}</p>
+                        )}
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <span className="text-[13px] font-bold text-[#0b0b11]">Grupos asignados</span>
+                        <span className="text-[13px] font-bold text-[#0b0b11]">
+                            Grupos asignados
+                        </span>
                         <div className="max-h-[140px] overflow-y-auto rounded-[12px] border border-[#e5e2dc] bg-[#fafaf7]/30 p-2">
                             {groups.map((g) => (
-                                <label key={g.id} className="flex cursor-pointer items-center gap-3 rounded-[8px] px-3 py-2 hover:bg-white transition-colors">
-                                    <input type="checkbox" checked={form.groupIds.includes(g.id)} onChange={() => toggleGroup(g.id)} className="accent-primary h-4 w-4" />
-                                    <span className="text-sm font-medium text-[#0b0b11]">{g.name}</span>
+                                <label
+                                    key={g.id}
+                                    className="flex cursor-pointer items-center gap-3 rounded-[8px] px-3 py-2 transition-colors hover:bg-white"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={form.groupIds.includes(g.id)}
+                                        onChange={() => toggleGroup(g.id)}
+                                        className="accent-primary h-4 w-4"
+                                    />
+                                    <span className="text-sm font-medium text-[#0b0b11]">
+                                        {g.name}
+                                    </span>
                                 </label>
                             ))}
                         </div>
-                        {errors.groupIds && <p className="text-xs text-destructive">{errors.groupIds}</p>}
+                        {errors.groupIds && (
+                            <p className="text-destructive text-xs">{errors.groupIds}</p>
+                        )}
                     </div>
-                    {errors.general && <p className="text-xs text-destructive">{errors.general}</p>}
+                    {errors.general && <p className="text-destructive text-xs">{errors.general}</p>}
                 </div>
                 <DialogFooter className="gap-2">
-                    <Button variant="ghost" size="md" onClick={() => onOpenChange(false)} disabled={isPending}>Cancelar</Button>
+                    <Button
+                        variant="ghost"
+                        size="md"
+                        onClick={() => onOpenChange(false)}
+                        disabled={isPending}
+                    >
+                        Cancelar
+                    </Button>
                     <Button variant="ink" size="md" disabled={isPending} onClick={handleCreate}>
-                        {isPending && <Loader2 className="animate-spin mr-2" />}
+                        {isPending && <Loader2 className="mr-2 animate-spin" />}
                         Crear examen
                     </Button>
                 </DialogFooter>
@@ -687,12 +799,12 @@ export function DashboardClient({
     return (
         <div className="min-h-screen bg-[#fafaf7]">
             {/* ── Header ── */}
-            <header className="flex items-start justify-between gap-6 bg-white border-b border-[#e5e2dc] px-8 py-6">
+            <header className="flex items-start justify-between gap-6 border-b border-[#e5e2dc] bg-white px-8 py-6">
                 <div>
-                    <p className="font-mono text-[10.5px] font-bold uppercase tracking-[0.1em] text-[#75716b] mb-1">
+                    <p className="mb-1 font-mono text-[10.5px] font-bold tracking-[0.1em] text-[#75716b] uppercase">
                         {institutionName}
                     </p>
-                    <h1 className="font-display text-[36px] font-bold leading-none tracking-[-0.03em] text-[#0b0b11]">
+                    <h1 className="font-display text-[36px] leading-none font-bold tracking-[-0.03em] text-[#0b0b11]">
                         {greeting}, {firstName} 👋
                     </h1>
                     <p className="mt-2 text-[13.5px] text-[#3c3d45]">{subtitle}</p>
@@ -706,20 +818,46 @@ export function DashboardClient({
                         </span>
                     </div>
                     <div ref={menuRef} className="relative">
-                        <Button variant="ink" size="md" onClick={() => setMenuOpen((v) => !v)} className="gap-2">
+                        <Button
+                            variant="ink"
+                            size="md"
+                            onClick={() => setMenuOpen((v) => !v)}
+                            className="gap-2"
+                        >
                             <Plus size={15} />
                             Nuevo examen
                         </Button>
                         {menuOpen && (
-                            <div className="absolute top-full right-0 z-50 mt-2 min-w-[220px] rounded-[18px] border border-[#e5e2dc] bg-white p-2 shadow-xl animate-in fade-in slide-in-from-top-2">
-                                {([
-                                    { label: 'Nuevo examen', icon: BookOpen, modal: 'examen' as ModalType },
-                                    { label: 'Nuevo estudiante', icon: GraduationCap, modal: 'alumno' as ModalType },
-                                    { label: 'Nuevo grupo', icon: Users, modal: 'grupo' as ModalType },
-                                ] as const).map(({ label, icon: Icon, modal }) => (
-                                    <button key={label} type="button" onClick={() => openModal(modal)} className="flex w-full items-center gap-3 rounded-[10px] px-3 py-2.5 text-left hover:bg-[#fafaf7] transition-colors">
+                            <div className="animate-in fade-in slide-in-from-top-2 absolute top-full right-0 z-50 mt-2 min-w-[220px] rounded-[18px] border border-[#e5e2dc] bg-white p-2 shadow-xl">
+                                {(
+                                    [
+                                        {
+                                            label: 'Nuevo examen',
+                                            icon: BookOpen,
+                                            modal: 'examen' as ModalType,
+                                        },
+                                        {
+                                            label: 'Nuevo estudiante',
+                                            icon: GraduationCap,
+                                            modal: 'alumno' as ModalType,
+                                        },
+                                        {
+                                            label: 'Nuevo grupo',
+                                            icon: Users,
+                                            modal: 'grupo' as ModalType,
+                                        },
+                                    ] as const
+                                ).map(({ label, icon: Icon, modal }) => (
+                                    <button
+                                        key={label}
+                                        type="button"
+                                        onClick={() => openModal(modal)}
+                                        className="flex w-full items-center gap-3 rounded-[10px] px-3 py-2.5 text-left transition-colors hover:bg-[#fafaf7]"
+                                    >
                                         <Icon size={15} className="text-[#75716b]" />
-                                        <span className="text-[13px] font-medium text-[#0b0b11]">{label}</span>
+                                        <span className="text-[13px] font-medium text-[#0b0b11]">
+                                            {label}
+                                        </span>
                                     </button>
                                 ))}
                             </div>
@@ -728,45 +866,64 @@ export function DashboardClient({
                 </div>
             </header>
 
-            <main className="p-8 space-y-6">
+            <main className="space-y-6 p-8">
                 {/* ── Stat cards ── */}
                 <div className="grid grid-cols-4 gap-4">
                     <Card className="border-[#e5e2dc] bg-white p-6 shadow-sm">
                         <div className="flex items-start justify-between">
-                            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[#75716b]">Estudiantes activos</p>
+                            <p className="font-mono text-[10px] font-bold tracking-[0.1em] text-[#75716b] uppercase">
+                                Estudiantes activos
+                            </p>
                             <Users size={16} className="text-[#75716b]" />
                         </div>
-                        <p className="mt-3 font-display text-[40px] font-bold leading-none tracking-[-0.03em] text-[#0b0b11]">{stats.students}</p>
+                        <p className="font-display mt-3 text-[40px] leading-none font-bold tracking-[-0.03em] text-[#0b0b11]">
+                            {stats.students}
+                        </p>
                         <p className="mt-3 flex items-center gap-1 text-[11.5px] text-[#0f7c4a]">
-                            <TrendingUp size={12} /><span>Total registrados</span>
+                            <TrendingUp size={12} />
+                            <span>Total registrados</span>
                         </p>
                     </Card>
 
                     <Card className="border-[#1f2eff] bg-[#1f2eff] p-6 shadow-sm">
                         <div className="flex items-start justify-between">
-                            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-white/60">Exámenes abiertos</p>
+                            <p className="font-mono text-[10px] font-bold tracking-[0.1em] text-white/60 uppercase">
+                                Exámenes abiertos
+                            </p>
                             <BookOpen size={16} className="text-white/60" />
                         </div>
-                        <p className="mt-3 font-display text-[40px] font-bold leading-none tracking-[-0.03em] text-white">{stats.activeExams}</p>
+                        <p className="font-display mt-3 text-[40px] leading-none font-bold tracking-[-0.03em] text-white">
+                            {stats.activeExams}
+                        </p>
                         <p className="mt-3 text-[11.5px] text-white/60">{activeExamDesc}</p>
                     </Card>
 
                     <Card className="border-[#e5e2dc] bg-white p-6 shadow-sm">
                         <div className="flex items-start justify-between">
-                            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[#75716b]">Promedio institución</p>
+                            <p className="font-mono text-[10px] font-bold tracking-[0.1em] text-[#75716b] uppercase">
+                                Promedio institución
+                            </p>
                             <TrendingUp size={16} className="text-[#75716b]" />
                         </div>
-                        <p className="mt-3 font-display text-[40px] font-bold leading-none tracking-[-0.03em] text-[#0b0b11]">{avgGradeLabel}</p>
+                        <p className="font-display mt-3 text-[40px] leading-none font-bold tracking-[-0.03em] text-[#0b0b11]">
+                            {avgGradeLabel}
+                        </p>
                         <p className="mt-3 text-[11.5px] text-[#75716b]">{avgGradeDesc}</p>
                     </Card>
 
                     <Card className="border-[#0b0b11] bg-[#0b0b11] p-6 shadow-sm">
                         <div className="flex items-start justify-between">
-                            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-white/40">Asistencia eval.</p>
+                            <p className="font-mono text-[10px] font-bold tracking-[0.1em] text-white/40 uppercase">
+                                Asistencia eval.
+                            </p>
                             <GraduationCap size={16} className="text-white/40" />
                         </div>
-                        <p className="mt-3 font-display text-[40px] font-bold leading-none tracking-[-0.03em] text-white">{attendancePct}%</p>
-                        <p className="mt-3 text-[11.5px] text-white/40">{uniqueStudentsWithResults} de {stats.students} rinden</p>
+                        <p className="font-display mt-3 text-[40px] leading-none font-bold tracking-[-0.03em] text-white">
+                            {attendancePct}%
+                        </p>
+                        <p className="mt-3 text-[11.5px] text-white/40">
+                            {uniqueStudentsWithResults} de {stats.students} rinden
+                        </p>
                     </Card>
                 </div>
 
@@ -775,23 +932,39 @@ export function DashboardClient({
                     <Card className="border-[#e5e2dc] bg-white shadow-sm">
                         <div className="flex items-center justify-between border-b border-[#e5e2dc] px-6 py-4">
                             <div>
-                                <h2 className="text-[16px] font-bold text-[#0b0b11]">Exámenes en curso</h2>
-                                <p className="text-[12px] text-[#75716b]">Tablero pregunta a pregunta · {stats.activeExams} activos</p>
+                                <h2 className="text-[16px] font-bold text-[#0b0b11]">
+                                    Exámenes en curso
+                                </h2>
+                                <p className="text-[12px] text-[#75716b]">
+                                    Tablero pregunta a pregunta · {stats.activeExams} activos
+                                </p>
                             </div>
-                            <button type="button" onClick={() => router.push(`/${slug}/liveresults`)} className="flex items-center gap-1 text-[12.5px] font-semibold text-[#1f2eff] hover:underline">
+                            <button
+                                type="button"
+                                onClick={() => router.push(`/${slug}/liveresults`)}
+                                className="flex items-center gap-1 text-[12.5px] font-semibold text-[#1f2eff] hover:underline"
+                            >
                                 Ver todos <ArrowRight size={13} />
                             </button>
                         </div>
                         <div className="divide-y divide-[#e5e2dc]">
                             {activeExams.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                                    <BookOpen size={28} className="text-[#e5e2dc] mb-3" />
-                                    <p className="text-[13px] font-medium text-[#75716b]">No hay exámenes activos ahora</p>
-                                    <p className="text-[11.5px] text-[#75716b] mt-1">Activá un examen para verlo aquí en tiempo real</p>
+                                    <BookOpen size={28} className="mb-3 text-[#e5e2dc]" />
+                                    <p className="text-[13px] font-medium text-[#75716b]">
+                                        No hay exámenes activos ahora
+                                    </p>
+                                    <p className="mt-1 text-[11.5px] text-[#75716b]">
+                                        Activá un examen para verlo aquí en tiempo real
+                                    </p>
                                 </div>
                             ) : (
                                 activeExams.map((exam) => (
-                                    <ExamRow key={exam.id} exam={exam} onView={() => router.push(`/${slug}/liveresults`)} />
+                                    <ExamRow
+                                        key={exam.id}
+                                        exam={exam}
+                                        onView={() => router.push(`/${slug}/liveresults`)}
+                                    />
                                 ))
                             )}
                         </div>
@@ -800,19 +973,33 @@ export function DashboardClient({
                     <Card className="border-[#e5e2dc] bg-white shadow-sm">
                         <div className="border-b border-[#e5e2dc] px-5 py-4">
                             <h2 className="text-[16px] font-bold text-[#0b0b11]">Hoy</h2>
-                            <p className="text-[12px] text-[#75716b]">{todayItems.length} cosa{todayItems.length !== 1 ? 's' : ''} que mirar</p>
+                            <p className="text-[12px] text-[#75716b]">
+                                {todayItems.length} cosa{todayItems.length !== 1 ? 's' : ''} que
+                                mirar
+                            </p>
                         </div>
                         <div className="divide-y divide-[#e5e2dc]">
                             {todayItems.map((item) => (
                                 <div key={item.key} className="flex items-start gap-3 px-5 py-4">
-                                    <div className={cn('mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full', item.iconClass)}>
+                                    <div
+                                        className={cn(
+                                            'mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
+                                            item.iconClass,
+                                        )}
+                                    >
                                         <item.icon size={14} />
                                     </div>
                                     <div className="min-w-0 flex-1">
-                                        <p className="text-[12.5px] font-semibold text-[#0b0b11] leading-tight">{item.title}</p>
-                                        <p className="mt-0.5 text-[11.5px] text-[#75716b] leading-snug">{item.desc}</p>
+                                        <p className="text-[12.5px] leading-tight font-semibold text-[#0b0b11]">
+                                            {item.title}
+                                        </p>
+                                        <p className="mt-0.5 text-[11.5px] leading-snug text-[#75716b]">
+                                            {item.desc}
+                                        </p>
                                     </div>
-                                    <span className="shrink-0 font-mono text-[10px] text-[#75716b]">{item.time}</span>
+                                    <span className="shrink-0 font-mono text-[10px] text-[#75716b]">
+                                        {item.time}
+                                    </span>
                                 </div>
                             ))}
                         </div>
@@ -823,23 +1010,45 @@ export function DashboardClient({
                 <div className="grid grid-cols-2 gap-4">
                     <Card className="border-[#e5e2dc] bg-white shadow-sm">
                         <div className="border-b border-[#e5e2dc] px-6 py-4">
-                            <h2 className="text-[16px] font-bold text-[#0b0b11]">Distribución de notas · ciclo</h2>
-                            <p className="text-[12px] text-[#75716b]">Mes en curso · todas las asignaturas</p>
+                            <h2 className="text-[16px] font-bold text-[#0b0b11]">
+                                Distribución de notas · ciclo
+                            </h2>
+                            <p className="text-[12px] text-[#75716b]">
+                                Mes en curso · todas las asignaturas
+                            </p>
                         </div>
-                        <div className="flex h-[200px] items-end gap-1 px-6 pb-6 pt-4">
+                        <div className="flex h-[200px] items-end gap-1 px-6 pt-4 pb-6">
                             {GRADE_BARS.map(({ id, val }, i) => (
-                                <div key={id} className="flex-1 rounded-t-[4px] transition-all hover:opacity-80" style={{ height: `${val * 100}%`, backgroundColor: i > 8 ? '#1f2eff' : i > 4 ? '#0f7c4a' : '#e5e2dc' }} />
+                                <div
+                                    key={id}
+                                    className="flex-1 rounded-t-[4px] transition-all hover:opacity-80"
+                                    style={{
+                                        height: `${val * 100}%`,
+                                        backgroundColor:
+                                            i > 8 ? '#1f2eff' : i > 4 ? '#0f7c4a' : '#e5e2dc',
+                                    }}
+                                />
                             ))}
                         </div>
-                        <div className="flex justify-between px-6 pb-4 text-[10px] font-mono text-[#75716b]">
-                            <span>2,0</span><span>3,5</span><span>5,0</span><span>5,8+</span><span>6,5</span>
+                        <div className="flex justify-between px-6 pb-4 font-mono text-[10px] text-[#75716b]">
+                            <span>2,0</span>
+                            <span>3,5</span>
+                            <span>5,0</span>
+                            <span>5,8+</span>
+                            <span>6,5</span>
                         </div>
                     </Card>
 
                     <Card className="border-[#e5e2dc] bg-white shadow-sm">
                         <div className="flex items-center justify-between border-b border-[#e5e2dc] px-6 py-4">
-                            <h2 className="text-[16px] font-bold text-[#0b0b11]">Últimos resultados</h2>
-                            <button type="button" onClick={() => router.push(`/${slug}/results`)} className="flex items-center gap-1 text-[12.5px] font-semibold text-[#1f2eff] hover:underline">
+                            <h2 className="text-[16px] font-bold text-[#0b0b11]">
+                                Últimos resultados
+                            </h2>
+                            <button
+                                type="button"
+                                onClick={() => router.push(`/${slug}/results`)}
+                                className="flex items-center gap-1 text-[12.5px] font-semibold text-[#1f2eff] hover:underline"
+                            >
                                 Ver todos <ArrowRight size={13} />
                             </button>
                         </div>
@@ -849,11 +1058,15 @@ export function DashboardClient({
                             </div>
                         ) : (
                             <div>
-                                <div className="grid grid-cols-[1fr_1fr_60px] gap-2 px-6 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-[#75716b]">
-                                    <span>Estudiante</span><span>Examen</span><span className="text-right">Nota</span>
+                                <div className="grid grid-cols-[1fr_1fr_60px] gap-2 px-6 py-2 font-mono text-[10px] font-bold tracking-[0.08em] text-[#75716b] uppercase">
+                                    <span>Estudiante</span>
+                                    <span>Examen</span>
+                                    <span className="text-right">Nota</span>
                                 </div>
                                 <div className="divide-y divide-[#e5e2dc]">
-                                    {recentResults.map((r) => <ResultRow key={r.id} r={r} />)}
+                                    {recentResults.map((r) => (
+                                        <ResultRow key={r.id} r={r} />
+                                    ))}
                                 </div>
                             </div>
                         )}
@@ -861,9 +1074,26 @@ export function DashboardClient({
                 </div>
             </main>
 
-            <CreateGroupDialog open={grupoOpen} onOpenChange={setGrupoOpen} slug={slug} onSuccess={() => router.refresh()} />
-            <CreateStudentDialog open={alumnoOpen} onOpenChange={setAlumnoOpen} groups={groups} slug={slug} onSuccess={() => router.refresh()} />
-            <CreateExamDialog open={examenOpen} onOpenChange={setExamenOpen} groups={groups} slug={slug} onSuccess={() => router.refresh()} />
+            <CreateGroupDialog
+                open={grupoOpen}
+                onOpenChange={setGrupoOpen}
+                slug={slug}
+                onSuccess={() => router.refresh()}
+            />
+            <CreateStudentDialog
+                open={alumnoOpen}
+                onOpenChange={setAlumnoOpen}
+                groups={groups}
+                slug={slug}
+                onSuccess={() => router.refresh()}
+            />
+            <CreateExamDialog
+                open={examenOpen}
+                onOpenChange={setExamenOpen}
+                groups={groups}
+                slug={slug}
+                onSuccess={() => router.refresh()}
+            />
         </div>
     );
 }

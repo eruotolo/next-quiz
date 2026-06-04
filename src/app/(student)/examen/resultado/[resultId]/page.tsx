@@ -1,26 +1,48 @@
-import { Button } from '@/shared/components/ui/button';
+﻿import { Button } from '@/shared/components/ui/button';
 import { calcGrade } from '@/features/results/lib/grade';
 import { cn } from '@/shared/lib/utils';
 import { prisma } from '@/shared/lib/prisma';
 import { getResultSession } from '@/features/exam-session/lib/session';
 import { auth } from '@/features/auth/auth';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { USER_ROLE } from '@/shared/lib/roles';
 import { LogoMark, LogoWordmark } from '@/shared/components/branding/logo';
+import { Avatar } from '@/shared/components/ui/avatar';
+import { StatTile } from '@/shared/components/ui/stat-tile';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/shared/components/ui/table';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { PrintButton } from '@/features/results/components/PrintButton';
+
+const LABELS = ['A', 'B', 'C', 'D', 'E', 'F'] as const;
 
 interface PageProps {
     params: Promise<{ resultId: string }>;
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: chequeo de acceso por rol (owner, SuperAdmin, Admin, Profesor) en un solo lugar
 export default async function ResultadoPage({ params }: PageProps): Promise<React.JSX.Element> {
     const { resultId } = await params;
 
     const result = await prisma.result.findUnique({
         where: { id: resultId },
         include: {
-            student: { select: { name: true, lastname: true } },
+            student: {
+                select: {
+                    name: true,
+                    lastname: true,
+                    academicInstitutionId: true,
+                    groupId: true,
+                    group: { select: { name: true } },
+                    academicInstitution: { select: { name: true } },
+                },
+            },
             exam: {
                 select: {
                     title: true,
@@ -30,7 +52,10 @@ export default async function ResultadoPage({ params }: PageProps): Promise<Reac
                     questions: {
                         orderBy: { order: 'asc' },
                         include: {
-                            options: { select: { id: true, text: true, isCorrect: true } },
+                            options: {
+                                select: { id: true, text: true, isCorrect: true },
+                                orderBy: { createdAt: 'asc' },
+                            },
                         },
                     },
                 },
@@ -43,11 +68,36 @@ export default async function ResultadoPage({ params }: PageProps): Promise<Reac
     const [resultSession, adminSession] = await Promise.all([getResultSession(), auth()]);
     const isOwner =
         resultSession?.studentId === result.studentId && resultSession?.resultId === resultId;
-    const isAdmin = !!adminSession?.user;
-    if (!isOwner && !isAdmin) notFound();
 
-    const percentage =
-        result.maxScore > 0 ? Math.round((result.score / result.maxScore) * 100) : 0;
+    // Acceso del panel por rol: SuperAdmin todo; Admin su institución;
+    // Profesor solo estudiantes de sus grupos.
+    let panelAccess = false;
+    if (adminSession?.user) {
+        const role = adminSession.user.userRoleName;
+        if (role === USER_ROLE.SUPER_ADMIN) {
+            panelAccess = true;
+        } else if (
+            adminSession.user.academicInstitutionId !== null &&
+            adminSession.user.academicInstitutionId === result.student.academicInstitutionId
+        ) {
+            if (role === USER_ROLE.ADMIN) {
+                panelAccess = true;
+            } else if (role === USER_ROLE.PROFESOR && result.student.groupId) {
+                const ownGroup = await prisma.group.findFirst({
+                    where: {
+                        id: result.student.groupId,
+                        professors: { some: { id: adminSession.user.id } },
+                    },
+                    select: { id: true },
+                });
+                panelAccess = !!ownGroup;
+            }
+        }
+    }
+
+    if (!isOwner && !panelAccess) notFound();
+
+    const percentage = result.maxScore > 0 ? Math.round((result.score / result.maxScore) * 100) : 0;
 
     const grade = calcGrade(
         result.score,
@@ -65,6 +115,8 @@ export default async function ResultadoPage({ params }: PageProps): Promise<Reac
         return Array.isArray(val) ? val : [val];
     }
 
+    const totalQuestions = result.exam.questions.length;
+
     const correctCount = result.exam.questions.filter((q) => {
         const selectedIds = getSelectedIds(answerMap[q.id]);
         const correctSet = new Set(q.options.filter((o) => o.isCorrect).map((o) => o.id));
@@ -76,63 +128,97 @@ export default async function ResultadoPage({ params }: PageProps): Promise<Reac
         );
     }).length;
 
+    const answeredCount = result.exam.questions.filter(
+        (q) => getSelectedIds(answerMap[q.id]).length > 0,
+    ).length;
+    const accuracy = answeredCount > 0 ? Math.round((correctCount / answeredCount) * 100) : 0;
+
+    const fullName = `${result.student.name} ${result.student.lastname}`;
+    const groupName = result.student.group?.name ?? null;
+    const institutionName = result.student.academicInstitution?.name ?? null;
+    const topbarLabel = [institutionName, result.exam.title, 'entregado'].filter(Boolean).join(' · ');
+
     return (
-        <div className="flex min-h-screen flex-col bg-paper print:bg-white">
+        <div className="bg-paper flex min-h-screen flex-col print:bg-white">
             {/* Top bar */}
-            <header className="flex items-center gap-3 border-b border-border bg-white px-8 py-4 print:pb-2">
-                <LogoMark size={28} />
-                <LogoWordmark size={16} color="#0b0b11" />
-                <div className="ml-2 h-4 w-px bg-border" />
-                <span className="font-mono text-[11px] uppercase tracking-[0.08em] text-mute">
-                    Resultado entregado
-                </span>
+            <header className="border-border flex items-center justify-between border-b bg-white px-8 py-4 print:pb-2">
+                <div className="flex items-center gap-3">
+                    <LogoMark size={28} />
+                    <LogoWordmark size={16} color="#0b0b11" />
+                    <div className="bg-border ml-1 h-4 w-px" />
+                    <span className="text-mute max-w-[420px] truncate font-mono text-[11px] tracking-[0.08em] uppercase">
+                        {topbarLabel}
+                    </span>
+                </div>
+                <div className="flex items-center gap-3 print:hidden">
+                    <Avatar name={fullName} size={36} />
+                    <div className="hidden leading-tight sm:block">
+                        <p className="text-ink text-[13px] font-semibold">{fullName}</p>
+                        {groupName && <p className="text-mute text-[11px]">{groupName}</p>}
+                    </div>
+                </div>
             </header>
 
-            <main className="mx-auto w-full max-w-2xl px-4 py-10 pb-16">
+            <main className="mx-auto w-full max-w-5xl px-4 py-8 pb-16">
                 {/* Hero card — ink bg */}
                 <div
                     className="mb-8 overflow-hidden rounded-[18px] print:hidden"
                     style={{
                         background: [
-                            'radial-gradient(ellipse at 15% 50%, rgba(31,46,255,0.4) 0%, transparent 60%)',
-                            'radial-gradient(ellipse at 85% 30%, rgba(214,255,31,0.2) 0%, transparent 50%)',
+                            'radial-gradient(ellipse at 85% 40%, rgba(214,255,31,0.22) 0%, transparent 55%)',
+                            'radial-gradient(ellipse at 15% 50%, rgba(31,46,255,0.35) 0%, transparent 60%)',
                             '#0b0b11',
                         ].join(', '),
                     }}
                 >
-                    <div className="grid gap-6 p-8 lg:grid-cols-2 lg:p-10">
+                    <div className="grid gap-6 p-8 lg:grid-cols-[1.3fr_0.7fr] lg:p-10">
                         {/* Left */}
                         <div className="flex flex-col justify-center gap-4">
-                            <span className="w-fit rounded-full bg-lime/20 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-lime">
+                            <span className="bg-lime/20 text-lime w-fit rounded-full px-3 py-1 font-mono text-[10px] tracking-[0.1em] uppercase">
                                 Resultado final
                             </span>
-                            <h1 className="font-display text-[30px] font-semibold leading-tight tracking-[-0.025em] text-white">
-                                {passing ? '¡Buen trabajo' : 'Examen completado'},{' '}
-                                {result.student.name}!
+                            <h1 className="font-display text-[34px] leading-tight font-semibold tracking-[-0.025em] text-white">
+                                {passing
+                                    ? `¡Buen trabajo, ${result.student.name}!`
+                                    : `Examen completado, ${result.student.name}`}
                             </h1>
-                            <p className="text-[14px] text-white/50">
-                                Completaste el examen <strong className="text-white/80">{result.exam.title}</strong>.
+                            <p className="max-w-md text-[14px] text-white/50">
+                                {passing
+                                    ? 'Aprobaste con margen. Te dejamos abajo el detalle para que repases las que fallaste.'
+                                    : 'Revisá abajo el detalle de cada pregunta y la opción correcta para reforzar.'}
                             </p>
-                            <div className="flex gap-3 pt-2 print:hidden">
-                                <Button variant="lime" size="sm" asChild>
+                            <div className="flex flex-wrap gap-3 pt-2">
+                                <PrintButton
+                                    label="Descargar certificado"
+                                    variant="lime"
+                                    className="rounded-full"
+                                />
+                                <Button
+                                    variant="ghost-dark"
+                                    size="lg"
+                                    className="rounded-full"
+                                    asChild
+                                >
                                     <Link href="/">Volver al inicio</Link>
                                 </Button>
-                                <PrintButton />
                             </div>
                         </div>
 
                         {/* Right — grade */}
-                        <div className="flex flex-col items-end justify-center">
+                        <div className="flex flex-col items-start justify-center lg:items-end">
+                            <span className="font-mono text-[10px] tracking-[0.12em] text-white/40 uppercase">
+                                Nota
+                            </span>
                             <div
                                 className={cn(
-                                    'font-display text-[120px] font-semibold leading-none tracking-[-0.04em]',
+                                    'font-display text-[110px] leading-none font-semibold tracking-[-0.04em]',
                                     passing ? 'text-lime' : 'text-coral',
                                 )}
                             >
                                 {grade.toFixed(1)}
                             </div>
                             <p className="font-mono text-[12px] text-white/40">
-                                {correctCount}/{result.exam.questions.length} correctas · {percentage}%
+                                {correctCount}/{totalQuestions} correctas · {accuracy}% precisión
                             </p>
                         </div>
                     </div>
@@ -140,101 +226,137 @@ export default async function ResultadoPage({ params }: PageProps): Promise<Reac
 
                 {/* Print-only header */}
                 <div className="mb-6 hidden print:block">
-                    <h1 className="text-[20px] font-bold text-ink">{result.exam.title}</h1>
-                    <p className="text-[14px] text-ink-dim">
-                        {result.student.name} {result.student.lastname} · Nota{' '}
-                        {grade.toFixed(1)} · {correctCount}/{result.exam.questions.length} correctas
+                    <h1 className="text-ink text-[20px] font-bold">{result.exam.title}</h1>
+                    <p className="text-ink-dim text-[14px]">
+                        {fullName} · Nota {grade.toFixed(1)} · {correctCount}/{totalQuestions}{' '}
+                        correctas
                     </p>
                 </div>
 
                 {/* Stat tiles */}
-                <div className="mb-8 grid grid-cols-3 gap-3 print:hidden">
-                    {[
-                        { label: 'Nota final', value: grade.toFixed(1), sub: passing ? 'Aprobado' : 'Reprobado', pass: passing },
-                        { label: 'Correctas', value: `${correctCount}/${result.exam.questions.length}`, sub: `${percentage}%` },
-                        { label: 'Puntaje', value: `${result.score}/${result.maxScore}`, sub: 'puntos' },
-                    ].map((tile) => (
-                        <div key={tile.label} className="rounded-[12px] border border-border bg-white p-4 text-center">
-                            <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.08em] text-mute">
-                                {tile.label}
-                            </p>
-                            <p
-                                className={cn(
-                                    'font-display text-[32px] font-semibold leading-none tracking-[-0.025em]',
-                                    'pass' in tile && tile.pass !== undefined
-                                        ? tile.pass
-                                            ? 'text-success'
-                                            : 'text-destructive'
-                                        : 'text-ink',
-                                )}
-                            >
-                                {tile.value}
-                            </p>
-                            <p className="mt-1 font-mono text-[10px] text-mute">{tile.sub}</p>
-                        </div>
-                    ))}
+                <div className="mb-8 grid grid-cols-2 gap-3 lg:grid-cols-4 print:hidden">
+                    <StatTile
+                        label="Correctas"
+                        value={`${correctCount}/${totalQuestions}`}
+                        sub={`${percentage}% del examen`}
+                    />
+                    <StatTile
+                        label="Puntaje"
+                        value={`${result.score}/${result.maxScore}`}
+                        sub="puntos obtenidos"
+                    />
+                    <StatTile label="Precisión" value={`${accuracy}%`} sub="de las respondidas" />
+                    <StatTile
+                        label="Nota mínima"
+                        value={result.exam.passingGrade.toFixed(1)}
+                        sub={passing ? 'Aprobaste' : 'No alcanzada'}
+                        tone={passing ? 'lime' : 'default'}
+                    />
                 </div>
 
                 {/* Question review */}
-                <h2 className="mb-4 text-[15px] font-semibold text-ink">Detalle por pregunta</h2>
-                <div className="flex flex-col gap-2.5">
-                    {result.exam.questions.map((q, idx) => {
-                        const selectedIds = getSelectedIds(answerMap[q.id]);
-                        const correctOptions = q.options.filter((o) => o.isCorrect);
-                        const correctSet = new Set(correctOptions.map((o) => o.id));
-                        const selectedSet = new Set(selectedIds);
-                        const isCorrect =
-                            selectedSet.size > 0 &&
-                            correctSet.size === selectedSet.size &&
-                            [...correctSet].every((id) => selectedSet.has(id));
-                        const selectedOptions = q.options.filter((o) => selectedIds.includes(o.id));
+                <div className="border-border rounded-[14px] border bg-white p-5 lg:p-6 print:border-0 print:p-0">
+                    <div className="mb-4 flex items-start justify-between gap-4">
+                        <div>
+                            <h2 className="text-ink text-[15px] font-semibold">
+                                Detalle por pregunta
+                            </h2>
+                            <p className="text-mute text-[12px]">
+                                Las preguntas con error tienen el detalle de la opción correcta.
+                            </p>
+                        </div>
+                        <PrintButton label="Exportar" variant="ghost" size="sm" />
+                    </div>
 
-                        return (
-                            <div
-                                key={q.id}
-                                className={cn(
-                                    'rounded-[12px] border p-5',
-                                    isCorrect
-                                        ? 'border-success/25 bg-success/5'
-                                        : 'border-destructive/20 bg-danger-wash/50',
-                                )}
-                            >
-                                <div className="flex items-start gap-3">
-                                    {isCorrect ? (
-                                        <CheckCircle size={18} className="mt-0.5 shrink-0 text-success" />
-                                    ) : (
-                                        <XCircle size={18} className="mt-0.5 shrink-0 text-destructive" />
-                                    )}
-                                    <p className="text-[14px] font-medium leading-relaxed text-ink">
-                                        {idx + 1}. {q.text}
-                                    </p>
-                                </div>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-12">N°</TableHead>
+                                <TableHead>Pregunta</TableHead>
+                                <TableHead className="w-32">Tu respuesta</TableHead>
+                                <TableHead className="w-28">Correcta</TableHead>
+                                <TableHead className="w-20 text-right">Puntos</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {result.exam.questions.map((q, idx) => {
+                                const selectedIds = getSelectedIds(answerMap[q.id]);
+                                const selectedSet = new Set(selectedIds);
+                                const correctSet = new Set(
+                                    q.options.filter((o) => o.isCorrect).map((o) => o.id),
+                                );
+                                const isCorrect =
+                                    selectedSet.size > 0 &&
+                                    correctSet.size === selectedSet.size &&
+                                    [...correctSet].every((id) => selectedSet.has(id));
 
-                                {!isCorrect && (
-                                    <div className="ml-7 mt-2 flex flex-col gap-1 text-[13px]">
-                                        <p className="text-destructive">
-                                            <span className="font-semibold">Tu respuesta:</span>{' '}
-                                            {selectedOptions.length > 0
-                                                ? selectedOptions.map((o) => o.text).join(', ')
-                                                : 'Sin respuesta'}
-                                        </p>
-                                        <p className="text-success">
-                                            <span className="font-semibold">
-                                                {correctOptions.length > 1 ? 'Correctas:' : 'Correcta:'}
-                                            </span>{' '}
-                                            {correctOptions.map((o) => o.text).join(', ')}
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
+                                const selectedLetters = q.options
+                                    .map((o, i) => (selectedSet.has(o.id) ? LABELS[i] : null))
+                                    .filter((l): l is (typeof LABELS)[number] => Boolean(l));
+                                const correctLetters = q.options
+                                    .map((o, i) => (o.isCorrect ? LABELS[i] : null))
+                                    .filter((l): l is (typeof LABELS)[number] => Boolean(l));
+
+                                return (
+                                    <TableRow key={q.id} className={cn(!isCorrect && 'bg-danger-wash/30')}>
+                                        <TableCell className="text-mute font-mono text-[12px]">
+                                            {idx + 1}
+                                        </TableCell>
+                                        <TableCell className="text-ink text-[13px] leading-relaxed">
+                                            {q.text}
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-wrap gap-1">
+                                                {selectedLetters.length > 0 ? (
+                                                    selectedLetters.map((l) => (
+                                                        <span
+                                                            key={l}
+                                                            className={cn(
+                                                                'inline-flex size-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold',
+                                                                isCorrect
+                                                                    ? 'bg-success-wash text-success'
+                                                                    : 'bg-danger-wash text-destructive',
+                                                            )}
+                                                        >
+                                                            {l}
+                                                        </span>
+                                                    ))
+                                                ) : (
+                                                    <span className="text-mute text-[12px]">—</span>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-wrap gap-1">
+                                                {correctLetters.map((l) => (
+                                                    <span
+                                                        key={l}
+                                                        className="bg-paper-warm text-ink inline-flex size-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold"
+                                                    >
+                                                        {l}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell
+                                            className={cn(
+                                                'text-right font-mono text-[13px] font-semibold',
+                                                isCorrect ? 'text-success' : 'text-destructive',
+                                            )}
+                                        >
+                                            {isCorrect ? q.points : 0}/{q.points}
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })}
+                        </TableBody>
+                    </Table>
                 </div>
 
                 {/* Actions */}
                 <div className="mt-8 flex items-center justify-center gap-3 print:hidden">
                     <PrintButton />
-                    <Button asChild variant="ink" size="lg">
+                    <Button asChild variant="ink" size="lg" className="rounded-full">
                         <Link href="/">Volver al inicio</Link>
                     </Button>
                 </div>

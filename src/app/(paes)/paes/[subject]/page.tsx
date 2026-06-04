@@ -60,11 +60,7 @@ export default async function PaesSubjectPage({ params }: PageProps): Promise<Re
 
     return (
         <main className="min-h-screen">
-            <PaesExamCarousel
-                exam={exam}
-                initialSeconds={initialSeconds}
-                backUrl="/paes"
-            />
+            <PaesExamCarousel exam={exam} initialSeconds={initialSeconds} backUrl="/paes" />
         </main>
     );
 }
@@ -72,14 +68,14 @@ export default async function PaesSubjectPage({ params }: PageProps): Promise<Re
 // Shown if subject param is valid but something else fails (shouldn't happen)
 export function generateNotFound() {
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center bg-paper px-4 text-center">
+        <div className="bg-paper flex min-h-screen flex-col items-center justify-center px-4 text-center">
             <LogoMark size={32} className="mb-6 opacity-40" />
-            <h1 className="mb-4 font-display text-[28px] font-semibold text-ink">
+            <h1 className="font-display text-ink mb-4 text-[28px] font-semibold">
                 Prueba no encontrada
             </h1>
             <Link
                 href="/paes"
-                className="rounded-[10px] bg-primary px-5 py-2.5 font-mono text-[13px] font-semibold text-white hover:bg-primary/90 transition-colors"
+                className="bg-primary hover:bg-primary/90 rounded-[10px] px-5 py-2.5 font-mono text-[13px] font-semibold text-white transition-colors"
             >
                 ← Ver todas las pruebas
             </Link>

@@ -38,7 +38,13 @@ const FIELD_LABELS: Record<string, string> = {
     maxExamsPerYear: 'Exámenes/año',
 };
 
-const FIELDS = ['maxGroups', 'maxAdmins', 'maxProfessors', 'maxStudents', 'maxExamsPerYear'] as const;
+const FIELDS = [
+    'maxGroups',
+    'maxAdmins',
+    'maxProfessors',
+    'maxStudents',
+    'maxExamsPerYear',
+] as const;
 type LimitField = (typeof FIELDS)[number];
 
 type EditableLimits = Record<LimitField, number | null>;
@@ -96,7 +102,9 @@ function CustomPlanFormFields({
     return (
         <div className="flex flex-col gap-5 py-4">
             <div className="flex flex-col gap-1.5">
-                <label htmlFor="cp-name" className="text-[13px] font-bold text-ink">Nombre del plan</label>
+                <label htmlFor="cp-name" className="text-ink text-[13px] font-bold">
+                    Nombre del plan
+                </label>
                 <Input
                     id="cp-name"
                     value={form.name}
@@ -109,7 +117,7 @@ function CustomPlanFormFields({
             <div className="grid grid-cols-2 gap-3">
                 {FIELDS.map((field) => (
                     <div key={field} className="flex flex-col gap-1.5">
-                        <label htmlFor={`cp-${field}`} className="text-[12.5px] font-bold text-ink">
+                        <label htmlFor={`cp-${field}`} className="text-ink text-[12.5px] font-bold">
                             {FIELD_LABELS[field]}
                         </label>
                         <Input
@@ -125,7 +133,7 @@ function CustomPlanFormFields({
                 ))}
             </div>
             <div className="flex flex-col gap-1.5">
-                <label htmlFor="cp-description" className="text-[12.5px] font-bold text-ink">
+                <label htmlFor="cp-description" className="text-ink text-[12.5px] font-bold">
                     Descripción (opcional)
                 </label>
                 <Input
@@ -142,7 +150,7 @@ function CustomPlanFormFields({
                     disabled={isPending || form.name.trim().length < 2}
                     onClick={() => onSubmit(form)}
                 >
-                    {isPending && <Loader2 className="size-4 animate-spin mr-2" />}
+                    {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
                     {initial ? 'Guardar cambios' : 'Crear plan interno'}
                 </Button>
             </div>
@@ -242,14 +250,19 @@ export function PlanLimitsClient({ limits, customPlans }: Props): React.JSX.Elem
         <div className="flex flex-col gap-8">
             {/* Planes comerciales (fijos, edición inline) */}
             <section className="flex flex-col gap-3">
-                <h2 className="font-display text-lg font-bold text-ink">Planes comerciales</h2>
-                <div className="overflow-x-auto rounded-[16px] border border-border bg-white">
+                <h2 className="font-display text-ink text-lg font-bold">Planes comerciales</h2>
+                <div className="border-border overflow-x-auto rounded-[16px] border bg-white">
                     <table className="w-full text-[13px]">
                         <thead>
-                            <tr className="border-b border-border bg-paper">
-                                <th className="px-5 py-3 text-left font-mono text-[10px] uppercase tracking-[0.1em] text-mute">Plan</th>
+                            <tr className="border-border bg-paper border-b">
+                                <th className="text-mute px-5 py-3 text-left font-mono text-[10px] tracking-[0.1em] uppercase">
+                                    Plan
+                                </th>
                                 {FIELDS.map((f) => (
-                                    <th key={f} className="px-4 py-3 text-center font-mono text-[10px] uppercase tracking-[0.1em] text-mute">
+                                    <th
+                                        key={f}
+                                        className="text-mute px-4 py-3 text-center font-mono text-[10px] tracking-[0.1em] uppercase"
+                                    >
                                         {FIELD_LABELS[f]}
                                     </th>
                                 ))}
@@ -261,10 +274,19 @@ export function PlanLimitsClient({ limits, customPlans }: Props): React.JSX.Elem
                                 const row = rows[l.plan];
                                 if (!row) return null;
                                 return (
-                                    <tr key={l.plan} className="border-b border-border last:border-0 hover:bg-paper/50 transition-colors">
+                                    <tr
+                                        key={l.plan}
+                                        className="border-border hover:bg-paper/50 border-b transition-colors last:border-0"
+                                    >
                                         <td className="px-5 py-4">
-                                            <span className="font-semibold text-ink">{PLAN_LABELS[l.plan]}</span>
-                                            {l.description && <p className="mt-0.5 text-[11px] text-mute">{l.description}</p>}
+                                            <span className="text-ink font-semibold">
+                                                {PLAN_LABELS[l.plan]}
+                                            </span>
+                                            {l.description && (
+                                                <p className="text-mute mt-0.5 text-[11px]">
+                                                    {l.description}
+                                                </p>
+                                            )}
                                         </td>
                                         {FIELDS.map((field) => (
                                             <td key={field} className="px-4 py-4 text-center">
@@ -272,15 +294,26 @@ export function PlanLimitsClient({ limits, customPlans }: Props): React.JSX.Elem
                                                     type="number"
                                                     min={1}
                                                     value={row[field] ?? ''}
-                                                    onChange={(e) => handleChange(l.plan, field, e.target.value)}
+                                                    onChange={(e) =>
+                                                        handleChange(l.plan, field, e.target.value)
+                                                    }
                                                     placeholder="∞"
-                                                    className="w-20 rounded-[6px] border border-border bg-paper px-2 py-1.5 text-center text-[13px] text-ink outline-none placeholder:text-mute/40 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                                                    className="border-border bg-paper text-ink placeholder:text-mute/40 focus:border-primary focus:ring-primary/20 w-20 rounded-[6px] border px-2 py-1.5 text-center text-[13px] outline-none focus:ring-2"
                                                 />
                                             </td>
                                         ))}
                                         <td className="px-5 py-4">
-                                            <Button variant="ghost" size="sm" onClick={() => void handleSave(l.plan)} disabled={saving === l.plan}>
-                                                {saving === l.plan ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => void handleSave(l.plan)}
+                                                disabled={saving === l.plan}
+                                            >
+                                                {saving === l.plan ? (
+                                                    <Loader2 className="size-3.5 animate-spin" />
+                                                ) : (
+                                                    <Save className="size-3.5" />
+                                                )}
                                                 Guardar
                                             </Button>
                                         </td>
@@ -289,7 +322,7 @@ export function PlanLimitsClient({ limits, customPlans }: Props): React.JSX.Elem
                             })}
                         </tbody>
                     </table>
-                    <p className="px-5 py-3 text-[12px] text-mute">
+                    <p className="text-mute px-5 py-3 text-[12px]">
                         Dejar en blanco = ilimitado. Los cambios aplican de inmediato.
                     </p>
                 </div>
@@ -300,30 +333,35 @@ export function PlanLimitsClient({ limits, customPlans }: Props): React.JSX.Elem
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Lock size={16} className="text-mute" />
-                        <h2 className="font-display text-lg font-bold text-ink">Planes internos</h2>
+                        <h2 className="font-display text-ink text-lg font-bold">Planes internos</h2>
                     </div>
                     <Button variant="ink" size="md" className="gap-2" onClick={openCreate}>
                         <Plus size={16} />
                         Nuevo plan
                     </Button>
                 </div>
-                <p className="text-[12.5px] text-mute -mt-1">
-                    Planes a medida del SuperAdmin (cortesías, pruebas). No son visibles para el cliente final y se
-                    asignan a una institución desde su ficha.
+                <p className="text-mute -mt-1 text-[12.5px]">
+                    Planes a medida del SuperAdmin (cortesías, pruebas). No son visibles para el
+                    cliente final y se asignan a una institución desde su ficha.
                 </p>
 
                 {customPlans.length === 0 ? (
-                    <div className="rounded-[16px] border border-dashed border-border bg-white px-5 py-10 text-center text-sm text-mute">
+                    <div className="border-border text-mute rounded-[16px] border border-dashed bg-white px-5 py-10 text-center text-sm">
                         Todavía no hay planes internos. Creá el primero con “Nuevo plan”.
                     </div>
                 ) : (
-                    <div className="overflow-x-auto rounded-[16px] border border-border bg-white">
+                    <div className="border-border overflow-x-auto rounded-[16px] border bg-white">
                         <table className="w-full text-[13px]">
                             <thead>
-                                <tr className="border-b border-border bg-paper">
-                                    <th className="px-5 py-3 text-left font-mono text-[10px] uppercase tracking-[0.1em] text-mute">Nombre</th>
+                                <tr className="border-border bg-paper border-b">
+                                    <th className="text-mute px-5 py-3 text-left font-mono text-[10px] tracking-[0.1em] uppercase">
+                                        Nombre
+                                    </th>
                                     {FIELDS.map((f) => (
-                                        <th key={f} className="px-4 py-3 text-center font-mono text-[10px] uppercase tracking-[0.1em] text-mute">
+                                        <th
+                                            key={f}
+                                            className="text-mute px-4 py-3 text-center font-mono text-[10px] tracking-[0.1em] uppercase"
+                                        >
                                             {FIELD_LABELS[f]}
                                         </th>
                                     ))}
@@ -332,23 +370,48 @@ export function PlanLimitsClient({ limits, customPlans }: Props): React.JSX.Elem
                             </thead>
                             <tbody>
                                 {customPlans.map((cp) => (
-                                    <tr key={cp.id} className="border-b border-border last:border-0 hover:bg-paper/50 transition-colors">
+                                    <tr
+                                        key={cp.id}
+                                        className="border-border hover:bg-paper/50 border-b transition-colors last:border-0"
+                                    >
                                         <td className="px-5 py-4">
-                                            <span className="font-semibold text-ink">{cp.name}</span>
-                                            {cp.description && <p className="mt-0.5 text-[11px] text-mute">{cp.description}</p>}
+                                            <span className="text-ink font-semibold">
+                                                {cp.name}
+                                            </span>
+                                            {cp.description && (
+                                                <p className="text-mute mt-0.5 text-[11px]">
+                                                    {cp.description}
+                                                </p>
+                                            )}
                                         </td>
                                         {FIELDS.map((field) => (
-                                            <td key={field} className="px-4 py-4 text-center font-mono text-ink-dim">
+                                            <td
+                                                key={field}
+                                                className="text-ink-dim px-4 py-4 text-center font-mono"
+                                            >
                                                 {fmtLimit(cp[field])}
                                             </td>
                                         ))}
                                         <td className="px-5 py-4">
                                             <div className="flex items-center justify-end gap-1">
-                                                <Button variant="ghost" size="icon-sm" onClick={() => openEdit(cp)} title="Editar">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon-sm"
+                                                    onClick={() => openEdit(cp)}
+                                                    title="Editar"
+                                                >
                                                     <Pencil size={15} className="text-mute" />
                                                 </Button>
-                                                <Button variant="ghost" size="icon-sm" onClick={() => setDeleting(cp)} title="Eliminar">
-                                                    <Trash2 size={15} className="text-destructive" />
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon-sm"
+                                                    onClick={() => setDeleting(cp)}
+                                                    title="Eliminar"
+                                                >
+                                                    <Trash2
+                                                        size={15}
+                                                        className="text-destructive"
+                                                    />
                                                 </Button>
                                             </div>
                                         </td>
@@ -362,12 +425,14 @@ export function PlanLimitsClient({ limits, customPlans }: Props): React.JSX.Elem
 
             {/* Create / Edit dialog */}
             <Dialog open={formOpen} onOpenChange={setFormOpen}>
-                <DialogContent className="max-w-lg rounded-[22px] border-border shadow-2xl">
+                <DialogContent className="border-border max-w-lg rounded-[22px] shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-display text-2xl">
                             {editing ? 'Editar plan interno' : 'Nuevo plan interno'}
                         </DialogTitle>
-                        <DialogDescription className="sr-only">Formulario para crear o editar un plan interno.</DialogDescription>
+                        <DialogDescription className="sr-only">
+                            Formulario para crear o editar un plan interno.
+                        </DialogDescription>
                     </DialogHeader>
                     <CustomPlanFormFields
                         key={editing?.id ?? 'new'}
@@ -380,19 +445,36 @@ export function PlanLimitsClient({ limits, customPlans }: Props): React.JSX.Elem
 
             {/* Delete dialog */}
             <Dialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
-                <DialogContent className="sm:max-w-sm rounded-[22px] border-border shadow-2xl">
+                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-sm">
                     <DialogHeader>
-                        <DialogTitle className="font-display text-2xl text-destructive">Eliminar plan interno</DialogTitle>
-                        <DialogDescription className="sr-only">Confirmación para eliminar el plan interno.</DialogDescription>
+                        <DialogTitle className="font-display text-destructive text-2xl">
+                            Eliminar plan interno
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Confirmación para eliminar el plan interno.
+                        </DialogDescription>
                     </DialogHeader>
-                    <p className="py-2 text-[14px] leading-relaxed text-ink-dim">
-                        ¿Eliminar <strong className="text-ink">{deleting?.name}</strong>? Las instituciones que lo tengan
-                        asignado quedarán sin plan interno (vuelven a su plan comercial).
+                    <p className="text-ink-dim py-2 text-[14px] leading-relaxed">
+                        ¿Eliminar <strong className="text-ink">{deleting?.name}</strong>? Las
+                        instituciones que lo tengan asignado quedarán sin plan interno (vuelven a su
+                        plan comercial).
                     </p>
-                    <DialogFooter className="gap-2 sm:justify-end mt-2">
-                        <Button variant="ghost" size="md" onClick={() => setDeleting(null)} disabled={pending}>Cancelar</Button>
-                        <Button variant="danger" size="md" onClick={() => void handleDelete()} disabled={pending}>
-                            {pending && <Loader2 className="size-4 animate-spin mr-2" />}
+                    <DialogFooter className="mt-2 gap-2 sm:justify-end">
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setDeleting(null)}
+                            disabled={pending}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="danger"
+                            size="md"
+                            onClick={() => void handleDelete()}
+                            disabled={pending}
+                        >
+                            {pending && <Loader2 className="mr-2 size-4 animate-spin" />}
                             Eliminar
                         </Button>
                     </DialogFooter>

@@ -95,9 +95,7 @@ export async function generateMetadata(): Promise<Metadata> {
                 { url: '/icon', sizes: '32x32', type: 'image/png' },
             ],
             shortcut: '/icon',
-            apple: [
-                { url: '/icon', sizes: '180x180', type: 'image/png' },
-            ],
+            apple: [{ url: '/icon', sizes: '180x180', type: 'image/png' }],
             other: [
                 {
                     rel: 'apple-touch-icon-precomposed',

@@ -22,6 +22,8 @@ async function getSessionUser(requestSlug: string) {
         userRole: ctx.userRole,
         // Para el SuperAdmin se resuelve el id real de la institución desde el slug.
         institutionId: ctx.institutionId,
+        // Modo demo: aísla y acota por sesión lo que crea el visitante.
+        demoSessionId: ctx.demoSessionId,
     };
 }
 
@@ -41,9 +43,24 @@ async function assertProfessorExamAccess(examId: string, professorId: string): P
     if (!exam) throw new Error('Forbidden');
 }
 
+/** Todos los grupos deben pertenecer a la institución (evita asignación cross-tenant). */
+async function assertGroupsBelongToInstitution(
+    groupIds: string[],
+    institutionId: string,
+): Promise<void> {
+    if (groupIds.length === 0) return;
+    const count = await prisma.group.count({
+        where: { id: { in: groupIds }, academicInstitutionId: institutionId },
+    });
+    if (count !== groupIds.length) throw new Error('Forbidden');
+}
+
 export async function createExam(slug: string, data: unknown): Promise<{ id: string }> {
-    const { userId, userEmail, userRole, institutionId } = await getSessionUser(slug);
+    const { userId, userEmail, userRole, institutionId, demoSessionId } =
+        await getSessionUser(slug);
     const { groupIds, ...rest } = examSchema.parse(data);
+
+    await assertGroupsBelongToInstitution(groupIds, institutionId);
 
     if (userRole === USER_ROLE.PROFESOR) {
         const professorGroupIds = await getProfessorGroupIds(userId);
@@ -51,7 +68,7 @@ export async function createExam(slug: string, data: unknown): Promise<{ id: str
         if (invalid.length > 0) throw new Error('Forbidden');
     }
 
-    await assertQuota(institutionId, 'exam', userRole);
+    await assertQuota(institutionId, 'exam', userRole, 0, demoSessionId);
 
     const exam = await prisma.exam.create({
         data: {
@@ -59,6 +76,7 @@ export async function createExam(slug: string, data: unknown): Promise<{ id: str
             groups: { connect: groupIds.map((id) => ({ id })) },
             academicInstitutionId: institutionId ?? undefined,
             createdById: userId,
+            demoSessionId,
         },
     });
     await logAudit({
@@ -84,6 +102,8 @@ export async function updateExam(slug: string, id: string, data: unknown): Promi
         select: { id: true },
     });
     if (!owned) throw new Error('Forbidden');
+
+    await assertGroupsBelongToInstitution(groupIds, institutionId);
 
     let finalGroupIds: string[];
 
@@ -124,7 +144,9 @@ export async function updateExam(slug: string, id: string, data: unknown): Promi
 export async function deleteExam(slug: string, id: string): Promise<void> {
     const { userId, userEmail, userRole, institutionId } = await getSessionUser(slug);
     if (userRole === USER_ROLE.PROFESOR) await assertProfessorExamAccess(id, userId);
-    const res = await prisma.exam.deleteMany({ where: { id, academicInstitutionId: institutionId } });
+    const res = await prisma.exam.deleteMany({
+        where: { id, academicInstitutionId: institutionId },
+    });
     if (res.count === 0) throw new Error('Forbidden');
     await logAudit({
         action: AUDIT_ACTION.EXAM_DELETE,

@@ -16,7 +16,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/shared/components/ui/table';
 import { TablePaginator } from '@/shared/components/ui/table-paginator';
 import { cn } from '@/shared/lib/utils';
 import {
@@ -58,12 +65,20 @@ const PLAN_LABELS: Record<Plan, string> = {
 
 function formatCLP(n: number | null): string {
     if (n === null) return '—';
-    return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(n);
+    return new Intl.NumberFormat('es-CL', {
+        style: 'currency',
+        currency: 'CLP',
+        minimumFractionDigits: 0,
+    }).format(n);
 }
 
 function formatDate(d: Date | null): string {
     if (!d) return '—';
-    return new Date(d).toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    return new Date(d).toLocaleDateString('es-CL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit',
+    });
 }
 
 interface DetailModalProps {
@@ -74,7 +89,13 @@ interface DetailModalProps {
     cancelling: boolean;
 }
 
-function DetailModal({ row, onClose, onCancel, onViewDetail, cancelling }: DetailModalProps): React.JSX.Element {
+function DetailModal({
+    row,
+    onClose,
+    onCancel,
+    onViewDetail,
+    cancelling,
+}: DetailModalProps): React.JSX.Element {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <button
@@ -93,12 +114,16 @@ function DetailModal({ row, onClose, onCancel, onViewDetail, cancelling }: Detai
             >
                 <div className="mb-4 flex items-start justify-between">
                     <div>
-                        <h3 className="font-display text-[20px] font-semibold tracking-tight text-ink">
+                        <h3 className="font-display text-ink text-[20px] font-semibold tracking-tight">
                             Detalle de suscripción
                         </h3>
-                        <p className="mt-0.5 font-mono text-[11px] text-mute">{row.id}</p>
+                        <p className="text-mute mt-0.5 font-mono text-[11px]">{row.id}</p>
                     </div>
-                    <button type="button" onClick={onClose} className="rounded-full p-1 hover:bg-paper text-mute">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="hover:bg-paper text-mute rounded-full p-1"
+                    >
                         <XCircle size={18} />
                     </button>
                 </div>
@@ -117,23 +142,26 @@ function DetailModal({ row, onClose, onCancel, onViewDetail, cancelling }: Detai
                         ['ID MP', row.mpSubscriptionId ?? '—'],
                     ].map(([label, value]) => (
                         <div key={label}>
-                            <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-mute">{label}</dt>
-                            <dd className="mt-0.5 break-all font-medium text-ink">{value}</dd>
+                            <dt className="text-mute font-mono text-[10px] tracking-[0.1em] uppercase">
+                                {label}
+                            </dt>
+                            <dd className="text-ink mt-0.5 font-medium break-all">{value}</dd>
                         </div>
                     ))}
                 </dl>
                 <div className="mt-6 flex justify-end gap-2">
-                    {row.status !== SubscriptionStatus.cancelled && row.status !== SubscriptionStatus.failed && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-destructive hover:bg-destructive/10"
-                            onClick={() => onCancel(row.id)}
-                            disabled={cancelling}
-                        >
-                            Cancelar
-                        </Button>
-                    )}
+                    {row.status !== SubscriptionStatus.cancelled &&
+                        row.status !== SubscriptionStatus.failed && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-destructive hover:bg-destructive/10"
+                                onClick={() => onCancel(row.id)}
+                                disabled={cancelling}
+                            >
+                                Cancelar
+                            </Button>
+                        )}
                     <Button
                         variant="ghost"
                         size="sm"
@@ -143,7 +171,9 @@ function DetailModal({ row, onClose, onCancel, onViewDetail, cancelling }: Detai
                         <ExternalLink size={13} />
                         Ver detalle
                     </Button>
-                    <Button variant="ink" size="sm" onClick={onClose}>Cerrar</Button>
+                    <Button variant="ink" size="sm" onClick={onClose}>
+                        Cerrar
+                    </Button>
                 </div>
             </div>
         </div>
@@ -197,7 +227,10 @@ export function SubscriptionsClient({ initial }: Props): React.JSX.Element {
 
     async function handleExport(): Promise<void> {
         const result = await exportSubscriptionsCSV({ ...filters, search: search || undefined });
-        if (!result.data) { toast.error('Error al exportar'); return; }
+        if (!result.data) {
+            toast.error('Error al exportar');
+            return;
+        }
         const blob = new Blob([result.data], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -208,14 +241,19 @@ export function SubscriptionsClient({ initial }: Props): React.JSX.Element {
     }
 
     return (
-        <div className="flex flex-col min-h-screen bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             <AdminTopBar
                 breadcrumb={['Aulika · Plataforma', 'Panel Global', 'Suscripciones']}
                 title="Suscripciones y pagos"
                 subtitle={`${data.total} registros en total`}
                 icon={<CreditCard size={18} />}
                 actions={
-                    <Button variant="ghost" size="sm" onClick={() => void handleExport()} className="gap-1.5">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => void handleExport()}
+                        className="gap-1.5"
+                    >
                         <Download size={14} />
                         Exportar CSV
                     </Button>
@@ -223,56 +261,74 @@ export function SubscriptionsClient({ initial }: Props): React.JSX.Element {
             />
 
             {/* Filter bar */}
-            <div className="flex flex-wrap items-center gap-2 border-b border-border bg-white px-8 py-4">
-                <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-mute" />
+            <div className="border-border flex flex-wrap items-center gap-2 border-b bg-white px-8 py-4">
+                <div className="relative max-w-sm flex-1">
+                    <Search className="text-mute absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                     <Input
                         type="search"
                         value={search}
                         onChange={(e) => handleSearch(e.target.value)}
                         placeholder="Buscar pagador, email o institución..."
-                        className="pl-9 h-[38px] border-border bg-white"
+                        className="border-border h-[38px] bg-white pl-9"
                     />
                 </div>
 
                 <Select
                     value={filters.plan ?? 'all'}
-                    onValueChange={(v) => applyFilters({ ...filters, plan: v === 'all' ? undefined : (v as Plan), page: 1 })}
+                    onValueChange={(v) =>
+                        applyFilters({
+                            ...filters,
+                            plan: v === 'all' ? undefined : (v as Plan),
+                            page: 1,
+                        })
+                    }
                 >
-                    <SelectTrigger className="h-[38px] w-44 border-border bg-white text-sm">
+                    <SelectTrigger className="border-border h-[38px] w-44 bg-white text-sm">
                         <SelectValue placeholder="Plan" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border-border shadow-xl">
+                    <SelectContent className="border-border rounded-xl shadow-xl">
                         <SelectItem value="all">Todos los planes</SelectItem>
                         {(['FREE', 'DOCENTE', 'COLEGIO', 'INSTITUCIONAL'] as Plan[]).map((p) => (
-                            <SelectItem key={p} value={p}>{PLAN_LABELS[p]}</SelectItem>
+                            <SelectItem key={p} value={p}>
+                                {PLAN_LABELS[p]}
+                            </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
 
                 <Select
                     value={filters.status ?? 'all'}
-                    onValueChange={(v) => applyFilters({ ...filters, status: v === 'all' ? undefined : (v as SubscriptionStatus), page: 1 })}
+                    onValueChange={(v) =>
+                        applyFilters({
+                            ...filters,
+                            status: v === 'all' ? undefined : (v as SubscriptionStatus),
+                            page: 1,
+                        })
+                    }
                 >
-                    <SelectTrigger className="h-[38px] w-40 border-border bg-white text-sm">
+                    <SelectTrigger className="border-border h-[38px] w-40 bg-white text-sm">
                         <SelectValue placeholder="Estado" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border-border shadow-xl">
+                    <SelectContent className="border-border rounded-xl shadow-xl">
                         <SelectItem value="all">Todos los estados</SelectItem>
                         {(Object.values(SubscriptionStatus) as SubscriptionStatus[]).map((s) => (
-                            <SelectItem key={s} value={s}>{STATUS_LABELS[s]}</SelectItem>
+                            <SelectItem key={s} value={s}>
+                                {STATUS_LABELS[s]}
+                            </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
 
                 <Select
                     value={filters.billing ?? 'all'}
-                    onValueChange={(v) => applyFilters({ ...filters, billing: v === 'all' ? undefined : v, page: 1 })}
+                    onValueChange={(v) =>
+                        applyFilters({ ...filters, billing: v === 'all' ? undefined : v, page: 1 })
+                    }
                 >
-                    <SelectTrigger className="h-[38px] w-40 border-border bg-white text-sm">
+                    <SelectTrigger className="border-border h-[38px] w-40 bg-white text-sm">
                         <SelectValue placeholder="Modalidad" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl border-border shadow-xl">
+                    <SelectContent className="border-border rounded-xl shadow-xl">
                         <SelectItem value="all">Mensual y Anual</SelectItem>
                         <SelectItem value="monthly">Mensual</SelectItem>
                         <SelectItem value="annual">Anual</SelectItem>
@@ -280,24 +336,29 @@ export function SubscriptionsClient({ initial }: Props): React.JSX.Element {
                 </Select>
 
                 <div className="flex-1" />
-                <span className="font-mono text-[11px] text-mute uppercase tracking-wider">
+                <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
                     {data.total} registros
                 </span>
             </div>
 
-            <main className="flex-1 p-8 overflow-auto">
+            <main className="flex-1 overflow-auto p-8">
                 {data.rows.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
-                        <CreditCard size={48} className="mb-4 text-mute/20" />
-                        <p className="text-lg font-medium text-ink">
+                        <CreditCard size={48} className="text-mute/20 mb-4" />
+                        <p className="text-ink text-lg font-medium">
                             No hay suscripciones con los filtros seleccionados
                         </p>
                     </Card>
                 ) : (
-                    <Card className={cn('p-0 overflow-visible border-border shadow-sm transition-opacity', isPending && 'opacity-60')}>
+                    <Card
+                        className={cn(
+                            'border-border overflow-visible p-0 shadow-sm transition-opacity',
+                            isPending && 'opacity-60',
+                        )}
+                    >
                         <Table>
                             <TableHeader className="bg-paper">
-                                <TableRow className="hover:bg-transparent border-b border-border">
+                                <TableRow className="border-border border-b hover:bg-transparent">
                                     <TableHead>Fecha</TableHead>
                                     <TableHead>Pagador</TableHead>
                                     <TableHead>Institución</TableHead>
@@ -314,12 +375,18 @@ export function SubscriptionsClient({ initial }: Props): React.JSX.Element {
                                     <TableRow
                                         key={row.id}
                                         onClick={() => setDetail(row)}
-                                        className="group h-14 border-b border-border last:border-0 cursor-pointer"
+                                        className="group border-border h-14 cursor-pointer border-b last:border-0"
                                     >
-                                        <TableCell className="text-mute">{formatDate(row.createdAt)}</TableCell>
+                                        <TableCell className="text-mute">
+                                            {formatDate(row.createdAt)}
+                                        </TableCell>
                                         <TableCell>
-                                            <p className="font-medium text-ink">{row.payerName ?? '—'}</p>
-                                            <p className="text-[12px] text-mute">{row.payerEmail ?? ''}</p>
+                                            <p className="text-ink font-medium">
+                                                {row.payerName ?? '—'}
+                                            </p>
+                                            <p className="text-mute text-[12px]">
+                                                {row.payerEmail ?? ''}
+                                            </p>
                                         </TableCell>
                                         <TableCell>
                                             {row.institutionName ?? (
@@ -329,15 +396,23 @@ export function SubscriptionsClient({ initial }: Props): React.JSX.Element {
                                             )}
                                         </TableCell>
                                         <TableCell>{PLAN_LABELS[row.plan]}</TableCell>
-                                        <TableCell className="text-mute">{row.billing === 'monthly' ? 'Mensual' : 'Anual'}</TableCell>
+                                        <TableCell className="text-mute">
+                                            {row.billing === 'monthly' ? 'Mensual' : 'Anual'}
+                                        </TableCell>
                                         <TableCell>{formatCLP(row.amount)}</TableCell>
                                         <TableCell>
-                                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_COLORS[row.status]}`}>
+                                            <span
+                                                className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_COLORS[row.status]}`}
+                                            >
                                                 {STATUS_LABELS[row.status]}
                                             </span>
                                         </TableCell>
-                                        <TableCell className="text-mute">{formatDate(row.startedAt)}</TableCell>
-                                        <TableCell className="text-mute">{formatDate(row.expiresAt)}</TableCell>
+                                        <TableCell className="text-mute">
+                                            {formatDate(row.startedAt)}
+                                        </TableCell>
+                                        <TableCell className="text-mute">
+                                            {formatDate(row.expiresAt)}
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

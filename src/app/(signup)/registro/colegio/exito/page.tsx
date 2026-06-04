@@ -13,7 +13,9 @@ interface Props {
     searchParams: Promise<{ sub?: string }>;
 }
 
-export default async function ColegioExitoPage({ searchParams }: Props): Promise<React.JSX.Element> {
+export default async function ColegioExitoPage({
+    searchParams,
+}: Props): Promise<React.JSX.Element> {
     const { sub } = await searchParams;
     if (!sub) notFound();
 
@@ -34,11 +36,7 @@ export default async function ColegioExitoPage({ searchParams }: Props): Promise
 
     if (subscription.status === 'authorized') {
         return (
-            <RegistrationForm
-                subscriptionId={sub}
-                prefillEmail={prefillEmail}
-                planName="Colegio"
-            />
+            <RegistrationForm subscriptionId={sub} prefillEmail={prefillEmail} planName="Colegio" />
         );
     }
 

@@ -5,6 +5,7 @@ declare module 'next-auth' {
         userRoleName: string;
         academicInstitutionId: string | null;
         institutionSlug: string | null;
+        isDemo: boolean;
     }
     interface Session {
         user: {
@@ -15,6 +16,8 @@ declare module 'next-auth' {
             userRoleName: string;
             academicInstitutionId: string | null;
             institutionSlug: string | null;
+            isDemo: boolean;
+            demoSessionId: string | null;
         };
     }
 }
@@ -25,5 +28,7 @@ declare module 'next-auth/jwt' {
         userRoleName: string;
         academicInstitutionId: string | null;
         institutionSlug: string | null;
+        isDemo: boolean;
+        demoSessionId: string | null;
     }
 }

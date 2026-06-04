@@ -21,10 +21,10 @@ export function L3Testimonials(): React.JSX.Element {
         <section className="bg-paper-warm/60 py-24">
             <div className="mx-auto max-w-[1200px] px-6">
                 <div className="mb-12 text-center">
-                    <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.12em] text-mute">
+                    <p className="text-mute mb-3 font-mono text-[11px] tracking-[0.12em] uppercase">
                         Testimonios
                     </p>
-                    <h2 className="font-display text-[48px] font-semibold tracking-[-0.03em] text-ink">
+                    <h2 className="font-display text-ink text-[48px] font-semibold tracking-[-0.03em]">
                         Lo que dicen quienes ya lo usan
                     </h2>
                 </div>
@@ -33,20 +33,20 @@ export function L3Testimonials(): React.JSX.Element {
                     {TESTIMONIALS.map((t) => (
                         <div
                             key={t.name}
-                            className="relative flex flex-col justify-between gap-6 rounded-[22px] border border-border bg-white p-8"
+                            className="border-border relative flex flex-col justify-between gap-6 rounded-[22px] border bg-white p-8"
                         >
                             <span
-                                className="absolute top-4 right-6 font-display text-[64px] leading-none text-primary/20 select-none"
+                                className="font-display text-primary/20 absolute top-4 right-6 text-[64px] leading-none select-none"
                                 aria-hidden="true"
                             >
                                 "
                             </span>
-                            <p className="relative text-[16px] leading-relaxed text-ink">
+                            <p className="text-ink relative text-[16px] leading-relaxed">
                                 "{t.quote}"
                             </p>
                             <div>
-                                <p className="text-[14px] font-semibold text-ink">{t.name}</p>
-                                <p className="mt-0.5 text-[12px] text-mute">{t.role}</p>
+                                <p className="text-ink text-[14px] font-semibold">{t.name}</p>
+                                <p className="text-mute mt-0.5 text-[12px]">{t.role}</p>
                             </div>
                         </div>
                     ))}

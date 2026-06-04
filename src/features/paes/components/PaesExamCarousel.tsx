@@ -4,7 +4,7 @@ import { PaesAviso } from '@/features/paes/components/PaesAviso';
 import { PaesResultsScreen } from '@/features/paes/components/PaesResultsScreen';
 import { computePaesResults } from '@/features/paes/lib/scoring';
 import type { PaesExam } from '@/features/paes/types/paes.types';
-import { Timer } from '@/features/exam-session/components/Timer';
+import { Timer } from '@/shared/components/ui/timer';
 import { LogoMark, LogoWordmark } from '@/shared/components/branding/logo';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
@@ -15,14 +15,17 @@ import { toast } from 'sonner';
 
 const LABELS = ['A', 'B', 'C', 'D'] as const;
 
-
 interface PaesExamCarouselProps {
     exam: PaesExam;
     initialSeconds: number;
     backUrl?: string;
 }
 
-export function PaesExamCarousel({ exam, initialSeconds, backUrl = '/paes' }: PaesExamCarouselProps): React.JSX.Element {
+export function PaesExamCarousel({
+    exam,
+    initialSeconds,
+    backUrl = '/paes',
+}: PaesExamCarouselProps): React.JSX.Element {
     const [phase, setPhase] = useState<'exam' | 'results'>('exam');
     const [retryCount, setRetryCount] = useState(0);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -164,7 +167,7 @@ export function PaesExamCarousel({ exam, initialSeconds, backUrl = '/paes' }: Pa
 
     if (!currentQuestion) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-paper">
+            <div className="bg-paper flex min-h-screen items-center justify-center">
                 <p className="text-mute">Esta prueba no tiene preguntas disponibles.</p>
             </div>
         );
@@ -180,18 +183,18 @@ export function PaesExamCarousel({ exam, initialSeconds, backUrl = '/paes' }: Pa
     const hasContext = Boolean(currentQuestion.context);
 
     return (
-        <div className="flex min-h-screen flex-col bg-paper">
+        <div className="bg-paper flex min-h-screen flex-col">
             {/* Top bar */}
-            <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-white px-6 py-3">
+            <header className="border-border sticky top-0 z-10 flex items-center justify-between border-b bg-white px-6 py-3">
                 <div className="flex items-center gap-3">
                     <LogoMark size={26} />
-                    <div className="h-4 w-px bg-border" />
-                    <span className="max-w-[200px] truncate font-mono text-[11px] uppercase tracking-[0.08em] text-mute">
+                    <div className="bg-border h-4 w-px" />
+                    <span className="text-mute max-w-[200px] truncate font-mono text-[11px] tracking-[0.08em] uppercase">
                         {exam.title}
                     </span>
                 </div>
                 <div className="flex items-center gap-4">
-                    <span className="rounded-full bg-primary/10 px-2.5 py-1 font-mono text-[10px] font-semibold text-primary">
+                    <span className="bg-primary/10 text-primary rounded-full px-2.5 py-1 font-mono text-[10px] font-semibold">
                         PAES PRÁCTICA
                     </span>
                     <LogoWordmark size={14} color="#75716b" />
@@ -199,9 +202,9 @@ export function PaesExamCarousel({ exam, initialSeconds, backUrl = '/paes' }: Pa
             </header>
 
             {/* Progress bar */}
-            <div className="h-1 bg-border">
+            <div className="bg-border h-1">
                 <div
-                    className="h-full bg-primary transition-all duration-500 ease-out"
+                    className="bg-primary h-full transition-all duration-500 ease-out"
                     style={{ width: `${progressPct}%` }}
                 />
             </div>
@@ -209,10 +212,10 @@ export function PaesExamCarousel({ exam, initialSeconds, backUrl = '/paes' }: Pa
             {/* Content */}
             <div className="flex flex-1 overflow-hidden">
                 {/* Sidebar */}
-                <aside className="hidden w-[240px] shrink-0 flex-col gap-5 overflow-y-auto border-r border-border bg-white p-5 lg:flex">
+                <aside className="border-border hidden w-[240px] shrink-0 flex-col gap-5 overflow-y-auto border-r bg-white p-5 lg:flex">
                     {/* Question map */}
                     <div>
-                        <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.1em] text-mute">
+                        <p className="text-mute mb-3 font-mono text-[10px] tracking-[0.1em] uppercase">
                             Mapa
                         </p>
                         <div className="grid grid-cols-4 gap-1">
@@ -227,16 +230,16 @@ export function PaesExamCarousel({ exam, initialSeconds, backUrl = '/paes' }: Pa
                                         onClick={() => handleJump(idx)}
                                         className={cn(
                                             'relative h-10 rounded-[6px] font-mono text-[10px] font-semibold transition-colors',
-                                            isCurrent && 'border-2 border-lime bg-lime text-ink',
+                                            isCurrent && 'border-lime bg-lime text-ink border-2',
                                             !isCurrent && isDone && 'bg-primary text-white',
                                             !isCurrent &&
                                                 !isDone &&
-                                                'border border-border bg-white text-mute hover:border-primary/40',
+                                                'border-border text-mute hover:border-primary/40 border bg-white',
                                         )}
                                     >
                                         {String(idx + 1).padStart(2, '0')}
                                         {qIsMarked && (
-                                            <span className="absolute right-0.5 top-0.5 size-2 rounded-full bg-coral" />
+                                            <span className="bg-coral absolute top-0.5 right-0.5 size-2 rounded-full" />
                                         )}
                                     </button>
                                 );
@@ -247,15 +250,24 @@ export function PaesExamCarousel({ exam, initialSeconds, backUrl = '/paes' }: Pa
                                 { color: 'bg-primary', label: 'Respondida' },
                                 { color: 'bg-lime border border-lime', label: 'Actual' },
                                 { color: 'border border-border', label: 'Pendiente' },
-                                { color: 'border border-border relative', label: 'Marcada', dot: true },
+                                {
+                                    color: 'border border-border relative',
+                                    label: 'Marcada',
+                                    dot: true,
+                                },
                             ].map((item) => (
                                 <div
                                     key={item.label}
-                                    className="flex items-center gap-1.5 font-mono text-[9px] text-mute"
+                                    className="text-mute flex items-center gap-1.5 font-mono text-[9px]"
                                 >
-                                    <div className={cn('relative size-3 shrink-0 rounded-sm', item.color)}>
+                                    <div
+                                        className={cn(
+                                            'relative size-3 shrink-0 rounded-sm',
+                                            item.color,
+                                        )}
+                                    >
                                         {item.dot && (
-                                            <span className="absolute -right-0.5 -top-0.5 size-1.5 rounded-full bg-coral" />
+                                            <span className="bg-coral absolute -top-0.5 -right-0.5 size-1.5 rounded-full" />
                                         )}
                                     </div>
                                     {item.label}
@@ -266,28 +278,37 @@ export function PaesExamCarousel({ exam, initialSeconds, backUrl = '/paes' }: Pa
 
                     {/* Timer */}
                     <div
-                        className="flex flex-col items-center rounded-[10px] bg-ink py-5 gap-1"
-                        style={{ '--foreground': '#ffffff', '--border': 'rgba(255,255,255,0.12)' } as React.CSSProperties}
+                        className="bg-ink flex flex-col items-center gap-1 rounded-[10px] py-5"
+                        style={
+                            {
+                                '--foreground': '#ffffff',
+                                '--border': 'rgba(255,255,255,0.12)',
+                            } as React.CSSProperties
+                        }
                     >
-                        <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.1em] text-white/40">
+                        <p className="mb-2 font-mono text-[10px] tracking-[0.1em] text-white/40 uppercase">
                             Tiempo
                         </p>
-                        <Timer key={retryCount} initialSeconds={initialSeconds} onTimeout={handleTimeout} />
+                        <Timer
+                            key={retryCount}
+                            initialSeconds={initialSeconds}
+                            onTimeout={handleTimeout}
+                        />
                         <p className="mt-1 font-mono text-[9px] text-white/30">h:mm:ss</p>
                     </div>
                 </aside>
 
                 {/* Main area — adapts if context exists */}
                 {hasContext ? (
-                    <div className="flex flex-1 flex-col lg:flex-row overflow-hidden">
+                    <div className="flex flex-1 flex-col overflow-hidden lg:flex-row">
                         {/* Texto de lectura */}
-                        <div className="flex-1 overflow-y-auto border-b border-border bg-white p-6 lg:border-b-0 lg:border-r lg:p-8 lg:max-w-[45%]">
+                        <div className="border-border flex-1 overflow-y-auto border-b bg-white p-6 lg:max-w-[45%] lg:border-r lg:border-b-0 lg:p-8">
                             {currentQuestion.contextTitle && (
-                                <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.1em] text-mute">
+                                <p className="text-mute mb-3 font-mono text-[10px] tracking-[0.1em] uppercase">
                                     {currentQuestion.contextTitle}
                                 </p>
                             )}
-                            <p className="text-[15px] leading-[1.8] text-ink">
+                            <p className="text-ink text-[15px] leading-[1.8]">
                                 {currentQuestion.context}
                             </p>
                         </div>
@@ -398,14 +419,14 @@ function QuestionPanel({
                 {/* Aviso fuente */}
                 <PaesAviso source={exam_source} sourceUrl={exam_sourceUrl} />
 
-                <div className="rounded-[18px] border border-border bg-white p-6 shadow-sm lg:p-8">
+                <div className="border-border rounded-[18px] border bg-white p-6 shadow-sm lg:p-8">
                     {/* Question header */}
-                    <div className="mb-5 flex items-center justify-between flex-wrap gap-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <span className="rounded-full bg-primary px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[0.08em] text-white">
+                    <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <span className="bg-primary rounded-full px-3 py-1 font-mono text-[10px] font-semibold tracking-[0.08em] text-white uppercase">
                                 {currentIndex + 1} / {totalQuestions}
                             </span>
-                            <span className="rounded-full bg-paper-warm px-3 py-1 font-mono text-[10px] uppercase tracking-[0.08em] text-mute">
+                            <span className="bg-paper-warm text-mute rounded-full px-3 py-1 font-mono text-[10px] tracking-[0.08em] uppercase">
                                 {currentQuestion.eje}
                             </span>
                         </div>
@@ -413,7 +434,7 @@ function QuestionPanel({
                             type="button"
                             onClick={onToggleMark}
                             className={cn(
-                                'flex items-center gap-1.5 rounded-[6px] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] transition-colors',
+                                'flex items-center gap-1.5 rounded-[6px] px-3 py-1.5 font-mono text-[10px] tracking-[0.08em] uppercase transition-colors',
                                 isMarked
                                     ? 'bg-coral/10 text-coral'
                                     : 'bg-paper-warm text-mute hover:bg-coral/10 hover:text-coral',
@@ -425,12 +446,15 @@ function QuestionPanel({
                     </div>
 
                     {/* Statement */}
-                    <h2 className="mb-6 font-display text-[22px] font-semibold leading-snug tracking-[-0.02em] text-ink lg:text-[26px]">
+                    <h2 className="font-display text-ink mb-6 text-[22px] leading-snug font-semibold tracking-[-0.02em] lg:text-[26px]">
                         {currentQuestion.statement}
                     </h2>
 
                     {/* Options */}
-                    <fieldset className="m-0 flex flex-col gap-3 border-0 p-0" aria-label="Alternativas">
+                    <fieldset
+                        className="m-0 flex flex-col gap-3 border-0 p-0"
+                        aria-label="Alternativas"
+                    >
                         {currentQuestion.options.map((option, idx) => {
                             const label = LABELS[idx] ?? String(idx + 1);
                             const isSelected = selectedOptionIds.includes(option.id);
@@ -442,16 +466,18 @@ function QuestionPanel({
                                     aria-pressed={isSelected}
                                     className={cn(
                                         'flex w-full items-center gap-4 rounded-[12px] border px-5 py-[16px] text-left transition-all',
-                                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+                                        'focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none',
                                         isSelected
                                             ? 'border-primary bg-primary-wash shadow-sm'
-                                            : 'border-border bg-white hover:border-primary/40 hover:bg-primary-wash/30',
+                                            : 'border-border hover:border-primary/40 hover:bg-primary-wash/30 bg-white',
                                     )}
                                 >
                                     <span
                                         className={cn(
                                             'flex size-[28px] shrink-0 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-colors',
-                                            isSelected ? 'bg-primary text-white' : 'bg-paper-warm text-mute',
+                                            isSelected
+                                                ? 'bg-primary text-white'
+                                                : 'bg-paper-warm text-mute',
                                         )}
                                     >
                                         {label}
@@ -459,7 +485,7 @@ function QuestionPanel({
                                     <span
                                         className={cn(
                                             'flex-1 text-[15px]',
-                                            isSelected ? 'font-medium text-primary' : 'text-ink',
+                                            isSelected ? 'text-primary font-medium' : 'text-ink',
                                         )}
                                     >
                                         {option.text}
@@ -475,7 +501,7 @@ function QuestionPanel({
                                             strokeWidth="3"
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
-                                            className="shrink-0 text-primary"
+                                            className="text-primary shrink-0"
                                         >
                                             <polyline points="20 6 9 17 4 12" />
                                         </svg>
@@ -486,11 +512,16 @@ function QuestionPanel({
                     </fieldset>
 
                     {/* Navigation footer */}
-                    <div className="mt-6 flex items-center justify-between border-t border-border pt-5">
-                        <Button variant="ghost" size="default" onClick={onPrev} disabled={currentIndex === 0}>
+                    <div className="border-border mt-6 flex items-center justify-between border-t pt-5">
+                        <Button
+                            variant="ghost"
+                            size="default"
+                            onClick={onPrev}
+                            disabled={currentIndex === 0}
+                        >
                             ← Anterior
                         </Button>
-                        <span className="hidden font-mono text-[10px] text-mute sm:block">
+                        <span className="text-mute hidden font-mono text-[10px] sm:block">
                             {answeredSet.has(currentQuestion.id) ? 'Guardada' : 'Sin responder'}
                         </span>
                         <Button

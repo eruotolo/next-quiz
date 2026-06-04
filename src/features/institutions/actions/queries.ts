@@ -74,7 +74,12 @@ export async function getInstitutions(
 
     // biome-ignore lint/suspicious/noExplicitAny: dynamic where
     const where: Record<string, any> = params.q
-        ? { OR: [{ name: { contains: params.q, mode: 'insensitive' } }, { slug: { contains: params.q, mode: 'insensitive' } }] }
+        ? {
+              OR: [
+                  { name: { contains: params.q, mode: 'insensitive' } },
+                  { slug: { contains: params.q, mode: 'insensitive' } },
+              ],
+          }
         : {};
 
     const skip = (params.page - 1) * params.perPage;

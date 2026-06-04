@@ -1,4 +1,4 @@
-export const AUDIT_ACTION = {
+﻿export const AUDIT_ACTION = {
     AUTH_LOGIN_SUCCESS: 'auth.login.success',
     AUTH_LOGIN_FAILURE: 'auth.login.failure',
     AUTH_LOGOUT: 'auth.logout',
@@ -30,6 +30,7 @@ export const AUDIT_ACTION = {
     INSTITUTION_CREATE: 'institution.create',
     INSTITUTION_UPDATE: 'institution.update',
     INSTITUTION_DELETE: 'institution.delete',
+    SUBSCRIPTION_CREATE: 'subscription.create',
 
     ADMIN_USER_CREATE: 'admin_user.create',
     ADMIN_USER_UPDATE: 'admin_user.update',
@@ -69,6 +70,7 @@ export const AUDIT_ACTION_LABEL: Record<AuditActionKey, string> = {
     'institution.create': 'Institución creada',
     'institution.update': 'Institución actualizada',
     'institution.delete': 'Institución eliminada',
+    'subscription.create': 'Suscripción iniciada',
     'admin_user.create': 'Administrador creado',
     'admin_user.update': 'Administrador actualizado',
     'admin_user.delete': 'Administrador eliminado',
