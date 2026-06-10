@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
@@ -24,6 +24,13 @@ import {
     TableRow,
 } from '@/shared/components/ui/table';
 import { Tag } from '@/shared/components/ui/badge';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/shared/components/ui/select';
 import { calcGrade } from '@/features/results/lib/grade';
 import { formatRut } from '@/shared/lib/rut';
 import { cn } from '@/shared/lib/utils';
@@ -38,6 +45,7 @@ import {
     XCircle,
     MoreHorizontal,
     Download,
+    X,
 } from 'lucide-react';
 import {
     DropdownMenu,
@@ -69,10 +77,21 @@ export interface ResultRow {
     answers: Record<string, string[] | string>;
 }
 
+export interface ExamOption {
+    id: string;
+    title: string;
+}
+
+export interface GroupOption {
+    id: string;
+    name: string;
+}
+
 export interface ExamGroup {
     examId: string;
+    groupId: string;
     title: string;
-    groupNames: string;
+    groupName: string;
     maxGrade: number;
     passingGrade: number;
     passingPercentage: number;
@@ -85,6 +104,10 @@ interface Props {
     totalCount: number;
     slug: string;
     institutionName: string;
+    examOptions: ExamOption[];
+    groupOptions: GroupOption[];
+    selectedExamId: string | null;
+    selectedGroupId: string | null;
 }
 
 export function ResultsClient({
@@ -92,6 +115,10 @@ export function ResultsClient({
     totalCount,
     slug,
     institutionName,
+    examOptions,
+    groupOptions,
+    selectedExamId,
+    selectedGroupId,
 }: Props): React.JSX.Element {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
@@ -101,6 +128,21 @@ export function ResultsClient({
     const [viewTarget, setViewTarget] = useState<{ result: ResultRow; exam: ExamGroup } | null>(
         null,
     );
+
+    function handleExamChange(val: string): void {
+        router.push(`/${slug}/results?examId=${val}`);
+    }
+
+    function handleGroupChange(val: string): void {
+        const params = new URLSearchParams();
+        if (selectedExamId) params.set('examId', selectedExamId);
+        params.set('groupId', val);
+        router.push(`/${slug}/results?${params.toString()}`);
+    }
+
+    function handleClearFilters(): void {
+        router.push(`/${slug}/results`);
+    }
 
     function handleDelete(): void {
         if (!deleteTarget) return;
@@ -133,7 +175,6 @@ export function ResultsClient({
         });
     }
 
-    // Compute summary stats
     const allResults = examGroups.flatMap((eg) =>
         eg.results.map((r) => ({
             grade: calcGrade(
@@ -152,9 +193,10 @@ export function ResultsClient({
     const passingRate =
         allResults.length > 0 ? Math.round((passingCount / allResults.length) * 100) : 0;
 
+    const hasActiveFilters = !!(selectedExamId ?? selectedGroupId);
+
     return (
         <div className="bg-paper flex min-h-screen flex-col">
-            {/* Header */}
             <AdminTopBar
                 breadcrumb={[institutionName, 'Resultados']}
                 title="Historial de Resultados"
@@ -209,18 +251,78 @@ export function ResultsClient({
                     ))}
                 </div>
 
+                {/* Filters */}
+                {examOptions.length > 0 && (
+                    <div className="border-border flex flex-wrap items-center gap-3 rounded-[14px] border bg-white px-4 py-3 shadow-sm">
+                        <span className="text-mute font-mono text-[10px] font-bold tracking-widest uppercase">
+                            Filtrar por:
+                        </span>
+                        <Select
+                            value={selectedExamId ?? ''}
+                            onValueChange={handleExamChange}
+                        >
+                            <SelectTrigger className="border-border h-9 w-[220px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
+                                <SelectValue placeholder="Todos los exámenes" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {examOptions.map((e) => (
+                                    <SelectItem key={e.id} value={e.id}>
+                                        {e.title}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        {selectedExamId && groupOptions.length > 0 && (
+                            <Select
+                                value={selectedGroupId ?? ''}
+                                onValueChange={handleGroupChange}
+                            >
+                                <SelectTrigger className="border-border h-9 w-[180px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
+                                    <SelectValue placeholder="Todos los grupos" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {groupOptions.map((g) => (
+                                        <SelectItem key={g.id} value={g.id}>
+                                            {g.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+
+                        {hasActiveFilters && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleClearFilters}
+                                className="text-mute hover:text-ink h-9 gap-1.5 rounded-[10px] text-[12px]"
+                            >
+                                <X size={13} />
+                                Limpiar filtros
+                            </Button>
+                        )}
+                    </div>
+                )}
+
                 {totalCount === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
                         <BarChart3 size={48} className="text-mute/20 mb-4" />
-                        <p className="text-ink text-lg font-medium">Todavía no hay resultados</p>
+                        <p className="text-ink text-lg font-medium">
+                            {hasActiveFilters
+                                ? 'No hay resultados para los filtros seleccionados'
+                                : 'Todavía no hay resultados'}
+                        </p>
                         <p className="text-mute mt-1 text-sm">
-                            Los resultados aparecerán aquí cuando los alumnos completen exámenes.
+                            {hasActiveFilters
+                                ? 'Probá cambiando el examen o el grupo.'
+                                : 'Los resultados aparecerán aquí cuando los alumnos completen exámenes.'}
                         </p>
                     </Card>
                 ) : (
                     <div className="space-y-10">
                         {examGroups.map((data) => (
-                            <div key={data.examId} className="space-y-4">
+                            <div key={`${data.examId}-${data.groupId}`} className="space-y-4">
                                 <div className="flex items-end justify-between px-2">
                                     <div>
                                         <h2 className="font-display text-ink text-[22px] font-bold tracking-tight">
@@ -231,7 +333,7 @@ export function ResultsClient({
                                                 tone="outline"
                                                 className="bg-paper-warm/50 border-border h-5 font-mono text-[10px]"
                                             >
-                                                {data.groupNames}
+                                                {data.groupName}
                                             </Tag>
                                             <span className="text-[12px] font-medium">
                                                 · {data.results.length} alumnos evaluados

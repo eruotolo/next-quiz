@@ -4,28 +4,66 @@ import { examProfessorFilter } from '@/shared/lib/scoping';
 import {
     ResultsClient,
     type ExamGroup,
+    type ExamOption,
+    type GroupOption,
     type ResultRow,
 } from '@/features/results/components/ResultsClient';
 
 interface PageProps {
     params: Promise<{ slug: string }>;
+    searchParams: Promise<{ examId?: string; groupId?: string }>;
 }
 
-export default async function ResultsPage({ params }: PageProps): Promise<React.JSX.Element> {
+export default async function ResultsPage({
+    params,
+    searchParams,
+}: PageProps): Promise<React.JSX.Element> {
     const { slug } = await params;
+    const { examId: paramExamId, groupId: paramGroupId } = await searchParams;
     const { institutionId, institutionName, isProfesor, userId } =
         await requireInstitutionPageAccess(slug);
 
-    // Scope: resultados de la institución; el Profesor solo ve los de sus grupos.
+    // Exams with results visible to this user (for the exam selector)
+    const examOptionsRaw = await prisma.exam.findMany({
+        where: {
+            academicInstitutionId: institutionId,
+            results: { some: {} },
+            ...(isProfesor && examProfessorFilter(userId)),
+        },
+        select: { id: true, title: true },
+        orderBy: { createdAt: 'desc' },
+    });
+
+    const examOptions: ExamOption[] = examOptionsRaw;
+    const validExamId = examOptionsRaw.some((e) => e.id === paramExamId)
+        ? paramExamId
+        : undefined;
+
+    // Groups for the selected exam (for the group selector)
+    let groupOptions: GroupOption[] = [];
+    if (validExamId) {
+        const examWithGroups = await prisma.exam.findUnique({
+            where: { id: validExamId },
+            select: { groups: { select: { id: true, name: true }, orderBy: { name: 'asc' } } },
+        });
+        groupOptions = examWithGroups?.groups ?? [];
+    }
+
+    const validGroupId = groupOptions.some((g) => g.id === paramGroupId)
+        ? paramGroupId
+        : undefined;
+
     const results = await prisma.result.findMany({
         where: {
             exam: {
                 academicInstitutionId: institutionId,
                 ...(isProfesor && examProfessorFilter(userId)),
+                ...(validExamId && { id: validExamId }),
             },
+            ...(validGroupId && { student: { groupId: validGroupId } }),
         },
         include: {
-            student: { select: { name: true, lastname: true, rut: true } },
+            student: { select: { name: true, lastname: true, rut: true, groupId: true } },
             exam: {
                 select: {
                     id: true,
@@ -33,7 +71,7 @@ export default async function ResultsPage({ params }: PageProps): Promise<React.
                     maxGrade: true,
                     passingGrade: true,
                     passingPercentage: true,
-                    groups: { select: { name: true } },
+                    groups: { select: { id: true, name: true } },
                     questions: {
                         orderBy: { order: 'asc' },
                         select: {
@@ -49,15 +87,20 @@ export default async function ResultsPage({ params }: PageProps): Promise<React.
         orderBy: { completedAt: 'desc' },
     });
 
-    const byExam = new Map<string, ExamGroup>();
+    // Group by examId + groupId — each combo is a separate section
+    const byExamAndGroup = new Map<string, ExamGroup>();
 
     for (const r of results) {
-        const key = r.examId;
-        if (!byExam.has(key)) {
-            byExam.set(key, {
-                examId: key,
+        const studentGroupId = r.student.groupId ?? 'no-group';
+        const key = `${r.examId}-${studentGroupId}`;
+
+        if (!byExamAndGroup.has(key)) {
+            const group = r.exam.groups.find((g) => g.id === studentGroupId);
+            byExamAndGroup.set(key, {
+                examId: r.examId,
+                groupId: studentGroupId,
                 title: r.exam.title,
-                groupNames: r.exam.groups.map((g) => g.name).join(', '),
+                groupName: group?.name ?? 'Sin grupo',
                 maxGrade: r.exam.maxGrade,
                 passingGrade: r.exam.passingGrade,
                 passingPercentage: r.exam.passingPercentage,
@@ -65,6 +108,7 @@ export default async function ResultsPage({ params }: PageProps): Promise<React.
                 results: [],
             });
         }
+
         const row: ResultRow = {
             id: r.id,
             studentName: `${r.student.name} ${r.student.lastname}`,
@@ -74,23 +118,21 @@ export default async function ResultsPage({ params }: PageProps): Promise<React.
             completedAt: r.completedAt.toISOString(),
             answers: r.answers as Record<string, string[] | string>,
         };
-        byExam.get(key)?.results.push(row);
+        byExamAndGroup.get(key)?.results.push(row);
     }
 
-    const examGroups = Array.from(byExam.values());
+    const examGroups = Array.from(byExamAndGroup.values());
 
     return (
-        <div className="space-y-8">
-            <div>
-                <h1 className="text-foreground text-2xl font-bold">Resultados</h1>
-                <p className="text-muted-foreground text-sm">{results.length} entregas en total</p>
-            </div>
-            <ResultsClient
-                examGroups={examGroups}
-                totalCount={results.length}
-                slug={slug}
-                institutionName={institutionName}
-            />
-        </div>
+        <ResultsClient
+            examGroups={examGroups}
+            totalCount={results.length}
+            slug={slug}
+            institutionName={institutionName}
+            examOptions={examOptions}
+            groupOptions={groupOptions}
+            selectedExamId={validExamId ?? null}
+            selectedGroupId={validGroupId ?? null}
+        />
     );
 }

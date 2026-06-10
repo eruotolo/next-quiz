@@ -57,10 +57,17 @@ export interface ExamOption {
     active: boolean;
 }
 
+export interface GroupOption {
+    id: string;
+    name: string;
+}
+
 interface Props {
     allExams: ExamOption[];
     selectedExamId: string | null;
     examData: LiveExamData | null;
+    groupOptions: GroupOption[];
+    selectedGroupId: string | null;
 }
 
 const QUESTION_COLORS = [
@@ -77,6 +84,8 @@ export function LiveResultsClient({
     allExams,
     selectedExamId,
     examData,
+    groupOptions,
+    selectedGroupId,
 }: Props): React.JSX.Element {
     const router = useRouter();
     const { slug } = useParams<{ slug: string }>();
@@ -100,7 +109,15 @@ export function LiveResultsClient({
     }, [autoRefresh, router]);
 
     function handleExamChange(val: string): void {
+        // Reset group when changing exam
         router.push(`/${slug}/liveresults?examId=${val}`);
+    }
+
+    function handleGroupChange(val: string): void {
+        const params = new URLSearchParams();
+        if (selectedExamId) params.set('examId', selectedExamId);
+        params.set('groupId', val);
+        router.push(`/${slug}/liveresults?${params.toString()}`);
     }
 
     const timeLabel = lastRefreshed?.toLocaleTimeString('es-CL', {
@@ -139,13 +156,31 @@ export function LiveResultsClient({
                                 value={selectedExamId ?? undefined}
                                 onValueChange={handleExamChange}
                             >
-                                <SelectTrigger className="border-border h-10 rounded-[12px] bg-white text-[13px] font-bold shadow-sm">
+                                <SelectTrigger className="border-border h-10 w-[200px] rounded-[12px] bg-white text-[13px] font-bold shadow-sm">
                                     <SelectValue placeholder="Seleccionar examen..." />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {allExams.map((e) => (
                                         <SelectItem key={e.id} value={e.id}>
                                             {e.active ? '● ' : '○ '} {e.title}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+
+                        {selectedExamId && groupOptions.length > 0 && (
+                            <Select
+                                value={selectedGroupId ?? undefined}
+                                onValueChange={handleGroupChange}
+                            >
+                                <SelectTrigger className="border-border h-10 w-[160px] rounded-[12px] bg-white text-[13px] font-bold shadow-sm">
+                                    <SelectValue placeholder="Todos los grupos" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {groupOptions.map((g) => (
+                                        <SelectItem key={g.id} value={g.id}>
+                                            {g.name}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>

@@ -1,17 +1,18 @@
-import { calcGrade } from '@/features/results/lib/grade';
 import { prisma } from '@/shared/lib/prisma';
 import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
 import { examProfessorFilter } from '@/shared/lib/scoping';
+import { calcGrade } from '@/features/results/lib/grade';
 import {
     LiveResultsClient,
     type ExamOption,
+    type GroupOption,
     type LiveExamData,
     type LiveResultRow,
 } from '@/features/results/components/LiveResultsClient';
 
 interface PageProps {
     params: Promise<{ slug: string }>;
-    searchParams: Promise<{ examId?: string }>;
+    searchParams: Promise<{ examId?: string; groupId?: string }>;
 }
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
@@ -19,10 +20,12 @@ export default async function LiveResultsPage({
     params,
     searchParams,
 }: PageProps): Promise<React.JSX.Element> {
-    const [{ slug }, { examId: paramExamId }] = await Promise.all([params, searchParams]);
+    const [{ slug }, { examId: paramExamId, groupId: paramGroupId }] = await Promise.all([
+        params,
+        searchParams,
+    ]);
     const { institutionId, isProfesor, userId } = await requireInstitutionPageAccess(slug);
 
-    // Scope: exámenes activos de la institución; el Profesor solo los de sus grupos.
     const activeExams = await prisma.exam.findMany({
         where: {
             active: true,
@@ -38,9 +41,25 @@ export default async function LiveResultsPage({
     const validParamId = activeExams.some((e) => e.id === paramExamId) ? paramExamId : undefined;
     const examId = validParamId ?? activeExams[0]?.id;
 
+    // Groups for the selected exam (for the group selector)
+    let groupOptions: GroupOption[] = [];
+    if (examId) {
+        const examWithGroups = await prisma.exam.findUnique({
+            where: { id: examId },
+            select: { groups: { select: { id: true, name: true }, orderBy: { name: 'asc' } } },
+        });
+        groupOptions = examWithGroups?.groups ?? [];
+    }
+
+    const validGroupId = groupOptions.some((g) => g.id === paramGroupId)
+        ? paramGroupId
+        : undefined;
+
     let examData: LiveExamData | null = null;
 
     if (examId) {
+        const groupFilter = validGroupId ? { student: { groupId: validGroupId } } : {};
+
         const [exam, inProgressAnswers, completedResults] = await Promise.all([
             prisma.exam.findUnique({
                 where: { id: examId },
@@ -63,7 +82,7 @@ export default async function LiveResultsPage({
                 },
             }),
             prisma.answer.findMany({
-                where: { examId },
+                where: { examId, ...groupFilter },
                 select: {
                     studentId: true,
                     questionId: true,
@@ -72,7 +91,7 @@ export default async function LiveResultsPage({
                 },
             }),
             prisma.result.findMany({
-                where: { examId },
+                where: { examId, ...groupFilter },
                 select: {
                     studentId: true,
                     score: true,
@@ -101,7 +120,6 @@ export default async function LiveResultsPage({
                 }
                 const entry = inProgressMap.get(a.studentId);
                 if (entry) {
-                    // Acumula opciones por pregunta (las MULTIPLE tienen varias filas).
                     const prev = entry.answers[a.questionId];
                     if (prev) {
                         prev.push(a.optionId);
@@ -169,6 +187,8 @@ export default async function LiveResultsPage({
             allExams={examOptions}
             selectedExamId={examId ?? null}
             examData={examData}
+            groupOptions={groupOptions}
+            selectedGroupId={validGroupId ?? null}
         />
     );
 }

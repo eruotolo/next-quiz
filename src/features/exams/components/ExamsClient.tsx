@@ -300,12 +300,19 @@ export function ExamsClient({
         if (!validate()) return;
         startTransition(async () => {
             try {
+                // Convert datetime-local strings (local browser time) to UTC ISO before
+                // sending to the server, which always runs in UTC and would otherwise
+                // misinterpret the naive string as UTC instead of the user's local time.
+                const toUTC = (v: string): string =>
+                    v ? new Date(v).toISOString() : '';
                 const data = {
                     ...form,
                     timeLimit: Number(form.timeLimit),
                     maxGrade: Number(form.maxGrade),
                     passingGrade: Number(form.passingGrade),
                     passingPercentage: Number(form.passingPercentage),
+                    scheduledAt: toUTC(form.scheduledAt),
+                    closesAt: toUTC(form.closesAt),
                 };
                 if (editing) await updateExam(slug, editing.id, data);
                 else await createExam(slug, data);
