@@ -1,5 +1,6 @@
 'use client';
 
+import type React from 'react';
 import { PaesAviso } from '@/features/paes/components/PaesAviso';
 import type {
     PaesExam,
@@ -149,10 +150,10 @@ export function PaesResultsScreen({
                                             <div className="bg-border h-1.5 w-full rounded-full">
                                                 <div
                                                     className={cn(
-                                                        'h-full rounded-full transition-all',
+                                                        'h-full w-[var(--eje-w)] rounded-full transition-all',
                                                         ejePct >= 60 ? 'bg-success' : 'bg-warning',
                                                     )}
-                                                    style={{ width: `${ejePct}%` }}
+                                                    style={{ '--eje-w': `${ejePct}%` } as React.CSSProperties}
                                                 />
                                             </div>
                                         </div>

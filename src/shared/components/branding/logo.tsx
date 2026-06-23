@@ -1,3 +1,6 @@
+import type * as React from 'react';
+import { cn } from '@/shared/lib/utils';
+
 interface LogoMarkProps {
     size?: number;
     variant?: 'cobalto' | 'tinta' | 'lima' | 'papel';
@@ -64,6 +67,7 @@ export function LogoMark({
 }
 
 // Wordmark: "aulika" in Bricolage Grotesque 600, tracking -3.5%
+// style only provides CSS vars; className consumes them via Tailwind arbitrary values.
 export function LogoWordmark({
     size = 16,
     color,
@@ -71,17 +75,16 @@ export function LogoWordmark({
 }: LogoWordmarkProps): React.JSX.Element {
     return (
         <span
-            className={className}
-            style={{
-                fontFamily:
-                    'var(--font-bricolage, "Bricolage Grotesque", "Geist", system-ui, sans-serif)',
-                fontSize: size,
-                fontWeight: 600,
-                letterSpacing: '-0.035em',
-                fontFeatureSettings: '"ss01" on',
-                color: color ?? 'inherit',
-                lineHeight: 1,
-            }}
+            className={cn(
+                'font-display font-semibold leading-none tracking-[-0.035em] [font-feature-settings:"ss01"_on] [font-size:var(--lw-size)] [color:var(--lw-color)]',
+                className,
+            )}
+            style={
+                {
+                    '--lw-size': `${size}px`,
+                    '--lw-color': color ?? 'inherit',
+                } as React.CSSProperties
+            }
         >
             aulika
         </span>
@@ -97,38 +100,12 @@ export function LogoLockup({
     const wordSize = size;
     const gap = Math.round(size * 0.33);
     return (
-        <div className={`inline-flex items-center ${className ?? ''}`} style={{ gap }}>
+        <div
+            className={cn('inline-flex items-center gap-[var(--lw-gap)]', className)}
+            style={{ '--lw-gap': `${gap}px` } as React.CSSProperties}
+        >
             <LogoMark size={markSize} variant={variant} />
             <LogoWordmark size={wordSize} />
         </div>
-    );
-}
-
-/** @deprecated Use LogoMark */
-export function LogoIcon({
-    size = 18,
-    className,
-}: {
-    size?: number;
-    className?: string;
-}): React.JSX.Element {
-    return (
-        <svg
-            width={size}
-            height={size}
-            viewBox="0 0 80 80"
-            fill="none"
-            aria-hidden="true"
-            className={className}
-        >
-            <path
-                d="M22 60 L40 22 L58 60"
-                stroke="currentColor"
-                strokeWidth="6.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-            <circle cx="40" cy="44" r="4.2" fill="currentColor" />
-        </svg>
     );
 }

@@ -3,6 +3,7 @@
 import {
     autoSubmit,
     finishExam,
+    recordAnswerTiming,
     recordTabSwitch,
     submitAnswer,
     toggleMarkQuestion,
@@ -36,6 +37,7 @@ export function ExamCarousel({
     const router = useRouter();
     const submittedRef = useRef(false);
     const tabLeftAtRef = useRef(0);
+    const questionEnteredAtRef = useRef(Date.now());
     const strikesKey = `exam:${exam.id}:strikes`;
 
     const [strikes, setStrikes] = useState(0);
@@ -127,8 +129,17 @@ export function ExamCarousel({
         return optionIds.length === saved.length && optionIds.every((id) => saved.includes(id));
     };
 
+    const recordCurrentQuestionTiming = (questionId: string | undefined): void => {
+        if (questionId) {
+            const ms = Date.now() - questionEnteredAtRef.current;
+            if (ms > 0) void recordAnswerTiming(questionId, ms);
+        }
+        questionEnteredAtRef.current = Date.now();
+    };
+
     const saveCurrentAndNavigate = (nextIndex: number): void => {
         const questionId = currentQuestion?.id;
+        recordCurrentQuestionTiming(questionId);
         const optionIds = selectedOptionIds;
 
         if (questionId && optionIds.length > 0 && !isUnchanged(questionId, optionIds)) {
@@ -154,6 +165,7 @@ export function ExamCarousel({
         if (!currentQuestion || selectedOptionIds.length === 0) return;
 
         const questionId = currentQuestion.id;
+        recordCurrentQuestionTiming(questionId);
         const optionIds = [...selectedOptionIds];
 
         if (isLastQuestion) {
@@ -285,6 +297,87 @@ export function ExamCarousel({
         return () => document.removeEventListener('visibilitychange', onVisibilityChange);
     }, [exam.antiCheatEnabled, exam.lockTabSwitch, strikesKey, finalizeAndRedirect]);
 
+    // Fullscreen anti-cheat: request fullscreen on mount; fullscreenchange exit = strike
+    useEffect(() => {
+        if (!exam.antiCheatEnabled) return;
+
+        void document.documentElement.requestFullscreen().catch(() => {
+            // Permission denied or already fullscreen — non-fatal
+        });
+
+        const onFullscreenChange = (): void => {
+            if (submittedRef.current) return;
+            // User exited fullscreen
+            if (!document.fullscreenElement) {
+                if (exam.lockTabSwitch) {
+                    toast.error('Saliste de pantalla completa. Examen enviado automáticamente.');
+                    void finalizeAndRedirect('auto');
+                    return;
+                }
+                setStrikes((prev) => {
+                    const next = prev + 1;
+                    sessionStorage.setItem(strikesKey, String(next));
+                    if (next === 1) {
+                        toast.warning('1/3 — Vuelve al modo pantalla completa', {
+                            description: 'Si salís 3 veces el examen se envía automáticamente.',
+                        });
+                    } else if (next === 2) {
+                        toast.warning('2/3 — Último aviso', {
+                            description: 'La próxima salida envía el examen.',
+                        });
+                    } else if (next >= 3) {
+                        toast.error('Excediste los intentos permitidos. Examen enviado.');
+                        void finalizeAndRedirect('auto');
+                    }
+                    return next;
+                });
+            }
+        };
+
+        document.addEventListener('fullscreenchange', onFullscreenChange);
+        return () => {
+            document.removeEventListener('fullscreenchange', onFullscreenChange);
+            // Exit fullscreen when component unmounts (after submit)
+            if (document.fullscreenElement) {
+                void document.exitFullscreen().catch((_e: unknown) => void _e);
+            }
+        };
+    }, [exam.antiCheatEnabled, exam.lockTabSwitch, strikesKey, finalizeAndRedirect]);
+
+    // Keyboard navigation: A-D / 1-4 select option, ←→ navigate, Enter advances
+    useEffect(() => {
+        function handleKey(e: KeyboardEvent): void {
+            // Ignore when typing in inputs
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+            const key = e.key;
+
+            // Option selection: A-D or 1-4
+            if (/^[a-dA-D]$/.test(key)) {
+                const idx = key.toUpperCase().charCodeAt(0) - 65;
+                const opt = currentQuestion?.options[idx];
+                if (opt) { e.preventDefault(); handleSelect(opt.id); }
+                return;
+            }
+            if (/^[1-4]$/.test(key)) {
+                const idx = Number(key) - 1;
+                const opt = currentQuestion?.options[idx];
+                if (opt) { e.preventDefault(); handleSelect(opt.id); }
+                return;
+            }
+
+            // Navigate: ArrowLeft / ArrowRight
+            if (key === 'ArrowLeft') { e.preventDefault(); handlePrev(); return; }
+            if (key === 'ArrowRight' || key === 'Enter') {
+                e.preventDefault();
+                handleNext();
+                return;
+            }
+        }
+        window.addEventListener('keydown', handleKey);
+        return () => window.removeEventListener('keydown', handleKey);
+    // biome-ignore lint/correctness/useExhaustiveDependencies: handleSelect/handlePrev/handleNext are non-useCallback functions; re-registering on every render is intentional
+    }, [currentQuestion, handleSelect, handlePrev, handleNext]);
+
     if (!currentQuestion) {
         return (
             <div className="bg-paper flex min-h-screen items-center justify-center">
@@ -342,8 +435,8 @@ export function ExamCarousel({
             {/* Progress bar */}
             <div className="bg-border h-1">
                 <div
-                    className="bg-primary h-full transition-all duration-500 ease-out"
-                    style={{ width: `${progressPct}%` }}
+                    className="bg-primary h-full w-[var(--progress-w)] transition-all duration-500 ease-out"
+                    style={{ '--progress-w': `${progressPct}%` } as React.CSSProperties}
                 />
             </div>
 
@@ -416,7 +509,7 @@ export function ExamCarousel({
                         </div>
                     </div>
 
-                    {/* Timer card — overrides CSS vars for dark bg */}
+                    {/* Timer card — CSS vars only; className sets bg, not --foreground/--border */}
                     <div
                         className="bg-ink flex flex-col items-center rounded-[10px] py-5"
                         style={

@@ -112,26 +112,3 @@ export async function getInstitutions(
     return { items, total, page: params.page, perPage: params.perPage };
 }
 
-export async function getInstitutionById(id: string): Promise<InstitutionRow | null> {
-    const session = await auth();
-    if (session?.user.userRoleName !== USER_ROLE.SUPER_ADMIN) throw new Error('Unauthorized');
-
-    return prisma.academicInstitution.findUnique({
-        where: { id },
-        select: {
-            id: true,
-            name: true,
-            slug: true,
-            city: true,
-            country: true,
-            phone: true,
-            address: true,
-            campus: true,
-            active: true,
-            plan: true,
-            planExpiresAt: true,
-            customPlan: { select: { id: true, name: true } },
-            _count: { select: { users: true } },
-        },
-    });
-}

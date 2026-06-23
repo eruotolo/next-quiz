@@ -48,4 +48,3 @@ export const assignPlanSchema = z.object({
         .or(z.literal('')),
 });
 
-export type AssignPlanInput = z.infer<typeof assignPlanSchema>;

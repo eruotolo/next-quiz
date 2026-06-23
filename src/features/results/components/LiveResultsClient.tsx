@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import type React from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
 import { Activity, RefreshCw, User } from 'lucide-react';
@@ -48,6 +49,7 @@ export interface LiveExamData {
     passingGrade: number;
     passingPercentage: number;
     questions: LiveQuestion[];
+    avgTimePerQuestion?: Record<string, number>;
     results: LiveResultRow[];
 }
 
@@ -80,6 +82,13 @@ const QUESTION_COLORS = [
 
 const REFRESH_INTERVAL = 5000;
 
+function formatMs(ms: number | null | undefined): string {
+    if (ms == null || ms <= 0) return '—';
+    const s = Math.round(ms / 1000);
+    if (s < 60) return `${s}s`;
+    return `${Math.floor(s / 60)}m ${s % 60}s`;
+}
+
 export function LiveResultsClient({
     allExams,
     selectedExamId,
@@ -107,6 +116,24 @@ export function LiveResultsClient({
         }, REFRESH_INTERVAL);
         return () => clearInterval(id);
     }, [autoRefresh, router]);
+
+    const questionStats = useMemo(() => {
+        if (!examData?.results.length) return [];
+        return examData.questions.map((q) => {
+            const total = examData.results.length;
+            const counts: Record<string, number> = Object.fromEntries(q.options.map((o) => [o.id, 0]));
+            let answered = 0;
+            for (const r of examData.results) {
+                const raw = r.answers[q.id];
+                const ids = Array.isArray(raw) ? raw : raw ? [raw] : [];
+                if (ids.length > 0) answered++;
+                for (const id of ids) {
+                    if (counts[id] !== undefined) counts[id]++;
+                }
+            }
+            return { question: q, counts, total, answered };
+        });
+    }, [examData]);
 
     function handleExamChange(val: string): void {
         // Reset group when changing exam
@@ -292,13 +319,15 @@ export function LiveResultsClient({
                                                     className="border-border/50 group hover:bg-paper-warm/50 min-w-[100px] border-r px-2 pt-0 pb-3 text-center transition-colors"
                                                 >
                                                     <div
-                                                        className="mb-3 h-1 w-full"
-                                                        style={{
-                                                            backgroundColor:
-                                                                QUESTION_COLORS[
-                                                                    idx % QUESTION_COLORS.length
-                                                                ],
-                                                        }}
+                                                        className="mb-3 h-1 w-full [background-color:var(--qc-bg)]"
+                                                        style={
+                                                            {
+                                                                '--qc-bg':
+                                                                    QUESTION_COLORS[
+                                                                        idx % QUESTION_COLORS.length
+                                                                    ],
+                                                            } as React.CSSProperties
+                                                        }
                                                     />
                                                     <span className="font-display text-ink text-[12px] font-bold">
                                                         Q{q.order}
@@ -356,10 +385,12 @@ export function LiveResultsClient({
                                                             </span>
                                                             <div className="bg-paper-warm mt-1 h-1 w-10 overflow-hidden rounded-full">
                                                                 <div
-                                                                    className="bg-primary h-full transition-all duration-1000"
-                                                                    style={{
-                                                                        width: `${(Object.keys(r.answers).length / examData.questions.length) * 100}%`,
-                                                                    }}
+                                                                    className="bg-primary h-full w-[var(--prog-w)] transition-all duration-1000"
+                                                                    style={
+                                                                        {
+                                                                            '--prog-w': `${(Object.keys(r.answers).length / examData.questions.length) * 100}%`,
+                                                                        } as React.CSSProperties
+                                                                    }
                                                                 />
                                                             </div>
                                                         </div>
@@ -414,6 +445,91 @@ export function LiveResultsClient({
                         </Card>
                     )}
                 </div>
+
+                {/* Per-question option distribution */}
+                {questionStats.length > 0 && (
+                    <div className="space-y-3">
+                        <h3 className="text-mute px-1 font-mono text-[10px] font-bold tracking-[0.15em] uppercase">
+                            Distribución por pregunta
+                        </h3>
+                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                            {questionStats.map(({ question, counts, total, answered }, idx) => (
+                                <Card
+                                    key={question.id}
+                                    className="border-border bg-white p-4 shadow-sm"
+                                >
+                                    <div className="mb-3 flex items-center gap-2">
+                                        <div
+                                            className="flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] text-[10px] font-bold text-white [background:var(--qs-accent)]"
+                                            style={
+                                                {
+                                                    '--qs-accent':
+                                                        QUESTION_COLORS[
+                                                            idx % QUESTION_COLORS.length
+                                                        ],
+                                                } as React.CSSProperties
+                                            }
+                                        >
+                                            {question.order}
+                                        </div>
+                                        <p className="text-ink line-clamp-2 flex-1 text-[12px] font-medium">
+                                            {question.text}
+                                        </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {question.options.map((opt, optIdx) => {
+                                            const count = counts[opt.id] ?? 0;
+                                            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                                            return (
+                                                <div key={opt.id}>
+                                                    <div className="mb-0.5 flex items-center gap-1.5">
+                                                        <span
+                                                            className={cn(
+                                                                'flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] font-mono text-[9px] font-bold',
+                                                                opt.isCorrect
+                                                                    ? 'bg-success text-white'
+                                                                    : 'border-border text-mute border',
+                                                            )}
+                                                        >
+                                                            {String.fromCharCode(65 + optIdx)}
+                                                        </span>
+                                                        <span className="text-ink-dim flex-1 truncate text-[11px]">
+                                                            {opt.text}
+                                                        </span>
+                                                        <span className="text-mute font-mono text-[10px] font-bold">
+                                                            {pct}%
+                                                        </span>
+                                                    </div>
+                                                    <div className="bg-paper-warm h-1.5 overflow-hidden rounded-full">
+                                                        <div
+                                                            className={cn(
+                                                                'h-full w-[var(--qs-w)] rounded-full transition-all duration-500',
+                                                                opt.isCorrect
+                                                                    ? 'bg-success'
+                                                                    : 'bg-primary/30',
+                                                            )}
+                                                            style={
+                                                                { '--qs-w': `${pct}%` } as React.CSSProperties
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                    <div className="text-mute mt-3 flex items-center justify-between text-[10px] font-medium">
+                                        <span>
+                                            {answered}/{total} respondieron
+                                        </span>
+                                        <span className="font-mono">
+                                            Tiempo medio: {formatMs(examData?.avgTimePerQuestion?.[question.id])}
+                                        </span>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
     );

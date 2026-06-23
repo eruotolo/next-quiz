@@ -1,6 +1,8 @@
 ﻿'use client';
 
 import { deleteQuestion, updateExam, upsertQuestion } from '@/features/exams/actions/mutations';
+import { copyBankQuestionToExam } from '@/features/questions/actions/mutations';
+import { getBankQuestionsForPicker } from '@/features/questions/actions/queries';
 import { questionSchema } from '@/features/exams/schemas/exam.schemas';
 import { toast } from 'sonner';
 import dynamic from 'next/dynamic';
@@ -10,6 +12,14 @@ const ImportQuestionsDialog = dynamic(
         import('@/features/exams/components/ImportQuestionsDialog').then(
             (m) => m.ImportQuestionsDialog,
         ),
+    { ssr: false },
+);
+
+const GenerateQuestionsDialog = dynamic(
+    () =>
+        import(
+            '@/features/ai-question-gen/components/GenerateQuestionsDialog'
+        ).then((m) => m.GenerateQuestionsDialog),
     { ssr: false },
 );
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
@@ -33,10 +43,13 @@ import {
     BookOpen,
     Flag,
     GripVertical,
+    Library,
     Loader2,
     Plus,
+    Search,
     Settings,
     Shuffle,
+    Sparkles,
     Trash2,
     Upload,
     X,
@@ -44,7 +57,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 
 type QuestionWithOptions = Question & { options: Option[] };
 type ExamWithAll = Exam & { groups: Group[]; questions: QuestionWithOptions[] };
@@ -83,12 +96,13 @@ function defaultQuestionDraft(): QuestionDraft {
 }
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
-export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
+export function ExamEditorClient({ exam, subjects = [] }: { exam: ExamWithAll; subjects?: string[] }) {
     const router = useRouter();
     const { slug } = useParams<{ slug: string }>();
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
     const [isImportOpen, setIsImportOpen] = useState(false);
+    const [isAiOpen, setIsAiOpen] = useState(false);
 
     const [draft, setDraft] = useState<QuestionDraft | null>(null);
     const [draftOrder, setDraftOrder] = useState(0);
@@ -294,6 +308,50 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
         });
     };
 
+    // ── Picker "Desde banco" ───────────────────────────────────────────────
+    const [bankOpen, setBankOpen] = useState(false);
+    const [bankSearch, setBankSearch] = useState('');
+    const [bankResults, setBankResults] = useState<
+        { id: string; text: string; subject: string | null; difficulty: string }[]
+    >([]);
+    const [bankPending, startBankTransition] = useTransition();
+
+    useEffect(() => {
+        if (!bankOpen) return;
+        const q = bankSearch.trim();
+        if (q.length > 0 && q.length < 2) return;
+        const t = setTimeout(() => {
+            startBankTransition(async () => {
+                try {
+                    const res = await getBankQuestionsForPicker(slug, q);
+                    setBankResults(res);
+                } catch {
+                    setBankResults([]);
+                }
+            });
+        }, 250);
+        return () => clearTimeout(t);
+    }, [bankOpen, bankSearch, slug]);
+
+    function openBankPicker(): void {
+        setBankSearch('');
+        setBankResults([]);
+        setBankOpen(true);
+    }
+
+    function handlePickFromBank(bankQuestionId: string): void {
+        startBankTransition(async () => {
+            try {
+                await copyBankQuestionToExam(slug, bankQuestionId, exam.id);
+                toast.success('Pregunta copiada del banco');
+                setBankOpen(false);
+                router.refresh();
+            } catch {
+                toast.error('No se pudo copiar la pregunta.');
+            }
+        });
+    }
+
     const isMultiple = draft?.questionType === 'MULTIPLE';
 
     const totalPoints = exam.questions.reduce((s, q) => s + q.points, 0);
@@ -309,11 +367,24 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                         <Button
                             variant="ghost"
                             size="md"
+                            onClick={() => setIsAiOpen(true)}
+                            className="gap-2 text-primary hover:bg-primary-wash"
+                        >
+                            <Sparkles size={15} />
+                            Generar con IA
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="md"
                             onClick={() => setIsImportOpen(true)}
                             className="gap-2"
                         >
                             <Upload size={15} />
                             Importar
+                        </Button>
+                        <Button variant="ghost" size="md" onClick={openBankPicker} className="gap-2">
+                            <Library size={15} />
+                            Desde banco
                         </Button>
                         <Button variant="ink" size="md" onClick={openNew} className="gap-2">
                             <Plus size={15} />
@@ -402,6 +473,19 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                 <Button variant="ink" size="md" onClick={openNew} className="gap-2">
                                     <Plus size={16} />
                                     Agregar pregunta
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="md"
+                                    onClick={() => setIsAiOpen(true)}
+                                    className="gap-2 text-primary hover:bg-primary-wash"
+                                >
+                                    <Sparkles size={16} />
+                                    Generar con IA
+                                </Button>
+                                <Button variant="ghost" size="md" onClick={openBankPicker} className="gap-2">
+                                    <Library size={16} />
+                                    Desde banco
                                 </Button>
                                 <Button
                                     variant="ghost"
@@ -687,10 +771,77 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                 onOpenChange={setIsImportOpen}
             />
 
+            {/* AI generation dialog */}
+            <GenerateQuestionsDialog
+                slug={slug}
+                examId={exam.id}
+                open={isAiOpen}
+                onOpenChange={setIsAiOpen}
+                subjects={subjects}
+            />
+
+            {/* From bank picker dialog */}
+            <Dialog open={bankOpen} onOpenChange={setBankOpen}>
+                <DialogContent className="border-border max-h-[80vh] max-w-[560px] overflow-hidden rounded-[22px] p-0 shadow-2xl">
+                    <div className="border-border bg-paper border-b px-6 py-5">
+                        <DialogTitle className="font-display text-ink text-xl">
+                            Copiar del banco de preguntas
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Busca una pregunta del banco para copiarla a este examen.
+                        </DialogDescription>
+                    </div>
+                    <div className="flex flex-col overflow-hidden">
+                        <div className="border-border relative border-b px-4 py-3">
+                            <Search className="text-mute absolute top-1/2 left-7 size-4 -translate-y-1/2" />
+                            <Input
+                                value={bankSearch}
+                                onChange={(e) => setBankSearch(e.target.value)}
+                                placeholder="Buscar por texto o asignatura…"
+                                className="border-border ml-6 h-10 rounded-[10px] bg-white pl-9"
+                                autoFocus
+                            />
+                        </div>
+                        <div className="max-h-[50vh] overflow-y-auto p-2">
+                            {bankPending && bankResults.length === 0 ? (
+                                <div className="flex items-center justify-center py-12">
+                                    <Loader2 className="text-primary size-5 animate-spin" />
+                                </div>
+                            ) : bankResults.length === 0 ? (
+                                <p className="text-mute py-12 text-center text-[13px]">
+                                    {bankSearch.trim().length >= 2
+                                        ? 'Sin resultados. Prueba con otro término.'
+                                        : 'Escribe al menos 2 caracteres para buscar.'}
+                                </p>
+                            ) : (
+                                bankResults.map((q) => (
+                                    <button
+                                        key={q.id}
+                                        type="button"
+                                        onClick={() => handlePickFromBank(q.id)}
+                                        className="hover:bg-primary-wash flex w-full items-center gap-3 rounded-[10px] px-3 py-3 text-left transition-colors"
+                                    >
+                                        <Library className="text-mute size-4 shrink-0" />
+                                        <span className="text-ink flex-1 truncate text-[13px] font-medium">
+                                            {q.text}
+                                        </span>
+                                        {q.subject && (
+                                            <Tag tone="default" size="sm">
+                                                {q.subject}
+                                            </Tag>
+                                        )}
+                                    </button>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
             {/* Question create/edit dialog */}
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="border-border flex max-h-[90vh] flex-col overflow-hidden rounded-[22px] p-0 shadow-2xl sm:max-w-2xl">
-                    <div className="border-border bg-paper border-b px-6 py-5">
+                <DialogContent showCloseButton={false} className="border-border flex max-h-[90vh] flex-col overflow-hidden rounded-[22px] p-0 shadow-2xl sm:max-w-2xl">
+                    <div className="border-border bg-paper-warm border-b px-6 py-5">
                         <DialogTitle className="font-display text-ink text-2xl">
                             {draft?.id ? 'Editar pregunta' : 'Nueva pregunta'}
                         </DialogTitle>

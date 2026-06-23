@@ -16,12 +16,13 @@ function Card({ className, ...props }: React.ComponentProps<'div'>) {
     );
 }
 
-// Optional 3px accent band at top — pass color via `style={{ '--accent-color': '#...' }}`
+// Optional 3px accent band at top — pass a color via `color` prop.
+// CSS var --ca-bg consumed by [background:var(--ca-bg)]; no direct CSS property in style.
 function CardAccent({ color, className }: { color?: string; className?: string }) {
     return (
         <div
-            className={cn('h-[3px] w-full shrink-0', className)}
-            style={{ background: color ?? 'var(--color-primary)' }}
+            className={cn('h-[3px] w-full shrink-0 [background:var(--ca-bg)]', className)}
+            style={{ '--ca-bg': color ?? 'var(--color-primary)' } as React.CSSProperties}
         />
     );
 }

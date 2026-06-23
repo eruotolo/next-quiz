@@ -12,14 +12,13 @@ export function AuthShell({ children, side }: AuthShellProps): React.JSX.Element
         <div className="grid min-h-screen lg:grid-cols-[0.9fr_1.1fr]">
             {/* Left — ink panel with radial gradients */}
             <aside
-                className="relative hidden flex-col justify-between p-12 lg:flex"
-                style={{
-                    background: [
-                        'radial-gradient(ellipse at 22% 22%, rgba(31,46,255,0.38) 0%, transparent 55%)',
-                        'radial-gradient(ellipse at 78% 78%, rgba(214,255,31,0.14) 0%, transparent 50%)',
-                        '#0b0b11',
-                    ].join(', '),
-                }}
+                className="relative hidden flex-col justify-between [background:var(--auth-bg)] p-12 lg:flex"
+                style={
+                    {
+                        '--auth-bg':
+                            'radial-gradient(ellipse at 22% 22%, rgba(31,46,255,0.38) 0%, transparent 55%), radial-gradient(ellipse at 78% 78%, rgba(214,255,31,0.14) 0%, transparent 50%), #0b0b11',
+                    } as React.CSSProperties
+                }
             >
                 {/* Logo */}
                 <Link

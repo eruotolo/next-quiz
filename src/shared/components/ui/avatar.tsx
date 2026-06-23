@@ -66,10 +66,16 @@ function Avatar({ name = '', src, size = 36, color, className }: AvatarProps): R
             role="img"
             aria-label={name}
             className={cn(
-                'inline-flex shrink-0 items-center justify-center rounded-full font-mono font-semibold text-white select-none',
+                'inline-flex shrink-0 items-center justify-center rounded-full font-mono font-semibold text-white select-none [width:var(--av-size)] [height:var(--av-size)] [background:var(--av-bg)] [font-size:var(--av-fs)]',
                 className,
             )}
-            style={{ width: size, height: size, background: bg, fontSize }}
+            style={
+                {
+                    '--av-size': `${size}px`,
+                    '--av-bg': bg,
+                    '--av-fs': `${fontSize}px`,
+                } as React.CSSProperties
+            }
         >
             {initials}
         </div>

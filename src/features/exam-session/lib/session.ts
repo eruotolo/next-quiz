@@ -63,12 +63,6 @@ export async function getStudentSession(): Promise<StudentSessionPayload | null>
     }
 }
 
-export async function deleteStudentSession(): Promise<void> {
-    const cookieStore = await cookies();
-    cookieStore.delete(STUDENT_COOKIE);
-    cookieStore.delete(STUDENT_COOKIE_LEGACY);
-}
-
 export async function createStudentAuthSession(payload: StudentAuthPayload): Promise<void> {
     const token = await new SignJWT({ ...payload })
         .setProtectedHeader({ alg: 'HS256' })

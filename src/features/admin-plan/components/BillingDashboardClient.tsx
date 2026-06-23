@@ -45,12 +45,13 @@ function RevenueChart({ data }: RevenueChartProps): React.JSX.Element {
                         className="group relative flex flex-1 flex-col items-center gap-1"
                     >
                         <div
-                            className="w-full rounded-t-[3px] transition-all duration-300"
-                            style={{
-                                height: `${Math.max(pct, hasValue ? 4 : 2)}%`,
-                                backgroundColor: hasValue ? '#1f2eff' : '#e5e2dc',
-                                minHeight: 2,
-                            }}
+                            className="w-full rounded-t-[3px] [height:var(--bh)] [min-height:2px] [background-color:var(--bbc)] transition-all duration-300"
+                            style={
+                                {
+                                    '--bh': `${Math.max(pct, hasValue ? 4 : 2)}%`,
+                                    '--bbc': hasValue ? '#1f2eff' : '#e5e2dc',
+                                } as React.CSSProperties
+                            }
                         />
                         {hasValue && (
                             <div className="bg-ink absolute bottom-full z-10 mb-1 hidden rounded-[6px] px-2 py-1 text-[10px] whitespace-nowrap text-white shadow-lg group-hover:block">
@@ -84,8 +85,7 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
             {/* Stat cards */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <Card
-                    className="border-border p-6 shadow-sm"
-                    style={{ backgroundColor: '#1f2eff', borderColor: '#1a27d9' }}
+                    className="border-border p-6 shadow-sm [background-color:#1f2eff] [border-color:#1a27d9]"
                 >
                     <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-[10px] bg-white/15">
                         <CreditCard size={18} className="text-white" />
@@ -99,10 +99,7 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
                 </Card>
 
                 <Card className="border-border bg-white p-6 shadow-sm">
-                    <div
-                        className="mb-4 flex h-9 w-9 items-center justify-center rounded-[10px]"
-                        style={{ backgroundColor: '#e6f4ed', color: '#0f7c4a' }}
-                    >
+                    <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#e6f4ed] text-[#0f7c4a]">
                         <Users size={18} />
                     </div>
                     <p className="font-display text-ink text-[36px] leading-none font-bold tracking-[-0.03em]">
@@ -117,10 +114,7 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
                 </Card>
 
                 <Card className="border-border bg-white p-6 shadow-sm">
-                    <div
-                        className="mb-4 flex h-9 w-9 items-center justify-center rounded-[10px]"
-                        style={{ backgroundColor: '#fff2d4', color: '#b7791f' }}
-                    >
+                    <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#fff2d4] text-[#b7791f]">
                         <TrendingUp size={18} />
                     </div>
                     <p className="font-display text-ink text-[36px] leading-none font-bold tracking-[-0.03em]">
@@ -131,8 +125,8 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
                     </p>
                     {growthPct !== null && (
                         <p
-                            className="mt-1 text-[12px] font-medium"
-                            style={{ color: growthPct >= 0 ? '#0f7c4a' : '#d5301f' }}
+                            className="mt-1 text-[12px] font-medium [color:var(--growth-c)]"
+                            style={{ '--growth-c': growthPct >= 0 ? '#0f7c4a' : '#d5301f' } as React.CSSProperties}
                         >
                             {growthPct >= 0 ? '+' : ''}
                             {growthPct}% vs mes anterior
@@ -141,10 +135,7 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
                 </Card>
 
                 <Card className="border-border bg-white p-6 shadow-sm">
-                    <div
-                        className="mb-4 flex h-9 w-9 items-center justify-center rounded-[10px]"
-                        style={{ backgroundColor: '#fee2e2', color: '#d5301f' }}
-                    >
+                    <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#fee2e2] text-[#d5301f]">
                         <XCircle size={18} />
                     </div>
                     <p className="font-display text-ink text-[36px] leading-none font-bold tracking-[-0.03em]">
@@ -214,11 +205,8 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
                                         </div>
                                         <div className="bg-paper-warm h-2 overflow-hidden rounded-full">
                                             <div
-                                                className="h-full rounded-full transition-all duration-500"
-                                                style={{
-                                                    width: `${barWidth}%`,
-                                                    backgroundColor: '#1f2eff',
-                                                }}
+                                                className="h-full w-[var(--plan-w)] rounded-full bg-[#1f2eff] transition-all duration-500"
+                                                style={{ '--plan-w': `${barWidth}%` } as React.CSSProperties}
                                             />
                                         </div>
                                     </div>
@@ -260,13 +248,15 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
                     <Link
                         key={item.href}
                         href={item.href}
-                        className="group border-border flex items-center gap-4 rounded-[16px] border bg-white p-4 shadow-sm transition-all hover:shadow-md"
-                        style={{ borderLeftWidth: 3, borderLeftColor: item.color }}
+                        className="group border-border flex items-center gap-4 rounded-[16px] border border-l-[3px] bg-white p-4 shadow-sm [border-left-color:var(--ql-c)] transition-all hover:shadow-md"
+                        style={
+                            {
+                                '--ql-c': item.color,
+                                '--ql-wash': item.wash,
+                            } as React.CSSProperties
+                        }
                     >
-                        <div
-                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]"
-                            style={{ backgroundColor: item.wash, color: item.color }}
-                        >
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] [background-color:var(--ql-wash)] [color:var(--ql-c)]">
                             <item.icon size={16} />
                         </div>
                         <div className="min-w-0 flex-1">

@@ -1,9 +1,9 @@
 'use client';
 
+import type React from 'react';
 import { Tag } from '@/shared/components/ui/badge';
 import { cn } from '@/shared/lib/utils';
 import { Check, MoreHorizontal, GraduationCap, Download, ArrowRight } from 'lucide-react';
-import type React from 'react';
 
 // ── Mock Components ────────────────────────────────────────────────────────
 
@@ -91,16 +91,18 @@ function MockResults(): React.JSX.Element {
                 {data.map((d, i) => (
                     <div
                         key={`bar-${i}`}
-                        className="flex-1 rounded-t-[4px] transition-all hover:scale-x-110"
-                        style={{
-                            height: `${d}%`,
-                            backgroundColor:
-                                d >= 80
-                                    ? 'var(--success)'
-                                    : d >= 60
-                                      ? 'var(--primary)'
-                                      : 'var(--warning)',
-                        }}
+                        className="flex-1 rounded-t-[4px] [height:var(--wt-h)] [background-color:var(--wt-bg)] transition-all hover:scale-x-110"
+                        style={
+                            {
+                                '--wt-h': `${d}%`,
+                                '--wt-bg':
+                                    d >= 80
+                                        ? 'var(--success)'
+                                        : d >= 60
+                                          ? 'var(--primary)'
+                                          : 'var(--warning)',
+                            } as React.CSSProperties
+                        }
                     />
                 ))}
             </div>

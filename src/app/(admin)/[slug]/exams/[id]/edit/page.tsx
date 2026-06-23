@@ -13,27 +13,45 @@ export default async function ExamEditorPage({ params }: PageProps) {
     const { institutionId, isProfesor, userId, isDemo, demoSessionId } =
         await requireInstitutionPageAccess(slug);
 
-    // Scope de institución (cierra IDOR) + scope de profesor por sus grupos.
-    // En modo demo, el examen debe pertenecer a la sesión del visitante.
-    const exam = await prisma.exam.findFirst({
-        where: {
-            id,
-            academicInstitutionId: institutionId,
-            ...(isProfesor && {
-                groups: { some: { professors: { some: { id: userId } } } },
-            }),
-            ...demoExamFilter({ isDemo, demoSessionId }),
-        },
-        include: {
-            groups: true,
-            questions: {
-                orderBy: { order: 'asc' },
-                include: { options: { orderBy: { createdAt: 'asc' } } },
+    const [exam, subjects] = await Promise.all([
+        prisma.exam.findFirst({
+            where: {
+                id,
+                academicInstitutionId: institutionId,
+                ...(isProfesor && {
+                    groups: { some: { professors: { some: { id: userId } } } },
+                }),
+                ...demoExamFilter({ isDemo, demoSessionId }),
             },
-        },
-    });
+            include: {
+                groups: true,
+                questions: {
+                    orderBy: { order: 'asc' },
+                    include: { options: { orderBy: { createdAt: 'asc' } } },
+                },
+            },
+        }),
+        prisma.exam.groupBy({
+            by: ['subject'],
+            where: {
+                academicInstitutionId: institutionId,
+                subject: { not: null },
+                ...(isProfesor && {
+                    groups: { some: { professors: { some: { id: userId } } } },
+                }),
+                ...demoExamFilter({ isDemo, demoSessionId }),
+            },
+            _min: { subject: true },
+            orderBy: { _min: { subject: 'asc' } },
+        }),
+    ]);
 
     if (!exam) notFound();
 
-    return <ExamEditorClient exam={exam} />;
+    const subjectList = subjects
+        .map((s) => s._min.subject)
+        .filter((s): s is string => s !== null)
+        .sort();
+
+    return <ExamEditorClient exam={exam} subjects={subjectList} />;
 }

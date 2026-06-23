@@ -176,13 +176,14 @@ export function L3Hero(): React.JSX.Element {
         <section className="relative overflow-hidden bg-white pt-20 pb-12" id="producto">
             {/* Pro grid background with radial mask */}
             <div
-                className="pointer-events-none absolute inset-0 opacity-[0.05]"
-                style={{
-                    backgroundImage:
-                        'linear-gradient(#0b0b11 1px, transparent 1px), linear-gradient(90deg, #0b0b11 1px, transparent 1px)',
-                    backgroundSize: '56px 56px',
-                    maskImage: 'radial-gradient(circle at center top, black 25%, transparent 75%)',
-                }}
+                className="pointer-events-none absolute inset-0 [background-image:var(--hero-grid)] bg-[length:56px_56px] [mask-image:var(--hero-mask)] opacity-[0.05]"
+                style={
+                    {
+                        '--hero-grid':
+                            'linear-gradient(#0b0b11 1px, transparent 1px), linear-gradient(90deg, #0b0b11 1px, transparent 1px)',
+                        '--hero-mask': 'radial-gradient(circle at center top, black 25%, transparent 75%)',
+                    } as React.CSSProperties
+                }
             />
 
             <div className="relative mx-auto max-w-[1400px] px-6 md:px-14">

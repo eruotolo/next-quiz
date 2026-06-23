@@ -19,6 +19,16 @@ const ImportQuestionsDialog = dynamic(
     { ssr: false },
 );
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/shared/components/ui/alert-dialog';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import {
@@ -225,8 +235,10 @@ export function ExamsClient({
     const [searchQuery, setSearchQuery] = useState('');
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
+    const [isToggleOpen, setIsToggleOpen] = useState(false);
     const [editing, setEditing] = useState<ExamWithCount | null>(null);
     const [toDelete, setToDelete] = useState<ExamWithCount | null>(null);
+    const [toToggle, setToToggle] = useState<ExamWithCount | null>(null);
     const [form, setForm] = useState<FormState>(emptyForm);
     const [errors, setErrors] = useState<Partial<Record<keyof FormState | 'general', string>>>({});
     const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -281,6 +293,11 @@ export function ExamsClient({
         setToDelete(exam);
         setDeleteError(null);
         setIsDelOpen(true);
+    };
+
+    const openToggle = (exam: ExamWithCount): void => {
+        setToToggle(exam);
+        setIsToggleOpen(true);
     };
 
     const validate = (): boolean => {
@@ -342,14 +359,16 @@ export function ExamsClient({
         });
     };
 
-    const handleTogglePublish = (exam: { id: string; active: boolean }): void => {
+    const handleTogglePublish = (): void => {
+        if (!toToggle) return;
         startTransition(async () => {
-            const result = await toggleExamActive(slug, exam.id, !exam.active);
+            const result = await toggleExamActive(slug, toToggle.id, !toToggle.active);
             if (result.error) {
                 toast.error(result.error);
                 return;
             }
-            toast.success(exam.active ? 'Examen despublicado' : 'Examen publicado');
+            toast.success(toToggle.active ? 'Examen despublicado' : 'Examen publicado');
+            setIsToggleOpen(false);
             router.refresh();
         });
     };
@@ -588,7 +607,7 @@ export function ExamsClient({
                                                     Ajustes de examen
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
-                                                    onClick={() => handleTogglePublish(exam)}
+                                                    onClick={() => openToggle(exam)}
                                                     className="cursor-pointer gap-2 py-2.5"
                                                 >
                                                     <Power size={14} />
@@ -974,50 +993,64 @@ export function ExamsClient({
                 onOpenChange={(o) => !o && setImportExamId(null)}
             />
 
-            {/* Delete dialog */}
-            <Dialog open={isDelOpen} onOpenChange={setIsDelOpen}>
-                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle className="font-display text-destructive text-2xl">
+            {/* Publish/Unpublish confirm */}
+            <AlertDialog open={isToggleOpen} onOpenChange={setIsToggleOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            {toToggle?.active ? 'Despublicar examen' : 'Publicar examen'}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {toToggle?.active
+                                ? `Los estudiantes ya no podrán acceder a "${toToggle?.title}".`
+                                : `"${toToggle?.title}" quedará visible para los estudiantes asignados.`}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                            disabled={isPending}
+                            onClick={handleTogglePublish}
+                            className={toToggle?.active ? 'bg-destructive hover:bg-destructive/90' : ''}
+                        >
+                            {isPending && <Loader2 className="mr-2 animate-spin" size={14} />}
+                            {toToggle?.active ? 'Despublicar' : 'Publicar'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Delete confirm */}
+            <AlertDialog open={isDelOpen} onOpenChange={setIsDelOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="text-destructive">
                             Eliminar examen
-                        </DialogTitle>
-                        <DialogDescription className="sr-only">
-                            Confirmación para eliminar el examen.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="py-2">
-                        <p className="text-ink-dim text-[14px] leading-relaxed">
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             ¿Estás seguro de eliminar{' '}
                             <strong className="text-ink">&ldquo;{toDelete?.title}&rdquo;</strong>?
                             Esta acción es irreversible.
-                        </p>
-                    </div>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
                     {deleteError && (
                         <p className="bg-danger-wash text-destructive rounded-[10px] px-4 py-2 text-sm font-medium">
                             {deleteError}
                         </p>
                     )}
-                    <DialogFooter className="mt-2 gap-2 sm:justify-end">
-                        <Button
-                            variant="ghost"
-                            size="md"
-                            onClick={() => setIsDelOpen(false)}
-                            disabled={isPending}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            variant="danger"
-                            size="md"
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
                             disabled={isPending}
                             onClick={handleDelete}
+                            className="bg-destructive hover:bg-destructive/90"
                         >
-                            {isPending && <Loader2 className="mr-2 animate-spin" />}
+                            {isPending && <Loader2 className="mr-2 animate-spin" size={14} />}
                             Eliminar
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

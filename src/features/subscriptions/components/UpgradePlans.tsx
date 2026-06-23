@@ -294,10 +294,9 @@ export function UpgradePlans({
                 <div className="mb-10 flex flex-col items-center gap-3">
                     <div className="bg-paper-warm/50 border-border/40 relative flex rounded-full border p-0.5">
                         <motion.div
-                            className="border-border/10 absolute inset-y-0.5 left-0.5 rounded-full border bg-white shadow-sm"
+                            className="border-border/10 absolute inset-y-0.5 left-0.5 w-[calc(50%-2px)] rounded-full border bg-white shadow-sm"
                             initial={false}
                             animate={{ x: billing === 'monthly' ? 0 : '100%' }}
-                            style={{ width: 'calc(50% - 2px)' }}
                             transition={{ type: 'spring', bounce: 0.1, duration: 0.4 }}
                         />
                         <button

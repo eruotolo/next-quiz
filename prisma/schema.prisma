@@ -79,6 +79,7 @@ model AcademicInstitution {
     groups               Group[]
     subscriptions        Subscription[]
     auditLogs            AuditLog[]
+    bankQuestions        BankQuestion[]
     createdAt            DateTime       @default(now())
     updatedAt            DateTime       @updatedAt
 
@@ -127,6 +128,7 @@ model User {
     examAttempts          ExamAttempt[]
     createdExams          Exam[]               @relation("ExamCreatedBy")
     auditLogs             AuditLog[]
+    createdBankQuestions  BankQuestion[]       @relation("BankQuestionCreatedBy")
     createdAt             DateTime             @default(now())
     updatedAt             DateTime             @updatedAt
 
@@ -294,6 +296,46 @@ model Result {
     @@unique([studentId, examId])
     @@index([studentId])
     @@index([examId])
+}
+
+// ─── Question Bank ──────────────────────────────────────────────────────────
+// Banco de preguntas reutilizable por institución. Independiente del ciclo de
+// vida de un examen: al agregar una pregunta del banco a un examen, se clona a
+// Question + Option (copyBankQuestionToExam). Así el banco persiste aunque el
+// examen se borre, y los docentes acumulan una biblioteca por asignatura/unidad.
+model BankQuestion {
+    id                    String               @id @default(uuid()) @db.Uuid
+    text                  String
+    questionType          QuestionType         @default(UNICA)
+    subject               String?
+    unit                  String?
+    difficulty            QuestionDifficulty   @default(MEDIA)
+    tags                  String[]             @default([])
+    feedback              String?
+    academicInstitutionId String?              @db.Uuid
+    academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
+    createdById           String?              @db.Uuid
+    createdBy             User?                @relation("BankQuestionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+    options               BankOption[]
+    createdAt             DateTime             @default(now())
+    updatedAt             DateTime             @updatedAt
+
+    @@index([academicInstitutionId])
+    @@index([subject, unit])
+    @@index([difficulty])
+    @@index([createdById])
+}
+
+model BankOption {
+    id             String       @id @default(uuid()) @db.Uuid
+    text           String
+    isCorrect      Boolean      @default(false)
+    bankQuestionId String       @db.Uuid
+    bankQuestion   BankQuestion @relation(fields: [bankQuestionId], references: [id], onDelete: Cascade)
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+
+    @@index([bankQuestionId])
 }
 
 // ─── Audit ───────────────────────────────────────────────────────────────────

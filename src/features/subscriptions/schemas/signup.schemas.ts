@@ -25,7 +25,6 @@ export const payerSchema = z.object({
     billing: z.enum(['monthly', 'annual']),
 });
 
-export type PayerInput = z.infer<typeof payerSchema>;
 export const payerFormSchema = payerSchema;
 export type PayerFormInput = z.infer<typeof payerFormSchema>;
 

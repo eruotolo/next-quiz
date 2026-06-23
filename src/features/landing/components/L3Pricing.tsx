@@ -267,13 +267,10 @@ export function L3Pricing(): React.JSX.Element {
                     <div className="bg-paper-warm/50 border-border/40 relative flex rounded-full border p-0.5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                         {/* Sliding background */}
                         <motion.div
-                            className="border-border/10 absolute inset-y-0.5 left-0.5 rounded-full border bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.02)]"
+                            className="border-border/10 absolute inset-y-0.5 left-0.5 w-[calc(50%-2px)] rounded-full border bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.02)]"
                             initial={false}
                             animate={{
                                 x: billing === 'monthly' ? 0 : '100%',
-                            }}
-                            style={{
-                                width: 'calc(50% - 2px)',
                             }}
                             transition={{ type: 'spring', bounce: 0.1, duration: 0.4 }}
                         />

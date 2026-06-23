@@ -234,13 +234,13 @@ export default async function ExamIntroPage({ params }: PageProps): Promise<Reac
 
                     {/* Reminder — ink card */}
                     <div
-                        className="rounded-[16px] p-6"
-                        style={{
-                            background: [
-                                'radial-gradient(ellipse at 80% 10%, rgba(214,255,31,0.16) 0%, transparent 55%)',
-                                '#0b0b11',
-                            ].join(', '),
-                        }}
+                        className="rounded-[16px] [background:var(--reminder-bg)] p-6"
+                        style={
+                            {
+                                '--reminder-bg':
+                                    'radial-gradient(ellipse at 80% 10%, rgba(214,255,31,0.16) 0%, transparent 55%), #0b0b11',
+                            } as React.CSSProperties
+                        }
                     >
                         <span className="bg-lime/20 text-lime mb-3 inline-block rounded-full px-2.5 py-0.5 font-mono text-[9px] tracking-[0.1em] uppercase">
                             {student.name.toUpperCase()}, NO OLVIDES

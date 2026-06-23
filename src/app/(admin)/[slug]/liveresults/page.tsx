@@ -87,6 +87,7 @@ export default async function LiveResultsPage({
                     studentId: true,
                     questionId: true,
                     optionId: true,
+                    timeSpentMs: true,
                     student: { select: { name: true, lastname: true } },
                 },
             }),
@@ -127,6 +128,19 @@ export default async function LiveResultsPage({
                         entry.answers[a.questionId] = [a.optionId];
                     }
                 }
+            }
+
+            const timeBuckets = new Map<string, { sum: number; count: number }>();
+            for (const a of inProgressAnswers) {
+                if (a.timeSpentMs == null) continue;
+                const b = timeBuckets.get(a.questionId) ?? { sum: 0, count: 0 };
+                b.sum += a.timeSpentMs;
+                b.count += 1;
+                timeBuckets.set(a.questionId, b);
+            }
+            const avgTimePerQuestion: Record<string, number> = {};
+            for (const [qId, b] of timeBuckets) {
+                avgTimePerQuestion[qId] = Math.round(b.sum / b.count);
             }
 
             const rows: LiveResultRow[] = [];
@@ -177,6 +191,7 @@ export default async function LiveResultsPage({
                 passingGrade: exam.passingGrade,
                 passingPercentage: exam.passingPercentage,
                 questions: exam.questions,
+                avgTimePerQuestion,
                 results: rows,
             };
         }

@@ -24,6 +24,11 @@
     QUESTION_DELETE: 'question.delete',
     QUESTIONS_IMPORT: 'questions.import',
 
+    QUESTION_BANK_CREATE: 'question_bank.create',
+    QUESTION_BANK_UPDATE: 'question_bank.update',
+    QUESTION_BANK_DELETE: 'question_bank.delete',
+    QUESTION_BANK_COPY: 'question_bank.copy',
+
     RESULT_DELETE: 'result.delete',
     RESULT_RECALCULATE: 'result.recalculate',
 
@@ -65,6 +70,10 @@ export const AUDIT_ACTION_LABEL: Record<AuditActionKey, string> = {
     'question.upsert': 'Pregunta guardada',
     'question.delete': 'Pregunta eliminada',
     'questions.import': 'Importación de preguntas',
+    'question_bank.create': 'Pregunta de banco creada',
+    'question_bank.update': 'Pregunta de banco actualizada',
+    'question_bank.delete': 'Pregunta de banco eliminada',
+    'question_bank.copy': 'Pregunta copiada del banco a un examen',
     'result.delete': 'Resultado eliminado',
     'result.recalculate': 'Resultado recalculado',
     'institution.create': 'Institución creada',

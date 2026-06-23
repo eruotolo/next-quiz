@@ -20,5 +20,3 @@ export const updateProfessorSchema = createProfessorSchema.extend({
     password: z.string().min(8, 'Mínimo 8 caracteres').optional().or(z.literal('')),
 });
 
-export type CreateProfessorInput = z.infer<typeof createProfessorSchema>;
-export type UpdateProfessorInput = z.infer<typeof updateProfessorSchema>;

@@ -162,14 +162,13 @@ export default async function ResultadoPage({ params }: PageProps): Promise<Reac
             <main className="mx-auto w-full max-w-5xl px-4 py-8 pb-16">
                 {/* Hero card — ink bg */}
                 <div
-                    className="mb-8 overflow-hidden rounded-[18px] print:hidden"
-                    style={{
-                        background: [
-                            'radial-gradient(ellipse at 85% 40%, rgba(214,255,31,0.22) 0%, transparent 55%)',
-                            'radial-gradient(ellipse at 15% 50%, rgba(31,46,255,0.35) 0%, transparent 60%)',
-                            '#0b0b11',
-                        ].join(', '),
-                    }}
+                    className="mb-8 overflow-hidden rounded-[18px] [background:var(--result-hero-bg)] print:hidden"
+                    style={
+                        {
+                            '--result-hero-bg':
+                                'radial-gradient(ellipse at 85% 40%, rgba(214,255,31,0.22) 0%, transparent 55%), radial-gradient(ellipse at 15% 50%, rgba(31,46,255,0.35) 0%, transparent 60%), #0b0b11',
+                        } as React.CSSProperties
+                    }
                 >
                     <div className="grid gap-6 p-8 lg:grid-cols-[1.3fr_0.7fr] lg:p-10">
                         {/* Left */}

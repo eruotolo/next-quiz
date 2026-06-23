@@ -14,6 +14,8 @@ import {
     type SubmitAnswerInput,
     submitAnswerSchema,
 } from '@/features/exam-session/schemas/exam-session.schemas';
+import { calcGrade } from '@/features/results/lib/grade';
+import { buildExamResultEmail, sendEmail } from '@/shared/lib/email';
 
 /**
  * Inicia (o reanuda) el intento de un examen elegido en la página de selección.
@@ -284,6 +286,18 @@ async function gradeAttempt(studentId: string, examId: string, attemptKey: strin
         await prisma.answer.deleteMany({ where: { attemptKey } });
         await prisma.examAttempt.deleteMany({ where: { attemptKey } });
 
+        // Email fire-and-forget al alumno con su resultado. No bloquea la entrega
+        // ni falla si Brevo no está configurado o el alumno no tiene email.
+        void sendExamResultEmail(
+            studentId,
+            exam.title,
+            score,
+            maxScore,
+            exam.maxGrade,
+            exam.passingGrade,
+            exam.passingPercentage,
+        );
+
         return result.id;
     } catch (err: unknown) {
         if ((err as { code?: string })?.code === 'P2002') {
@@ -293,6 +307,39 @@ async function gradeAttempt(studentId: string, examId: string, attemptKey: strin
             if (existingFallback) return existingFallback.id;
         }
         throw err;
+    }
+}
+
+async function sendExamResultEmail(
+    studentId: string,
+    examTitle: string,
+    score: number,
+    maxScore: number,
+    maxGrade: number,
+    passingGrade: number,
+    passingPercentage: number,
+): Promise<void> {
+    try {
+        const student = await prisma.user.findUnique({
+            where: { id: studentId },
+            select: { email: true, name: true, lastname: true },
+        });
+        if (!student?.email) return;
+        const grade = calcGrade(score, maxScore, maxGrade, passingGrade, passingPercentage);
+        await sendEmail({
+            to: student.email,
+            toName: `${student.name} ${student.lastname}`,
+            subject: `Resultado: ${examTitle}`,
+            htmlContent: buildExamResultEmail(
+                `${student.name} ${student.lastname}`,
+                examTitle,
+                grade,
+                maxGrade,
+                passingGrade,
+            ),
+        });
+    } catch (err) {
+        console.error('[email] sendExamResultEmail failed:', err);
     }
 }
 

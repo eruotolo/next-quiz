@@ -214,8 +214,8 @@ export function DemoExamCarousel({
             {/* Progress bar */}
             <div className="bg-border h-1">
                 <div
-                    className="bg-primary h-full transition-all duration-500 ease-out"
-                    style={{ width: `${progressPct}%` }}
+                    className="bg-primary h-full w-[var(--progress-w)] transition-all duration-500 ease-out"
+                    style={{ '--progress-w': `${progressPct}%` } as React.CSSProperties}
                 />
             </div>
 

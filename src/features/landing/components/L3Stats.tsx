@@ -23,8 +23,8 @@ export function L3Stats(): React.JSX.Element {
                             )}
                         >
                             <p
-                                className="font-display text-[72px] leading-[0.95] font-medium tracking-[-0.05em] lg:text-[88px]"
-                                style={{ color: s.color || 'var(--ink)' }}
+                                className="font-display text-[72px] leading-[0.95] font-medium tracking-[-0.05em] [color:var(--stat-c)] lg:text-[88px]"
+                                style={{ '--stat-c': s.color || 'var(--ink)' } as React.CSSProperties}
                             >
                                 {s.n}
                             </p>

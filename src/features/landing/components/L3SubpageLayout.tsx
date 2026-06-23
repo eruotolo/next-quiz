@@ -16,13 +16,7 @@ export function L3SubpageLayout({
     return (
         <article className="bg-paper-warm relative min-h-screen overflow-hidden pt-32 pb-24">
             {/* Background Pattern */}
-            <div
-                className="pointer-events-none absolute inset-0 opacity-[0.03]"
-                style={{
-                    backgroundImage: 'radial-gradient(circle, var(--ink) 1.5px, transparent 1.5px)',
-                    backgroundSize: '32px 32px',
-                }}
-            />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,var(--ink)_1.5px,transparent_1.5px)] bg-[length:32px_32px] opacity-[0.03]" />
 
             <div className="relative z-10 mx-auto max-w-[900px] px-6">
                 <header className="mb-20">

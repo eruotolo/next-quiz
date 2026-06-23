@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import type * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { cn } from '@/shared/lib/utils';
 import {
     Activity,
@@ -15,7 +15,9 @@ import {
     GraduationCap,
     Home,
     Layers,
+    Library,
     LogOut,
+    Menu,
     Receipt,
     ScrollText,
     Search,
@@ -24,13 +26,16 @@ import {
     UserCog,
     Users,
     Wallet,
+    X,
 } from 'lucide-react';
+import { Sheet, SheetContent, SheetTitle } from '@/shared/components/ui/sheet';
 import { LogoMark } from '@/shared/components/branding/logo';
 import { Avatar } from '@/shared/components/ui/avatar';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Command } from 'cmdk';
+import { searchGlobal, type SearchResult } from '@/features/shared/actions/search';
 
 // ── Nav items ─────────────────────────────────────────────────────────────
 interface NavItem {
@@ -48,6 +53,7 @@ const ADMIN_NAV: NavItem[] = [
     { path: '/students', label: 'Estudiantes', icon: GraduationCap, countKey: 'students' },
     { path: '/professors', label: 'Profesores', icon: UserCog },
     { path: '/exams', label: 'Exámenes', icon: BookOpen, countKey: 'exams' },
+    { path: '/questions', label: 'Banco', icon: Library },
     { path: '/results', label: 'Resultados', icon: BarChart3 },
     { path: '/liveresults', label: 'En vivo', icon: Activity, live: true },
     { path: '/settings', label: 'Ajustes', icon: Settings },
@@ -94,6 +100,29 @@ function CommandPalette({
         onOpenChange(false);
     }
 
+    const [query, setQuery] = useState('');
+    const [results, setResults] = useState<SearchResult[]>([]);
+    const [isSearching, startSearchTransition] = useTransition();
+
+    useEffect(() => {
+        if (!slug) {
+            setResults([]);
+            return;
+        }
+        const q = query.trim();
+        if (q.length < 2) {
+            setResults([]);
+            return;
+        }
+        const t = setTimeout(() => {
+            startSearchTransition(async () => {
+                const res = await searchGlobal(q, slug);
+                setResults(res.data);
+            });
+        }, 250);
+        return () => clearTimeout(t);
+    }, [query, slug]);
+
     return (
         <div
             className={cn(
@@ -115,7 +144,9 @@ function CommandPalette({
                     <div className="border-border flex items-center gap-3 border-b px-4 py-3">
                         <Search className="text-mute size-4 shrink-0" />
                         <Command.Input
-                            placeholder="Buscar páginas, alumnos, exámenes…"
+                            value={query}
+                            onValueChange={setQuery}
+                            placeholder={slug ? 'Buscar páginas, alumnos, exámenes…' : 'Buscar páginas…'}
                             className="text-ink placeholder:text-mute flex-1 bg-transparent text-[14px] outline-none"
                             autoFocus
                         />
@@ -126,27 +157,60 @@ function CommandPalette({
 
                     <Command.List className="max-h-[320px] overflow-y-auto p-2">
                         <Command.Empty className="text-mute py-8 text-center font-mono text-[12px]">
-                            Sin resultados
+                            {isSearching ? 'Buscando…' : 'Sin resultados'}
                         </Command.Empty>
 
-                        <Command.Group
-                            heading={
-                                <span className="text-mute px-2 py-1 font-mono text-[10px] tracking-[0.08em] uppercase">
-                                    Navegación
-                                </span>
-                            }
-                        >
-                            {ROUTES.map((item) => (
-                                <Command.Item
-                                    key={item.path}
-                                    value={item.label}
-                                    onSelect={() => run(item.path)}
-                                    className="text-ink aria-selected:bg-primary-wash aria-selected:text-primary flex cursor-pointer items-center gap-3 rounded-[8px] px-3 py-2.5 text-[13px]"
+                        {slug && query.trim().length >= 2 ? (
+                            results.length > 0 && (
+                                <Command.Group
+                                    heading={
+                                        <span className="text-mute px-2 py-1 font-mono text-[10px] tracking-[0.08em] uppercase">
+                                            Resultados
+                                        </span>
+                                    }
                                 >
-                                    {item.label}
-                                </Command.Item>
-                            ))}
-                        </Command.Group>
+                                    {results.map((r) => (
+                                        <Command.Item
+                                            key={`${r.type}-${r.id}`}
+                                            value={`${r.label} ${r.sub ?? ''}`}
+                                            onSelect={() => run(r.href)}
+                                            className="text-ink aria-selected:bg-primary-wash aria-selected:text-primary flex cursor-pointer items-center gap-3 rounded-[8px] px-3 py-2.5 text-[13px]"
+                                        >
+                                            {r.type === 'student' ? (
+                                                <GraduationCap className="text-mute size-4 shrink-0" />
+                                            ) : (
+                                                <BookOpen className="text-mute size-4 shrink-0" />
+                                            )}
+                                            <span className="flex-1 truncate">{r.label}</span>
+                                            {r.sub && (
+                                                <span className="text-mute shrink-0 text-[11px]">
+                                                    {r.sub}
+                                                </span>
+                                            )}
+                                        </Command.Item>
+                                    ))}
+                                </Command.Group>
+                            )
+                        ) : (
+                            <Command.Group
+                                heading={
+                                    <span className="text-mute px-2 py-1 font-mono text-[10px] tracking-[0.08em] uppercase">
+                                        Navegación
+                                    </span>
+                                }
+                            >
+                                {ROUTES.map((item) => (
+                                    <Command.Item
+                                        key={item.path}
+                                        value={item.label}
+                                        onSelect={() => run(item.path)}
+                                        className="text-ink aria-selected:bg-primary-wash aria-selected:text-primary flex cursor-pointer items-center gap-3 rounded-[8px] px-3 py-2.5 text-[13px]"
+                                    >
+                                        {item.label}
+                                    </Command.Item>
+                                ))}
+                            </Command.Group>
+                        )}
                     </Command.List>
                 </Command>
             </div>
@@ -179,7 +243,6 @@ interface SidebarProps {
     showPlanPromo?: boolean;
 }
 
-// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: sidebar con switcher de institución, command palette, nav por rol y banner promo en un solo componente
 export function Sidebar({
     slug,
     isSuper = false,
@@ -194,6 +257,7 @@ export function Sidebar({
     const router = useRouter();
     const [cmdOpen, setCmdOpen] = useState(false);
     const [switcherOpen, setSwitcherOpen] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
     const switcherRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -230,15 +294,33 @@ export function Sidebar({
         return () => window.removeEventListener('keydown', handler);
     }, []);
 
-    return (
-        <>
-            <CommandPalette
-                open={cmdOpen}
-                onOpenChange={setCmdOpen}
-                slug={isSuper ? undefined : slug}
-            />
+    // Close mobile sheet on route change — pathname in deps is intentional: triggers on navigation
+    // biome-ignore lint/correctness/useExhaustiveDependencies: pathname triggers close, not read in body
+    useEffect(() => {
+        setMobileOpen(false);
+    }, [pathname]);
 
-            <aside className="border-border fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r bg-white">
+    // Inner content rendered in both desktop aside and mobile Sheet
+    function SidebarInner({ onClose }: { onClose?: () => void }): React.JSX.Element {
+        return (
+            <>
+                {/* Mobile header — full-screen drawer close button */}
+                {onClose && (
+                    <div className="border-border flex items-center justify-between border-b px-4 py-3 lg:hidden">
+                        <span className="font-display text-ink text-[15px] font-bold tracking-tight">
+                            Menú
+                        </span>
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            aria-label="Cerrar menú"
+                            className="bg-paper-warm hover:bg-border focus-visible:ring-ring flex size-9 items-center justify-center rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none"
+                        >
+                            <X size={18} className="text-ink-dim" />
+                        </button>
+                    </div>
+                )}
+
                 {/* Org switcher */}
                 <div className="border-border border-b p-4">
                     <div ref={switcherRef} className="relative">
@@ -291,7 +373,7 @@ export function Sidebar({
                                     </>
                                 )}
                                 <div className="max-h-[220px] overflow-y-auto py-1">
-                                    {institutionList.map((inst) => (
+                                    {institutionList?.map((inst) => (
                                         <button
                                             key={inst.slug}
                                             type="button"
@@ -336,51 +418,54 @@ export function Sidebar({
                 {/* Nav */}
                 <nav className="flex-1 overflow-y-auto px-3 py-2">
                     <ul className="space-y-0.5">
-                        {navItems.map(({ path, label, icon: Icon, exact, live, countKey }) => {
-                            const href = isSuper ? path : `${base}${path}`;
-                            const isActive = exact ? pathname === href : pathname.startsWith(href);
-                            const badge = countKey != null ? counts?.[countKey] : undefined;
-                            return (
-                                <li key={href}>
-                                    <Link
-                                        href={href}
-                                        className={cn(
-                                            'group flex items-center gap-2.5 rounded-[8px] px-3 py-2.5 text-[13px] font-medium transition-colors',
-                                            isActive
-                                                ? 'bg-primary-wash text-primary font-bold'
-                                                : 'text-ink-dim hover:bg-paper-warm hover:text-ink',
-                                        )}
-                                    >
-                                        <Icon
-                                            size={18}
+                        {navItems.map(
+                            // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: nav item renders active state, count badge and live dot
+                            ({ path, label, icon: Icon, exact, live, countKey }) => {
+                                const href = isSuper ? path : `${base}${path}`;
+                                const isActive = exact ? pathname === href : pathname.startsWith(href);
+                                const badge = countKey != null ? counts?.[countKey] : undefined;
+                                return (
+                                    <li key={href}>
+                                        <Link
+                                            href={href}
                                             className={cn(
-                                                'shrink-0',
+                                                'group flex items-center gap-2.5 rounded-[8px] px-3 py-2.5 text-[13px] font-medium transition-colors',
                                                 isActive
-                                                    ? 'text-primary'
-                                                    : 'text-mute group-hover:text-ink-dim',
+                                                    ? 'bg-primary-wash text-primary font-bold'
+                                                    : 'text-ink-dim hover:bg-paper-warm hover:text-ink',
                                             )}
-                                        />
-                                        <span className="flex-1">{label}</span>
-                                        {badge != null && (
-                                            <span
+                                        >
+                                            <Icon
+                                                size={18}
                                                 className={cn(
-                                                    'font-mono text-[10px] font-bold',
-                                                    isActive ? 'text-primary' : 'text-mute',
+                                                    'shrink-0',
+                                                    isActive
+                                                        ? 'text-primary'
+                                                        : 'text-mute group-hover:text-ink-dim',
                                                 )}
-                                            >
-                                                {badge}
-                                            </span>
-                                        )}
-                                        {live && (
-                                            <span className="relative flex size-2">
-                                                <span className="bg-coral absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
-                                                <span className="bg-coral relative inline-flex size-2 rounded-full shadow-[0_0_0_3px_rgba(255,90,77,0.2)]" />
-                                            </span>
-                                        )}
-                                    </Link>
-                                </li>
-                            );
-                        })}
+                                            />
+                                            <span className="flex-1">{label}</span>
+                                            {badge != null && (
+                                                <span
+                                                    className={cn(
+                                                        'font-mono text-[10px] font-bold',
+                                                        isActive ? 'text-primary' : 'text-mute',
+                                                    )}
+                                                >
+                                                    {badge}
+                                                </span>
+                                            )}
+                                            {live && (
+                                                <span className="relative flex size-2">
+                                                    <span className="bg-coral absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+                                                    <span className="bg-coral relative inline-flex size-2 rounded-full shadow-[0_0_0_3px_rgba(255,90,77,0.2)]" />
+                                                </span>
+                                            )}
+                                        </Link>
+                                    </li>
+                                );
+                            },
+                        )}
                     </ul>
                 </nav>
 
@@ -388,11 +473,13 @@ export function Sidebar({
                 {showPlanPromo && slug && (
                     <div className="border-border border-t p-3">
                         <div
-                            className="relative overflow-hidden rounded-[12px] p-4 text-white"
-                            style={{
-                                background:
-                                    'radial-gradient(ellipse at 80% 0%, rgba(214,255,31,0.25) 0%, transparent 55%), #1f2eff',
-                            }}
+                            className="relative overflow-hidden rounded-[12px] [background:var(--promo-bg)] p-4 text-white"
+                            style={
+                                {
+                                    '--promo-bg':
+                                        'radial-gradient(ellipse at 80% 0%, rgba(214,255,31,0.25) 0%, transparent 55%), #1f2eff',
+                                } as React.CSSProperties
+                            }
                         >
                             <p className="text-[12.5px] leading-tight font-bold">
                                 Potenciá tu institución
@@ -448,7 +535,48 @@ export function Sidebar({
                         </button>
                     </div>
                 </div>
+            </>
+        );
+    }
+
+    return (
+        <>
+            <CommandPalette
+                open={cmdOpen}
+                onOpenChange={setCmdOpen}
+                slug={isSuper ? undefined : slug}
+            />
+
+            {/* Hamburger — mobile only */}
+            <button
+                type="button"
+                aria-label="Abrir menú"
+                aria-hidden={mobileOpen}
+                onClick={() => setMobileOpen(true)}
+                className={cn(
+                    'border-border fixed top-3 left-3 z-[60] flex size-9 items-center justify-center rounded-[8px] border bg-white shadow-sm transition-opacity lg:hidden',
+                    mobileOpen ? 'pointer-events-none opacity-0' : 'opacity-100',
+                )}
+            >
+                <Menu size={18} className="text-ink-dim" />
+            </button>
+
+            {/* Desktop sidebar */}
+            <aside className="border-border fixed inset-y-0 left-0 z-50 hidden w-60 flex-col border-r bg-white lg:flex">
+                <SidebarInner />
             </aside>
+
+            {/* Mobile Sheet — full-screen drawer */}
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                <SheetContent
+                    side="left"
+                    showClose={false}
+                    className="w-full max-w-none gap-0 border-r-0 p-0"
+                >
+                    <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
+                    <SidebarInner onClose={() => setMobileOpen(false)} />
+                </SheetContent>
+            </Sheet>
         </>
     );
 }

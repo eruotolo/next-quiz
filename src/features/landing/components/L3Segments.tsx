@@ -51,16 +51,18 @@ function PatternArt({
 }): React.JSX.Element {
     return (
         <div
-            className="absolute inset-0 opacity-[0.15]"
-            style={{
-                backgroundImage:
-                    idx === 0
-                        ? 'repeating-linear-gradient(45deg, var(--lime) 0 12px, transparent 12px 28px)'
-                        : idx === 1
-                          ? 'linear-gradient(var(--lime) 1px, transparent 1px), linear-gradient(90deg, var(--lime) 1px, transparent 1px)'
-                          : 'radial-gradient(circle, var(--ink) 1.5px, transparent 1.5px)',
-                backgroundSize: idx === 1 ? '24px 24px' : '20px 20px',
-            }}
+            className="absolute inset-0 [background-image:var(--pat-img)] [background-size:var(--pat-sz)] opacity-[0.15]"
+            style={
+                {
+                    '--pat-img':
+                        idx === 0
+                            ? 'repeating-linear-gradient(45deg, var(--lime) 0 12px, transparent 12px 28px)'
+                            : idx === 1
+                              ? 'linear-gradient(var(--lime) 1px, transparent 1px), linear-gradient(90deg, var(--lime) 1px, transparent 1px)'
+                              : 'radial-gradient(circle, var(--ink) 1.5px, transparent 1.5px)',
+                    '--pat-sz': idx === 1 ? '24px 24px' : '20px 20px',
+                } as React.CSSProperties
+            }
         />
     );
 }
@@ -87,8 +89,8 @@ export function L3Segments(): React.JSX.Element {
                         >
                             {/* Artwork Area */}
                             <div
-                                className="relative h-44 overflow-hidden"
-                                style={{ backgroundColor: s.color }}
+                                className="relative h-44 overflow-hidden [background-color:var(--seg-bg)]"
+                                style={{ '--seg-bg': s.color } as React.CSSProperties}
                             >
                                 <PatternArt pattern={s.pattern} color={s.color} idx={i} />
                                 <div className="absolute top-6 left-6">

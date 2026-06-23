@@ -247,8 +247,8 @@ function ExamRow({
             <div className="w-28 shrink-0 space-y-1">
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#e5e2dc]">
                     <div
-                        className={cn('h-full rounded-full transition-all', progressColor(pct))}
-                        style={{ width: `${Math.round(pct * 100)}%` }}
+                        className={cn('h-full w-[var(--bar-w)] rounded-full transition-all', progressColor(pct))}
+                        style={{ '--bar-w': `${Math.round(pct * 100)}%` } as React.CSSProperties}
                     />
                 </div>
                 <ExamRowTimer closesAt={exam.closesAt} />
@@ -1021,12 +1021,14 @@ export function DashboardClient({
                             {GRADE_BARS.map(({ id, val }, i) => (
                                 <div
                                     key={id}
-                                    className="flex-1 rounded-t-[4px] transition-all hover:opacity-80"
-                                    style={{
-                                        height: `${val * 100}%`,
-                                        backgroundColor:
-                                            i > 8 ? '#1f2eff' : i > 4 ? '#0f7c4a' : '#e5e2dc',
-                                    }}
+                                    className="flex-1 rounded-t-[4px] [height:var(--bar-h)] [background-color:var(--bar-bg)] transition-all hover:opacity-80"
+                                    style={
+                                        {
+                                            '--bar-h': `${val * 100}%`,
+                                            '--bar-bg':
+                                                i > 8 ? '#1f2eff' : i > 4 ? '#0f7c4a' : '#e5e2dc',
+                                        } as React.CSSProperties
+                                    }
                                 />
                             ))}
                         </div>

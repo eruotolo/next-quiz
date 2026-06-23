@@ -82,6 +82,4 @@ export const examSchema = z
 
 export type OptionInput = z.infer<typeof optionSchema>;
 export type QuestionInput = z.infer<typeof questionSchema>;
-export type QuestionTypeValue = z.infer<typeof questionTypeEnum>;
-export type ImportQuestionsInput = z.infer<typeof importQuestionsSchema>;
 export type ExamInput = z.infer<typeof examSchema>;
