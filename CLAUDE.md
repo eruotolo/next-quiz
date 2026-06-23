@@ -513,7 +513,7 @@ Permite a cualquier visitante probar el panel real con datos de ejemplo. Feature
 - **Usuario** — un **Profesor** de la institución demo. Como Profesor, el panel ya oculta toda publicidad de Pro (banner del Sidebar, `PlanUsageBanner` y `/upgrade` están restringidos a Administrador). Respeta los **límites del plan FREE**.
 - **Institución** — `AcademicInstitution` con `slug = 'aulika-demo'` (NO empieza con `/demo` para no chocar con el prefijo público del proxy) y flag **`isDemo = true`**. La base (institución + profesor + grupo + 10 alumnos) es **read-only** y compartida.
 - **Aislamiento por sesión** — al hacer login demo, el callback `jwt` de `auth.ts` genera un **`demoSessionId`** (un id por login) que viaja en el JWT (`session.user.demoSessionId`). Cada examen que crea el visitante se guarda con ese `demoSessionId` (`Exam.demoSessionId`), de modo que **solo ve y cuenta lo suyo** y nadie se pisa. El helper `demoExamFilter(user)` (`src/features/demo/lib/demo.ts`) centraliza el filtro y se aplica en todas las lecturas de exámenes (listado, editor, dashboard, contador del sidebar). El cupo FREE de exámenes se cuenta por sesión (`assertQuota(..., demoSessionId)`).
-- **Limpieza** — (1) al **cerrar sesión**, el event `signOut` de `auth.ts` borra los exámenes de ese `demoSessionId` (`deleteDemoSessionExams`); (2) **cron diario** de respaldo `GET /api/cron/demo-reset` (Vercel, `0 6 * * *`, protegido con `CRON_SECRET`) borra **todos** los exámenes de la institución demo (`resetDemoInstitution`) para las sesiones que no cerraron sesión. El cascade del schema limpia preguntas, opciones, intentos y resultados.
+- **Limpieza** — tres mecanismos en cascada: (1) al **cerrar sesión**, el event `signOut` de `auth.ts` borra los exámenes de ese `demoSessionId` (`deleteDemoSessionExams`); (2) **cada deploy** del build ejecuta `prisma/seeders/demo.ts` que purga **todos** los exámenes de la institución demo antes de recrear la base (`exam.deleteMany` justo después del upsert de institución); (3) **cron diario** de respaldo `GET /api/cron/demo-reset` (Vercel, `0 6 * * *` UTC, protegido con `CRON_SECRET`) ejecuta `resetDemoInstitution` para las sesiones que no cerraron sesión. El cascade del schema limpia preguntas, opciones, intentos y resultados.
 - **Alcance** — el demo permite recorrer el panel y **crear/editar exámenes**; rendir el examen como alumno está fuera del alcance inicial.
 - **Producción** — la migración (`isDemo`, `demoSessionId`) y el seed de la demo corren en el **build** (`prisma migrate deploy && tsx prisma/seeders/demo.ts && next build`). Requiere `CRON_SECRET` en Vercel. Los seeders `bulk-demo.ts` y `local-test.ts` están en `.vercelignore` (solo local); `demo.ts` **no** se ignora (lo necesita el build).
 
@@ -521,7 +521,7 @@ Permite a cualquier visitante probar el panel real con datos de ejemplo. Feature
 
 - **`pnpm db:seed`** (`prisma/seed.ts`) — Crea los 4 roles y al SuperAdministrador (Edgardo Ruotolo). Debe ejecutarse primero, siempre. Credenciales desde env vars (`ADMIN_*`).
 - **`pnpm db:seed:local`** (`prisma/seeders/local-test.ts`) — Crea 2 instituciones, 2 grupos, 4 admins, 4 profesores, 10 estudiantes. Password de admins/profesores: `Admin2026!`. Estudiantes: login por RUT.
-- **`pnpm db:seed:demo`** (`prisma/seeders/demo.ts`) — Crea la institución demo (`aulika-demo`, `isDemo=true`, FREE), el profesor de acceso (`demo@aulika.cl` / `demo_aulika`), un grupo y 10 alumnos. Idempotente. **Corre también en el build** para que el modo demo exista en producción.
+- **`pnpm db:seed:demo`** (`prisma/seeders/demo.ts`) — Crea la institución demo (`aulika-demo`, `isDemo=true`, FREE), el profesor de acceso (`demo@aulika.cl` / `demo_aulika`), un grupo y 10 alumnos. **También purga todos los exámenes acumulados** de visitantes anteriores antes de recrear la base (garantiza demo limpio en cada deploy). Idempotente. **Corre también en el build** para que el modo demo exista en producción.
 
 ## Variables de entorno requeridas
 
@@ -545,18 +545,25 @@ CRON_SECRET            # Secret para los cron de Vercel (cleanup-subscriptions, 
 - Utilities en `@/shared/lib/rut.ts`.
 - Input UI canónico en `@/shared/components/ui/rut-field.tsx` (`RutField`).
 
-Última actualización: 22 de Junio de 2026 (auditoría QA — fixes de UI, accesibilidad, race condition y copywriting)
+Última actualización: 22 de Junio de 2026 (fix demo: purga en seed + CRON_SECRET + TypeScript)
 
 ## Cambios aplicados en auditoría 22-06-2026
 
 - **`ExamCarousel.tsx`** — Fix race condition: `answersMapRef` (useRef) espeja el estado para que callbacks async siempre lean el valor más reciente. Separación de navegación (síncrona) y guardado (background `startTransition`). Badge "Autoguardado" ahora muestra amarillo cuando `isPending`.
 - **`ExamsClient.tsx`** — Fix `deriveExamStatus`: borradores con `closesAt` vencido ya no aparecen como "corregidos" (ahora requiere `exam.active || results > 0`).
-- **`ResultsClient.tsx`** — Botón "Exportar Reporte" eliminado (sin funcionalidad implementada).
+- **`ResultsClient.tsx`** — Botón "Exportar Reporte" eliminado (sin funcionalidad implementada). Fix TypeScript: `useMemo` importado explícitamente (reemplaza `React.useMemo`), `Map` tipado como `Map<string, { correctOptions: QuestionOption[]; correctSet: Set<string> }>` para eliminar `any` implícito.
 - **`resultado/[resultId]/page.tsx`** — Ambos botones "Volver al inicio" redirigen a `/examen/seleccion` (no a `/`).
 - **`ExamCloseCountdown.tsx`** — Agrega `role="timer"` y `aria-live="polite"` al countdown de cierre.
 - **`landing/` + `subscriptions/PendingPaymentPoller`** — `key={i}` reemplazados por identificadores estables en todos los `.map()` afectados.
 - **Voseo (~30 archivos)** — Eliminado voseo rioplatense en toda la app; estandarizado al español de Chile (tú/usted).
 - **`seleccion/page.tsx`** — Email `hola@aulika.cl` ahora es hipervínculo `mailto:`.
+- **`L3Footer.tsx`** — Texto de ubicación actualizado a "Castro, Chiloé".
+
+## Cambios aplicados en sesión 22-06-2026 (fix modo demo)
+
+- **`prisma/seeders/demo.ts`** — Agrega `exam.deleteMany` justo después del upsert de institución para purgar exámenes acumulados de visitantes anteriores en cada deploy. Esto actúa como tercer mecanismo de limpieza además del signOut y el cron.
+- **`CRON_SECRET` (Vercel)** — Variable confirmada para entorno Production. El endpoint `/api/cron/demo-reset` requiere `Authorization: Bearer <CRON_SECRET>` — verificar que el valor en Vercel no esté vacío y que el deploy más reciente esté desplegado antes de probar con `curl`. Cron corre a las 6am UTC (3am hora Chile invierno).
+- **Diagnóstico**: los exámenes de visitantes que cierran la pestaña sin logout se acumulan en la DB; como SuperAdmin visitando `/aulika-demo/exams` se ven todos sin filtro (`demoExamFilter` aplica solo a usuarios `isDemo=true`). El fix del seed garantiza demo limpio en cada deploy independientemente del cron.
 
 ## Herramientas Obligatorias (gstack + CodeGraph)
 
