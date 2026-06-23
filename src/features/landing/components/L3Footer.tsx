@@ -54,7 +54,7 @@ export function L3Footer(): React.JSX.Element {
                         <LogoLockup size={26} variant="cobalto" />
                         <p className="text-ink-dim max-w-[280px] text-[13px] leading-relaxed">
                             La plataforma de evaluación en línea para colegios y universidades
-                            chilenas. Hecha en Santiago, pensada para el aula.
+                            chilenas. Hecha en Castro, Chiloé, pensada para el aula.
                         </p>
                         <div className="flex flex-wrap items-center gap-2">
                             <Tag

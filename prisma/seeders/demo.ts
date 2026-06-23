@@ -93,6 +93,13 @@ async function main(): Promise<void> {
     });
     console.log(`  Institución: ${institution.name} (${DEMO_SLUG})`);
 
+    // Purge accumulated visitor exams so each deploy starts the demo fresh.
+    // The cascade in the schema removes questions, options, attempts and results.
+    const purged = await prisma.exam.deleteMany({
+        where: { academicInstitutionId: institution.id },
+    });
+    if (purged.count > 0) console.log(`  Exámenes demo purgados: ${purged.count}`);
+
     // ── Profesor de acceso ──────────────────────────────────────────────────
     const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, 10);
     const professor = await prisma.user.upsert({
