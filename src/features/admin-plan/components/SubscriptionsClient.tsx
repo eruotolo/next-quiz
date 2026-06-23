@@ -241,7 +241,7 @@ export function SubscriptionsClient({ initial }: Props): React.JSX.Element {
     }
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
+        <>
             <AdminTopBar
                 breadcrumb={['Aulika · Plataforma', 'Panel Global', 'Suscripciones']}
                 title="Suscripciones y pagos"
@@ -436,6 +436,6 @@ export function SubscriptionsClient({ initial }: Props): React.JSX.Element {
                     cancelling={cancelling}
                 />
             )}
-        </div>
+        </>
     );
 }

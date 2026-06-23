@@ -115,7 +115,7 @@ export default async function InstitutionLayout({
                 institutionList={institutionList as { name: string; slug: string }[]}
                 showPlanPromo={showPlanPromo}
             />
-            <main className="ml-60 flex-1 overflow-y-auto">
+            <main className="flex-1 flex flex-col overflow-y-auto lg:ml-60">
                 {isAdmin && quotaUsage && quotaUsage.length > 0 && <PlanUsageBanner usage={quotaUsage} slug={slug} />}
                 {children}
             </main>

@@ -471,7 +471,7 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
     }
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
+        <>
             {/* Header */}
             <AdminTopBar
                 breadcrumb={['Sistema', 'Instituciones']}
@@ -791,6 +791,6 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </>
     );
 }

@@ -80,7 +80,7 @@ export function InstitutionSettingsClient({ institution, slug }: Props): React.J
     }
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
+        <>
             <AdminTopBar
                 breadcrumb={[slug, 'Ajustes']}
                 title="Ajustes del Instituto"
@@ -355,6 +355,6 @@ export function InstitutionSettingsClient({ institution, slug }: Props): React.J
                     </div>
                 </div>
             </main>
-        </div>
+        </>
     );
 }

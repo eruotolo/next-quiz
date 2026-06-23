@@ -1,3 +1,4 @@
+import type React from 'react';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
@@ -130,7 +131,7 @@ export default async function ConfigPage() {
     ];
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
+        <>
             <AdminTopBar
                 breadcrumb={['Aulika · Plataforma', 'Panel Global']}
                 title="Panel SuperAdmin"
@@ -174,13 +175,15 @@ export default async function ConfigPage() {
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className="group border-border flex items-center gap-4 rounded-[18px] border bg-white p-5 shadow-sm transition-all hover:shadow-md"
-                                style={{ borderLeftWidth: 4, borderLeftColor: item.color }}
+                                className="group border-border flex items-center gap-4 rounded-[18px] border border-l-[4px] bg-white p-5 shadow-sm [border-left-color:var(--cfg-c)] transition-all hover:shadow-md"
+                                style={
+                                    {
+                                        '--cfg-c': item.color,
+                                        '--cfg-wash': item.wash,
+                                    } as React.CSSProperties
+                                }
                             >
-                                <div
-                                    className="border-border/50 flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border"
-                                    style={{ backgroundColor: item.wash, color: item.color }}
-                                >
+                                <div className="border-border/50 flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border [background-color:var(--cfg-wash)] [color:var(--cfg-c)]">
                                     <item.icon size={18} />
                                 </div>
                                 <div className="min-w-0 flex-1">
@@ -252,6 +255,6 @@ export default async function ConfigPage() {
                     </Card>
                 </div>
             </main>
-        </div>
+        </>
     );
 }

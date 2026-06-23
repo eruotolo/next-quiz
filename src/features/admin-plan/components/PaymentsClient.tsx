@@ -114,7 +114,7 @@ export function PaymentsClient({ initial }: Props): React.JSX.Element {
     }
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
+        <>
             <AdminTopBar
                 breadcrumb={['Aulika · Plataforma', 'Panel Global', 'Pagos']}
                 title="Pagos"
@@ -318,6 +318,6 @@ export function PaymentsClient({ initial }: Props): React.JSX.Element {
                     </Card>
                 )}
             </main>
-        </div>
+        </>
     );
 }

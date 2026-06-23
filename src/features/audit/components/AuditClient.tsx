@@ -114,9 +114,7 @@ export function AuditClient({
         !!currentFilters.to;
 
     return (
-        <div
-            className={`bg-paper flex min-h-screen flex-col transition-opacity ${isPending ? 'opacity-60' : ''}`}
-        >
+        <>
             <AdminTopBar
                 breadcrumb={['Sistema', 'Auditoría']}
                 title="Auditoría"
@@ -219,7 +217,7 @@ export function AuditClient({
                 </span>
             </div>
 
-            <main className="flex-1 overflow-auto p-8">
+            <main className={`flex-1 overflow-auto p-8 transition-opacity ${isPending ? 'opacity-60' : ''}`}>
                 {result.items.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
                         <ScrollText size={48} className="text-mute/20 mb-4" />
@@ -327,6 +325,6 @@ export function AuditClient({
                     </Card>
                 )}
             </main>
-        </div>
+        </>
     );
 }

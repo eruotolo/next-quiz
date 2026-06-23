@@ -1,9 +1,18 @@
 ﻿'use client';
 
 import { createGroup, deleteGroup, updateGroup } from '@/features/groups/actions/mutations';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/shared/components/ui/alert-dialog';
 import {
     Dialog,
     DialogContent,
@@ -65,7 +74,6 @@ interface ProfessorOption {
 
 interface Props {
     slug: string;
-    institutionName: string;
     groups: GroupWithCount[];
     professors: ProfessorOption[];
     canMutate: boolean;
@@ -101,10 +109,10 @@ function InitialsAvatar({
     return (
         <div
             className={cn(
-                'flex shrink-0 items-center justify-center rounded-full font-bold text-white ring-2 ring-white',
+                'flex shrink-0 items-center justify-center rounded-full font-bold text-white ring-2 ring-white [background-color:var(--g-bg)]',
                 size === 'sm' ? 'h-7 w-7 text-[10px]' : 'h-9 w-9 text-[12px]',
             )}
-            style={{ backgroundColor: color }}
+            style={{ '--g-bg': color } as React.CSSProperties}
         >
             {initials}
         </div>
@@ -113,7 +121,6 @@ function InitialsAvatar({
 
 export function GroupsClient({
     slug,
-    institutionName,
     groups,
     professors,
     canMutate,
@@ -195,21 +202,7 @@ export function GroupsClient({
     const totalExams = groups.reduce((sum, g) => sum + g._count.exams, 0);
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
-            <AdminTopBar
-                breadcrumb={[institutionName, 'Grupos']}
-                title="Grupos"
-                subtitle={`${groups.length} grupos · ${totalStudents} estudiantes activos · ${totalExams} exámenes históricos`}
-                actions={
-                    canMutate && (
-                        <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
-                            <Plus size={16} />
-                            Nuevo grupo
-                        </Button>
-                    )
-                }
-            />
-
+        <>
             <main className="flex-1 overflow-auto p-8">
                 {groups.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
@@ -240,8 +233,8 @@ export function GroupsClient({
                             return (
                                 <Card
                                     key={g.id}
-                                    className="border-border relative flex flex-col overflow-hidden bg-white shadow-sm"
-                                    style={{ borderTopWidth: 4, borderTopColor: color }}
+                                    className="border-border relative flex flex-col overflow-hidden border-t-[4px] bg-white shadow-sm [border-top-color:var(--g-accent)]"
+                                    style={{ '--g-accent': color } as React.CSSProperties}
                                 >
                                     <div className="flex flex-col p-5">
                                         {/* Header: name + menu */}
@@ -552,52 +545,39 @@ export function GroupsClient({
                 </DialogContent>
             </Dialog>
 
-            {/* Delete dialog */}
-            <Dialog open={isDelOpen} onOpenChange={setIsDelOpen}>
-                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle className="font-display text-destructive text-2xl">
+            {/* Delete confirm */}
+            <AlertDialog open={isDelOpen} onOpenChange={setIsDelOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="text-destructive">
                             Eliminar grupo
-                        </DialogTitle>
-                        <DialogDescription className="sr-only">
-                            Confirmación para eliminar el grupo de forma permanente.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="py-2">
-                        <p className="text-ink-dim text-[14px] leading-relaxed">
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             ¿Estás seguro de eliminar{' '}
-                            <strong className="text-ink">{toDelete?.name}</strong>?
+                            <strong className="text-ink">{toDelete?.name}</strong>?{' '}
                             {toDelete && toDelete._count.users > 0
-                                ? ` Los ${toDelete._count.users} alumno(s) de este grupo quedarán sin grupo asignado.`
-                                : ' Este grupo no tiene alumnos asignados.'}
-                        </p>
-                    </div>
+                                ? `Los ${toDelete._count.users} alumno(s) de este grupo quedarán sin grupo asignado.`
+                                : 'Este grupo no tiene alumnos asignados.'}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
                     {deleteError && (
                         <p className="bg-danger-wash text-destructive rounded-[10px] px-4 py-2 text-sm font-medium">
                             {deleteError}
                         </p>
                     )}
-                    <DialogFooter className="mt-2 gap-2 sm:justify-end">
-                        <Button
-                            variant="ghost"
-                            size="md"
-                            onClick={() => setIsDelOpen(false)}
-                            disabled={isPending}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            variant="danger"
-                            size="md"
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
                             disabled={isPending}
                             onClick={handleDelete}
+                            className="bg-destructive hover:bg-destructive/90"
                         >
-                            {isPending && <Loader2 className="mr-2 animate-spin" />}
+                            {isPending && <Loader2 className="mr-2 animate-spin" size={14} />}
                             Eliminar
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        </div>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </>
     );
 }

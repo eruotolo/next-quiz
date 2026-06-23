@@ -64,7 +64,7 @@ export function HelpGuide({ isProfesor }: HelpGuideProps): React.JSX.Element {
         : section.screenshots.admin;
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
+        <>
             <AdminTopBar
                 title="Centro de ayuda"
                 breadcrumb={['Institución', 'Ayuda']}
@@ -238,6 +238,6 @@ export function HelpGuide({ isProfesor }: HelpGuideProps): React.JSX.Element {
                     </AnimatePresence>
                 </div>
             </main>
-        </div>
+        </>
     );
 }

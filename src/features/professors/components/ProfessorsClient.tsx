@@ -6,7 +6,6 @@ import {
     updateProfessor,
 } from '@/features/professors/actions/mutations';
 import { RutField } from '@/shared/components/ui/rut-field';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import {
@@ -57,7 +56,6 @@ interface Props {
     professors: ProfessorWithRelations[];
     groups: Group[];
     slug: string;
-    institutionName: string;
 }
 
 interface FormState {
@@ -86,7 +84,6 @@ export function ProfessorsClient({
     professors,
     groups,
     slug,
-    institutionName,
 }: Props): React.ReactElement {
     const router = useRouter();
     const [page, setPage] = useState(1);
@@ -193,20 +190,7 @@ export function ProfessorsClient({
     };
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
-            {/* Header */}
-            <AdminTopBar
-                breadcrumb={[institutionName, 'Profesores']}
-                title="Cuerpo Docente"
-                subtitle={`${professors.length} profesionales registrados en el equipo`}
-                actions={
-                    <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
-                        <Plus size={16} />
-                        Nuevo profesor
-                    </Button>
-                }
-            />
-
+        <>
             {/* Filter bar */}
             <div className="border-border flex items-center gap-2 border-b bg-white px-8 py-4">
                 <div className="relative max-w-sm flex-1">
@@ -624,6 +608,6 @@ export function ProfessorsClient({
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </>
     );
 }

@@ -76,7 +76,7 @@ function SettingField({
 
 export function AppSettingsClient({ config }: Props): React.JSX.Element {
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
+        <>
             <AdminTopBar
                 breadcrumb={['Sistema', 'Configuración']}
                 title="Configuración"
@@ -160,6 +160,6 @@ export function AppSettingsClient({ config }: Props): React.JSX.Element {
                     </Card>
                 </div>
             </main>
-        </div>
+        </>
     );
 }

@@ -8,7 +8,7 @@ export default async function ProfessorsPage({
     params: Promise<{ slug: string }>;
 }): Promise<React.ReactElement> {
     const { slug } = await params;
-    const { institutionId, institutionName } = await requireInstitutionPageAccess(slug);
+    const { institutionId } = await requireInstitutionPageAccess(slug);
 
     const [professors, groups] = await Promise.all([
         prisma.user.findMany({
@@ -30,7 +30,6 @@ export default async function ProfessorsPage({
             professors={professors}
             groups={groups}
             slug={slug}
-            institutionName={institutionName}
         />
     );
 }

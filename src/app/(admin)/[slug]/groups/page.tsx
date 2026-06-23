@@ -7,7 +7,7 @@ import { USER_ROLE } from '@/shared/lib/roles';
 
 export default async function GroupsPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const { institutionId, institutionName, userId, isProfesor } =
+    const { institutionId, userId, isProfesor } =
         await requireInstitutionPageAccess(slug);
 
     // Solo Admin/SuperAdmin mutan grupos; el Profesor solo ve los suyos.
@@ -85,7 +85,6 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
     return (
         <GroupsClient
             slug={slug}
-            institutionName={institutionName}
             groups={groupsWithAvg}
             professors={professors}
             canMutate={canMutate}

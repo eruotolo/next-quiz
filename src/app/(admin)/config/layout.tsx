@@ -36,7 +36,7 @@ export default async function ConfigLayout({ children }: Props): Promise<React.J
                 counts={{ institutions: institutionList.length, admins, students }}
                 institutionList={institutionList}
             />
-            <main className="ml-60 flex-1 overflow-y-auto">{children}</main>
+            <main className="flex-1 flex flex-col overflow-y-auto lg:ml-60">{children}</main>
         </div>
     );
 }

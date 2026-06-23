@@ -1,10 +1,21 @@
 'use client';
 
+import type React from 'react';
 import { useState, useTransition, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { deleteResult, recalculateResult } from '@/features/results/actions/mutations';
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/shared/components/ui/alert-dialog';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import {
@@ -13,7 +24,6 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogFooter,
 } from '@/shared/components/ui/dialog';
 import {
     Table,
@@ -37,6 +47,7 @@ import { cn } from '@/shared/lib/utils';
 import {
     BarChart3,
     CheckCircle,
+    Download,
     Eye,
     Loader2,
     RefreshCw,
@@ -109,6 +120,34 @@ interface Props {
     selectedGroupId: string | null;
 }
 
+async function exportResultsToXlsx(examGroups: ExamGroup[], institutionName: string): Promise<void> {
+    const { utils, writeFile } = await import('xlsx');
+    const wb = utils.book_new();
+    for (const eg of examGroups) {
+        const rows = eg.results.map((r) => {
+            const grade = calcGrade(r.score, r.maxScore, eg.maxGrade, eg.passingGrade, eg.passingPercentage);
+            return {
+                Nombre: r.studentName,
+                RUT: r.studentRut,
+                Puntaje: r.score,
+                'Máx. puntaje': r.maxScore,
+                'Porcentaje (%)': r.maxScore > 0 ? Math.round((r.score / r.maxScore) * 100) : 0,
+                Nota: grade.toFixed(1),
+                Estado: grade >= eg.passingGrade ? 'Aprobado' : 'Reprobado',
+                'Fecha entrega': new Date(r.completedAt).toLocaleDateString('es-CL', {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit',
+                }),
+            };
+        });
+        const ws = utils.json_to_sheet(rows);
+        const sheetName = `${eg.title.slice(0, 20)} - ${eg.groupName.slice(0, 10)}`.replace(/[:/\\?*[\]]/g, '');
+        utils.book_append_sheet(wb, ws, sheetName);
+    }
+    const date = new Date().toLocaleDateString('es-CL').replace(/\//g, '-');
+    writeFile(wb, `resultados-${institutionName}-${date}.xlsx`);
+}
+
 export function ResultsClient({
     examGroups,
     totalCount,
@@ -121,6 +160,7 @@ export function ResultsClient({
 }: Props): React.JSX.Element {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
+    const [isExporting, setIsExporting] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<{ id: string; studentName: string } | null>(
         null,
     );
@@ -195,11 +235,38 @@ export function ResultsClient({
     const hasActiveFilters = !!(selectedExamId ?? selectedGroupId);
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
+        <>
             <AdminTopBar
                 breadcrumb={[institutionName, 'Resultados']}
                 title="Historial de Resultados"
                 subtitle={`${totalCount} evaluaciones completadas y procesadas`}
+                actions={
+                    totalCount > 0 ? (
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            className="gap-2"
+                            disabled={isExporting}
+                            onClick={async () => {
+                                setIsExporting(true);
+                                try {
+                                    await exportResultsToXlsx(examGroups, institutionName);
+                                } catch {
+                                    toast.error('No se pudo exportar el reporte.');
+                                } finally {
+                                    setIsExporting(false);
+                                }
+                            }}
+                        >
+                            {isExporting ? (
+                                <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                                <Download size={16} />
+                            )}
+                            Exportar XLSX
+                        </Button>
+                    ) : undefined
+                }
             />
 
             <main className="flex-1 space-y-8 overflow-auto p-8">
@@ -228,8 +295,8 @@ export function ResultsClient({
                         <Card key={tile.label} className="border-border bg-white p-6 shadow-sm">
                             <div className="mb-4 flex items-center gap-3">
                                 <div
-                                    className="border-border bg-paper-warm flex size-8 items-center justify-center rounded-[8px] border"
-                                    style={{ color: tile.color }}
+                                    className="border-border bg-paper-warm flex size-8 items-center justify-center rounded-[8px] border [color:var(--tile-c)]"
+                                    style={{ '--tile-c': tile.color } as React.CSSProperties}
                                 >
                                     <tile.icon size={16} />
                                 </div>
@@ -266,22 +333,25 @@ export function ResultsClient({
                             </SelectContent>
                         </Select>
 
-                        {selectedExamId && groupOptions.length > 0 && (
-                            <Select
-                                value={selectedGroupId ?? ''}
-                                onValueChange={handleGroupChange}
-                            >
-                                <SelectTrigger className="border-border h-9 w-[180px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
-                                    <SelectValue placeholder="Todos los grupos" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {groupOptions.map((g) => (
-                                        <SelectItem key={g.id} value={g.id}>
-                                            {g.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                        {groupOptions.length > 0 && (
+                            <div title={!selectedExamId ? 'Selecciona un examen primero' : undefined}>
+                                <Select
+                                    value={selectedGroupId ?? ''}
+                                    onValueChange={handleGroupChange}
+                                    disabled={!selectedExamId}
+                                >
+                                    <SelectTrigger className="border-border h-9 w-[180px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm disabled:opacity-50">
+                                        <SelectValue placeholder="Todos los grupos" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {groupOptions.map((g) => (
+                                            <SelectItem key={g.id} value={g.id}>
+                                                {g.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         )}
 
                         {hasActiveFilters && (
@@ -473,44 +543,31 @@ export function ResultsClient({
             </main>
 
             {/* Delete confirmation */}
-            <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle className="font-display text-destructive text-2xl">
+            <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="text-destructive">
                             Eliminar registro
-                        </DialogTitle>
-                        <DialogDescription className="sr-only">
-                            Confirmación para eliminar el registro de resultado.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="py-2">
-                        <p className="text-ink-dim text-[14px] leading-relaxed">
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
                             ¿Estás seguro de eliminar el resultado de{' '}
                             <strong className="text-ink">{deleteTarget?.studentName}</strong>? Esta
                             acción no se puede deshacer.
-                        </p>
-                    </div>
-                    <DialogFooter className="mt-2 gap-2 sm:justify-end">
-                        <Button
-                            variant="ghost"
-                            size="md"
-                            onClick={() => setDeleteTarget(null)}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
                             disabled={isPending}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            variant="danger"
-                            size="md"
                             onClick={handleDelete}
-                            disabled={isPending}
+                            className="bg-destructive hover:bg-destructive/90"
                         >
-                            {isPending && <Loader2 className="mr-2 animate-spin" />}
+                            {isPending && <Loader2 className="mr-2 animate-spin" size={14} />}
                             Eliminar
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             {/* Answers review */}
             <Dialog open={!!viewTarget} onOpenChange={(open) => !open && setViewTarget(null)}>
@@ -538,7 +595,7 @@ export function ResultsClient({
                     </div>
                 </DialogContent>
             </Dialog>
-        </div>
+        </>
     );
 }
 

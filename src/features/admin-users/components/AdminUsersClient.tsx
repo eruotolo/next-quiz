@@ -535,7 +535,7 @@ export function AdminUsersClient({
     }
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
+        <>
             {/* Header */}
             <AdminTopBar
                 breadcrumb={['Sistema', 'Administradores']}
@@ -819,6 +819,6 @@ export function AdminUsersClient({
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </>
     );
 }

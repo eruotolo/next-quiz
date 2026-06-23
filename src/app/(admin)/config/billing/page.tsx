@@ -24,7 +24,7 @@ export default async function BillingPage(): Promise<React.JSX.Element> {
     };
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
+        <>
             <AdminTopBar
                 breadcrumb={['Aulika · Plataforma', 'Panel Global', 'Facturación']}
                 title="Facturación"
@@ -34,6 +34,6 @@ export default async function BillingPage(): Promise<React.JSX.Element> {
             <main className="flex-1 p-8">
                 <BillingDashboardClient stats={stats} />
             </main>
-        </div>
+        </>
     );
 }

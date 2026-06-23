@@ -254,7 +254,7 @@ export function GlobalStudentsClient({
     }
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
+        <>
             {/* Header */}
             <AdminTopBar
                 breadcrumb={['Sistema', 'Base Global']}
@@ -538,6 +538,6 @@ export function GlobalStudentsClient({
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </>
     );
 }
