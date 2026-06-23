@@ -57,7 +57,7 @@ export function AdminLoginForm({ googleError }: AdminLoginFormProps): React.JSX.
             }
             const session = await getSession();
             if (!session?.user) {
-                setError('No se pudo obtener la sesión. Intentá de nuevo.');
+                setError('No se pudo obtener la sesión. Intenta de nuevo.');
                 return;
             }
             if (session.user.userRoleName === USER_ROLE.SUPER_ADMIN) {
@@ -68,7 +68,7 @@ export function AdminLoginForm({ googleError }: AdminLoginFormProps): React.JSX.
                 setError('Tu usuario no tiene institución asignada. Contactá al administrador.');
             }
         } catch {
-            setError('Ocurrió un error inesperado. Intentá de nuevo.');
+            setError('Ocurrió un error inesperado. Intenta de nuevo.');
         } finally {
             setIsPending(false);
         }

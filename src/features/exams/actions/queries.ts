@@ -35,7 +35,7 @@ function deriveStatus(exam: {
 }
 
 export async function getExamsList(
-    slug: string,
+    academicInstitutionId: string,
     filter?: ExamStatus | 'todos',
 ): Promise<{ data: ExamListItem[]; error: string | null }> {
     const session = await auth();
@@ -45,21 +45,13 @@ export async function getExamsList(
     }
 
     const isSuperAdmin = session.user.userRoleName === USER_ROLE.SUPER_ADMIN;
-    if (!isSuperAdmin && session.user.institutionSlug !== slug) {
+    if (!isSuperAdmin && session.user.academicInstitutionId !== academicInstitutionId) {
         return { data: [], error: 'Sin permisos' };
     }
 
-    const institution = await prisma.academicInstitution.findUnique({
-        where: { slug },
-        select: { id: true },
-    });
-    if (!institution) return { data: [], error: 'Institución no encontrada' };
-
     const exams = await prisma.exam.findMany({
         where: {
-            groups: {
-                some: { users: { some: { academicInstitutionId: institution.id } } },
-            },
+            academicInstitutionId,
         },
         select: {
             id: true,

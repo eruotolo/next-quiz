@@ -378,7 +378,7 @@ export function StudentsClient({
                     created: 0,
                     skipped: 0,
                     errors: [
-                        { row: 0, message: result.error ?? 'Error inesperado. Intentá de nuevo.' },
+                        { row: 0, message: result.error ?? 'Error inesperado. Intenta de nuevo.' },
                     ],
                 });
                 return;
@@ -494,8 +494,8 @@ export function StudentsClient({
                         <p className="text-ink text-lg font-medium">Todavía no hay estudiantes</p>
                         <p className="text-mute mt-1 text-sm">
                             {canCreate
-                                ? 'Creá el primero o importá desde Excel.'
-                                : 'No tenés estudiantes asignados en tus grupos.'}
+                                ? 'Crea el primero o importa desde Excel.'
+                                : 'No tienes estudiantes asignados en tus grupos.'}
                         </p>
                         {canCreate && (
                             <div className="mt-6 flex gap-3">

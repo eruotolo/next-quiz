@@ -102,7 +102,7 @@ export function PayerForm({ plan }: Props): React.JSX.Element {
                 router.push(`/registro/${plan.toLowerCase()}/exito?sub=${subscriptionId}`);
             }
         } catch (err) {
-            const msg = err instanceof Error ? err.message : 'Error inesperado. Intentá de nuevo.';
+            const msg = err instanceof Error ? err.message : 'Error inesperado. Intenta de nuevo.';
             toast.error(msg);
         } finally {
             setIsPending(false);
@@ -247,9 +247,9 @@ export function PayerForm({ plan }: Props): React.JSX.Element {
             </form>
 
             <p className="text-ink-dim text-center text-[13px]">
-                ¿Ya tenés una cuenta?{' '}
+                ¿Ya tienes una cuenta?{' '}
                 <Link href="/login" className="text-primary font-medium hover:underline">
-                    Iniciá sesión
+                    Inicia sesión
                 </Link>
             </p>
         </div>

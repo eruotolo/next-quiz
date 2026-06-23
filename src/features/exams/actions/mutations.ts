@@ -259,7 +259,10 @@ export async function upsertQuestion(
 export async function deleteQuestion(slug: string, id: string, examId: string): Promise<void> {
     const { userId, userEmail, userRole, institutionId } = await getSessionUser(slug);
     if (userRole === USER_ROLE.PROFESOR) await assertProfessorExamAccess(examId, userId);
-    await prisma.question.delete({ where: { id } });
+    const res = await prisma.question.deleteMany({ 
+        where: { id, exam: { academicInstitutionId: institutionId } } 
+    });
+    if (res.count === 0) throw new Error('Forbidden');
     await logAudit({
         action: AUDIT_ACTION.QUESTION_DELETE,
         actorId: userId,

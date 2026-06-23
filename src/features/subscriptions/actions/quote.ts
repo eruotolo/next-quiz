@@ -71,7 +71,7 @@ export async function requestInstitutionalQuote(data: unknown): Promise<ActionRe
             select: { email: true, name: true },
         });
         if (!superAdmin?.email) {
-            return fail('No se pudo procesar la solicitud en este momento. Intentá más tarde.');
+            return fail('No se pudo procesar la solicitud en este momento. Intenta más tarde.');
         }
 
         const result = await sendEmail({
@@ -87,11 +87,11 @@ export async function requestInstitutionalQuote(data: unknown): Promise<ActionRe
             }),
         });
         if (!result.sent) {
-            return fail(result.error ?? 'No se pudo enviar la solicitud. Intentá más tarde.');
+            return fail(result.error ?? 'No se pudo enviar la solicitud. Intenta más tarde.');
         }
 
         return ok(null);
     } catch (err) {
-        return fail(toActionError(err, 'No se pudo enviar la solicitud. Intentá más tarde.'));
+        return fail(toActionError(err, 'No se pudo enviar la solicitud. Intenta más tarde.'));
     }
 }

@@ -113,6 +113,6 @@ export async function upgradePlan(
 
         return ok({ initPoint });
     } catch (err) {
-        return fail(toActionError(err, 'No se pudo iniciar el pago. Intentá de nuevo.'));
+        return fail(toActionError(err, 'No se pudo iniciar el pago. Intenta de nuevo.'));
     }
 }

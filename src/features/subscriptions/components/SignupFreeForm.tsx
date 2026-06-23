@@ -277,13 +277,13 @@ export function SignupFreeForm(): React.JSX.Element {
                 redirect: false,
             });
             if (signInResult?.error) {
-                toast.success('Cuenta creada. Iniciá sesión para continuar.');
+                toast.success('Cuenta creada. Inicia sesión para continuar.');
                 router.replace('/login');
                 return;
             }
             router.replace(`/${result.data?.slug}`);
         } catch {
-            toast.error('Error inesperado. Intentá de nuevo.');
+            toast.error('Error inesperado. Intenta de nuevo.');
         } finally {
             setIsPending(false);
         }
@@ -299,7 +299,7 @@ export function SignupFreeForm(): React.JSX.Element {
                     Crear cuenta gratis
                 </h1>
                 <p className="text-ink-dim mt-2 text-[14px] leading-relaxed">
-                    Empezá a digitalizar tus evaluaciones en minutos.
+                    Empieza a digitalizar tus evaluaciones en minutos.
                 </p>
             </div>
 
@@ -374,9 +374,9 @@ export function SignupFreeForm(): React.JSX.Element {
             </form>
 
             <p className="text-ink-dim text-center text-[13px]">
-                ¿Ya tenés una cuenta?{' '}
+                ¿Ya tienes una cuenta?{' '}
                 <Link href="/login" className="text-primary font-medium hover:underline">
-                    Iniciá sesión
+                    Inicia sesión
                 </Link>
             </p>
         </div>

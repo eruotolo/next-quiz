@@ -15,7 +15,7 @@ export interface GroupWithStats {
 }
 
 export async function getGroupsWithStats(
-    slug: string,
+    academicInstitutionId: string,
 ): Promise<{ data: GroupWithStats[]; error: string | null }> {
     const session = await auth();
     if (!session?.user) return { data: [], error: 'No autorizado' };
@@ -24,19 +24,13 @@ export async function getGroupsWithStats(
     }
 
     const isSuperAdmin = session.user.userRoleName === USER_ROLE.SUPER_ADMIN;
-    if (!isSuperAdmin && session.user.institutionSlug !== slug) {
+    if (!isSuperAdmin && session.user.academicInstitutionId !== academicInstitutionId) {
         return { data: [], error: 'Sin permisos' };
     }
 
-    const institution = await prisma.academicInstitution.findUnique({
-        where: { slug },
-        select: { id: true },
-    });
-    if (!institution) return { data: [], error: 'Institución no encontrada' };
-
     const groups = await prisma.group.findMany({
         where: {
-            users: { some: { academicInstitutionId: institution.id } },
+            academicInstitutionId,
         },
         select: {
             id: true,
@@ -44,7 +38,7 @@ export async function getGroupsWithStats(
             stream: true,
             tutor: { select: { name: true, lastname: true } },
             users: {
-                where: { academicInstitutionId: institution.id },
+                where: { academicInstitutionId },
                 select: {
                     id: true,
                     results: { select: { score: true, maxScore: true } },

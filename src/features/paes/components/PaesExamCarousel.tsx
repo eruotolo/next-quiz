@@ -143,7 +143,7 @@ export function PaesExamCarousel({
         const onPopState = (): void => {
             history.pushState(null, '', window.location.href);
             toast.warning('Navegación bloqueada', {
-                description: 'No podés salir mientras el ensayo está en curso.',
+                description: 'No puedes salir mientras el ensayo está en curso.',
             });
         };
         window.addEventListener('popstate', onPopState);

@@ -97,7 +97,7 @@ function BigMock(): React.JSX.Element {
                                 <div className="flex flex-1 gap-1">
                                     {Array.from({ length: 12 }).map((_, i) => (
                                         <div
-                                            key={i}
+                                            key={`header-col-${i}`}
                                             className="bg-border/20 h-3 flex-1 rounded-sm"
                                         />
                                     ))}
@@ -111,7 +111,7 @@ function BigMock(): React.JSX.Element {
                                     { name: 'Joaquín Lara', progress: 92, status: 'success' },
                                     { name: 'Antonia Soto', progress: 40, status: 'primary' },
                                 ].map((row, i) => (
-                                    <div key={i} className="flex items-center gap-4">
+                                    <div key={row.name} className="flex items-center gap-4">
                                         <div className="text-ink w-32 truncate text-[12px] font-bold">
                                             {row.name}
                                         </div>

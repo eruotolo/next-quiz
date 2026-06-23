@@ -545,7 +545,18 @@ CRON_SECRET            # Secret para los cron de Vercel (cleanup-subscriptions, 
 - Utilities en `@/shared/lib/rut.ts`.
 - Input UI canónico en `@/shared/components/ui/rut-field.tsx` (`RutField`).
 
-Última actualización: 4 de Junio de 2026 (modo demo público)
+Última actualización: 22 de Junio de 2026 (auditoría QA — fixes de UI, accesibilidad, race condition y copywriting)
+
+## Cambios aplicados en auditoría 22-06-2026
+
+- **`ExamCarousel.tsx`** — Fix race condition: `answersMapRef` (useRef) espeja el estado para que callbacks async siempre lean el valor más reciente. Separación de navegación (síncrona) y guardado (background `startTransition`). Badge "Autoguardado" ahora muestra amarillo cuando `isPending`.
+- **`ExamsClient.tsx`** — Fix `deriveExamStatus`: borradores con `closesAt` vencido ya no aparecen como "corregidos" (ahora requiere `exam.active || results > 0`).
+- **`ResultsClient.tsx`** — Botón "Exportar Reporte" eliminado (sin funcionalidad implementada).
+- **`resultado/[resultId]/page.tsx`** — Ambos botones "Volver al inicio" redirigen a `/examen/seleccion` (no a `/`).
+- **`ExamCloseCountdown.tsx`** — Agrega `role="timer"` y `aria-live="polite"` al countdown de cierre.
+- **`landing/` + `subscriptions/PendingPaymentPoller`** — `key={i}` reemplazados por identificadores estables en todos los `.map()` afectados.
+- **Voseo (~30 archivos)** — Eliminado voseo rioplatense en toda la app; estandarizado al español de Chile (tú/usted).
+- **`seleccion/page.tsx`** — Email `hola@aulika.cl` ahora es hipervínculo `mailto:`.
 
 ## Herramientas Obligatorias (gstack + CodeGraph)
 
@@ -589,3 +600,26 @@ El proyecto está indexado con **CodeGraph** (MCP `codegraph`). Consultarlo **AN
 - `codegraph_callers` / `codegraph_callees` / `codegraph_impact` — quién llama a X, qué llama X y qué rompería un cambio.
 
 Preferir CodeGraph sobre bucles de grep + lectura de archivos: el índice ya hizo ese trabajo.
+
+
+---
+
+## Documentación en Obsidian
+
+La documentación de este proyecto vive en el vault **SitesDoc**. Al iniciar cualquier sesión de trabajo, leer la nota:
+
+```bash
+cat "/Users/edgardoruotolo/SitesDoc/nextjs_projects/next-quiz/next-quiz.md"
+```
+
+Al finalizar cambios relevantes (nueva feature, bug crítico, decisión de arquitectura), actualizar la nota **automáticamente** con:
+
+```bash
+cat >> "/Users/edgardoruotolo/SitesDoc/nextjs_projects/next-quiz/next-quiz.md" << 'EOF'
+
+### $(date +%Y-%m-%d) — TÍTULO DEL CAMBIO
+- Descripción del cambio realizado
+EOF
+```
+
+**Importante:** Ejecutar este append siempre al terminar una tarea, sin esperar que el usuario lo pida.

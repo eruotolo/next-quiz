@@ -50,7 +50,7 @@ export async function createStudent(
 
         const { groupId, ...rest } = parsed.data;
         if (ctx.isProfesor && !(await professorOwnsGroup(groupId, ctx.userId))) {
-            return fail('Solo podés crear estudiantes en tus grupos.');
+            return fail('Solo puedes crear estudiantes en tus grupos.');
         }
 
         await assertQuota(ctx.institutionId, 'student', ctx.userRole);
@@ -93,6 +93,13 @@ export async function updateStudent(
 
         if (ctx.isProfesor && !(await professorHasAccess(id, ctx.userId, ctx.institutionId))) {
             return fail('Sin permisos sobre este estudiante.');
+        }
+
+        if (parsed.data.groupId) {
+            const group = await prisma.group.findFirst({
+                where: { id: parsed.data.groupId, academicInstitutionId: ctx.institutionId }
+            });
+            if (!group) return fail('El grupo no pertenece a la institución.');
         }
 
         const res = await prisma.user.updateMany({

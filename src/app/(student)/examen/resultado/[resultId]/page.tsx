@@ -185,7 +185,7 @@ export default async function ResultadoPage({ params }: PageProps): Promise<Reac
                             <p className="max-w-md text-[14px] text-white/50">
                                 {passing
                                     ? 'Aprobaste con margen. Te dejamos abajo el detalle para que repases las que fallaste.'
-                                    : 'Revisá abajo el detalle de cada pregunta y la opción correcta para reforzar.'}
+                                    : 'Revisa abajo el detalle de cada pregunta y la opción correcta para reforzar.'}
                             </p>
                             <div className="flex flex-wrap gap-3 pt-2">
                                 <PrintButton
@@ -199,7 +199,7 @@ export default async function ResultadoPage({ params }: PageProps): Promise<Reac
                                     className="rounded-full"
                                     asChild
                                 >
-                                    <Link href="/">Volver al inicio</Link>
+                                    <Link href="/examen/seleccion">Volver al inicio</Link>
                                 </Button>
                             </div>
                         </div>
@@ -357,7 +357,7 @@ export default async function ResultadoPage({ params }: PageProps): Promise<Reac
                 <div className="mt-8 flex items-center justify-center gap-3 print:hidden">
                     <PrintButton />
                     <Button asChild variant="ink" size="lg" className="rounded-full">
-                        <Link href="/">Volver al inicio</Link>
+                        <Link href="/examen/seleccion">Volver al inicio</Link>
                     </Button>
                 </div>
             </main>

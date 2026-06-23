@@ -275,7 +275,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                 toast.success('Pregunta guardada');
                 router.refresh();
             } catch {
-                setQErrors({ general: 'Ocurrió un error. Intentá de nuevo.' });
+                setQErrors({ general: 'Ocurrió un error. Intenta de nuevo.' });
             }
         });
     };
@@ -289,7 +289,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                 toast.success('Pregunta eliminada');
                 router.refresh();
             } catch {
-                setDeleteError('Ocurrió un error al eliminar. Intentá de nuevo.');
+                setDeleteError('Ocurrió un error al eliminar. Intenta de nuevo.');
             }
         });
     };
@@ -396,7 +396,7 @@ export function ExamEditorClient({ exam }: { exam: ExamWithAll }) {
                                 Este examen no tiene preguntas
                             </p>
                             <p className="text-mute mt-1 text-sm">
-                                Agregá la primera o importalas en masa.
+                                Agrega la primera o impórtalas en masa.
                             </p>
                             <div className="mt-6 flex gap-3">
                                 <Button variant="ink" size="md" onClick={openNew} className="gap-2">

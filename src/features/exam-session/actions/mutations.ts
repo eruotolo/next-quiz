@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { prisma } from '@/shared/lib/prisma';
 import {
@@ -8,7 +8,7 @@ import {
     getStudentSession,
 } from '@/features/exam-session/lib/session';
 import { getOrCreateAttempt, sessionEndsAtFor } from '@/features/exam-session/lib/attempt';
-import { headers } from 'next/headers';
+import { headers, cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import {
     type SubmitAnswerInput,
@@ -276,22 +276,47 @@ async function gradeAttempt(studentId: string, examId: string, attemptKey: strin
         if (isCorrect) score += q.points;
     }
 
-    const result = await prisma.result.create({
-        data: { studentId, examId, score, maxScore, answers: answerMap },
-    });
+    try {
+        const result = await prisma.result.create({
+            data: { studentId, examId, score, maxScore, answers: answerMap },
+        });
 
-    await prisma.answer.deleteMany({ where: { attemptKey } });
-    await prisma.examAttempt.deleteMany({ where: { attemptKey } });
+        await prisma.answer.deleteMany({ where: { attemptKey } });
+        await prisma.examAttempt.deleteMany({ where: { attemptKey } });
 
-    return result.id;
+        return result.id;
+    } catch (err: unknown) {
+        if ((err as { code?: string })?.code === 'P2002') {
+            const existingFallback = await prisma.result.findUnique({
+                where: { studentId_examId: { studentId, examId } },
+            });
+            if (existingFallback) return existingFallback.id;
+        }
+        throw err;
+    }
 }
 
 async function computeAndSave(): Promise<{ resultId: string }> {
-    const session = await getStudentSession();
-    if (!session) throw new Error('Sesión no válida.');
+    try {
+        const session = await getStudentSession();
+        if (!session) throw new Error('Sesión no válida.');
 
-    const resultId = await gradeAttempt(session.studentId, session.examId, session.attemptKey);
-    await createResultSession(resultId, session.studentId);
+        const resultId = await gradeAttempt(session.studentId, session.examId, session.attemptKey);
+        await createResultSession(resultId, session.studentId);
 
-    return { resultId };
+        return { resultId };
+    } catch (err) {
+        console.error('Error en computeAndSave:', err);
+        throw new Error('Error al finalizar el examen. Por favor, intenta de nuevo.');
+    }
+}
+
+export async function logoutStudent(): Promise<void> {
+    const cookieStore = await cookies();
+    cookieStore.delete('aulika-student-auth');
+    cookieStore.delete('aulika-student-session');
+    cookieStore.delete('aulika-result-session');
+    cookieStore.delete('student_session');
+    cookieStore.delete('result_session');
+    redirect('/examen/login');
 }

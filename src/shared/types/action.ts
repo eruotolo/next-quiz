@@ -23,7 +23,7 @@ export function fail<T = null>(error: string): ActionResult<T> {
  */
 export function toActionError(
     err: unknown,
-    fallback = 'Ocurrió un error. Intentá de nuevo.',
+    fallback = 'Ocurrió un error. Intenta de nuevo.',
 ): string {
     if (err instanceof Error) {
         if (err.message.includes('Unique constraint') || err.message.includes('Unique')) {

@@ -125,7 +125,7 @@ export async function registerFreeInstitution(
         const msg =
             err instanceof Error && err.message.includes('Unique')
                 ? 'El establecimiento o email ya está registrado.'
-                : 'Error al crear la cuenta. Intentá de nuevo.';
+                : 'Error al crear la cuenta. Intenta de nuevo.';
         return { data: null, error: msg };
     }
 }
@@ -355,7 +355,7 @@ export async function completeRegistration(
         const msg =
             err instanceof Error && err.message.includes('Unique')
                 ? 'El establecimiento o email ya está registrado.'
-                : 'Error al registrar. Intentá de nuevo.';
+                : 'Error al registrar. Intenta de nuevo.';
         return { data: null, error: msg };
     }
 }

@@ -230,7 +230,7 @@ export function ProfessorsClient({
                             No hay profesores registrados
                         </p>
                         <p className="text-mute mt-1 text-sm">
-                            Agregá el primero para comenzar a gestionar grupos.
+                            Agrega el primero para comenzar a gestionar grupos.
                         </p>
                         <Button variant="primary" size="md" onClick={openCreate} className="mt-6">
                             <Plus size={16} />

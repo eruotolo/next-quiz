@@ -93,17 +93,17 @@ export default async function ExamIntroPage({ params }: PageProps): Promise<Reac
 
     const tabInstruction = !exam.antiCheatEnabled
         ? {
-              title: 'Respondé con tranquilidad',
-              text: 'Tus respuestas se guardan automáticamente a medida que avanzás.',
+              title: 'Responde con tranquilidad',
+              text: 'Tus respuestas se guardan automáticamente a medida que avanzas.',
           }
         : exam.lockTabSwitch
           ? {
                 title: 'No salgas de la pestaña: una salida cierra el examen',
-                text: 'Si cambiás de pestaña o de aplicación, aunque sea una vez, el examen se entrega automáticamente al instante con lo que hayas respondido.',
+                text: 'Si cambias de pestaña o de aplicación, aunque sea una vez, el examen se entrega automáticamente al instante con lo que hayas respondido.',
             }
           : {
                 title: 'No salgas de la pestaña: 3 salidas cierran el examen',
-                text: 'Aulika detecta cada vez que dejás la pestaña. Las dos primeras veces te avisamos; en la tercera, el examen se entrega automáticamente con lo que hayas respondido hasta ese momento.',
+                text: 'Aulika detecta cada vez que dejas la pestaña. Las dos primeras veces te avisamos; en la tercera, el examen se entrega automáticamente con lo que hayas respondido hasta ese momento.',
             };
 
     const instructions = [
@@ -113,12 +113,12 @@ export default async function ExamIntroPage({ params }: PageProps): Promise<Reac
         },
         {
             title: 'Una pregunta a la vez',
-            text: 'Podés avanzar y retroceder. Las respuestas quedan guardadas.',
+            text: 'Puedes avanzar y retroceder. Las respuestas quedan guardadas.',
         },
         tabInstruction,
         {
-            title: 'No necesitás internet perfecto',
-            text: 'Si te desconectás, retomamos desde donde quedaste.',
+            title: 'No necesitas internet perfecto',
+            text: 'Si te desconectas, retomamos desde donde quedaste.',
         },
     ];
 
@@ -177,7 +177,7 @@ export default async function ExamIntroPage({ params }: PageProps): Promise<Reac
                             Examen {exam.title}
                         </h1>
                         <p className="text-ink-dim mt-4 max-w-lg text-[14px] leading-relaxed">
-                            Tomate tu tiempo. Vas a leer una pregunta a la vez, podés marcar las que
+                            Tómate tu tiempo. Leerás una pregunta a la vez, puedes marcar las que
                             dudes y volver a ellas antes de cerrar.
                         </p>
                     </div>

@@ -1,6 +1,6 @@
-﻿import { prisma } from '@/shared/lib/prisma';
+import { prisma } from '@/shared/lib/prisma';
 import { getStudentAuthSession } from '@/features/exam-session/lib/session';
-import { startSelectedExam, viewMyResult } from '@/features/exam-session/actions/mutations';
+import { startSelectedExam, viewMyResult, logoutStudent } from '@/features/exam-session/actions/mutations';
 import { calcGrade } from '@/features/results/lib/grade';
 import { LogoMark, LogoWordmark } from '@/shared/components/branding/logo';
 import { Avatar } from '@/shared/components/ui/avatar';
@@ -81,10 +81,13 @@ export default async function ExamSelectionPage(): Promise<React.JSX.Element> {
 
     const exams = await prisma.exam.findMany({
         where: {
-            active: true,
             academicInstitutionId: student.academicInstitutionId,
             groups: { some: { id: authSession.groupId } },
             questions: { some: {} },
+            OR: [
+                { active: true },
+                { results: { some: { studentId: authSession.studentId } } }
+            ],
         },
         select: {
             id: true,
@@ -169,12 +172,19 @@ export default async function ExamSelectionPage(): Promise<React.JSX.Element> {
                         {topbarLabel}
                     </span>
                 </div>
-                <div className="flex items-center gap-3">
-                    <Avatar name={fullName} size={36} />
-                    <div className="hidden leading-tight sm:block">
-                        <p className="text-ink text-[13px] font-semibold">{fullName}</p>
-                        {groupName && <p className="text-mute text-[11px]">{groupName}</p>}
+                <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-3">
+                        <Avatar name={fullName} size={36} />
+                        <div className="hidden leading-tight sm:block">
+                            <p className="text-ink text-[13px] font-semibold">{fullName}</p>
+                            {groupName && <p className="text-mute text-[11px]">{groupName}</p>}
+                        </div>
                     </div>
+                    <form action={logoutStudent}>
+                        <Button variant="ghost" size="sm" type="submit" className="text-mute hover:text-ink -ml-2">
+                            Cerrar sesión
+                        </Button>
+                    </form>
                 </div>
             </header>
 
@@ -189,11 +199,11 @@ export default async function ExamSelectionPage(): Promise<React.JSX.Element> {
                     </h1>
                     <p className="text-ink-dim mt-3 max-w-xl text-[14px] leading-relaxed">
                         {available.length > 0
-                            ? `Tenés ${available.length} examen${available.length !== 1 ? 'es' : ''} disponible${available.length !== 1 ? 's' : ''} ahora`
-                            : 'No tenés exámenes disponibles ahora'}
+                            ? `Tienes ${available.length} examen${available.length !== 1 ? 'es' : ''} disponible${available.length !== 1 ? 's' : ''} ahora`
+                            : 'No tienes exámenes disponibles ahora'}
                         {upcoming.length > 0 &&
                             ` y ${upcoming.length} programado${upcoming.length !== 1 ? 's' : ''}`}
-                        . Cuando estés en un lugar tranquilo, abrí el que toca.
+                        . Cuando estés en un lugar tranquilo, abre el que toca.
                     </p>
 
                     {/* Disponible ahora */}
@@ -421,7 +431,7 @@ export default async function ExamSelectionPage(): Promise<React.JSX.Element> {
                         taken.length === 0 && (
                             <div className="border-border mt-8 rounded-[16px] border border-dashed bg-white p-10 text-center">
                                 <p className="text-ink text-[15px] font-semibold">
-                                    No tenés exámenes asignados todavía
+                                    No tienes exámenes asignados todavía
                                 </p>
                                 <p className="text-mute mt-1 text-[13px]">
                                     Cuando tu profesor publique uno, va a aparecer acá.
@@ -498,8 +508,14 @@ export default async function ExamSelectionPage(): Promise<React.JSX.Element> {
                             Tu sesión es solo tuya
                         </p>
                         <p className="text-ink-dim text-[12px] leading-relaxed">
-                            Ingresaste con tu RUT. Si te desconectás, retomás el examen donde
-                            quedaste. ¿Dudas? hola@aulika.cl
+                            Ingresaste con tu RUT. Si te desconectas, retomas el examen donde
+                            quedaste. ¿Dudas?{' '}
+                            <a
+                                href="mailto:hola@aulika.cl"
+                                className="text-primary underline"
+                            >
+                                hola@aulika.cl
+                            </a>
                         </p>
                     </div>
                 </aside>

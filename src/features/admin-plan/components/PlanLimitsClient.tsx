@@ -347,7 +347,7 @@ export function PlanLimitsClient({ limits, customPlans }: Props): React.JSX.Elem
 
                 {customPlans.length === 0 ? (
                     <div className="border-border text-mute rounded-[16px] border border-dashed bg-white px-5 py-10 text-center text-sm">
-                        Todavía no hay planes internos. Creá el primero con “Nuevo plan”.
+                        Todavía no hay planes internos. Crea el primero con “Nuevo plan”.
                     </div>
                 ) : (
                     <div className="border-border overflow-x-auto rounded-[16px] border bg-white">

@@ -22,12 +22,12 @@ export function DemoLoginCard(): React.JSX.Element {
                 redirect: false,
             });
             if (result?.error) {
-                setError('No se pudo iniciar el demo. Intentá de nuevo en unos segundos.');
+                setError('No se pudo iniciar el demo. Intenta de nuevo en unos segundos.');
                 return;
             }
             router.replace(`/${DEMO_SLUG}`);
         } catch {
-            setError('Ocurrió un error inesperado. Intentá de nuevo.');
+            setError('Ocurrió un error inesperado. Intenta de nuevo.');
         } finally {
             setIsPending(false);
         }
@@ -38,13 +38,13 @@ export function DemoLoginCard(): React.JSX.Element {
             {/* Header */}
             <div>
                 <span className="text-mute font-mono text-[11px] tracking-[0.1em] uppercase">
-                    Probá Aulika
+                    Prueba Aulika
                 </span>
                 <h1 className="font-display text-ink mt-2 text-[38px] leading-none font-semibold tracking-[-0.03em]">
                     Modo demo
                 </h1>
                 <p className="text-ink-dim mt-2 text-[14px] leading-relaxed">
-                    Entrá a un panel de prueba con datos de ejemplo. Creá un examen y mirá cómo
+                    Entra a un panel de prueba con datos de ejemplo. Crea un examen y mira cómo
                     funciona. Lo que crees es temporal y se borra al cerrar sesión.
                 </p>
             </div>

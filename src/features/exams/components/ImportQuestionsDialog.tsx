@@ -102,7 +102,7 @@ export function ImportQuestionsDialog({
                 router.refresh();
             } catch {
                 toast.error('Error al importar', {
-                    description: 'Revisá el formato del archivo e intentá de nuevo.',
+                    description: 'Revisa el formato del archivo e intenta de nuevo.',
                 });
             }
         });

@@ -138,7 +138,7 @@ export async function deleteProfessor(slug: string, id: string): Promise<ActionR
         const ctx = await requireInstitutionAccess(slug, [...ADMIN_ONLY]);
 
         // Nadie puede eliminarse a sí mismo (evita lockout de la institución).
-        if (id === ctx.userId) return fail('No podés eliminar tu propia cuenta.');
+        if (id === ctx.userId) return fail('No puedes eliminar tu propia cuenta.');
 
         const res = await prisma.user.deleteMany({
             where: {

@@ -35,5 +35,14 @@ export function ExamCloseCountdown({ initialSeconds }: ExamCloseCountdownProps):
         return () => clearInterval(id);
     }, [router]);
 
-    return <span className="tabular-nums">{format(remaining)}</span>;
+    return (
+        <span
+            className="tabular-nums"
+            role="timer"
+            aria-live="polite"
+            aria-label={`Cierre en: ${format(remaining)}`}
+        >
+            {format(remaining)}
+        </span>
+    );
 }

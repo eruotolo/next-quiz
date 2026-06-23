@@ -155,7 +155,7 @@ export async function deleteAdminUser(id: string): Promise<{ data: null; error: 
 
     // Evitar que un administrador se elimine a sí mismo (riesgo de lockout).
     if (id === actor.id) {
-        return { data: null, error: 'No podés eliminar tu propio usuario.' };
+        return { data: null, error: 'No puedes eliminar tu propio usuario.' };
     }
 
     try {

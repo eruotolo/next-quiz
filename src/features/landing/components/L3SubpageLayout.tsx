@@ -32,7 +32,7 @@ export function L3SubpageLayout({
                     <h1 className="font-display text-ink mb-10 text-[56px] leading-[1] font-medium tracking-[-0.03em] md:text-[72px]">
                         {title.split(' ').map((word, i) =>
                             i === title.split(' ').length - 1 ? (
-                                <span key={i}>
+                                <span key={`word-${i}`}>
                                     <em className="text-primary italic not-italic">{word}</em>
                                 </span>
                             ) : (

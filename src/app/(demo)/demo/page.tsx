@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 
 export const metadata = {
     title: 'Modo demo · Aulika',
-    description: 'Probá Aulika con un panel de demostración y datos de ejemplo.',
+    description: 'Prueba Aulika con un panel de demostración y datos de ejemplo.',
 };
 
 export default async function DemoPage(): Promise<React.JSX.Element> {

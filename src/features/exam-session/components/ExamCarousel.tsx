@@ -41,7 +41,16 @@ export function ExamCarousel({
     const [strikes, setStrikes] = useState(0);
     const [currentIndex, setCurrentIndex] = useState(0);
     // Mapa de respuestas guardadas (hidratado desde DB para reanudar).
-    const [answersMap, setAnswersMap] = useState<Record<string, string[]>>(initialAnswers ?? {});
+    // answersMapRef mirrors the state so async callbacks always read the latest value
+    // without stale closure issues when the user navigates between questions quickly.
+    const answersMapRef = useRef<Record<string, string[]>>(initialAnswers ?? {});
+    const [_answersMap, setAnswersMapState] = useState<Record<string, string[]>>(
+        initialAnswers ?? {},
+    );
+    function setAnswersMap(qId: string, optIds: string[]): void {
+        answersMapRef.current = { ...answersMapRef.current, [qId]: optIds };
+        setAnswersMapState((prev) => ({ ...prev, [qId]: optIds }));
+    }
     const [selectedOptionIds, setSelectedOptionIds] = useState<string[]>(() => {
         const first = exam.questions[0];
         return first ? (initialAnswers?.[first.id] ?? []) : [];
@@ -69,7 +78,7 @@ export function ExamCarousel({
             } catch (err) {
                 submittedRef.current = false;
                 toast.error('Error al enviar', {
-                    description: 'No se pudo enviar el examen. Intentá de nuevo.',
+                    description: 'No se pudo enviar el examen. Intenta de nuevo.',
                 });
                 console.error(err);
             }
@@ -114,7 +123,7 @@ export function ExamCarousel({
 
     // Una respuesta ya persistida con el mismo set de opciones no se re-guarda.
     const isUnchanged = (questionId: string, optionIds: string[]): boolean => {
-        const saved = answersMap[questionId] ?? [];
+        const saved = answersMapRef.current[questionId] ?? [];
         return optionIds.length === saved.length && optionIds.every((id) => saved.includes(id));
     };
 
@@ -126,7 +135,7 @@ export function ExamCarousel({
             startTransition(async () => {
                 try {
                     await submitAnswer({ questionId, optionIds });
-                    setAnswersMap((prev) => ({ ...prev, [questionId]: optionIds }));
+                    setAnswersMap(questionId, optionIds);
                     setAnsweredSet((prev) => new Set([...prev, questionId]));
                 } catch {
                     // Silent: user will see pending state
@@ -137,36 +146,54 @@ export function ExamCarousel({
         const nextQuestion = exam.questions[nextIndex];
         setDirection(nextIndex > currentIndex ? 1 : -1);
         setCurrentIndex(nextIndex);
-        // Hidrata la selección con la respuesta guardada de la pregunta destino.
-        setSelectedOptionIds(nextQuestion ? (answersMap[nextQuestion.id] ?? []) : []);
+        // Reads from ref so stale closure after a background save doesn't lose the latest answers.
+        setSelectedOptionIds(nextQuestion ? (answersMapRef.current[nextQuestion.id] ?? []) : []);
     };
 
     const handleNext = (): void => {
         if (!currentQuestion || selectedOptionIds.length === 0) return;
-        const questionId = currentQuestion.id;
-        const optionIds = selectedOptionIds;
 
-        startTransition(async () => {
-            try {
-                if (!isUnchanged(questionId, optionIds)) {
-                    await submitAnswer({ questionId, optionIds });
-                    setAnswersMap((prev) => ({ ...prev, [questionId]: optionIds }));
-                }
-                setAnsweredSet((prev) => new Set([...prev, questionId]));
-                if (isLastQuestion) {
+        const questionId = currentQuestion.id;
+        const optionIds = [...selectedOptionIds];
+
+        if (isLastQuestion) {
+            startTransition(async () => {
+                try {
+                    if (!isUnchanged(questionId, optionIds)) {
+                        await submitAnswer({ questionId, optionIds });
+                        setAnswersMap(questionId, optionIds);
+                    }
+                    setAnsweredSet((prev) => new Set([...prev, questionId]));
                     await finalizeAndRedirect('manual');
-                    return;
+                } catch {
+                    toast.error('Error al guardar', {
+                        description: 'No se pudo guardar la respuesta. Intenta de nuevo.',
+                    });
                 }
-                const nextQuestion = exam.questions[currentIndex + 1];
-                setDirection(1);
-                setCurrentIndex((i) => i + 1);
-                setSelectedOptionIds(nextQuestion ? (answersMap[nextQuestion.id] ?? []) : []);
-            } catch {
-                toast.error('Error al guardar', {
-                    description: 'No se pudo guardar la respuesta. Reintentá.',
-                });
-            }
-        });
+            });
+            return;
+        }
+
+        // For non-last questions: navigate immediately and save in the background.
+        // This prevents the race condition where a pending transition could set currentIndex
+        // to the wrong value if the user also clicked a sidebar jump button.
+        const nextIndex = currentIndex + 1;
+        const nextQuestion = exam.questions[nextIndex];
+        setDirection(1);
+        setCurrentIndex(nextIndex);
+        setAnsweredSet((prev) => new Set([...prev, questionId]));
+        setSelectedOptionIds(nextQuestion ? (answersMapRef.current[nextQuestion.id] ?? []) : []);
+
+        if (!isUnchanged(questionId, optionIds)) {
+            startTransition(async () => {
+                try {
+                    await submitAnswer({ questionId, optionIds });
+                    setAnswersMap(questionId, optionIds);
+                } catch {
+                    // Background save failure — silent; the user has already moved on
+                }
+            });
+        }
     };
 
     const handlePrev = (): void => {
@@ -191,7 +218,7 @@ export function ExamCarousel({
         const onPopState = (): void => {
             history.pushState(null, '', window.location.href);
             toast.warning('Navegación bloqueada', {
-                description: 'No podés salir mientras el examen está en curso.',
+                description: 'No puedes salir mientras el examen está en curso.',
             });
         };
         window.addEventListener('popstate', onPopState);
@@ -239,8 +266,8 @@ export function ExamCarousel({
                 const next = prev + 1;
                 sessionStorage.setItem(strikesKey, String(next));
                 if (next === 1) {
-                    toast.warning('1/3 — Volvé al examen ya', {
-                        description: 'Si salís 3 veces el examen se envía automáticamente.',
+                    toast.warning('1/3 — Vuelve al examen ya', {
+                        description: 'Si sales 3 veces el examen se envía automáticamente.',
                     });
                 } else if (next === 2) {
                     toast.warning('2/3 — Último aviso', {
@@ -288,8 +315,13 @@ export function ExamCarousel({
 
                 <div className="flex items-center gap-4">
                     <span className="text-mute flex items-center gap-1.5 font-mono text-[10px]">
-                        <span className="bg-success size-1.5 animate-pulse rounded-full" />
-                        Autoguardado
+                        <span
+                            className={cn(
+                                'size-1.5 animate-pulse rounded-full',
+                                isPending ? 'bg-warning' : 'bg-success',
+                            )}
+                        />
+                        {isPending ? 'Guardando…' : 'Autoguardado'}
                     </span>
                     {exam.antiCheatEnabled && strikes > 0 && (
                         <span

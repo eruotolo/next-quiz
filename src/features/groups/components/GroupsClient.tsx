@@ -216,7 +216,7 @@ export function GroupsClient({
                         <Users size={48} className="text-mute/20 mb-4" />
                         <p className="text-ink text-lg font-medium">Todavía no hay grupos</p>
                         <p className="text-mute mt-1 text-sm">
-                            Creá el primero para empezar a organizar alumnos.
+                            Crea el primero para empezar a organizar alumnos.
                         </p>
                         {canMutate && (
                             <Button

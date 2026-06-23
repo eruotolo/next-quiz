@@ -44,7 +44,6 @@ import {
     Users,
     XCircle,
     MoreHorizontal,
-    Download,
     X,
 } from 'lucide-react';
 import {
@@ -201,12 +200,6 @@ export function ResultsClient({
                 breadcrumb={[institutionName, 'Resultados']}
                 title="Historial de Resultados"
                 subtitle={`${totalCount} evaluaciones completadas y procesadas`}
-                actions={
-                    <Button variant="ink" size="md" className="gap-2">
-                        <Download size={16} />
-                        Exportar Reporte
-                    </Button>
-                }
             />
 
             <main className="flex-1 space-y-8 overflow-auto p-8">
@@ -563,18 +556,27 @@ function AnswersReview({
         return Array.isArray(val) ? val : [val];
     }
 
+    const analysisMap = React.useMemo(() => {
+        const map = new Map();
+        for (const q of exam.questions) {
+            const correctOptions = q.options.filter((o) => o.isCorrect);
+            const correctSet = new Set(correctOptions.map((o) => o.id));
+            map.set(q.id, { correctOptions, correctSet });
+        }
+        return map;
+    }, [exam.questions]);
+
     return (
         <div className="h-full space-y-4 overflow-y-auto px-6 py-6">
             {exam.questions.map((q, idx) => {
                 const selectedIds = getSelectedIds(answerMap[q.id]);
-                const correctOptions = q.options.filter((o) => o.isCorrect);
-                const correctSet = new Set(correctOptions.map((o) => o.id));
+                const { correctOptions, correctSet } = analysisMap.get(q.id)!;
                 const selectedSet = new Set(selectedIds);
                 const isCorrect =
                     selectedSet.size > 0 &&
                     correctSet.size === selectedSet.size &&
                     [...correctSet].every((id) => selectedSet.has(id));
-                const selectedOptions = q.options.filter((o) => selectedIds.includes(o.id));
+                const selectedOptions = q.options.filter((o) => selectedSet.has(o.id));
 
                 return (
                     <div

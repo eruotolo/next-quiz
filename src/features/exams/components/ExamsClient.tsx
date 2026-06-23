@@ -162,7 +162,10 @@ const EN_CURSO_ACCENT_COLORS = [
 
 function deriveExamStatus(exam: ExamWithCount): Exclude<TabFilter, 'todos'> {
     const now = new Date();
-    if (exam.closesAt && new Date(exam.closesAt) < now) return 'corregidos';
+    // Only treat a passed closesAt as "corregido" when the exam was actually published
+    // or already has results; unpublished drafts with an expired window stay as borradores.
+    const hasClosed = !!(exam.closesAt && new Date(exam.closesAt) < now);
+    if (hasClosed && (exam.active || exam._count.results > 0)) return 'corregidos';
     if (exam.scheduledAt && new Date(exam.scheduledAt) > now) return 'programados';
     if (exam.active) return 'en-curso';
     return 'borradores';
@@ -320,7 +323,7 @@ export function ExamsClient({
                 toast.success(editing ? 'Examen actualizado' : 'Examen creado');
                 router.refresh();
             } catch {
-                setErrors({ general: 'Ocurrió un error. Intentá de nuevo.' });
+                setErrors({ general: 'Ocurrió un error. Intenta de nuevo.' });
             }
         });
     };
@@ -334,7 +337,7 @@ export function ExamsClient({
                 toast.success('Examen eliminado');
                 router.refresh();
             } catch {
-                setDeleteError('Ocurrió un error al eliminar. Intentá de nuevo.');
+                setDeleteError('Ocurrió un error al eliminar. Intenta de nuevo.');
             }
         });
     };
@@ -468,7 +471,7 @@ export function ExamsClient({
                         {tab === 'todos' && !searchQuery && (
                             <>
                                 <p className="text-mute mt-1 text-sm">
-                                    Creá el primero y luego añadile preguntas.
+                                    Crea el primero y luego añádele preguntas.
                                 </p>
                                 <Button
                                     variant="primary"

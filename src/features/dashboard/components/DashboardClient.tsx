@@ -653,7 +653,7 @@ function CreateExamDialog({
             } catch (err: unknown) {
                 setErrors({
                     general:
-                        err instanceof Error ? err.message : 'Ocurrió un error. Intentá de nuevo.',
+                        err instanceof Error ? err.message : 'Ocurrió un error. Intenta de nuevo.',
                 });
             }
         });

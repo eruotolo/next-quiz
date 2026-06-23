@@ -35,8 +35,8 @@ function MockBank(): React.JSX.Element {
                         tags: ['Unidad 7', 'media'],
                         hot: false,
                     },
-                ].map((q, i) => (
-                    <div key={i} className="flex items-center gap-3 py-3.5">
+                ].map((q) => (
+                    <div key={q.t} className="flex items-center gap-3 py-3.5">
                         <MoreHorizontal className="text-mute/40 size-4 shrink-0 rotate-90" />
                         <div className="min-w-0 flex-1">
                             <div className="text-ink mb-1.5 truncate text-[13px] font-bold">
@@ -90,7 +90,7 @@ function MockResults(): React.JSX.Element {
             <div className="height-[160px] flex items-end gap-1 px-1 py-4">
                 {data.map((d, i) => (
                     <div
-                        key={i}
+                        key={`bar-${i}`}
                         className="flex-1 rounded-t-[4px] transition-all hover:scale-x-110"
                         style={{
                             height: `${d}%`,
@@ -252,8 +252,8 @@ export function L3Walkthrough(): React.JSX.Element {
                     />
                     <WalkRow
                         tag="PARA LA UTP"
-                        title="Resultados que vos podés explicar al consejo."
-                        body="Notas calculadas con tu escala, dispersión y comparativa por unidad. Exportás a Excel cuando te lo piden, pero ya no es la única forma de ver."
+                        title="Resultados que tú puedes explicar al consejo."
+                        body="Notas calculadas con tu escala, dispersión y comparativa por unidad. Exportas a Excel cuando te lo piden, pero ya no es la única forma de ver."
                         points={[
                             'Escala chilena 1.0–7.0 configurable',
                             'Distribución y dispersión por curso',

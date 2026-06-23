@@ -278,13 +278,13 @@ export function RegistrationForm({
                 redirect: false,
             });
             if (signInResult?.error) {
-                toast.success('Registro completado. Iniciá sesión para continuar.');
+                toast.success('Registro completado. Inicia sesión para continuar.');
                 router.replace('/login');
                 return;
             }
             router.replace(`/${result.data?.slug}`);
         } catch {
-            toast.error('Error inesperado. Intentá de nuevo.');
+            toast.error('Error inesperado. Intenta de nuevo.');
         } finally {
             setIsPending(false);
         }
@@ -297,10 +297,10 @@ export function RegistrationForm({
                     Plan {planName} · Pago confirmado
                 </span>
                 <h1 className="font-display text-ink mt-2 text-[34px] leading-none font-semibold tracking-[-0.03em]">
-                    Completá tu registro
+                    Completa tu registro
                 </h1>
                 <p className="text-ink-dim mt-2 text-[14px] leading-relaxed">
-                    Tu suscripción está activa. Completá los datos de tu institución para comenzar.
+                    Tu suscripción está activa. Completa los datos de tu institución para comenzar.
                 </p>
             </div>
 

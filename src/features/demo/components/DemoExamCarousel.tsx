@@ -158,7 +158,7 @@ export function DemoExamCarousel({
         const onPopState = (): void => {
             history.pushState(null, '', window.location.href);
             toast.warning('Navegación bloqueada', {
-                description: 'No podés salir mientras el examen está en curso.',
+                description: 'No puedes salir mientras el examen está en curso.',
             });
         };
         window.addEventListener('popstate', onPopState);

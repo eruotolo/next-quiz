@@ -69,7 +69,7 @@ export function PendingPaymentPoller({ subscriptionId, planName }: Props): React
             <div className="flex gap-1">
                 {Array.from({ length: MAX_ATTEMPTS }).map((_, i) => (
                     <div
-                        key={i}
+                        key={`dot-${i}`}
                         className={`h-1 w-4 rounded-full transition-colors ${i < attempts ? 'bg-primary' : 'bg-border'}`}
                     />
                 ))}

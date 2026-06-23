@@ -269,7 +269,7 @@ export function UpgradePlans({
         startTransition(async () => {
             const res = await upgradePlan(slug, plan, billing);
             if (res.error || !res.data?.initPoint) {
-                toast.error(res.error ?? 'No se pudo iniciar el pago. Intentá de nuevo.');
+                toast.error(res.error ?? 'No se pudo iniciar el pago. Intenta de nuevo.');
                 return;
             }
             // Redirige al checkout de MercadoPago; al volver, el webhook activa el plan.
