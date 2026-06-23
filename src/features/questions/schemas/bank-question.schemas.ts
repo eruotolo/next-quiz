@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { questionTypeEnum } from '@/features/exams/schemas/exam.schemas';
+import { questionTypeEnum } from '@/shared/schemas/question-types';
 
 export const bankOptionSchema = z.object({
     id: z.string().uuid().optional(),

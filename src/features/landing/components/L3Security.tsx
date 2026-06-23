@@ -19,7 +19,7 @@ const SECURITY_FEATURES = [
     },
 ];
 
-export function L3Security(): React.JSX.Element {
+export function L3Security() {
     return (
         <section className="bg-ink overflow-hidden py-24 text-white md:py-32" id="seguridad">
             <div className="mx-auto max-w-[1400px] px-6 md:px-14">

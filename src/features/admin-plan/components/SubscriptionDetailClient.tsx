@@ -1,6 +1,5 @@
 'use client';
 
-import type * as React from 'react';
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import {
@@ -98,7 +97,7 @@ interface WebhookEventRowProps {
     event: SubscriptionDetail['webhookEvents'][number];
 }
 
-function WebhookEventRow({ event }: WebhookEventRowProps): React.JSX.Element {
+function WebhookEventRow({ event }: WebhookEventRowProps) {
     const [expanded, setExpanded] = useState(false);
     return (
         <div className="border-border bg-paper-warm rounded-[10px] border text-[12px]">
@@ -143,7 +142,7 @@ interface PaymentsTableProps {
     payments: SubscriptionDetail['payments'];
 }
 
-function PaymentsTable({ payments }: PaymentsTableProps): React.JSX.Element {
+function PaymentsTable({ payments }: PaymentsTableProps) {
     if (payments.length === 0) {
         return <p className="text-mute py-6 text-center text-[13px]">Sin pagos registrados</p>;
     }
@@ -274,7 +273,7 @@ interface Props {
     detail: SubscriptionDetail;
 }
 
-export function SubscriptionDetailClient({ detail }: Props): React.JSX.Element {
+export function SubscriptionDetailClient({ detail }: Props) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [webhookOpen, setWebhookOpen] = useState(false);

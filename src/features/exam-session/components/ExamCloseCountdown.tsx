@@ -17,7 +17,7 @@ function format(totalSeconds: number): string {
     return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 }
 
-export function ExamCloseCountdown({ initialSeconds }: ExamCloseCountdownProps): React.JSX.Element {
+export function ExamCloseCountdown({ initialSeconds }: ExamCloseCountdownProps) {
     const router = useRouter();
     const endsAtRef = useRef<number>(Date.now() + initialSeconds * 1000);
     const [remaining, setRemaining] = useState(initialSeconds);

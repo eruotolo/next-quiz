@@ -1,6 +1,5 @@
 ﻿'use client';
 
-import type * as React from 'react';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Download, ExternalLink, Search, Wallet } from 'lucide-react';
@@ -72,7 +71,7 @@ interface Props {
     initial: PaginatedPayments;
 }
 
-export function PaymentsClient({ initial }: Props): React.JSX.Element {
+export function PaymentsClient({ initial }: Props) {
     const router = useRouter();
     const [data, setData] = useState<PaginatedPayments>(initial);
     const [filters, setFilters] = useState<PaymentFilters>({ page: 1 });

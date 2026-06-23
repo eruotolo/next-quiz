@@ -17,7 +17,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import {
@@ -56,7 +55,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type React from 'react';
+import type { FormEvent } from 'react';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -119,7 +118,7 @@ function PlanForm({
     customPlans: CustomPlanOption[];
     onSubmit: (payload: AssignPayload) => void;
     isPending: boolean;
-}): React.JSX.Element {
+}) {
     const [kind, setKind] = useState<'commercial' | 'custom'>(
         row.customPlan ? 'custom' : 'commercial',
     );
@@ -242,7 +241,7 @@ function InstitutionForm({
     defaultValues?: Partial<InstitutionInput>;
     onSubmit: (data: InstitutionInput) => void;
     isPending: boolean;
-}): React.JSX.Element {
+}) {
     const {
         register,
         handleSubmit,
@@ -376,7 +375,7 @@ function InstitutionForm({
     );
 }
 
-export function InstitutionsClient({ result, q: initialQ, customPlans }: Props): React.JSX.Element {
+export function InstitutionsClient({ result, q: initialQ, customPlans }: Props) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [search, setSearch] = useState(initialQ);
@@ -393,7 +392,7 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
         router.push(`/config/institutions?${sp.toString()}`);
     }
 
-    function handleSearchSubmit(e: React.FormEvent): void {
+    function handleSearchSubmit(e: FormEvent): void {
         e.preventDefault();
         pushUrl({ q: search, page: 1 });
     }
@@ -472,24 +471,6 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
 
     return (
         <>
-            {/* Header */}
-            <AdminTopBar
-                breadcrumb={['Sistema', 'Instituciones']}
-                title="Instituciones"
-                subtitle={`${result.total} entidades educativas registradas en la plataforma`}
-                actions={
-                    <Button
-                        variant="ink"
-                        size="md"
-                        onClick={() => setCreateOpen(true)}
-                        className="gap-2"
-                    >
-                        <Plus size={16} />
-                        Nueva institución
-                    </Button>
-                }
-            />
-
             {/* Filter bar */}
             <div className="border-border flex items-center gap-2 border-b bg-white px-8 py-4">
                 <form onSubmit={handleSearchSubmit} className="relative max-w-sm flex-1">
@@ -505,6 +486,15 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props):
                 <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
                     {result.total} registradas
                 </span>
+                <Button
+                    variant="ink"
+                    size="md"
+                    onClick={() => setCreateOpen(true)}
+                    className="gap-2"
+                >
+                    <Plus size={16} />
+                    Nueva institución
+                </Button>
             </div>
 
             <main className="flex-1 overflow-auto p-8">

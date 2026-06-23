@@ -4,7 +4,6 @@ import { AUDIT_ACTION_LABEL } from '@/features/audit/lib/actions';
 import type { AuditActionKey } from '@/features/audit/lib/actions';
 import type { AuditQuery } from '@/features/audit/schemas/audit.schemas';
 import type { AuditLogsResult, InstitutionOption } from '@/features/audit/types/audit.types';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
@@ -27,7 +26,6 @@ import {
 import { TablePaginator } from '@/shared/components/ui/table-paginator';
 import { ScrollText, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import type React from 'react';
 import { useRef, useTransition } from 'react';
 
 interface Props {
@@ -56,7 +54,7 @@ export function AuditClient({
     distinctActions,
     institutions,
     currentFilters,
-}: Props): React.JSX.Element {
+}: Props) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -115,12 +113,6 @@ export function AuditClient({
 
     return (
         <>
-            <AdminTopBar
-                breadcrumb={['Sistema', 'Auditoría']}
-                title="Auditoría"
-                subtitle={`${result.total.toLocaleString('es-CL')} eventos registrados`}
-            />
-
             {/* Filter bar */}
             <div className="border-border flex flex-wrap items-center gap-2 border-b bg-white px-8 py-3">
                 <Input

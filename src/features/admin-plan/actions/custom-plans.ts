@@ -2,7 +2,7 @@
 
 import { z } from 'zod';
 import { prisma } from '@/shared/lib/prisma';
-import { requireSuperAdmin } from '@/shared/lib/auth-guard';
+import { requireSuperAdmin } from '@/features/auth/lib/auth-guard';
 import { type ActionResult, fail, ok, toActionError } from '@/shared/types/action';
 import { revalidatePath } from 'next/cache';
 

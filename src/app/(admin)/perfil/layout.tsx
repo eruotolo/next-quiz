@@ -8,7 +8,7 @@ export default async function PerfilLayout({
     children,
 }: {
     children: ReactNode;
-}): Promise<React.JSX.Element> {
+}) {
     const session = await auth();
     if (!session) redirect('/login');
 
@@ -20,7 +20,6 @@ export default async function PerfilLayout({
                 isSuper={isSuper}
                 slug={isSuper ? undefined : (session.user.institutionSlug ?? undefined)}
                 userName={session.user?.name}
-                userEmail={session.user?.email}
                 userRole={session.user?.userRoleName}
             />
             <main className="ml-60 flex-1 overflow-y-auto">{children}</main>

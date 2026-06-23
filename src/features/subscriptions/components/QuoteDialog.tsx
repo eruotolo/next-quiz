@@ -32,7 +32,7 @@ interface FormState {
     message: string;
 }
 
-export function QuoteDialog({ open, onOpenChange, defaultValues }: QuoteDialogProps): React.JSX.Element {
+export function QuoteDialog({ open, onOpenChange, defaultValues }: QuoteDialogProps) {
     const [form, setForm] = useState<FormState>({
         name: defaultValues?.name ?? '',
         email: defaultValues?.email ?? '',

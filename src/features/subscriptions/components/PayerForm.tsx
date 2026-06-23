@@ -1,6 +1,6 @@
 'use client';
 
-import type * as React from 'react';
+import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -31,12 +31,12 @@ function formatCLP(n: number): string {
 
 interface FormFieldProps {
     label: string;
-    icon?: React.ReactNode;
+    icon?: ReactNode;
     error?: string;
-    children: React.ReactNode;
+    children: ReactNode;
 }
 
-function FormField({ label, icon, error, children }: FormFieldProps): React.JSX.Element {
+function FormField({ label, icon, error, children }: FormFieldProps) {
     return (
         <div className="flex flex-col gap-1">
             {/* biome-ignore lint/a11y/noLabelWithoutControl: input injected via children */}
@@ -58,7 +58,7 @@ interface Props {
     plan: PaidPlan;
 }
 
-export function PayerForm({ plan }: Props): React.JSX.Element {
+export function PayerForm({ plan }: Props) {
     const router = useRouter();
     const [isPending, setIsPending] = useState(false);
     const info = PLAN_LABELS[plan];

@@ -17,7 +17,7 @@ export function AdminTopBar({
     icon,
     actions,
     className,
-}: AdminTopBarProps): React.JSX.Element {
+}: AdminTopBarProps) {
     return (
         <header
             className={cn(

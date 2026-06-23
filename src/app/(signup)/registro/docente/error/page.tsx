@@ -1,4 +1,3 @@
-import type * as React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { XCircle } from 'lucide-react';
@@ -8,7 +7,7 @@ export const metadata: Metadata = {
     title: 'Pago no completado · Aulika',
 };
 
-export default function DocenteErrorPage(): React.JSX.Element {
+export default function DocenteErrorPage() {
     return (
         <div className="flex flex-col items-center gap-5 py-8 text-center">
             <XCircle className="text-destructive size-12" />

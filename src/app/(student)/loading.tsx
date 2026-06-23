@@ -1,6 +1,6 @@
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
-export default function StudentLoading(): React.JSX.Element {
+export default function StudentLoading() {
     return (
         <div className="bg-paper flex min-h-screen items-center justify-center">
             <div className="w-full max-w-lg space-y-4 p-6">

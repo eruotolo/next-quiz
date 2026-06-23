@@ -2,7 +2,7 @@
 
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
-import { requireInstitutionAccess } from '@/shared/lib/auth-guard';
+import { requireInstitutionAccess } from '@/features/auth/lib/auth-guard';
 import { groupProfessorFilter } from '@/shared/lib/scoping';
 import { logAudit } from '@/shared/lib/audit';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';

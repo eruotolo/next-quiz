@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/shared/lib/prisma';
-import { requireInstitutionAccess } from '@/shared/lib/auth-guard';
+import { requireInstitutionAccess } from '@/features/auth/lib/auth-guard';
 import type { BankQuestionFilter } from '@/features/questions/schemas/bank-question.schemas';
 import type { SafeBankQuestion, BankQuestionFilters } from '@/features/questions/types/bank-question.types';
 

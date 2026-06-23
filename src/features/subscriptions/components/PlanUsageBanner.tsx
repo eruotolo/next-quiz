@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import type * as React from 'react';
+
 import { useState } from 'react';
 import { AlertTriangle, X, Zap } from 'lucide-react';
 import Link from 'next/link';

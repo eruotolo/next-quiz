@@ -1,6 +1,6 @@
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
-export default function ExamLoading(): React.JSX.Element {
+export default function ExamLoading() {
     return (
         <div className="bg-paper flex min-h-screen flex-col">
             <div className="border-border border-b bg-white px-6 py-4">

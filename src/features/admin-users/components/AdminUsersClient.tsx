@@ -11,7 +11,6 @@ import {
     adminUserUpdateSchema,
 } from '@/features/admin-users/schemas/admin-user.schemas';
 import type { InstitutionRow } from '@/features/institutions/actions/queries';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import {
@@ -59,7 +58,7 @@ import {
     ShieldCheck,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import type React from 'react';
+import type { FormEvent } from 'react';
 import { useState, useTransition } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -93,7 +92,7 @@ function RoleSelect({
 }: {
     value: string;
     onChange: (v: typeof USER_ROLE.ADMIN | typeof USER_ROLE.SUPER_ADMIN) => void;
-}): React.JSX.Element {
+}) {
     return (
         <Select value={value} onValueChange={onChange}>
             <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
@@ -115,7 +114,7 @@ function CreateAdminForm({
     institutions: Props['institutions'];
     onSubmit: (data: CreateInput) => void;
     isPending: boolean;
-}): React.JSX.Element {
+}) {
     const {
         register,
         handleSubmit,
@@ -271,7 +270,7 @@ function UpdateAdminForm({
     institutions: Props['institutions'];
     onSubmit: (data: UpdateInput) => void;
     isPending: boolean;
-}): React.JSX.Element {
+}) {
     const {
         register,
         handleSubmit,
@@ -463,7 +462,7 @@ export function AdminUsersClient({
     institutions,
     q: initialQ,
     institutionId: initialInstitutionId,
-}: Props): React.JSX.Element {
+}: Props) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [search, setSearch] = useState(initialQ);
@@ -482,7 +481,7 @@ export function AdminUsersClient({
         router.push(`/config/admins?${sp.toString()}`);
     }
 
-    function handleSearchSubmit(e: React.FormEvent): void {
+    function handleSearchSubmit(e: FormEvent): void {
         e.preventDefault();
         pushUrl({ q: search, page: 1 });
     }
@@ -536,24 +535,6 @@ export function AdminUsersClient({
 
     return (
         <>
-            {/* Header */}
-            <AdminTopBar
-                breadcrumb={['Sistema', 'Administradores']}
-                title="Gestión de Accesos"
-                subtitle={`${result.total} usuarios con privilegios de gestión en la plataforma`}
-                actions={
-                    <Button
-                        variant="ink"
-                        size="md"
-                        onClick={() => setCreateOpen(true)}
-                        className="gap-2"
-                    >
-                        <Plus size={16} />
-                        Nuevo usuario
-                    </Button>
-                }
-            />
-
             {/* Filter bar */}
             <div className="border-border flex items-center gap-2 border-b bg-white px-8 py-4">
                 <form onSubmit={handleSearchSubmit} className="relative max-w-sm flex-1">
@@ -594,6 +575,15 @@ export function AdminUsersClient({
                 <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
                     {result.total} registrados
                 </span>
+                <Button
+                    variant="ink"
+                    size="md"
+                    onClick={() => setCreateOpen(true)}
+                    className="gap-2"
+                >
+                    <Plus size={16} />
+                    Nuevo usuario
+                </Button>
             </div>
 
             <main className="flex-1 overflow-auto p-8">

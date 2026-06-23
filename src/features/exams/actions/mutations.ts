@@ -9,7 +9,7 @@ import {
 import { logAudit } from '@/shared/lib/audit';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
-import { requireInstitutionAccess } from '@/shared/lib/auth-guard';
+import { requireInstitutionAccess } from '@/features/auth/lib/auth-guard';
 import { assertQuota } from '@/features/subscriptions/lib/quota';
 import { revalidatePath } from 'next/cache';
 

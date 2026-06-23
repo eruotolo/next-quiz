@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import type * as React from 'react';
+import type { ComponentType, CSSProperties } from 'react';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { cn } from '@/shared/lib/utils';
 import {
@@ -35,13 +35,13 @@ import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Command } from 'cmdk';
-import { searchGlobal, type SearchResult } from '@/features/shared/actions/search';
+import { searchGlobal, type SearchResult } from '@/shared/lib/search';
 
 // ── Nav items ─────────────────────────────────────────────────────────────
 interface NavItem {
     path: string;
     label: string;
-    icon: React.ComponentType<{ size?: number; className?: string }>;
+    icon: ComponentType<{ size?: number; className?: string }>;
     exact?: boolean;
     live?: boolean;
     countKey?: keyof SidebarCounts;
@@ -87,7 +87,7 @@ function CommandPalette({
     open: boolean;
     onOpenChange: (v: boolean) => void;
     slug?: string;
-}): React.JSX.Element {
+}) {
     const router = useRouter();
     const base = slug ? `/${slug}` : '';
 
@@ -236,7 +236,7 @@ interface SidebarProps {
     slug?: string;
     isSuper?: boolean;
     userName?: string | null;
-    userEmail?: string | null;
+
     userRole?: string | null;
     counts?: SidebarCounts;
     institutionList?: InstitutionOption[];
@@ -247,12 +247,11 @@ export function Sidebar({
     slug,
     isSuper = false,
     userName,
-    userEmail: _userEmail,
     userRole,
     counts,
     institutionList,
     showPlanPromo = false,
-}: SidebarProps): React.JSX.Element {
+}: SidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
     const [cmdOpen, setCmdOpen] = useState(false);
@@ -301,7 +300,7 @@ export function Sidebar({
     }, [pathname]);
 
     // Inner content rendered in both desktop aside and mobile Sheet
-    function SidebarInner({ onClose }: { onClose?: () => void }): React.JSX.Element {
+    function SidebarInner({ onClose }: { onClose?: () => void }) {
         return (
             <>
                 {/* Mobile header — full-screen drawer close button */}
@@ -478,7 +477,7 @@ export function Sidebar({
                                 {
                                     '--promo-bg':
                                         'radial-gradient(ellipse at 80% 0%, rgba(214,255,31,0.25) 0%, transparent 55%), #1f2eff',
-                                } as React.CSSProperties
+                                } as CSSProperties
                             }
                         >
                             <p className="text-[12.5px] leading-tight font-bold">

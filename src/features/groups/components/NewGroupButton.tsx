@@ -8,7 +8,6 @@ import {
     DialogContent,
     DialogDescription,
     DialogFooter,
-    DialogHeader,
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
@@ -36,7 +35,7 @@ interface Props {
     slug: string;
 }
 
-export function NewGroupButton({ slug }: Props): React.JSX.Element {
+export function NewGroupButton({ slug }: Props) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [professors, setProfessors] = useState<ProfessorOption[]>([]);

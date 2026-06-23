@@ -8,7 +8,6 @@ import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Loader2, Save, Settings } from 'lucide-react';
-import type React from 'react';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
@@ -28,7 +27,7 @@ function SettingField({
     configKey: AppConfigKey;
     value: string;
     type?: string;
-}): React.JSX.Element {
+}) {
     const [fieldValue, setFieldValue] = useState(value);
     const [isPending, startTransition] = useTransition();
 
@@ -74,7 +73,7 @@ function SettingField({
     );
 }
 
-export function AppSettingsClient({ config }: Props): React.JSX.Element {
+export function AppSettingsClient({ config }: Props) {
     return (
         <>
             <AdminTopBar

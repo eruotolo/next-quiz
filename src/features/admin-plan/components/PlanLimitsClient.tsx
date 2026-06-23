@@ -1,6 +1,5 @@
-﻿'use client';
+'use client';
 
-import type * as React from 'react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, Lock, Pencil, Plus, Save, Trash2 } from 'lucide-react';
@@ -83,7 +82,7 @@ function CustomPlanFormFields({
     initial?: CustomPlan;
     onSubmit: (form: CustomPlanForm) => void;
     isPending: boolean;
-}): React.JSX.Element {
+}) {
     const [form, setForm] = useState<CustomPlanForm>({
         name: initial?.name ?? '',
         description: initial?.description ?? '',
@@ -158,7 +157,7 @@ function CustomPlanFormFields({
     );
 }
 
-export function PlanLimitsClient({ limits, customPlans }: Props): React.JSX.Element {
+export function PlanLimitsClient({ limits, customPlans }: Props) {
     const router = useRouter();
     const [rows, setRows] = useState<RowState>(initState(limits));
     const [saving, setSaving] = useState<string | null>(null);
@@ -171,7 +170,7 @@ export function PlanLimitsClient({ limits, customPlans }: Props): React.JSX.Elem
         const num = value === '' ? null : Number.parseInt(value, 10);
         setRows((prev) => ({
             ...prev,
-            [plan]: { ...prev[plan]!, [field]: Number.isNaN(num) ? null : num },
+            [plan]: { ...(prev[plan] as EditableLimits), [field]: Number.isNaN(num) ? null : num },
         }));
     }
 

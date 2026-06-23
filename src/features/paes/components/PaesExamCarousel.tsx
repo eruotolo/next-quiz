@@ -25,7 +25,7 @@ export function PaesExamCarousel({
     exam,
     initialSeconds,
     backUrl = '/paes',
-}: PaesExamCarouselProps): React.JSX.Element {
+}: PaesExamCarouselProps) {
     const [phase, setPhase] = useState<'exam' | 'results'>('exam');
     const [retryCount, setRetryCount] = useState(0);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -403,7 +403,7 @@ function QuestionPanel({
     onPrev,
     exam_source,
     exam_sourceUrl,
-}: QuestionPanelProps): React.JSX.Element {
+}: QuestionPanelProps) {
     return (
         <AnimatePresence mode="wait" custom={direction}>
             <motion.div

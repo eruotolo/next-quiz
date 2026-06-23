@@ -1,13 +1,12 @@
 ﻿'use client';
 
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { QuoteDialog } from '@/features/subscriptions/components/QuoteDialog';
 import { upgradePlan } from '@/features/subscriptions/actions/upgrade';
 import { Button } from '@/shared/components/ui/button';
 import { Tag } from '@/shared/components/ui/badge';
 import { cn } from '@/shared/lib/utils';
 import { motion } from 'framer-motion';
-import { Check, Sparkles } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
@@ -103,7 +102,7 @@ interface PlanCardProps {
     onQuote: () => void;
 }
 
-function PriceBlock({ plan, billing }: { plan: UpgradePlan; billing: Billing }): React.JSX.Element {
+function PriceBlock({ plan, billing }: { plan: UpgradePlan; billing: Billing }) {
     const price = billing === 'annual' ? plan.annualPrice : plan.monthlyPrice;
     const amountColor = plan.featured ? 'text-lime' : 'text-ink';
     const mutedColor = plan.featured ? 'text-white/50' : 'text-mute';
@@ -142,7 +141,7 @@ function PriceBlock({ plan, billing }: { plan: UpgradePlan; billing: Billing }):
     );
 }
 
-function PlanCta({ plan, isCurrent, onUpgrade, onQuote }: Omit<PlanCardProps, 'billing'>): React.JSX.Element {
+function PlanCta({ plan, isCurrent, onUpgrade, onQuote }: Omit<PlanCardProps, 'billing'>) {
     if (isCurrent) {
         return (
             <Button variant="ghost" size="lg" className="w-full" disabled>
@@ -181,7 +180,7 @@ function PlanCta({ plan, isCurrent, onUpgrade, onQuote }: Omit<PlanCardProps, 'b
     );
 }
 
-function PlanCard({ plan, billing, isCurrent, onUpgrade, onQuote }: PlanCardProps): React.JSX.Element {
+function PlanCard({ plan, billing, isCurrent, onUpgrade, onQuote }: PlanCardProps) {
     const checkColor = plan.featured ? 'text-lime' : 'text-success';
 
     return (
@@ -259,7 +258,7 @@ export function UpgradePlans({
     slug,
     currentPlan,
     quoteDefaults,
-}: UpgradePlansProps): React.JSX.Element {
+}: UpgradePlansProps) {
     const [billing, setBilling] = useState<Billing>('annual');
     const [quoteOpen, setQuoteOpen] = useState(false);
     const [, startTransition] = useTransition();
@@ -281,14 +280,7 @@ export function UpgradePlans({
     }
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
-            <AdminTopBar
-                title="Mejorá tu plan"
-                breadcrumb={['Institución', 'Planes']}
-                icon={<Sparkles size={24} />}
-                subtitle="Elegí el plan que mejor se adapta a tu institución. El cambio se aplica al confirmar el pago."
-            />
-
+        <>
             <main className="flex-1 p-8">
                 {/* Toggle de facturación */}
                 <div className="mb-10 flex flex-col items-center gap-3">
@@ -351,6 +343,6 @@ export function UpgradePlans({
                 onOpenChange={setQuoteOpen}
                 defaultValues={quoteDefaults}
             />
-        </div>
+        </>
     );
 }

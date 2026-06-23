@@ -9,7 +9,7 @@ import { cn } from '@/shared/lib/utils';
 function Checkbox({
     className,
     ...props
-}: React.ComponentProps<typeof CheckboxPrimitive.Root>): React.JSX.Element {
+}: React.ComponentProps<typeof CheckboxPrimitive.Root>) {
     return (
         <CheckboxPrimitive.Root
             data-slot="checkbox"

@@ -14,7 +14,7 @@ import {
     type SubmitAnswerInput,
     submitAnswerSchema,
 } from '@/features/exam-session/schemas/exam-session.schemas';
-import { calcGrade } from '@/features/results/lib/grade';
+import { calcGrade } from '@/shared/lib/grade';
 import { buildExamResultEmail, sendEmail } from '@/shared/lib/email';
 
 /**

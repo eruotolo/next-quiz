@@ -1,4 +1,4 @@
-﻿import { auth } from '@/features/auth/auth';
+import { auth } from '@/features/auth/auth';
 import { Sidebar } from '@/features/dashboard/components/Sidebar';
 import { demoExamFilter } from '@/features/demo/lib/demo';
 import { PlanUsageBanner } from '@/features/subscriptions/components/PlanUsageBanner';
@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function InstitutionLayout({
     children,
     params,
-}: Props): Promise<React.JSX.Element> {
+}: Props) {
     const { slug } = await params;
     const session = await auth();
     if (!session) redirect('/login');
@@ -105,7 +105,6 @@ export default async function InstitutionLayout({
             <Sidebar
                 slug={slug}
                 userName={session.user?.name}
-                userEmail={session.user?.email}
                 userRole={session.user?.userRoleName}
                 counts={{
                     students: students ?? undefined,

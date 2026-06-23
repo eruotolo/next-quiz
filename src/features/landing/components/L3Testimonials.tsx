@@ -16,7 +16,7 @@ const TESTIMONIALS = [
     },
 ];
 
-export function L3Testimonials(): React.JSX.Element {
+export function L3Testimonials() {
     return (
         <section className="bg-paper-warm/60 py-24">
             <div className="mx-auto max-w-[1200px] px-6">

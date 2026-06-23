@@ -1,4 +1,3 @@
-import type * as React from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Receipt } from 'lucide-react';
@@ -20,7 +19,7 @@ interface Props {
 
 export default async function SubscriptionDetailPage({
     params,
-}: Props): Promise<React.JSX.Element> {
+}: Props) {
     const { id } = await params;
     const result = await getSubscriptionById(id);
 
@@ -29,7 +28,7 @@ export default async function SubscriptionDetailPage({
     const { data: detail } = result;
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
+        <>
             <AdminTopBar
                 breadcrumb={['Panel Global', 'Suscripciones', `${detail.id.slice(0, 8)}…`]}
                 title="Detalle de suscripción"
@@ -44,6 +43,6 @@ export default async function SubscriptionDetailPage({
             <main className="flex-1 p-8">
                 <SubscriptionDetailClient detail={detail} />
             </main>
-        </div>
+        </>
     );
 }

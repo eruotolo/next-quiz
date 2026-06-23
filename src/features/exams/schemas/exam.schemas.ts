@@ -1,7 +1,6 @@
-﻿import { z } from 'zod';
+import { z } from 'zod';
 
-export const questionTypeEnum = z.enum(['UNICA', 'MULTIPLE']);
-
+import { questionTypeEnum } from '@/shared/schemas/question-types';
 export const optionSchema = z.object({
     id: z.string().uuid().optional(),
     text: z.string().min(1, 'Texto de opción requerido').max(500),

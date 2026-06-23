@@ -4,7 +4,7 @@ import { google } from '@ai-sdk/google';
 import { generationInputSchema } from '@/features/ai-question-gen/schemas/generation.schemas';
 import { buildPrompt } from '@/features/ai-question-gen/lib/build-prompt';
 import { parseGeminiResponse } from '@/features/ai-question-gen/lib/parse-response';
-import { requireInstitutionAccess } from '@/shared/lib/auth-guard';
+import { requireInstitutionAccess } from '@/features/auth/lib/auth-guard';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {

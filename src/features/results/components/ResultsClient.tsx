@@ -1,11 +1,10 @@
 'use client';
 
-import type React from 'react';
+import type { CSSProperties } from 'react';
 import { useState, useTransition, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { deleteResult, recalculateResult } from '@/features/results/actions/mutations';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -22,7 +21,6 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogHeader,
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import {
@@ -41,7 +39,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
-import { calcGrade } from '@/features/results/lib/grade';
+import { calcGrade } from '@/shared/lib/grade';
 import { formatRut } from '@/shared/lib/rut';
 import { cn } from '@/shared/lib/utils';
 import {
@@ -157,7 +155,7 @@ export function ResultsClient({
     groupOptions,
     selectedExamId,
     selectedGroupId,
-}: Props): React.JSX.Element {
+}: Props) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [isExporting, setIsExporting] = useState(false);
@@ -236,12 +234,10 @@ export function ResultsClient({
 
     return (
         <>
-            <AdminTopBar
-                breadcrumb={[institutionName, 'Resultados']}
-                title="Historial de Resultados"
-                subtitle={`${totalCount} evaluaciones completadas y procesadas`}
-                actions={
-                    totalCount > 0 ? (
+            <main className="flex-1 space-y-8 overflow-auto p-8">
+                {/* Export action */}
+                {totalCount > 0 && (
+                    <div className="flex justify-end">
                         <Button
                             variant="ghost"
                             size="md"
@@ -265,11 +261,9 @@ export function ResultsClient({
                             )}
                             Exportar XLSX
                         </Button>
-                    ) : undefined
-                }
-            />
+                    </div>
+                )}
 
-            <main className="flex-1 space-y-8 overflow-auto p-8">
                 {/* Global Stats */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     {[
@@ -296,7 +290,7 @@ export function ResultsClient({
                             <div className="mb-4 flex items-center gap-3">
                                 <div
                                     className="border-border bg-paper-warm flex size-8 items-center justify-center rounded-[8px] border [color:var(--tile-c)]"
-                                    style={{ '--tile-c': tile.color } as React.CSSProperties}
+                                    style={{ '--tile-c': tile.color } as CSSProperties}
                                 >
                                     <tile.icon size={16} />
                                 </div>
@@ -605,7 +599,7 @@ function AnswersReview({
 }: {
     result: ResultRow;
     exam: ExamGroup;
-}): React.JSX.Element {
+}) {
     const answerMap = result.answers;
 
     function getSelectedIds(val: string[] | string | undefined): string[] {

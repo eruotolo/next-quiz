@@ -124,7 +124,7 @@ interface PriceDisplayProps {
     featured: boolean;
 }
 
-function PriceDisplay({ price, billing, featured }: PriceDisplayProps): React.JSX.Element {
+function PriceDisplay({ price, billing, featured }: PriceDisplayProps) {
     const amountColor = featured ? 'text-lime' : 'text-ink';
     const mutedColor = featured ? 'text-white/50' : 'text-mute';
     const subtleColor = featured ? 'text-white/40' : 'text-mute';
@@ -170,7 +170,7 @@ interface PlanCardProps {
     onQuote: () => void;
 }
 
-function PlanCard({ plan, billing, onQuote }: PlanCardProps): React.JSX.Element {
+function PlanCard({ plan, billing, onQuote }: PlanCardProps) {
     const price = billing === 'annual' ? plan.annualPrice : plan.monthlyPrice;
     const checkColor = plan.featured ? 'text-lime' : 'text-success';
     const featureTextColor = plan.featured ? 'text-white/80' : 'text-ink';
@@ -240,7 +240,7 @@ function PlanCard({ plan, billing, onQuote }: PlanCardProps): React.JSX.Element 
     );
 }
 
-export function L3Pricing(): React.JSX.Element {
+export function L3Pricing() {
     const [billing, setBilling] = useState<BillingPeriod>('annual');
     const [quoteOpen, setQuoteOpen] = useState(false);
 

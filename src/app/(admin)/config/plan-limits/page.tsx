@@ -1,4 +1,3 @@
-import type * as React from 'react';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -11,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Límites de planes · Aulika',
 };
 
-export default async function PlanLimitsPage(): Promise<React.JSX.Element> {
+export default async function PlanLimitsPage() {
     const [limits, customPlans] = await Promise.all([
         prisma.planLimits.findMany({ orderBy: { plan: 'asc' } }),
         prisma.customPlan.findMany({ orderBy: { name: 'asc' } }),

@@ -1,6 +1,5 @@
 'use client';
 
-import type * as React from 'react';
 import { validateStudent } from '@/features/students/actions/student-auth';
 import { Button } from '@/shared/components/ui/button';
 import { ArrowRight, Loader2 } from 'lucide-react';
@@ -9,7 +8,7 @@ import { useActionState } from 'react';
 
 const initialState = { error: undefined };
 
-export function StudentLoginForm(): React.JSX.Element {
+export function StudentLoginForm() {
     const [state, action, isPending] = useActionState(validateStudent, initialState);
 
     return (

@@ -20,7 +20,7 @@ export function PrintButton({
     variant = 'outline',
     size = 'lg',
     className,
-}: PrintButtonProps): React.JSX.Element {
+}: PrintButtonProps) {
     return (
         <Button
             variant={variant}

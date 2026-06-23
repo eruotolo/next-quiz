@@ -1,4 +1,3 @@
-import type * as React from 'react';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { auth } from '@/features/auth/auth';
@@ -11,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Mi perfil · Aulika',
 };
 
-export default async function PerfilPage(): Promise<React.JSX.Element> {
+export default async function PerfilPage() {
     const session = await auth();
     if (!session?.user?.id) redirect('/login');
 

@@ -1,7 +1,7 @@
 import { ExamEditorClient } from '@/features/exams/components/ExamEditorClient';
 import { demoExamFilter } from '@/features/demo/lib/demo';
 import { prisma } from '@/shared/lib/prisma';
-import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
+import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { notFound } from 'next/navigation';
 
 interface PageProps {

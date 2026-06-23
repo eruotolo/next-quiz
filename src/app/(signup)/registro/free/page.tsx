@@ -1,4 +1,3 @@
-import type * as React from 'react';
 import type { Metadata } from 'next';
 import { SignupFreeForm } from '@/features/subscriptions/components/SignupFreeForm';
 
@@ -7,6 +6,6 @@ export const metadata: Metadata = {
     description: 'Registrá tu institución sin tarjeta de crédito.',
 };
 
-export default function RegistroFreePage(): React.JSX.Element {
+export default function RegistroFreePage() {
     return <SignupFreeForm />;
 }

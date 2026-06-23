@@ -1,9 +1,8 @@
 'use client';
 
-import type * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { Loader2, XCircle } from 'lucide-react';
 import { getSubscriptionStatus } from '@/features/subscriptions/actions/signup';
 
 interface Props {
@@ -11,7 +10,7 @@ interface Props {
     planName: string;
 }
 
-export function PendingPaymentPoller({ subscriptionId, planName }: Props): React.JSX.Element {
+export function PendingPaymentPoller({ subscriptionId, planName }: Props) {
     const router = useRouter();
     const [attempts, setAttempts] = useState(0);
     const [failed, setFailed] = useState(false);

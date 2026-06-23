@@ -1,7 +1,7 @@
 import { DemoExamCarousel } from '@/features/demo/components/DemoExamCarousel';
 import { demoExam } from '@/features/demo/data/demo-exam';
 
-export default function DemoExamPage(): React.JSX.Element {
+export default function DemoExamPage() {
     const initialSeconds = demoExam.timeLimit * 60;
 
     return (

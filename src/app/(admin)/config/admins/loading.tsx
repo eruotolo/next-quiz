@@ -1,6 +1,6 @@
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
-export default function ConfigAdminsLoading(): React.JSX.Element {
+export default function ConfigAdminsLoading() {
     return (
         <div className="space-y-6 p-8">
             <div className="space-y-2">

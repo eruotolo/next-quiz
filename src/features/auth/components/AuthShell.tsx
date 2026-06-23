@@ -1,13 +1,13 @@
-import type * as React from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { LogoMark, LogoWordmark } from '@/shared/components/branding/logo';
 import Link from 'next/link';
 
 interface AuthShellProps {
-    children: React.ReactNode;
-    side?: React.ReactNode;
+    children: ReactNode;
+    side?: ReactNode;
 }
 
-export function AuthShell({ children, side }: AuthShellProps): React.JSX.Element {
+export function AuthShell({ children, side }: AuthShellProps) {
     return (
         <div className="grid min-h-screen lg:grid-cols-[0.9fr_1.1fr]">
             {/* Left — ink panel with radial gradients */}
@@ -17,7 +17,7 @@ export function AuthShell({ children, side }: AuthShellProps): React.JSX.Element
                     {
                         '--auth-bg':
                             'radial-gradient(ellipse at 22% 22%, rgba(31,46,255,0.38) 0%, transparent 55%), radial-gradient(ellipse at 78% 78%, rgba(214,255,31,0.14) 0%, transparent 50%), #0b0b11',
-                    } as React.CSSProperties
+                    } as CSSProperties
                 }
             >
                 {/* Logo */}

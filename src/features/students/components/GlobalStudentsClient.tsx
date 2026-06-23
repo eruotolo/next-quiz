@@ -51,7 +51,7 @@ import {
     MoreHorizontal,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import type React from 'react';
+import type { FormEvent } from 'react';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 import {
@@ -87,7 +87,7 @@ function StudentForm({
     institutions: Props['institutions'];
     onSubmit: (data: StudentFormData) => void;
     isPending: boolean;
-}): React.JSX.Element {
+}) {
     const [form, setForm] = useState<StudentFormData>({
         name: defaultValues?.name ?? '',
         lastname: defaultValues?.lastname ?? '',
@@ -101,7 +101,7 @@ function StudentForm({
         setForm((prev) => ({ ...prev, [field]: value }));
     }
 
-    function handleSubmit(e: React.FormEvent): void {
+    function handleSubmit(e: FormEvent): void {
         e.preventDefault();
         onSubmit(form);
     }
@@ -188,7 +188,7 @@ export function GlobalStudentsClient({
     institutions,
     q: initialQ,
     institutionId: initialInstitutionId,
-}: Props): React.JSX.Element {
+}: Props) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [search, setSearch] = useState(initialQ);
@@ -207,7 +207,7 @@ export function GlobalStudentsClient({
         router.push(`/config/students?${sp.toString()}`);
     }
 
-    function handleSearchSubmit(e: React.FormEvent): void {
+    function handleSearchSubmit(e: FormEvent): void {
         e.preventDefault();
         pushUrl({ q: search, page: 1 });
     }

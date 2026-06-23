@@ -1,6 +1,6 @@
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
-export default function LiveResultsLoading(): React.JSX.Element {
+export default function LiveResultsLoading() {
     return (
         <div className="bg-paper flex min-h-screen flex-col">
             <div className="border-border border-b bg-white p-6">

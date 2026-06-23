@@ -5,7 +5,7 @@ import { Activity, ArrowRight } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 
 // Browser mockup that previews the admin panel
-function BigMock(): React.JSX.Element {
+function BigMock() {
     return (
         <div className="relative mx-auto w-full">
             {/* Browser chrome */}
@@ -171,7 +171,7 @@ function BigMock(): React.JSX.Element {
     );
 }
 
-export function L3Hero(): React.JSX.Element {
+export function L3Hero() {
     return (
         <section className="relative overflow-hidden bg-white pt-20 pb-12" id="producto">
             {/* Pro grid background with radial mask */}

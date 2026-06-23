@@ -1,6 +1,6 @@
 'use client';
 
-import type * as React from 'react';
+import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import { ArrowRight, TrendingUp, CreditCard, Users, XCircle, PauseCircle } from 'lucide-react';
 import { Card } from '@/shared/components/ui/card';
@@ -32,7 +32,7 @@ interface RevenueChartProps {
     data: Array<{ month: string; amount: number }>;
 }
 
-function RevenueChart({ data }: RevenueChartProps): React.JSX.Element {
+function RevenueChart({ data }: RevenueChartProps) {
     const max = Math.max(...data.map((d) => d.amount), 1);
     return (
         <div className="flex h-[80px] items-end gap-1">
@@ -50,7 +50,7 @@ function RevenueChart({ data }: RevenueChartProps): React.JSX.Element {
                                 {
                                     '--bh': `${Math.max(pct, hasValue ? 4 : 2)}%`,
                                     '--bbc': hasValue ? '#1f2eff' : '#e5e2dc',
-                                } as React.CSSProperties
+                                } as CSSProperties
                             }
                         />
                         {hasValue && (
@@ -69,7 +69,7 @@ interface Props {
     stats: BillingStats;
 }
 
-export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
+export function BillingDashboardClient({ stats }: Props) {
     const totalRevenue = stats.revenueLast12Months.reduce((s, m) => s + m.amount, 0);
     const lastMonthRevenue = stats.revenueLast12Months.at(-1)?.amount ?? 0;
     const prevMonthRevenue = stats.revenueLast12Months.at(-2)?.amount ?? 0;
@@ -126,7 +126,7 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
                     {growthPct !== null && (
                         <p
                             className="mt-1 text-[12px] font-medium [color:var(--growth-c)]"
-                            style={{ '--growth-c': growthPct >= 0 ? '#0f7c4a' : '#d5301f' } as React.CSSProperties}
+                            style={{ '--growth-c': growthPct >= 0 ? '#0f7c4a' : '#d5301f' } as CSSProperties}
                         >
                             {growthPct >= 0 ? '+' : ''}
                             {growthPct}% vs mes anterior
@@ -206,7 +206,7 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
                                         <div className="bg-paper-warm h-2 overflow-hidden rounded-full">
                                             <div
                                                 className="h-full w-[var(--plan-w)] rounded-full bg-[#1f2eff] transition-all duration-500"
-                                                style={{ '--plan-w': `${barWidth}%` } as React.CSSProperties}
+                                                style={{ '--plan-w': `${barWidth}%` } as CSSProperties}
                                             />
                                         </div>
                                     </div>
@@ -253,7 +253,7 @@ export function BillingDashboardClient({ stats }: Props): React.JSX.Element {
                             {
                                 '--ql-c': item.color,
                                 '--ql-wash': item.wash,
-                            } as React.CSSProperties
+                            } as CSSProperties
                         }
                     >
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] [background-color:var(--ql-wash)] [color:var(--ql-c)]">

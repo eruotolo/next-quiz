@@ -1,13 +1,13 @@
 import { QuestionsClient } from '@/features/questions/components/QuestionsClient';
 import { prisma } from '@/shared/lib/prisma';
-import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
+import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import type { SafeBankQuestion, BankQuestionFilters } from '@/features/questions/types/bank-question.types';
 
 export default async function QuestionsPage({
     params,
 }: {
     params: Promise<{ slug: string }>;
-}): Promise<React.JSX.Element> {
+}) {
     const { slug } = await params;
     const { institutionId, institutionName } = await requireInstitutionPageAccess(slug);
 

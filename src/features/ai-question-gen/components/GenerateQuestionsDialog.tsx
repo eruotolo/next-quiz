@@ -85,7 +85,7 @@ function ConfigurationForm({
     canGenerate: boolean;
     onUpdate: <K extends keyof FormData>(key: K, value: FormData[K]) => void;
     onGenerate: () => void;
-}): React.JSX.Element {
+}) {
     const questionType: 'UNICA' | 'MULTIPLE' =
         form.correctAnswers === 1 ? 'UNICA' : 'MULTIPLE';
 
@@ -201,7 +201,7 @@ function SubjectField({
     form: FormData;
     subjects: string[];
     onUpdate: <K extends keyof FormData>(key: K, value: FormData[K]) => void;
-}): React.JSX.Element {
+}) {
     if (subjects.length === 0) {
         return (
             <div className="flex flex-col gap-1.5">
@@ -270,7 +270,7 @@ function NumberField({
     onChange: (value: number) => void;
     hint?: string;
     className?: string;
-}): React.JSX.Element {
+}) {
     return (
         <div className="flex flex-col gap-1.5">
             <label htmlFor={id} className="text-ink text-[13px] font-bold">
@@ -301,7 +301,7 @@ function PreviewSection({
 }: {
     result: { ok: GeneratedQuestion[]; errors: string[] };
     onBack: () => void;
-}): React.JSX.Element {
+}) {
     return (
         <div className="space-y-3">
             <div className="flex flex-wrap gap-2 text-sm">
@@ -377,7 +377,7 @@ function PreviewRow({
 }: {
     question: GeneratedQuestion;
     index: number;
-}): React.JSX.Element {
+}) {
     const correctCount = question.options.filter((o) => o.isCorrect).length;
 
     return (
@@ -417,7 +417,7 @@ export function GenerateQuestionsDialog({
     open,
     onOpenChange,
     subjects,
-}: Props): React.JSX.Element {
+}: Props) {
     const router = useRouter();
     const [form, setForm] = useState<FormData>(defaultForm());
     const [generating, setGenerating] = useState(false);

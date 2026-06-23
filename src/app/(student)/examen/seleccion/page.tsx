@@ -1,12 +1,19 @@
 import { prisma } from '@/shared/lib/prisma';
 import { getStudentAuthSession } from '@/features/exam-session/lib/session';
-import { startSelectedExam, viewMyResult, logoutStudent } from '@/features/exam-session/actions/mutations';
-import { calcGrade } from '@/features/results/lib/grade';
-import { LogoMark, LogoWordmark } from '@/shared/components/branding/logo';
-import { Avatar } from '@/shared/components/ui/avatar';
+import { startSelectedExam, viewMyResult } from '@/features/exam-session/actions/mutations';
+import { calcGrade } from '@/shared/lib/grade';
 import { Button } from '@/shared/components/ui/button';
+import { Avatar } from '@/shared/components/ui/avatar';
+import { StudentTopBar } from '@/features/exam-session/components/StudentTopBar';
 import { ExamCloseCountdown } from '@/features/exam-session/components/ExamCloseCountdown';
 import { cn } from '@/shared/lib/utils';
+import {
+    closesLabel,
+    dayLabel,
+    opensLabel,
+    completedFormatter,
+    WEEK_MS,
+} from '@/features/exam-session/lib/exam-formatters';
 import { ArrowRight, BookOpen, Clock, UserRound } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
@@ -14,56 +21,10 @@ export const metadata = {
     title: 'Mis exámenes · Aulika',
 };
 
-const timeFormatter = new Intl.DateTimeFormat('es-CL', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-});
-const dateShortFormatter = new Intl.DateTimeFormat('es-CL', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-});
-const weekdayFormatter = new Intl.DateTimeFormat('es-CL', { weekday: 'short' });
-const completedFormatter = new Intl.DateTimeFormat('es-CL', { day: 'numeric', month: 'short' });
 
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-
-function startOfDay(d: Date): number {
-    const x = new Date(d);
-    x.setHours(0, 0, 0, 0);
-    return x.getTime();
-}
-
-function dayDiff(date: Date, now: Date): number {
-    return Math.round((startOfDay(date) - startOfDay(now)) / (24 * 60 * 60 * 1000));
-}
-
-function dayLabel(date: Date, now: Date): string {
-    const diff = dayDiff(date, now);
-    if (diff === 0) return 'Hoy';
-    if (diff === 1) return 'Mañana';
-    return weekdayFormatter.format(date);
-}
-
-function opensLabel(date: Date, now: Date): string {
-    const diff = dayDiff(date, now);
-    const time = timeFormatter.format(date);
-    if (diff === 0) return `Abre hoy · ${time}`;
-    if (diff === 1) return `Abre mañana · ${time}`;
-    return `${dateShortFormatter.format(date)} · ${time}`;
-}
-
-function closesLabel(date: Date, now: Date): string {
-    const diff = dayDiff(date, now);
-    const time = timeFormatter.format(date);
-    if (diff === 0) return `Cierra hoy · ${time}`;
-    if (diff === 1) return `Cierra mañana · ${time}`;
-    return `Cierra · ${dateShortFormatter.format(date)} · ${time}`;
-}
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: página con clasificación de exámenes en 3 secciones (disponibles, próximos, rendidos) + sidebar; separarla dispersaría la lógica de una sola vista
-export default async function ExamSelectionPage(): Promise<React.JSX.Element> {
+export default async function ExamSelectionPage() {
     const authSession = await getStudentAuthSession();
     if (!authSession) redirect('/examen/login');
 
@@ -162,31 +123,12 @@ export default async function ExamSelectionPage(): Promise<React.JSX.Element> {
 
     return (
         <div className="bg-paper flex min-h-screen flex-col">
-            {/* Top bar */}
-            <header className="border-border flex items-center justify-between border-b bg-white px-8 py-4">
-                <div className="flex items-center gap-3">
-                    <LogoMark size={28} />
-                    <LogoWordmark size={16} color="#0b0b11" />
-                    <div className="bg-border ml-1 h-4 w-px" />
-                    <span className="text-mute max-w-[420px] truncate font-mono text-[11px] tracking-[0.08em] uppercase">
-                        {topbarLabel}
-                    </span>
-                </div>
-                <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-3">
-                        <Avatar name={fullName} size={36} />
-                        <div className="hidden leading-tight sm:block">
-                            <p className="text-ink text-[13px] font-semibold">{fullName}</p>
-                            {groupName && <p className="text-mute text-[11px]">{groupName}</p>}
-                        </div>
-                    </div>
-                    <form action={logoutStudent}>
-                        <Button variant="ghost" size="sm" type="submit" className="text-mute hover:text-ink -ml-2">
-                            Cerrar sesión
-                        </Button>
-                    </form>
-                </div>
-            </header>
+            <StudentTopBar
+                topbarLabel={topbarLabel}
+                fullName={fullName}
+                groupName={groupName}
+                showLogout
+            />
 
             <main className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 lg:grid-cols-[1fr_320px]">
                 {/* Main column */}

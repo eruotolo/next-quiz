@@ -81,6 +81,8 @@ pnpm db:migrate       # Crear y aplicar migración (local)
 pnpm db:seed          # Seed base: roles + SuperAdmin
 pnpm db:seed:local    # Seed local: instituciones, grupos, admins, profesores, estudiantes
 pnpm db:studio        # Prisma Studio GUI
+pnpm test:e2e         # Tests E2E (Playwright, requiere pnpm dev corriendo o lo levanta solo)
+pnpm test:e2e:ui      # Tests E2E en modo interactivo
 ```
 
 ## Flujo de trabajo preferido
@@ -136,8 +138,17 @@ src/
 │   │   └── resultado/[resultId]/page.tsx
 │   ├── (admin)/
 │   │   ├── [slug]/                   → /[slug] (dashboard, students, groups, exams, results, liveresults)
-│   │   │   └── exams/[id]/edit/page.tsx
-│   │   └── config/page.tsx           → /config
+│   │   │   ├── exams/[id]/edit/page.tsx
+│   │   │   ├── students/layout.tsx   → AdminTopBar con count
+│   │   │   ├── results/layout.tsx    → AdminTopBar con count
+│   │   │   ├── settings/layout.tsx   → AdminTopBar
+│   │   │   ├── ayuda/layout.tsx      → AdminTopBar
+│   │   │   └── upgrade/layout.tsx    → AdminTopBar
+│   │   └── config/
+│   │       ├── page.tsx              → /config
+│   │       ├── institutions/layout.tsx → AdminTopBar con count
+│   │       ├── admins/layout.tsx     → AdminTopBar con count
+│   │       └── auditoria/layout.tsx  → AdminTopBar con count
 │   └── api/auth/[...nextauth]/route.ts
 ├── features/
 │   ├── auth/          ← auth.ts, AdminLoginForm, schemas, next-auth.d.ts
@@ -157,6 +168,29 @@ src/
     │   └── branding/  ← logo
     └── lib/           ← prisma, utils (cn), rut, roles, scoping, auth-guard
 ```
+
+### Patrón sub-layout para AdminTopBar
+
+`AdminTopBar` se renderiza en un `layout.tsx` servidor por sección, **no** dentro del componente cliente. Esto permite SSR del header con datos reales (counts, título dinámico) sin hidratar el componente.
+
+Estructura típica de un sub-layout:
+```tsx
+// src/app/(admin)/[slug]/students/layout.tsx
+export default async function StudentsLayout({ children, params }) {
+    const { slug } = await params;
+    const { institutionId, institutionName, isProfesor, userId } =
+        await requireInstitutionPageAccess(slug);
+    const count = await prisma.user.count({ where: { ... } });
+    return (
+        <>
+            <AdminTopBar title="Estudiantes" breadcrumb={[institutionName, 'Estudiantes']} subtitle={`${count} registrados`} />
+            {children}
+        </>
+    );
+}
+```
+
+Regla: si AdminTopBar necesita **acciones con estado** (abrir modal, setCreateOpen), el botón va en la barra de filtros del componente cliente, no en `actions` del layout.
 
 ### Reglas de organización
 
@@ -268,7 +302,8 @@ Login por RUT → **siempre** aterriza en `/examen/seleccion`. Esa página clasi
 - **Navegación** — Siempre `Link` de `next/link`.
 - **Prisma** — Singleton de `@/shared/lib/prisma`. `$transaction` para operaciones atómicas.
 - **Imports** — Named exports. Orden: React → Next.js → terceros → @/ → relativos.
-- **TypeScript** — `strict: true`. Sin `any`. Tipo de retorno explícito en todas las funciones.
+- **TypeScript** — `strict: true`. Sin `any`. Sin anotación de tipo de retorno en componentes (TypeScript infiere).
+- **React imports** — Ver sección "Regla: imports de React" más abajo.
 
 ## Regla: className + style (Tailwind 4)
 
@@ -276,14 +311,54 @@ Login por RUT → **siempre** aterriza en `/examen/seleccion`. Esa página clasi
 
 ```tsx
 // ✅ Correcto
+import type { CSSProperties } from 'react';
 <div
   className="w-[var(--bar-w)] bg-[color:var(--bar-bg)]"
-  style={{ '--bar-w': `${pct}%`, '--bar-bg': color } as React.CSSProperties}
+  style={{ '--bar-w': `${pct}%`, '--bar-bg': color } as CSSProperties}
 />
 
 // ❌ Prohibido
 <div className="..." style={{ width: `${pct}%` }} />
 ```
+
+## Regla: imports de React
+
+El proyecto usa `"jsx": "react-jsx"` (transform automático). **No importar React para JSX** — el runtime no lo necesita.
+
+### ❌ Prohibido
+```tsx
+import React from 'react';               // runtime import innecesario
+import type React from 'react';          // default type import obsoleto
+import type * as React from 'react';     // namespace type import obsoleto
+export function Foo(): React.JSX.Element // anotación de retorno redundante (TS infiere)
+```
+
+### ✅ Correcto
+```tsx
+// Solo importar los tipos que se usan, con named imports:
+import type { CSSProperties, FormEvent, ReactNode, ComponentType } from 'react';
+
+// Sin anotación de retorno en componentes:
+export function Foo() {
+    return <div />;
+}
+
+// Cast de style props con CSS variables:
+style={{ '--token': value } as CSSProperties}
+```
+
+### Excepción — shadcn/ui (`src/shared/components/ui/`)
+Los 16 componentes de shadcn usan `React.ComponentProps<typeof Primitive.X>` con namespace import. **No tocar** — el CLI de shadcn los regenera con ese patrón y `ComponentProps` acoplado al namespace es intencional en Radix primitives.
+
+### Tipos comunes → named imports
+| Antes (prohibido) | Después (correcto) |
+|---|---|
+| `React.CSSProperties` | `CSSProperties` |
+| `React.FormEvent<T>` | `FormEvent<T>` |
+| `React.ChangeEvent<T>` | `ChangeEvent<T>` |
+| `React.ReactNode` | `ReactNode` |
+| `React.ComponentType<T>` | `ComponentType<T>` |
+| `React.JSX.Element` | *(eliminar — TS infiere)* |
 
 ## Centro de ayuda (`/[slug]/ayuda`)
 
@@ -318,6 +393,29 @@ Feature en `src/features/demo/`. Institución `slug = 'aulika-demo'`, `isDemo = 
 - **`pnpm db:seed`** (`prisma/seed.ts`) — 4 roles + SuperAdministrador. Credenciales desde `ADMIN_*` env vars.
 - **`pnpm db:seed:local`** (`prisma/seeders/local-test.ts`) — 2 instituciones, grupos, admins, profesores, 10 estudiantes. Password: `Admin2026!`.
 - **`pnpm db:seed:demo`** (`prisma/seeders/demo.ts`) — institución demo + purga exámenes acumulados. Idempotente. Corre también en el build.
+
+## Tests End-to-End (Playwright)
+
+Estructura en `tests/e2e/`:
+```
+tests/e2e/
+├── global-setup.ts       ← autentica admin y superadmin, guarda cookies en .auth/
+├── .auth/                ← cookies de sesión (gitignored)
+├── public/               ← páginas sin auth (admin-login, student-login)
+├── admin/                ← panel de institución autenticado como carlos.lopez@ulagos.cl
+├── superadmin/           ← panel /config autenticado como ADMIN_EMAIL
+└── student/              ← flujo de estudiante (login incluido en cada test)
+```
+
+**Credenciales de prueba (local-test seed):**
+- Admin: `carlos.lopez@ulagos.cl` / `Admin2026!` → `universidad-de-los-lagos`
+- Profesor: `laura.jimenez@ulagos.cl` / `Admin2026!`
+- Estudiante: RUT `55.555.555-5` (juan.perez@test.cl)
+- SuperAdmin: `ADMIN_EMAIL` / `ADMIN_PASSWORD` (env vars de `.env.local`)
+
+**Prerrequisito:** `pnpm db:seed:local` debe haber corrido antes de ejecutar los tests.
+
+**Flujo completo de examen del estudiante:** Los tests en `student/exam-flow.spec.ts` se saltean automáticamente si no hay un examen activo asignado al grupo del estudiante. Para activar estos tests: crear un examen publicado y asignarlo al grupo de Juan Pérez.
 
 ## Variables de entorno requeridas
 

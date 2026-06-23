@@ -15,7 +15,7 @@ export function L3SubpageLayoutPAES({
     title,
     description,
     children,
-}: L3SubpageLayoutPAESProps): React.JSX.Element {
+}: L3SubpageLayoutPAESProps) {
     const titleWords = title.split(' ');
 
     return (

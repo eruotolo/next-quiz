@@ -8,7 +8,7 @@ export default async function SettingsPage({
     params,
 }: {
     params: Promise<{ slug: string }>;
-}): Promise<React.JSX.Element> {
+}) {
     const [{ slug }, session] = await Promise.all([params, auth()]);
     if (!session) redirect('/login');
 

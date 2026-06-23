@@ -42,7 +42,7 @@ interface AvatarProps {
     className?: string;
 }
 
-function Avatar({ name = '', src, size = 36, color, className }: AvatarProps): React.JSX.Element {
+function Avatar({ name = '', src, size = 36, color, className }: AvatarProps) {
     const idx = hashName(name) % AVATAR_PALETTE.length;
     const bg = color ?? AVATAR_PALETTE[idx];
     const initials = getInitials(name) || '?';
@@ -86,7 +86,7 @@ function Avatar({ name = '', src, size = 36, color, className }: AvatarProps): R
 function AvatarImage({
     className,
     ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Image>): React.JSX.Element {
+}: React.ComponentProps<typeof AvatarPrimitive.Image>) {
     return (
         <AvatarPrimitive.Image
             data-slot="avatar-image"
@@ -99,7 +99,7 @@ function AvatarImage({
 function AvatarFallback({
     className,
     ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Fallback>): React.JSX.Element {
+}: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
     return (
         <AvatarPrimitive.Fallback
             data-slot="avatar-fallback"
@@ -112,7 +112,7 @@ function AvatarFallback({
     );
 }
 
-function AvatarBadge({ className, ...props }: React.ComponentProps<'span'>): React.JSX.Element {
+function AvatarBadge({ className, ...props }: React.ComponentProps<'span'>) {
     return (
         <span
             data-slot="avatar-badge"
@@ -125,11 +125,11 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<'span'>): Rea
     );
 }
 
-function AvatarGroup({ className, ...props }: React.ComponentProps<'div'>): React.JSX.Element {
+function AvatarGroup({ className, ...props }: React.ComponentProps<'div'>) {
     return <div data-slot="avatar-group" className={cn('flex -space-x-2', className)} {...props} />;
 }
 
-function AvatarGroupCount({ className, ...props }: React.ComponentProps<'div'>): React.JSX.Element {
+function AvatarGroupCount({ className, ...props }: React.ComponentProps<'div'>) {
     return (
         <div
             data-slot="avatar-group-count"

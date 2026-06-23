@@ -53,7 +53,7 @@ interface Props {
     slug: string;
 }
 
-export function NewProfessorButton({ slug }: Props): React.JSX.Element {
+export function NewProfessorButton({ slug }: Props) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [groups, setGroups] = useState<Group[]>([]);

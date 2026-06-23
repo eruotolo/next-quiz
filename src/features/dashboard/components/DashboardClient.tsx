@@ -121,7 +121,7 @@ function useCountdown(closesAt: string | null): string {
     return remaining;
 }
 
-function ExamRowTimer({ closesAt }: { closesAt: string | null }): React.JSX.Element {
+function ExamRowTimer({ closesAt }: { closesAt: string | null }) {
     const remaining = useCountdown(closesAt);
     if (!closesAt) return <span className="text-mute font-mono text-[11px]">Sin límite</span>;
     return <span className="text-mute font-mono text-[11px]">cierra en {remaining}</span>;
@@ -226,7 +226,7 @@ function ExamRow({
 }: {
     exam: ActiveExamInfo;
     onView: () => void;
-}): React.JSX.Element {
+}) {
     const pct = exam.totalStudents > 0 ? exam.submittedCount / exam.totalStudents : 0;
     return (
         <div className="flex items-center gap-4 px-6 py-4">
@@ -264,7 +264,7 @@ function ExamRow({
     );
 }
 
-function ResultRow({ r }: { r: RecentResultInfo }): React.JSX.Element {
+function ResultRow({ r }: { r: RecentResultInfo }) {
     return (
         <div className="grid grid-cols-[1fr_1fr_60px] items-center gap-2 px-6 py-3">
             <div className="flex min-w-0 items-center gap-2.5">
@@ -382,7 +382,7 @@ function CreateGroupDialog({
     onOpenChange: (v: boolean) => void;
     slug: string;
     onSuccess: () => void;
-}): React.JSX.Element {
+}) {
     const [groupName, setGroupName] = useState('');
     const [groupError, setGroupError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
@@ -463,7 +463,7 @@ function CreateStudentDialog({
     groups: Group[];
     slug: string;
     onSuccess: () => void;
-}): React.JSX.Element {
+}) {
     const [form, setForm] = useState({ name: '', lastname: '', email: '', rut: '', groupId: '' });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isPending, startTransition] = useTransition();
@@ -611,7 +611,7 @@ function CreateExamDialog({
     groups: Group[];
     slug: string;
     onSuccess: () => void;
-}): React.JSX.Element {
+}) {
     const [form, setForm] = useState({
         title: '',
         timeLimit: '30',
@@ -760,7 +760,7 @@ export function DashboardClient({
     attendancePct,
     uniqueStudentsWithResults,
     ungroupedStudents,
-}: Props): React.JSX.Element {
+}: Props) {
     const router = useRouter();
     const menuRef = useRef<HTMLDivElement>(null);
     const [menuOpen, setMenuOpen] = useState(false);

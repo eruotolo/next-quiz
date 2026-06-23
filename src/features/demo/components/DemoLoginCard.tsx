@@ -7,7 +7,7 @@ import { ArrowRight, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { DEMO_EMAIL, DEMO_PASSWORD, DEMO_SLUG } from '@/features/demo/lib/demo';
 
-export function DemoLoginCard(): React.JSX.Element {
+export function DemoLoginCard() {
     const router = useRouter();
     const [error, setError] = useState<string | null>(null);
     const [isPending, setIsPending] = useState(false);

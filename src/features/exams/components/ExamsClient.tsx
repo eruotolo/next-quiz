@@ -35,8 +35,6 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogFooter,
-    DialogHeader,
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
@@ -228,7 +226,7 @@ export function ExamsClient({
 }: {
     exams: ExamWithCount[];
     groups: Group[];
-}): React.JSX.Element {
+}) {
     const router = useRouter();
     const { slug } = useParams<{ slug: string }>();
     const [tab, setTab] = useState<TabFilter>('todos');

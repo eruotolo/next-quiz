@@ -1,8 +1,8 @@
 ﻿import { prisma } from '@/shared/lib/prisma';
 import { getStudentSession } from '@/features/exam-session/lib/session';
 import { ExamIntroStart } from '@/features/exam-session/components/ExamIntroStart';
-import { LogoMark, LogoWordmark } from '@/shared/components/branding/logo';
-import { Avatar } from '@/shared/components/ui/avatar';
+import { StudentTopBar } from '@/features/exam-session/components/StudentTopBar';
+import { closesLabel } from '@/features/exam-session/lib/exam-formatters';
 import { Check } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
@@ -10,33 +10,11 @@ interface PageProps {
     params: Promise<{ examId: string }>;
 }
 
-const closesFormatter = new Intl.DateTimeFormat('es-CL', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-});
-const closesDateFormatter = new Intl.DateTimeFormat('es-CL', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-});
 
-function startOfDay(d: Date): number {
-    const x = new Date(d);
-    x.setHours(0, 0, 0, 0);
-    return x.getTime();
-}
 
-function closesLabel(date: Date, now: Date): string {
-    const diff = Math.round((startOfDay(date) - startOfDay(now)) / (24 * 60 * 60 * 1000));
-    const time = closesFormatter.format(date);
-    if (diff === 0) return `Hoy ${time}`;
-    if (diff === 1) return `Mañana ${time}`;
-    return `${closesDateFormatter.format(date)} ${time}`;
-}
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: arma los datos del examen (vigilancia, tipo, cierre, nota) e instrucciones en una sola vista; separarlo dispersaría la presentación
-export default async function ExamIntroPage({ params }: PageProps): Promise<React.JSX.Element> {
+export default async function ExamIntroPage({ params }: PageProps) {
     const { examId } = await params;
     const session = await getStudentSession();
 
@@ -141,27 +119,13 @@ export default async function ExamIntroPage({ params }: PageProps): Promise<Reac
 
     return (
         <div className="bg-paper flex min-h-screen flex-col">
-            {/* Top bar */}
-            <header className="border-border flex items-center justify-between border-b bg-white px-8 py-4">
-                <div className="flex items-center gap-3">
-                    <LogoMark size={28} />
-                    <LogoWordmark size={16} color="#0b0b11" />
-                    <div className="bg-border ml-1 h-4 w-px" />
-                    <span className="text-mute max-w-[420px] truncate font-mono text-[11px] tracking-[0.08em] uppercase">
-                        {topbarLabel}
-                    </span>
-                </div>
-                <div className="flex items-center gap-3">
-                    <Avatar name={fullName} size={36} />
-                    <div className="hidden leading-tight sm:block">
-                        <p className="text-ink text-[13px] font-semibold">{fullName}</p>
-                        {groupShort && <p className="text-mute text-[11px]">{groupShort}</p>}
-                        {institutionName && (
-                            <p className="text-mute text-[11px]">{institutionName}</p>
-                        )}
-                    </div>
-                </div>
-            </header>
+            <StudentTopBar
+                topbarLabel={topbarLabel}
+                fullName={fullName}
+                groupName={groupShort}
+                institutionName={institutionName}
+                showLogout={false}
+            />
 
             <main className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-10 lg:grid-cols-[1.4fr_0.6fr]">
                 {/* Main card */}

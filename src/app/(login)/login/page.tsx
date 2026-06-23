@@ -1,6 +1,5 @@
 import { auth } from '@/features/auth/auth';
 import { AdminLoginForm } from '@/features/auth/components/AdminLoginForm';
-import { AuthShell } from '@/features/auth/components/AuthShell';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { redirect } from 'next/navigation';
 
@@ -14,7 +13,7 @@ interface LoginPageProps {
 
 export default async function LoginPage({
     searchParams,
-}: LoginPageProps): Promise<React.JSX.Element> {
+}: LoginPageProps) {
     const session = await auth();
 
     if (session?.user) {
@@ -27,9 +26,5 @@ export default async function LoginPage({
 
     const { error } = await searchParams;
 
-    return (
-        <AuthShell>
-            <AdminLoginForm googleError={error} />
-        </AuthShell>
-    );
+    return <AdminLoginForm googleError={error} />;
 }

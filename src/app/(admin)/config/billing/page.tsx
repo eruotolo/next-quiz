@@ -1,4 +1,3 @@
-import type * as React from 'react';
 import type { Metadata } from 'next';
 import { CreditCard } from 'lucide-react';
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
@@ -11,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Facturación · Aulika',
 };
 
-export default async function BillingPage(): Promise<React.JSX.Element> {
+export default async function BillingPage() {
     const result = await getBillingStats();
     const stats = result.data ?? {
         mrr: 0,

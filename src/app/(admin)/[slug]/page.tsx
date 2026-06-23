@@ -1,7 +1,7 @@
 import { auth } from '@/features/auth/auth';
 import { DashboardClient } from '@/features/dashboard/components/DashboardClient';
 import { demoExamFilter } from '@/features/demo/lib/demo';
-import { calcGrade } from '@/features/results/lib/grade';
+import { calcGrade } from '@/shared/lib/grade';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 import {

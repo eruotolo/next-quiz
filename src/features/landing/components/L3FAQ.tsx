@@ -31,7 +31,7 @@ const FAQS = [
     },
 ];
 
-export function L3FAQ(): React.JSX.Element {
+export function L3FAQ() {
     const [open, setOpen] = useState<string | null>(null);
 
     return (

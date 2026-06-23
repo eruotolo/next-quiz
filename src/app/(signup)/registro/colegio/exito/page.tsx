@@ -1,4 +1,3 @@
-import type * as React from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/shared/lib/prisma';
@@ -15,7 +14,7 @@ interface Props {
 
 export default async function ColegioExitoPage({
     searchParams,
-}: Props): Promise<React.JSX.Element> {
+}: Props) {
     const { sub } = await searchParams;
     if (!sub) notFound();
 

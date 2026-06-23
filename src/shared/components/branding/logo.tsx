@@ -1,4 +1,4 @@
-import type * as React from 'react';
+import type { CSSProperties } from 'react';
 import { cn } from '@/shared/lib/utils';
 
 interface LogoMarkProps {
@@ -33,7 +33,7 @@ export function LogoMark({
     variant = 'cobalto',
     radius = 18,
     className,
-}: LogoMarkProps): React.JSX.Element {
+}: LogoMarkProps) {
     const v = MARK_VARIANTS[variant];
     return (
         <svg
@@ -72,7 +72,7 @@ export function LogoWordmark({
     size = 16,
     color,
     className,
-}: LogoWordmarkProps): React.JSX.Element {
+}: LogoWordmarkProps) {
     return (
         <span
             className={cn(
@@ -83,7 +83,7 @@ export function LogoWordmark({
                 {
                     '--lw-size': `${size}px`,
                     '--lw-color': color ?? 'inherit',
-                } as React.CSSProperties
+                } as CSSProperties
             }
         >
             aulika
@@ -95,14 +95,14 @@ export function LogoLockup({
     size = 36,
     variant = 'cobalto',
     className,
-}: LogoLockupProps): React.JSX.Element {
+}: LogoLockupProps) {
     const markSize = Math.round(size * 1.4);
     const wordSize = size;
     const gap = Math.round(size * 0.33);
     return (
         <div
             className={cn('inline-flex items-center gap-[var(--lw-gap)]', className)}
-            style={{ '--lw-gap': `${gap}px` } as React.CSSProperties}
+            style={{ '--lw-gap': `${gap}px` } as CSSProperties}
         >
             <LogoMark size={markSize} variant={variant} />
             <LogoWordmark size={wordSize} />

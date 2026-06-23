@@ -54,7 +54,6 @@ import {
 } from '@/shared/components/ui/dropdown-menu';
 import { cn } from '@/shared/lib/utils';
 import {
-    BookOpen,
     Copy,
     Library,
     Loader2,
@@ -155,7 +154,7 @@ function draftToInput(d: QuestionDraft): BankQuestionInput {
     };
 }
 
-export function QuestionsClient({ slug, institutionName, initialItems, facets }: Props): React.JSX.Element {
+export function QuestionsClient({ slug, institutionName, initialItems, facets }: Props) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [items, setItems] = useState<SafeBankQuestion[]>(initialItems);

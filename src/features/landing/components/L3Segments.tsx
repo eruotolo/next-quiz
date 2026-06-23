@@ -1,9 +1,7 @@
 'use client';
 
+import type { CSSProperties } from 'react';
 import { Tag } from '@/shared/components/ui/badge';
-import { cn } from '@/shared/lib/utils';
-import type React from 'react';
-
 const SEGMENTS = [
     {
         tag: 'COLEGIOS · ESCOLARES',
@@ -41,14 +39,14 @@ const SEGMENTS = [
 ];
 
 function PatternArt({
-    pattern,
-    color,
+    pattern: _pattern,
+    color: _color,
     idx,
 }: {
     pattern: string;
     color: string;
     idx: number;
-}): React.JSX.Element {
+}) {
     return (
         <div
             className="absolute inset-0 [background-image:var(--pat-img)] [background-size:var(--pat-sz)] opacity-[0.15]"
@@ -61,13 +59,13 @@ function PatternArt({
                               ? 'linear-gradient(var(--lime) 1px, transparent 1px), linear-gradient(90deg, var(--lime) 1px, transparent 1px)'
                               : 'radial-gradient(circle, var(--ink) 1.5px, transparent 1.5px)',
                     '--pat-sz': idx === 1 ? '24px 24px' : '20px 20px',
-                } as React.CSSProperties
+                } as CSSProperties
             }
         />
     );
 }
 
-export function L3Segments(): React.JSX.Element {
+export function L3Segments() {
     return (
         <section className="bg-white py-24 md:py-32" id="instituciones">
             <div className="mx-auto max-w-[1400px] px-6 md:px-14">
@@ -90,7 +88,7 @@ export function L3Segments(): React.JSX.Element {
                             {/* Artwork Area */}
                             <div
                                 className="relative h-44 overflow-hidden [background-color:var(--seg-bg)]"
-                                style={{ '--seg-bg': s.color } as React.CSSProperties}
+                                style={{ '--seg-bg': s.color } as CSSProperties}
                             >
                                 <PatternArt pattern={s.pattern} color={s.color} idx={i} />
                                 <div className="absolute top-6 left-6">

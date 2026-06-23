@@ -1,5 +1,5 @@
 import { prisma } from '@/shared/lib/prisma';
-import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
+import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { ProfessorsClient } from '@/features/professors/components/ProfessorsClient';
 
 export default async function ProfessorsPage({

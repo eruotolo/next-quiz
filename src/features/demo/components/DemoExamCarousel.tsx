@@ -21,7 +21,7 @@ interface DemoExamCarouselProps {
 export function DemoExamCarousel({
     exam,
     initialSeconds,
-}: DemoExamCarouselProps): React.JSX.Element {
+}: DemoExamCarouselProps) {
     const [phase, setPhase] = useState<'exam' | 'results'>('exam');
     const [retryCount, setRetryCount] = useState(0);
     const [currentIndex, setCurrentIndex] = useState(0);

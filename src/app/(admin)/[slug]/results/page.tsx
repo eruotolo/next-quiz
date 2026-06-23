@@ -1,5 +1,5 @@
 import { prisma } from '@/shared/lib/prisma';
-import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
+import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { examProfessorFilter } from '@/shared/lib/scoping';
 import {
     ResultsClient,
@@ -17,7 +17,7 @@ interface PageProps {
 export default async function ResultsPage({
     params,
     searchParams,
-}: PageProps): Promise<React.JSX.Element> {
+}: PageProps) {
     const { slug } = await params;
     const { examId: paramExamId, groupId: paramGroupId } = await searchParams;
     const { institutionId, institutionName, isProfesor, userId } =

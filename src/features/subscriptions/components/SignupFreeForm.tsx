@@ -1,6 +1,6 @@
 'use client';
 
-import type * as React from 'react';
+import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,12 +35,12 @@ import {
 
 interface FormFieldProps {
     label: string;
-    icon: React.ReactNode;
+    icon: ReactNode;
     error?: string;
-    children: React.ReactNode;
+    children: ReactNode;
 }
 
-function FormField({ label, icon, error, children }: FormFieldProps): React.JSX.Element {
+function FormField({ label, icon, error, children }: FormFieldProps) {
     return (
         <div className="flex flex-col gap-1">
             {/* biome-ignore lint/a11y/noLabelWithoutControl: input is injected via children */}
@@ -60,7 +60,7 @@ function FormField({ label, icon, error, children }: FormFieldProps): React.JSX.
 
 // ── Section header ────────────────────────────────────────────────────────────
 
-function SectionHeader({ title }: { title: string }): React.JSX.Element {
+function SectionHeader({ title }: { title: string }) {
     return (
         <div className="flex items-center gap-3 pt-2">
             <div className="bg-border h-px flex-1" />
@@ -82,7 +82,7 @@ interface RutFieldProps {
     disabled: boolean;
 }
 
-function RutField({ name, label, control, error, disabled }: RutFieldProps): React.JSX.Element {
+function RutField({ name, label, control, error, disabled }: RutFieldProps) {
     return (
         <FormField label={label} icon={<Hash size={14} />} error={error}>
             <Controller
@@ -118,7 +118,7 @@ function InstitutionSection({
     control,
     errors,
     disabled,
-}: SectionProps): React.JSX.Element {
+}: SectionProps) {
     return (
         <div className="space-y-2">
             <SectionHeader title="Datos del establecimiento" />
@@ -174,7 +174,7 @@ function InstitutionSection({
 
 // ── Admin section ─────────────────────────────────────────────────────────────
 
-function AdminSection({ register, control, errors, disabled }: SectionProps): React.JSX.Element {
+function AdminSection({ register, control, errors, disabled }: SectionProps) {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
@@ -249,7 +249,7 @@ function AdminSection({ register, control, errors, disabled }: SectionProps): Re
 
 // ── Main form ─────────────────────────────────────────────────────────────────
 
-export function SignupFreeForm(): React.JSX.Element {
+export function SignupFreeForm() {
     const router = useRouter();
     const [isPending, setIsPending] = useState(false);
 

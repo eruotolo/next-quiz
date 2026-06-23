@@ -1,7 +1,7 @@
 import { prisma } from '@/shared/lib/prisma';
-import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
+import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { examProfessorFilter } from '@/shared/lib/scoping';
-import { calcGrade } from '@/features/results/lib/grade';
+import { calcGrade } from '@/shared/lib/grade';
 import {
     LiveResultsClient,
     type ExamOption,
@@ -19,7 +19,7 @@ interface PageProps {
 export default async function LiveResultsPage({
     params,
     searchParams,
-}: PageProps): Promise<React.JSX.Element> {
+}: PageProps) {
     const [{ slug }, { examId: paramExamId, groupId: paramGroupId }] = await Promise.all([
         params,
         searchParams,

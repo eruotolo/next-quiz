@@ -84,7 +84,7 @@ export async function createPreapproval(
 }
 
 export function verifyWebhookSignature(
-    rawBody: string,
+    _rawBody: string,
     xSignature: string,
     xRequestId: string,
     dataId: string,

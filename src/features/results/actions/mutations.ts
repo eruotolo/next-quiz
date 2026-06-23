@@ -3,7 +3,7 @@
 import { prisma } from '@/shared/lib/prisma';
 import { logAudit } from '@/shared/lib/audit';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
-import { requireInstitutionAccess } from '@/shared/lib/auth-guard';
+import { requireInstitutionAccess } from '@/features/auth/lib/auth-guard';
 import { type ActionResult, fail, ok, toActionError } from '@/shared/types/action';
 import { revalidatePath } from 'next/cache';
 

@@ -24,7 +24,4 @@ export function resultProfessorFilter(professorId: string): Prisma.ResultWhereIn
     return { student: { group: { professors: { some: { id: professorId } } } } };
 }
 
-/** Estudiantes pertenecientes a grupos donde el usuario es profesor. */
-export function studentProfessorFilter(professorId: string): Prisma.UserWhereInput {
-    return { group: { professors: { some: { id: professorId } } } };
-}
+

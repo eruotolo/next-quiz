@@ -1,7 +1,7 @@
 import { ExamsClient } from '@/features/exams/components/ExamsClient';
 import { demoExamFilter } from '@/features/demo/lib/demo';
 import { prisma } from '@/shared/lib/prisma';
-import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
+import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { examProfessorFilter, groupProfessorFilter } from '@/shared/lib/scoping';
 
 export default async function ExamsPage({ params }: { params: Promise<{ slug: string }> }) {

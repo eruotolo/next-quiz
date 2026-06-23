@@ -35,7 +35,7 @@ import { cn } from '@/shared/lib/utils';
 import type { Group } from '@prisma/client';
 import { Edit2, GraduationCap, Loader2, MoreHorizontal, Plus, Trash2, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import type React from 'react';
+import type { CSSProperties } from 'react';
 import { useState, useTransition } from 'react';
 import {
     DropdownMenu,
@@ -103,7 +103,7 @@ function InitialsAvatar({
     name: string;
     lastname: string;
     size?: 'sm' | 'md';
-}): React.JSX.Element {
+}) {
     const color = getAvatarColor(name + lastname);
     const initials = getInitials(name, lastname);
     return (
@@ -112,7 +112,7 @@ function InitialsAvatar({
                 'flex shrink-0 items-center justify-center rounded-full font-bold text-white ring-2 ring-white [background-color:var(--g-bg)]',
                 size === 'sm' ? 'h-7 w-7 text-[10px]' : 'h-9 w-9 text-[12px]',
             )}
-            style={{ '--g-bg': color } as React.CSSProperties}
+            style={{ '--g-bg': color } as CSSProperties}
         >
             {initials}
         </div>
@@ -124,7 +124,7 @@ export function GroupsClient({
     groups,
     professors,
     canMutate,
-}: Props): React.JSX.Element {
+}: Props) {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
@@ -198,9 +198,6 @@ export function GroupsClient({
         });
     };
 
-    const totalStudents = groups.reduce((sum, g) => sum + g._count.users, 0);
-    const totalExams = groups.reduce((sum, g) => sum + g._count.exams, 0);
-
     return (
         <>
             <main className="flex-1 overflow-auto p-8">
@@ -234,7 +231,7 @@ export function GroupsClient({
                                 <Card
                                     key={g.id}
                                     className="border-border relative flex flex-col overflow-hidden border-t-[4px] bg-white shadow-sm [border-top-color:var(--g-accent)]"
-                                    style={{ '--g-accent': color } as React.CSSProperties}
+                                    style={{ '--g-accent': color } as CSSProperties}
                                 >
                                     <div className="flex flex-col p-5">
                                         {/* Header: name + menu */}

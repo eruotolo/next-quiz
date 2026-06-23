@@ -43,7 +43,7 @@ const FOOTER_COLS = [
     },
 ];
 
-export function L3Footer(): React.JSX.Element {
+export function L3Footer() {
     return (
         <footer className="border-border bg-paper-warm border-t pt-20 pb-10">
             <div className="mx-auto max-w-[1400px] px-6 md:px-14">

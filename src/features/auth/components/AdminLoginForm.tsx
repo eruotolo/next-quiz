@@ -1,6 +1,6 @@
 'use client';
 
-import type * as React from 'react';
+import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -9,7 +9,7 @@ import { Button } from '@/shared/components/ui/button';
 import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail } from 'lucide-react';
 import Link from 'next/link';
 
-function GoogleIcon(): React.JSX.Element {
+function GoogleIcon() {
     return (
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24">
             <path
@@ -36,7 +36,7 @@ interface AdminLoginFormProps {
     googleError?: string;
 }
 
-export function AdminLoginForm({ googleError }: AdminLoginFormProps): React.JSX.Element {
+export function AdminLoginForm({ googleError }: AdminLoginFormProps) {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -45,7 +45,7 @@ export function AdminLoginForm({ googleError }: AdminLoginFormProps): React.JSX.
     const [isPending, setIsPending] = useState(false);
     const [isGooglePending, setIsGooglePending] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    const handleSubmit = async (e: FormEvent): Promise<void> => {
         e.preventDefault();
         setError(null);
         setIsPending(true);

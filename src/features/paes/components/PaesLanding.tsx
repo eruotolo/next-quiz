@@ -17,7 +17,7 @@ interface PaesLandingProps {
     subjects: PaesSubjectMeta[];
 }
 
-export function PaesLanding({ subjects }: PaesLandingProps): React.JSX.Element {
+export function PaesLanding({ subjects }: PaesLandingProps) {
     return (
         <div className="py-16">
             <div className="mx-auto max-w-5xl px-4">

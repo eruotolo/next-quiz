@@ -1,6 +1,6 @@
 import { prisma } from '@/shared/lib/prisma';
-import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
-import { groupProfessorFilter, studentProfessorFilter } from '@/shared/lib/scoping';
+import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
+import { groupProfessorFilter } from '@/shared/lib/scoping';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { StudentsClient } from '@/features/students/components/StudentsClient';
 
@@ -20,7 +20,7 @@ export default async function StudentsPage({ params }: { params: Promise<{ slug:
             where: {
                 userRole: { name: USER_ROLE.STUDENT },
                 academicInstitutionId: institutionId,
-                ...(isProfesor && studentProfessorFilter(userId)),
+                ...(isProfesor && { group: { professors: { some: { id: userId } } } }),
             },
             include: { group: true },
             orderBy: [{ group: { name: 'asc' } }, { lastname: 'asc' }],

@@ -1,4 +1,4 @@
-import type React from 'react';
+import type { CSSProperties } from 'react';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
@@ -180,7 +180,7 @@ export default async function ConfigPage() {
                                     {
                                         '--cfg-c': item.color,
                                         '--cfg-wash': item.wash,
-                                    } as React.CSSProperties
+                                    } as CSSProperties
                                 }
                             >
                                 <div className="border-border/50 flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border [background-color:var(--cfg-wash)] [color:var(--cfg-c)]">

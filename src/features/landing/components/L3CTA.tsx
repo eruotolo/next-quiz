@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Tag } from '@/shared/components/ui/badge';
 
-export function L3CTA(): React.JSX.Element {
+export function L3CTA() {
     return (
         <section className="bg-paper pt-10 pb-24">
             <div className="mx-auto max-w-[1400px] px-6 md:px-14">

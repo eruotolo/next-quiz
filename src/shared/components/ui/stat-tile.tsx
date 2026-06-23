@@ -1,4 +1,4 @@
-import type * as React from 'react';
+import type { ReactNode } from 'react';
 import { TrendingDown, TrendingUp } from 'lucide-react';
 
 import { cn } from '@/shared/lib/utils';
@@ -8,7 +8,7 @@ interface StatTileProps {
     value: string | number;
     sub?: string;
     diff?: number;
-    icon?: React.ReactNode;
+    icon?: ReactNode;
     tone?: 'default' | 'primary' | 'ink' | 'lime';
     className?: string;
 }
@@ -42,7 +42,7 @@ function StatTile({
     icon,
     tone = 'default',
     className,
-}: StatTileProps): React.JSX.Element {
+}: StatTileProps) {
     const isPositive = diff !== undefined && diff >= 0;
 
     return (

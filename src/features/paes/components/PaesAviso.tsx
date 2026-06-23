@@ -5,7 +5,7 @@ interface PaesAvisoProps {
     source: string;
 }
 
-export function PaesAviso({ sourceUrl, source }: PaesAvisoProps): React.JSX.Element {
+export function PaesAviso({ sourceUrl, source }: PaesAvisoProps) {
     return (
         <div className="border-border bg-paper-warm flex items-center justify-between gap-3 rounded-[10px] border px-4 py-2.5">
             <div className="flex items-center gap-2">

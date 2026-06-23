@@ -1,6 +1,5 @@
 ﻿'use client';
 
-import type * as React from 'react';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreditCard, Download, ExternalLink, Search, XCircle } from 'lucide-react';
@@ -95,7 +94,7 @@ function DetailModal({
     onCancel,
     onViewDetail,
     cancelling,
-}: DetailModalProps): React.JSX.Element {
+}: DetailModalProps) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <button
@@ -184,7 +183,7 @@ interface Props {
     initial: PaginatedSubscriptions;
 }
 
-export function SubscriptionsClient({ initial }: Props): React.JSX.Element {
+export function SubscriptionsClient({ initial }: Props) {
     const router = useRouter();
     const [data, setData] = useState<PaginatedSubscriptions>(initial);
     const [filters, setFilters] = useState<SubscriptionFilters>({ page: 1 });

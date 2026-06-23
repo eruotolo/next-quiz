@@ -43,7 +43,7 @@ export function ImportQuestionsDialog({
     examId,
     open,
     onOpenChange,
-}: Props): React.JSX.Element {
+}: Props) {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<Tab>('excel');
     const [parseResult, setParseResult] = useState<ParseResult | null>(null);
@@ -347,7 +347,7 @@ export function ImportQuestionsDialog({
     );
 }
 
-function TypeBadge({ type }: { type: 'UNICA' | 'MULTIPLE' }): React.JSX.Element {
+function TypeBadge({ type }: { type: 'UNICA' | 'MULTIPLE' }) {
     return (
         <span
             className={cn(

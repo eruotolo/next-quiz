@@ -1,4 +1,3 @@
-import type * as React from 'react';
 import type { Metadata } from 'next';
 import { PayerForm } from '@/features/subscriptions/components/PayerForm';
 
@@ -7,6 +6,6 @@ export const metadata: Metadata = {
     description: 'Suscribite al plan Docente y digitalizá tus evaluaciones.',
 };
 
-export default function RegistroDocentePage(): React.JSX.Element {
+export default function RegistroDocentePage() {
     return <PayerForm plan="DOCENTE" />;
 }

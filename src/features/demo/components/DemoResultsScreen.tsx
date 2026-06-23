@@ -1,7 +1,7 @@
 'use client';
 
 import type { DemoExam, DemoResults, QuestionResult } from '@/features/demo/types/demo.types';
-import { calcGrade } from '@/features/results/lib/grade';
+import { calcGrade } from '@/shared/lib/grade';
 import { LogoMark, LogoWordmark } from '@/shared/components/branding/logo';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
@@ -54,7 +54,7 @@ export function DemoResultsScreen({
     exam,
     answersMap,
     onRetry,
-}: DemoResultsScreenProps): React.JSX.Element {
+}: DemoResultsScreenProps) {
     const results = computeResults(exam, answersMap);
     const grade = calcGrade(results.score, results.maxScore, 7, 4, 60);
     const passing = grade >= 4;
@@ -195,7 +195,7 @@ interface QuestionReviewProps {
     idx: number;
 }
 
-function QuestionReview({ qr, idx }: QuestionReviewProps): React.JSX.Element {
+function QuestionReview({ qr, idx }: QuestionReviewProps) {
     const { question, isCorrect, selected } = qr;
     const isUnanswered = selected.length === 0;
 

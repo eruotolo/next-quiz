@@ -1,0 +1,14 @@
+{
+    "mcpServers": {
+        "postgres": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://quiz:quiz_password@localhost:5434/quiz_db?schema=public"]
+        },
+        "postgres-prod": {
+            "type": "stdio",
+            "command": "npx",
+            "args": ["-y", "@modelcontextprotocol/server-postgres", "postgresql://neondb_owner:npg_gBsHMY7PF4lJ@ep-hidden-thunder-aqkuci60-pooler.c-8.us-east-1.aws.neon.tech/neondb?channel_binding=require&sslmode=require"]
+        }
+    }
+}

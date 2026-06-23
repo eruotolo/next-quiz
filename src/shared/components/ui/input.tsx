@@ -2,7 +2,7 @@ import type * as React from 'react';
 
 import { cn } from '@/shared/lib/utils';
 
-function Input({ className, type, ...props }: React.ComponentProps<'input'>): React.JSX.Element {
+function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
     return (
         <input
             type={type}
@@ -42,7 +42,7 @@ function InputField({
     className,
     id,
     ...props
-}: InputFieldProps): React.JSX.Element {
+}: InputFieldProps) {
     const inputId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
     const hasDecorator = Boolean(prefix ?? iconLeft ?? iconRight);
 

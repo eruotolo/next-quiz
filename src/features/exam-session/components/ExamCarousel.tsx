@@ -33,7 +33,7 @@ export function ExamCarousel({
     initialSeconds,
     initialAnswers,
     initialMarked,
-}: ExamCarouselProps): React.JSX.Element {
+}: ExamCarouselProps) {
     const router = useRouter();
     const submittedRef = useRef(false);
     const tabLeftAtRef = useRef(0);

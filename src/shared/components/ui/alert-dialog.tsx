@@ -8,26 +8,26 @@ import { buttonVariants } from '@/shared/components/ui/button';
 
 function AlertDialog({
     ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Root>): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
     return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
 }
 
 function AlertDialogTrigger({
     ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>) {
     return <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...props} />;
 }
 
 function AlertDialogPortal({
     ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Portal>): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Portal>) {
     return <AlertDialogPrimitive.Portal {...props} />;
 }
 
 function AlertDialogOverlay({
     className,
     ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Overlay>): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Overlay>) {
     return (
         <AlertDialogPrimitive.Overlay
             data-slot="alert-dialog-overlay"
@@ -43,7 +43,7 @@ function AlertDialogOverlay({
 function AlertDialogContent({
     className,
     ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Content>): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Content>) {
     return (
         <AlertDialogPortal>
             <AlertDialogOverlay />
@@ -63,14 +63,14 @@ function AlertDialogContent({
 function AlertDialogHeader({
     className,
     ...props
-}: React.ComponentProps<'div'>): React.JSX.Element {
+}: React.ComponentProps<'div'>) {
     return <div className={cn('flex flex-col gap-2', className)} {...props} />;
 }
 
 function AlertDialogFooter({
     className,
     ...props
-}: React.ComponentProps<'div'>): React.JSX.Element {
+}: React.ComponentProps<'div'>) {
     return (
         <div
             className={cn('mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end', className)}
@@ -82,7 +82,7 @@ function AlertDialogFooter({
 function AlertDialogTitle({
     className,
     ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Title>): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Title>) {
     return (
         <AlertDialogPrimitive.Title
             data-slot="alert-dialog-title"
@@ -98,7 +98,7 @@ function AlertDialogTitle({
 function AlertDialogDescription({
     className,
     ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Description>): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Description>) {
     return (
         <AlertDialogPrimitive.Description
             data-slot="alert-dialog-description"
@@ -111,7 +111,7 @@ function AlertDialogDescription({
 function AlertDialogAction({
     className,
     ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Action>): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Action>) {
     return (
         <AlertDialogPrimitive.Action
             className={cn(buttonVariants({ variant: 'primary' }), className)}
@@ -123,7 +123,7 @@ function AlertDialogAction({
 function AlertDialogCancel({
     className,
     ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>): React.JSX.Element {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) {
     return (
         <AlertDialogPrimitive.Cancel
             className={cn(buttonVariants({ variant: 'ghost' }), className)}

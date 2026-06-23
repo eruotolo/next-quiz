@@ -5,7 +5,7 @@ import { bankQuestionSchema } from '@/features/questions/schemas/bank-question.s
 import { logAudit } from '@/shared/lib/audit';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
-import { requireInstitutionAccess } from '@/shared/lib/auth-guard';
+import { requireInstitutionAccess } from '@/features/auth/lib/auth-guard';
 import { revalidatePath } from 'next/cache';
 
 async function getSessionUser(requestSlug: string) {

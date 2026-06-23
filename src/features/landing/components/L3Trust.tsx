@@ -8,7 +8,7 @@ const INSTITUTIONS = [
     'Preuniversitario Pedro de Valdivia',
 ];
 
-export function L3Trust(): React.JSX.Element {
+export function L3Trust() {
     return (
         <section className="border-border bg-paper-warm border-y py-12">
             <div className="mx-auto max-w-[1400px] px-6 md:px-14">

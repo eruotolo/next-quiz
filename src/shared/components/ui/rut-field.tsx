@@ -1,7 +1,6 @@
 'use client';
 
 import { cn } from '@/shared/lib/utils';
-import type React from 'react';
 import { IMaskInput } from 'react-imask';
 
 /**
@@ -26,7 +25,7 @@ export function RutField({
     onChange,
     disabled,
     className,
-}: RutFieldProps): React.JSX.Element {
+}: RutFieldProps) {
     return (
         <IMaskInput
             id={id}

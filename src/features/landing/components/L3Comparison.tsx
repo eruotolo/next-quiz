@@ -3,7 +3,6 @@
 import { Tag } from '@/shared/components/ui/badge';
 import { cn } from '@/shared/lib/utils';
 import { Check, X } from 'lucide-react';
-import type React from 'react';
 
 const COMPARISON_ROWS = [
     ['Login por RUT con validación', false, false, true],
@@ -17,7 +16,7 @@ const COMPARISON_ROWS = [
     ['Costo por estudiante', '$', '$$', 'No'],
 ];
 
-export function L3Comparison(): React.JSX.Element {
+export function L3Comparison() {
     return (
         <section className="bg-paper-warm py-24 md:py-32" id="comparativa">
             <div className="mx-auto max-w-[1400px] px-6 md:px-14">
@@ -41,7 +40,7 @@ export function L3Comparison(): React.JSX.Element {
                     </div>
 
                     <div className="divide-border divide-y">
-                        {COMPARISON_ROWS.map(([label, a, b, c], i) => (
+                        {COMPARISON_ROWS.map(([label, a, b, c], _i) => (
                             <div
                                 key={label as string}
                                 className="group hover:bg-paper-warm/30 grid grid-cols-[2fr_1fr_1fr_1.2fr] items-center px-8 py-4 transition-colors"

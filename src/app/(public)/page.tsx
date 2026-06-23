@@ -1,17 +1,14 @@
 import type { Metadata } from 'next';
 
 import { L3Hero } from '@/features/landing/components/L3Hero';
-import { L3Trust } from '@/features/landing/components/L3Trust';
 import { L3Walkthrough } from '@/features/landing/components/L3Walkthrough';
 import { L3Comparison } from '@/features/landing/components/L3Comparison';
 import { L3Segments } from '@/features/landing/components/L3Segments';
 import { L3Security } from '@/features/landing/components/L3Security';
 import { L3Stats } from '@/features/landing/components/L3Stats';
-import { L3Testimonials } from '@/features/landing/components/L3Testimonials';
 import { L3Pricing } from '@/features/landing/components/L3Pricing';
 import { L3FAQ } from '@/features/landing/components/L3FAQ';
 import { L3CTA } from '@/features/landing/components/L3CTA';
-import { L3Footer } from '@/features/landing/components/L3Footer';
 
 export const metadata: Metadata = {
     title: 'Aulika · Sistema de Evaluación Online para Instituciones Educativas',
@@ -25,7 +22,7 @@ export const metadata: Metadata = {
     },
 };
 
-export default function MarketingPage(): React.JSX.Element {
+export default function MarketingPage() {
     return (
         <>
             <L3Hero />

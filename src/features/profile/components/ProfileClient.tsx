@@ -1,6 +1,5 @@
 'use client';
 
-import type * as React from 'react';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
@@ -29,7 +28,7 @@ interface Props {
     };
 }
 
-export function ProfileClient({ user }: Props): React.JSX.Element {
+export function ProfileClient({ user }: Props) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [showPassword, setShowPassword] = useState(false);

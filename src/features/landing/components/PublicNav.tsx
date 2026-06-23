@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { LogoLockup } from '@/shared/components/branding/logo';
 import { Button } from '@/shared/components/ui/button';
 
-export function PublicNav(): React.JSX.Element {
+export function PublicNav() {
     const pathname = usePathname();
     const isHome = pathname === '/';
 

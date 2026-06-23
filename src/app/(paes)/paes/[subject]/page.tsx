@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: PageProps) {
     };
 }
 
-export default async function PaesSubjectPage({ params }: PageProps): Promise<React.JSX.Element> {
+export default async function PaesSubjectPage({ params }: PageProps) {
     const { subject } = await params;
     const meta = getSubjectMeta(subject as PaesSubject);
 

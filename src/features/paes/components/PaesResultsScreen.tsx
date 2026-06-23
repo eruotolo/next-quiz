@@ -1,6 +1,6 @@
 'use client';
 
-import type React from 'react';
+import type { CSSProperties } from 'react';
 import { PaesAviso } from '@/features/paes/components/PaesAviso';
 import type {
     PaesExam,
@@ -28,7 +28,7 @@ export function PaesResultsScreen({
     results,
     onRetry,
     backUrl = '/paes',
-}: PaesResultsScreenProps): React.JSX.Element {
+}: PaesResultsScreenProps) {
     const isGood = results.percent >= 60;
 
     return (
@@ -153,7 +153,7 @@ export function PaesResultsScreen({
                                                         'h-full w-[var(--eje-w)] rounded-full transition-all',
                                                         ejePct >= 60 ? 'bg-success' : 'bg-warning',
                                                     )}
-                                                    style={{ '--eje-w': `${ejePct}%` } as React.CSSProperties}
+                                                    style={{ '--eje-w': `${ejePct}%` } as CSSProperties}
                                                 />
                                             </div>
                                         </div>
@@ -220,7 +220,7 @@ interface PaesQuestionReviewProps {
     idx: number;
 }
 
-function PaesQuestionReview({ qr, question, idx }: PaesQuestionReviewProps): React.JSX.Element {
+function PaesQuestionReview({ qr, question, idx }: PaesQuestionReviewProps) {
     const isUnanswered = qr.selected.length === 0;
 
     return (
@@ -342,7 +342,7 @@ function PaesOptionReview({
     label,
     wasSelected,
     questionIsCorrect,
-}: PaesOptionReviewProps): React.JSX.Element {
+}: PaesOptionReviewProps) {
     const state = resolveOptionState(wasSelected, option.isCorrect, questionIsCorrect);
 
     return (

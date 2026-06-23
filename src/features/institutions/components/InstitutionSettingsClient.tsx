@@ -6,7 +6,6 @@ import {
     type InstitutionSettingsInput,
 } from '@/features/institutions/schemas/institution.schemas';
 import type { InstitutionSettings } from '@/features/institutions/actions/queries';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
@@ -31,7 +30,7 @@ interface FieldProps {
     hint?: string;
 }
 
-function Field({ id, label, error, children, hint }: FieldProps): React.JSX.Element {
+function Field({ id, label, error, children, hint }: FieldProps) {
     return (
         <div className="flex flex-col gap-1.5">
             <label htmlFor={id} className="text-ink text-[13px] font-bold">
@@ -44,7 +43,7 @@ function Field({ id, label, error, children, hint }: FieldProps): React.JSX.Elem
     );
 }
 
-export function InstitutionSettingsClient({ institution, slug }: Props): React.JSX.Element {
+export function InstitutionSettingsClient({ institution, slug }: Props) {
     const [isPending, startTransition] = useTransition();
 
     const {
@@ -80,26 +79,7 @@ export function InstitutionSettingsClient({ institution, slug }: Props): React.J
     }
 
     return (
-        <>
-            <AdminTopBar
-                breadcrumb={[slug, 'Ajustes']}
-                title="Ajustes del Instituto"
-                subtitle="Actualizá los datos del instituto. El identificador de URL no puede modificarse."
-                actions={
-                    <Button
-                        variant="ink"
-                        size="md"
-                        onClick={() => void handleSubmit(onSubmit)()}
-                        disabled={isPending || !isDirty}
-                        className="gap-2"
-                    >
-                        <Save size={15} />
-                        {isPending ? 'Guardando…' : 'Guardar cambios'}
-                    </Button>
-                }
-            />
-
-            <main className="flex-1 p-8">
+        <main className="flex-1 p-8">
                 <div className="mx-auto max-w-2xl space-y-6">
                     {/* URL identifier — read only */}
                     <Card className="border-border bg-paper-warm/40 flex items-center gap-4 px-6 py-4 shadow-none">
@@ -355,6 +335,5 @@ export function InstitutionSettingsClient({ institution, slug }: Props): React.J
                     </div>
                 </div>
             </main>
-        </>
     );
 }

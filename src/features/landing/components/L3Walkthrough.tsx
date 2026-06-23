@@ -1,13 +1,13 @@
 'use client';
 
-import type React from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { Tag } from '@/shared/components/ui/badge';
 import { cn } from '@/shared/lib/utils';
-import { Check, MoreHorizontal, GraduationCap, Download, ArrowRight } from 'lucide-react';
+import { Check, MoreHorizontal, Download } from 'lucide-react';
 
 // ── Mock Components ────────────────────────────────────────────────────────
 
-function MockBank(): React.JSX.Element {
+function MockBank() {
     return (
         <div className="border-border rounded-[18px] border bg-white p-[18px] shadow-[0_24px_50px_rgba(11,11,17,0.1)]">
             <div className="mb-3.5 flex items-center justify-between">
@@ -67,7 +67,7 @@ function MockBank(): React.JSX.Element {
     );
 }
 
-function MockResults(): React.JSX.Element {
+function MockResults() {
     const data = [45, 62, 85, 72, 91, 68, 58, 79, 88, 95, 62, 74, 81, 90, 77, 55];
     return (
         <div className="border-border rounded-[18px] border bg-white p-5 shadow-[0_24px_50px_rgba(11,11,17,0.1)]">
@@ -101,7 +101,7 @@ function MockResults(): React.JSX.Element {
                                         : d >= 60
                                           ? 'var(--primary)'
                                           : 'var(--warning)',
-                            } as React.CSSProperties
+                            } as CSSProperties
                         }
                     />
                 ))}
@@ -116,7 +116,7 @@ function MockResults(): React.JSX.Element {
     );
 }
 
-function MockExamCard(): React.JSX.Element {
+function MockExamCard() {
     return (
         <div className="border-border rounded-[18px] border bg-white p-6 shadow-[0_24px_50px_rgba(11,11,17,0.1)]">
             <div className="mb-4 flex items-center justify-between">
@@ -179,11 +179,11 @@ interface WalkRowProps {
     title: string;
     body: string;
     points: string[];
-    mockup: React.ReactNode;
+    mockup: ReactNode;
     flip?: boolean;
 }
 
-function WalkRow({ tag, title, body, points, mockup, flip }: WalkRowProps): React.JSX.Element {
+function WalkRow({ tag, title, body, points, mockup, flip }: WalkRowProps) {
     return (
         <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2 lg:gap-24">
             <div className={cn('order-2 lg:order-none', flip ? 'lg:order-2' : '')}>{mockup}</div>
@@ -211,7 +211,7 @@ function WalkRow({ tag, title, body, points, mockup, flip }: WalkRowProps): Reac
     );
 }
 
-export function L3Walkthrough(): React.JSX.Element {
+export function L3Walkthrough() {
     return (
         <section className="bg-white py-24 md:py-32" id="producto">
             <div className="mx-auto max-w-[1400px] px-6 md:px-14">

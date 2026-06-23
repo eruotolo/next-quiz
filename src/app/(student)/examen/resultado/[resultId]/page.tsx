@@ -1,12 +1,11 @@
 ﻿import { Button } from '@/shared/components/ui/button';
-import { calcGrade } from '@/features/results/lib/grade';
+import { calcGrade } from '@/shared/lib/grade';
 import { cn } from '@/shared/lib/utils';
 import { prisma } from '@/shared/lib/prisma';
 import { getResultSession } from '@/features/exam-session/lib/session';
 import { auth } from '@/features/auth/auth';
 import { USER_ROLE } from '@/shared/lib/roles';
-import { LogoMark, LogoWordmark } from '@/shared/components/branding/logo';
-import { Avatar } from '@/shared/components/ui/avatar';
+import { StudentTopBar } from '@/features/exam-session/components/StudentTopBar';
 import { StatTile } from '@/shared/components/ui/stat-tile';
 import {
     Table,
@@ -27,7 +26,7 @@ interface PageProps {
 }
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: chequeo de acceso por rol (owner, SuperAdmin, Admin, Profesor) en un solo lugar
-export default async function ResultadoPage({ params }: PageProps): Promise<React.JSX.Element> {
+export default async function ResultadoPage({ params }: PageProps) {
     const { resultId } = await params;
 
     const result = await prisma.result.findUnique({
@@ -140,24 +139,13 @@ export default async function ResultadoPage({ params }: PageProps): Promise<Reac
 
     return (
         <div className="bg-paper flex min-h-screen flex-col print:bg-white">
-            {/* Top bar */}
-            <header className="border-border flex items-center justify-between border-b bg-white px-8 py-4 print:pb-2">
-                <div className="flex items-center gap-3">
-                    <LogoMark size={28} />
-                    <LogoWordmark size={16} color="#0b0b11" />
-                    <div className="bg-border ml-1 h-4 w-px" />
-                    <span className="text-mute max-w-[420px] truncate font-mono text-[11px] tracking-[0.08em] uppercase">
-                        {topbarLabel}
-                    </span>
-                </div>
-                <div className="flex items-center gap-3 print:hidden">
-                    <Avatar name={fullName} size={36} />
-                    <div className="hidden leading-tight sm:block">
-                        <p className="text-ink text-[13px] font-semibold">{fullName}</p>
-                        {groupName && <p className="text-mute text-[11px]">{groupName}</p>}
-                    </div>
-                </div>
-            </header>
+            <StudentTopBar
+                topbarLabel={topbarLabel}
+                fullName={fullName}
+                groupName={groupName}
+                showLogout={false}
+                className="print:pb-2"
+            />
 
             <main className="mx-auto w-full max-w-5xl px-4 py-8 pb-16">
                 {/* Hero card — ink bg */}

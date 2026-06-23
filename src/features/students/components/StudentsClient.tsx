@@ -10,7 +10,6 @@ import {
 import type { ImportStudentsResult } from '@/features/students/actions/mutations';
 import { toast } from 'sonner';
 import { RutField } from '@/shared/components/ui/rut-field';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -77,7 +76,7 @@ import {
     X,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import type React from 'react';
+import type { ChangeEvent } from 'react';
 import { useRef, useState, useTransition } from 'react';
 import { cn } from '@/shared/lib/utils';
 
@@ -124,7 +123,7 @@ export function StudentsClient({
     canEdit: _canEdit,
     canDelete: _canDelete,
     canToggleActive,
-}: Props): React.JSX.Element {
+}: Props) {
     const router = useRouter();
     const [page, setPage] = useState(1);
     const PAGE_SIZE = 10;
@@ -280,7 +279,7 @@ export function StudentsClient({
         XLSX.writeFile(wb, 'plantilla_estudiantes.xlsx');
     };
 
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+    const handleFileChange = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -400,48 +399,7 @@ export function StudentsClient({
 
     return (
         <>
-            {/* Header */}
-            <AdminTopBar
-                breadcrumb={[institutionName, 'Estudiantes']}
-                title="Estudiantes"
-                subtitle={
-                    <span className="text-mute font-mono text-[11px] tracking-[0.08em] uppercase">
-                        {students.length} registrados · {students.filter((s) => s.active).length}{' '}
-                        activos · {students.filter((s) => !s.groupId).length} pendientes de
-                        asignación a grupo
-                    </span>
-                }
-                actions={
-                    canCreate && (
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="ghost"
-                                size="md"
-                                onClick={() => void downloadTemplate()}
-                                className="gap-2"
-                            >
-                                <Download size={15} />
-                                Plantilla
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="md"
-                                onClick={() => setImportOpen(true)}
-                                className="gap-2"
-                            >
-                                <Upload size={15} />
-                                Importar Excel
-                            </Button>
-                            <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
-                                <Plus size={16} />
-                                Agregar estudiante
-                            </Button>
-                        </div>
-                    )
-                }
-            />
-
-            {/* Filter bar */}
+            {/* Filter bar + actions */}
             <div className="border-border flex items-center gap-2 border-b bg-white px-8 py-4">
                 <div className="relative max-w-sm flex-1">
                     <Search className="text-mute absolute top-1/2 left-3 size-4 -translate-y-1/2" />
@@ -494,6 +452,32 @@ export function StudentsClient({
                 <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
                     {filteredStudents.length} visibles · {students.length} totales
                 </span>
+                {canCreate && (
+                    <>
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => void downloadTemplate()}
+                            className="gap-2"
+                        >
+                            <Download size={15} />
+                            Plantilla
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setImportOpen(true)}
+                            className="gap-2"
+                        >
+                            <Upload size={15} />
+                            Importar Excel
+                        </Button>
+                        <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
+                            <Plus size={16} />
+                            Agregar estudiante
+                        </Button>
+                    </>
+                )}
             </div>
 
             {/* Main content */}

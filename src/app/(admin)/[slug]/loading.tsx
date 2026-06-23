@@ -1,6 +1,6 @@
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
-export default function SlugLoading(): React.JSX.Element {
+export default function SlugLoading() {
     return (
         <div className="bg-paper flex min-h-screen">
             <div className="w-60 shrink-0 border-r bg-white p-4">

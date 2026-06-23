@@ -12,7 +12,7 @@ export function L3SubpageLayout({
     title,
     description,
     children,
-}: L3SubpageLayoutProps): React.JSX.Element {
+}: L3SubpageLayoutProps) {
     return (
         <article className="bg-paper-warm relative min-h-screen overflow-hidden pt-32 pb-24">
             {/* Background Pattern */}

@@ -1,7 +1,7 @@
 ﻿'use server';
 
 import { prisma } from '@/shared/lib/prisma';
-import { requireInstitutionAccess } from '@/shared/lib/auth-guard';
+import { requireInstitutionAccess } from '@/features/auth/lib/auth-guard';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { createPreapproval, getAutoRecurring } from '@/features/subscriptions/lib/mercadopago';
 import type { Billing, PaidPlan } from '@/features/subscriptions/lib/mercadopago';

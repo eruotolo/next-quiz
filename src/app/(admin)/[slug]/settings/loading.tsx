@@ -1,6 +1,6 @@
 import { Skeleton } from '@/shared/components/ui/skeleton';
 
-export default function SettingsLoading(): React.JSX.Element {
+export default function SettingsLoading() {
     return (
         <div className="space-y-6 p-8">
             <div className="space-y-2">

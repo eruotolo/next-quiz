@@ -1,6 +1,6 @@
 ﻿import { UpgradePlans } from '@/features/subscriptions/components/UpgradePlans';
 import { auth } from '@/features/auth/auth';
-import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
+import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { prisma } from '@/shared/lib/prisma';
 import { redirect } from 'next/navigation';
 
@@ -12,7 +12,7 @@ export default async function UpgradePage({
     params,
 }: {
     params: Promise<{ slug: string }>;
-}): Promise<React.JSX.Element> {
+}) {
     const { slug } = await params;
     const { isProfesor, institutionId } = await requireInstitutionPageAccess(slug);
 

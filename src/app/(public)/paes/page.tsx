@@ -7,6 +7,6 @@ export const metadata = {
         'Practica para la PAES con ensayos cronometrados. Todas las asignaturas. Gratis, sin registro, sin límite de intentos.',
 };
 
-export default function PaesPage(): React.JSX.Element {
+export default function PaesPage() {
     return <PaesLanding subjects={PAES_CATALOG} />;
 }

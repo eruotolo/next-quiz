@@ -9,7 +9,7 @@ interface Props {
     children: ReactNode;
 }
 
-export default async function ConfigLayout({ children }: Props): Promise<React.JSX.Element> {
+export default async function ConfigLayout({ children }: Props) {
     const session = await auth();
     if (!session || session.user.userRoleName !== USER_ROLE.SUPER_ADMIN) redirect('/login');
 
@@ -31,7 +31,6 @@ export default async function ConfigLayout({ children }: Props): Promise<React.J
             <Sidebar
                 isSuper
                 userName={session.user?.name}
-                userEmail={session.user?.email}
                 userRole="SuperAdministrador"
                 counts={{ institutions: institutionList.length, admins, students }}
                 institutionList={institutionList}

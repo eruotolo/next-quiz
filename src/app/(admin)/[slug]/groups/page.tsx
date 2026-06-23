@@ -1,7 +1,7 @@
 import { GroupsClient } from '@/features/groups/components/GroupsClient';
-import { calcGrade } from '@/features/results/lib/grade';
+import { calcGrade } from '@/shared/lib/grade';
 import { prisma } from '@/shared/lib/prisma';
-import { requireInstitutionPageAccess } from '@/shared/lib/auth-guard';
+import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { groupProfessorFilter } from '@/shared/lib/scoping';
 import { USER_ROLE } from '@/shared/lib/roles';
 

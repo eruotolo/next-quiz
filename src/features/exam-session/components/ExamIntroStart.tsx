@@ -6,7 +6,7 @@ import { Button } from '@/shared/components/ui/button';
 import { Checkbox } from '@/shared/components/ui/checkbox';
 import { ArrowRight } from 'lucide-react';
 
-export function ExamIntroStart(): React.JSX.Element {
+export function ExamIntroStart() {
     const [accepted, setAccepted] = useState(false);
 
     return (
