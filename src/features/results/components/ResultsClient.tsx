@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { deleteResult, recalculateResult } from '@/features/results/actions/mutations';
@@ -556,8 +556,8 @@ function AnswersReview({
         return Array.isArray(val) ? val : [val];
     }
 
-    const analysisMap = React.useMemo(() => {
-        const map = new Map();
+    const analysisMap = useMemo(() => {
+        const map = new Map<string, { correctOptions: QuestionOption[]; correctSet: Set<string> }>();
         for (const q of exam.questions) {
             const correctOptions = q.options.filter((o) => o.isCorrect);
             const correctSet = new Set(correctOptions.map((o) => o.id));
