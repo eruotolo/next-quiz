@@ -6,8 +6,10 @@ import { cn } from '@/shared/lib/utils';
 import {
     Activity,
     BarChart3,
+    BookMarked,
     BookOpen,
     Building2,
+    CalendarRange,
     ChevronDown,
     CreditCard,
     Globe,
@@ -35,9 +37,12 @@ import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Command } from 'cmdk';
+import { USER_ROLE } from '@/shared/lib/roles';
 import { searchGlobal, type SearchResult } from '@/shared/lib/search';
 
 // ── Nav items ─────────────────────────────────────────────────────────────
+type NavSection = 'principal' | 'academic' | 'sistema';
+
 interface NavItem {
     path: string;
     label: string;
@@ -45,7 +50,18 @@ interface NavItem {
     exact?: boolean;
     live?: boolean;
     countKey?: keyof SidebarCounts;
+    /** Sección de agrupación visual. Por defecto 'principal' (sin heading). */
+    section?: NavSection;
 }
+
+/** Etiquetas legibles de cada sección del menú. */
+const SECTION_LABELS: Record<NavSection, string> = {
+    principal: 'General',
+    academic: 'Académico',
+    sistema: 'Sistema',
+};
+
+const NAV_SECTION_ORDER: NavSection[] = ['principal', 'academic', 'sistema'];
 
 const ADMIN_NAV: NavItem[] = [
     { path: '', label: 'Inicio', icon: Home, exact: true },
@@ -56,8 +72,21 @@ const ADMIN_NAV: NavItem[] = [
     { path: '/questions', label: 'Banco', icon: Library },
     { path: '/results', label: 'Resultados', icon: BarChart3 },
     { path: '/liveresults', label: 'En vivo', icon: Activity, live: true },
-    { path: '/settings', label: 'Ajustes', icon: Settings },
-    { path: '/ayuda', label: 'Ayuda', icon: HelpCircle },
+    { path: '/programs', label: 'Programas', icon: Layers, section: 'academic' },
+    { path: '/periods', label: 'Períodos', icon: CalendarRange, section: 'academic' },
+    { path: '/courses', label: 'Materias', icon: BookMarked, section: 'academic' },
+    { path: '/settings', label: 'Ajustes', icon: Settings, section: 'sistema' },
+    { path: '/ayuda', label: 'Ayuda', icon: HelpCircle, section: 'sistema' },
+];
+
+// Menú reducido del Profesor: sus materias, exámenes, resultados y seguimiento
+// en vivo. Los profesores no gestionan programas, períodos, grupos ni ajustes.
+const PROFESOR_NAV: NavItem[] = [
+    { path: '/courses', label: 'Mis Materias', icon: BookMarked },
+    { path: '/exams', label: 'Exámenes', icon: BookOpen },
+    { path: '/results', label: 'Resultados', icon: BarChart3 },
+    { path: '/liveresults', label: 'En vivo', icon: Activity, live: true },
+    { path: '/ayuda', label: 'Ayuda', icon: HelpCircle, section: 'sistema' },
 ];
 
 const SUPER_NAV: NavItem[] = [
@@ -83,17 +112,20 @@ function CommandPalette({
     open,
     onOpenChange,
     slug,
+    items,
 }: {
     open: boolean;
     onOpenChange: (v: boolean) => void;
     slug?: string;
+    items: NavItem[];
 }) {
     const router = useRouter();
     const base = slug ? `/${slug}` : '';
 
-    const ROUTES = slug
-        ? ADMIN_NAV.map((item) => ({ label: item.label, path: `${base}${item.path}` }))
-        : SUPER_NAV.map((item) => ({ label: item.label, path: item.path }));
+    const ROUTES = items.map((item) => ({
+        label: item.label,
+        path: slug ? `${base}${item.path}` : item.path,
+    }));
 
     function run(path: string): void {
         router.push(path);
@@ -241,6 +273,66 @@ interface SidebarProps {
     counts?: SidebarCounts;
     institutionList?: InstitutionOption[];
     showPlanPromo?: boolean;
+    /** Programas que coordina el usuario (Jefe de Carrera). Solo relevante para
+     *  Profesores: habilita el indicador de coordinación en la UI y, cuando exista
+     *  la ruta `/programs`, el acceso a su programa. */
+    coordinatedProgramIds?: string[];
+}
+
+// Fila de navegación: estado activo, badge de contador y punto "en vivo".
+function NavItemRow({
+    item,
+    base,
+    pathname,
+    counts,
+}: {
+    item: NavItem;
+    base: string;
+    pathname: string;
+    counts?: SidebarCounts;
+}) {
+    const { path, label, icon: Icon, exact, live, countKey } = item;
+    const href = base ? `${base}${path}` : path;
+    const isActive = exact ? pathname === href : pathname.startsWith(href);
+    const badge = countKey != null ? counts?.[countKey] : undefined;
+    return (
+        <li>
+            <Link
+                href={href}
+                className={cn(
+                    'group flex items-center gap-2.5 rounded-[8px] px-3 py-2.5 text-[13px] font-medium transition-colors',
+                    isActive
+                        ? 'bg-primary-wash text-primary font-bold'
+                        : 'text-ink-dim hover:bg-paper-warm hover:text-ink',
+                )}
+            >
+                <Icon
+                    size={18}
+                    className={cn(
+                        'shrink-0',
+                        isActive ? 'text-primary' : 'text-mute group-hover:text-ink-dim',
+                    )}
+                />
+                <span className="flex-1">{label}</span>
+                {badge != null && (
+                    <span
+                        className={cn(
+                            'font-mono text-[10px] font-bold',
+                            isActive ? 'text-primary' : 'text-mute',
+                        )}
+                    >
+                        {badge}
+                    </span>
+                )}
+                {live && (
+                    <span className="relative flex size-2">
+                        <span className="bg-coral absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+                        <span className="bg-coral relative inline-flex size-2 rounded-full shadow-[0_0_0_3px_rgba(255,90,77,0.2)]" />
+                    </span>
+                )}
+            </Link>
+        </li>
+    );
 }
 
 export function Sidebar({
@@ -251,6 +343,7 @@ export function Sidebar({
     counts,
     institutionList,
     showPlanPromo = false,
+    coordinatedProgramIds,
 }: SidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
@@ -272,7 +365,16 @@ export function Sidebar({
     const canSwitch = institutionList && institutionList.length > 0;
 
     const base = slug ? `/${slug}` : '';
-    const navItems = isSuper ? SUPER_NAV : ADMIN_NAV;
+    // Bifurcación por rol (D8/Fase 5): Admin ve todo; Profesor ve menú reducido.
+    // El Jefe de Carrera (isCoordinator) hoy comparte el menú del Profesor: la
+    // distinción operativa vive en el scoping de las Server Actions. Queda el
+    // flag disponible para sumar el acceso a su programa cuando exista /programs.
+    const isProfesor = !isSuper && userRole === USER_ROLE.PROFESOR;
+    const isCoordinator = isProfesor && (coordinatedProgramIds?.length ?? 0) > 0;
+    const profesorNav: NavItem[] = isCoordinator
+        ? [{ path: '/programs', label: 'Mi Programa', icon: Layers }, ...PROFESOR_NAV]
+        : PROFESOR_NAV;
+    const navItems = isSuper ? SUPER_NAV : isProfesor ? profesorNav : ADMIN_NAV;
     const orgLabel = isSuper
         ? 'Aulika · Plataforma'
         : (slug ?? '').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -416,56 +518,32 @@ export function Sidebar({
 
                 {/* Nav */}
                 <nav className="flex-1 overflow-y-auto px-3 py-2">
-                    <ul className="space-y-0.5">
-                        {navItems.map(
-                            // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: nav item renders active state, count badge and live dot
-                            ({ path, label, icon: Icon, exact, live, countKey }) => {
-                                const href = isSuper ? path : `${base}${path}`;
-                                const isActive = exact ? pathname === href : pathname.startsWith(href);
-                                const badge = countKey != null ? counts?.[countKey] : undefined;
-                                return (
-                                    <li key={href}>
-                                        <Link
-                                            href={href}
-                                            className={cn(
-                                                'group flex items-center gap-2.5 rounded-[8px] px-3 py-2.5 text-[13px] font-medium transition-colors',
-                                                isActive
-                                                    ? 'bg-primary-wash text-primary font-bold'
-                                                    : 'text-ink-dim hover:bg-paper-warm hover:text-ink',
-                                            )}
-                                        >
-                                            <Icon
-                                                size={18}
-                                                className={cn(
-                                                    'shrink-0',
-                                                    isActive
-                                                        ? 'text-primary'
-                                                        : 'text-mute group-hover:text-ink-dim',
-                                                )}
-                                            />
-                                            <span className="flex-1">{label}</span>
-                                            {badge != null && (
-                                                <span
-                                                    className={cn(
-                                                        'font-mono text-[10px] font-bold',
-                                                        isActive ? 'text-primary' : 'text-mute',
-                                                    )}
-                                                >
-                                                    {badge}
-                                                </span>
-                                            )}
-                                            {live && (
-                                                <span className="relative flex size-2">
-                                                    <span className="bg-coral absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
-                                                    <span className="bg-coral relative inline-flex size-2 rounded-full shadow-[0_0_0_3px_rgba(255,90,77,0.2)]" />
-                                                </span>
-                                            )}
-                                        </Link>
-                                    </li>
-                                );
-                            },
-                        )}
-                    </ul>
+                    {NAV_SECTION_ORDER.map((section) => {
+                        const sectionItems = navItems.filter(
+                            (i) => (i.section ?? 'principal') === section,
+                        );
+                        if (sectionItems.length === 0) return null;
+                        return (
+                            <div key={section} className={section !== 'principal' ? 'mt-4' : ''}>
+                                {section !== 'principal' && (
+                                    <p className="text-mute px-3 pb-1 font-mono text-[10px] tracking-[0.08em] uppercase">
+                                        {SECTION_LABELS[section]}
+                                    </p>
+                                )}
+                                <ul className="space-y-0.5">
+                                    {sectionItems.map((item) => (
+                                        <NavItemRow
+                                            key={item.path || 'home'}
+                                            item={item}
+                                            base={base}
+                                            pathname={pathname}
+                                            counts={counts}
+                                        />
+                                    ))}
+                                </ul>
+                            </div>
+                        );
+                    })}
                 </nav>
 
                 {/* Banner promocional de upgrade (Free/Docente) */}
@@ -514,7 +592,8 @@ export function Sidebar({
                                     {userName ?? 'Admin'}
                                 </p>
                                 <p className="text-mute truncate font-sans text-[10.5px] leading-none">
-                                    {userRole ?? ''}
+                                    {userRole}
+                                    {isCoordinator ? ' · Coordinador' : ''}
                                 </p>
                             </div>
                         </Link>
@@ -544,6 +623,7 @@ export function Sidebar({
                 open={cmdOpen}
                 onOpenChange={setCmdOpen}
                 slug={isSuper ? undefined : slug}
+                items={navItems}
             />
 
             {/* Hamburger — mobile only */}

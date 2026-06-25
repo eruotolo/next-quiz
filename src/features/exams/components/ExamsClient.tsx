@@ -38,6 +38,13 @@ import {
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/shared/components/ui/select';
 import { Switch } from '@/shared/components/ui/switch';
 import { Tag } from '@/shared/components/ui/badge';
 import { cn } from '@/shared/lib/utils';
@@ -71,8 +78,11 @@ import {
 
 interface ExamWithCount extends Exam {
     groups: Group[];
+    courseSection: { id: string; name: string } | null;
     _count: { questions: number; results: number };
 }
+
+const NO_COURSE = '__none__';
 
 interface FormState {
     title: string;
@@ -87,6 +97,7 @@ interface FormState {
     passingPercentage: string;
     subject: string;
     unit: string;
+    courseSectionId: string;
     scheduledAt: string;
     closesAt: string;
 }
@@ -104,6 +115,7 @@ const emptyForm: FormState = {
     passingPercentage: '60',
     subject: '',
     unit: '',
+    courseSectionId: NO_COURSE,
     scheduledAt: '',
     closesAt: '',
 };
@@ -223,14 +235,17 @@ function formatExamDate(exam: ExamWithCount): string {
 export function ExamsClient({
     exams,
     groups,
+    courseSections,
 }: {
     exams: ExamWithCount[];
     groups: Group[];
+    courseSections: { id: string; name: string }[];
 }) {
     const router = useRouter();
     const { slug } = useParams<{ slug: string }>();
     const [tab, setTab] = useState<TabFilter>('todos');
     const [searchQuery, setSearchQuery] = useState('');
+    const [courseFilter, setCourseFilter] = useState<string>('all');
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
     const [isToggleOpen, setIsToggleOpen] = useState(false);
@@ -280,6 +295,7 @@ export function ExamsClient({
             passingPercentage: String(exam.passingPercentage),
             subject: exam.subject ?? '',
             unit: exam.unit ?? '',
+            courseSectionId: exam.courseSection?.id ?? NO_COURSE,
             scheduledAt: toDatetimeLocal(exam.scheduledAt),
             closesAt: toDatetimeLocal(exam.closesAt),
         });
@@ -300,7 +316,13 @@ export function ExamsClient({
 
     const validate = (): boolean => {
         // Misma fuente de verdad que el servidor: validar con el schema Zod.
-        const parsed = examSchema.safeParse(form);
+        // Normalizamos el sentinel de "sin asignatura" a null antes de validar.
+        const formForValidation = {
+            ...form,
+            courseSectionId:
+                form.courseSectionId === NO_COURSE ? null : form.courseSectionId,
+        };
+        const parsed = examSchema.safeParse(formForValidation);
         if (parsed.success) {
             setErrors({});
             return true;
@@ -329,6 +351,8 @@ export function ExamsClient({
                     maxGrade: Number(form.maxGrade),
                     passingGrade: Number(form.passingGrade),
                     passingPercentage: Number(form.passingPercentage),
+                    courseSectionId:
+                        form.courseSectionId === NO_COURSE ? null : form.courseSectionId,
                     scheduledAt: toUTC(form.scheduledAt),
                     closesAt: toUTC(form.closesAt),
                 };
@@ -395,7 +419,8 @@ export function ExamsClient({
             !q ||
             e.title.toLowerCase().includes(q) ||
             (e.subject?.toLowerCase().includes(q) ?? false);
-        return matchesTab && matchesSearch;
+        const matchesCourse = courseFilter === 'all' || e.courseSection?.id === courseFilter;
+        return matchesTab && matchesSearch && matchesCourse;
     });
 
     return (
@@ -461,17 +486,34 @@ export function ExamsClient({
                         </button>
                     ))}
                 </div>
-                <div className="relative shrink-0">
-                    <Search
-                        size={14}
-                        className="text-mute pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
-                    />
-                    <Input
-                        placeholder="Buscar examen..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="bg-paper border-border h-9 w-52 rounded-full pl-9 text-[13px]"
-                    />
+                <div className="flex items-center gap-2">
+                    {courseSections.length > 0 && (
+                        <Select value={courseFilter} onValueChange={setCourseFilter}>
+                            <SelectTrigger className="bg-paper border-border h-9 w-48 rounded-full text-[13px]">
+                                <SelectValue placeholder="Asignatura" />
+                            </SelectTrigger>
+                            <SelectContent className="border-border rounded-xl shadow-xl">
+                                <SelectItem value="all">Todas las asignaturas</SelectItem>
+                                {courseSections.map((c) => (
+                                    <SelectItem key={c.id} value={c.id}>
+                                        {c.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
+                    <div className="relative shrink-0">
+                        <Search
+                            size={14}
+                            className="text-mute pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+                        />
+                        <Input
+                            placeholder="Buscar examen..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="bg-paper border-border h-9 w-52 rounded-full pl-9 text-[13px]"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -534,6 +576,11 @@ export function ExamsClient({
                                                 {examTitle}
                                             </p>
                                             <p className="text-mute mt-0.5 truncate text-[12px]">
+                                                {exam.courseSection && (
+                                                    <>
+                                                        {exam.courseSection.name} ·{' '}
+                                                    </>
+                                                )}
                                                 Grupos · {groupNames}
                                             </p>
                                         </div>
@@ -703,6 +750,32 @@ export function ExamsClient({
                                     className="border-border h-11 rounded-[10px] bg-white"
                                 />
                             </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                            <span className="text-ink text-[13px] font-bold">
+                                Asignatura (plan académico, opcional)
+                            </span>
+                            <Select
+                                value={form.courseSectionId}
+                                onValueChange={(v) => setField('courseSectionId', v)}
+                            >
+                                <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
+                                    <SelectValue placeholder="Sin asignatura" />
+                                </SelectTrigger>
+                                <SelectContent className="border-border rounded-xl shadow-xl">
+                                    <SelectItem value={NO_COURSE}>Sin asignatura</SelectItem>
+                                    {courseSections.map((c) => (
+                                        <SelectItem key={c.id} value={c.id}>
+                                            {c.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <p className="text-mute text-[11px] leading-snug">
+                                Vincula este examen a una materia del plan. No define quién lo rinde:
+                                eso lo deciden los grupos asignados.
+                            </p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">

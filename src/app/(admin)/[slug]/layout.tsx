@@ -100,12 +100,25 @@ export default async function InstitutionLayout({
             : null;
     const showPlanPromo = institutionPlan === 'FREE' || institutionPlan === 'DOCENTE';
 
+    // Programas que coordina el usuario (Jefe de Carrera) — solo para Profesores.
+    // Habilita el indicador de coordinación en el Sidebar (Fase 5). El JWT no lo
+    // lleva porque cambia, así que se resuelve por request como en auth-guard.
+    const coordinatedProgramIds = isProfesor
+        ? (
+              await prisma.programCoordinator.findMany({
+                  where: { userId: session.user.id },
+                  select: { programId: true },
+              })
+          ).map((c) => c.programId)
+        : [];
+
     return (
         <div className="bg-paper flex min-h-screen">
             <Sidebar
                 slug={slug}
                 userName={session.user?.name}
                 userRole={session.user?.userRoleName}
+                coordinatedProgramIds={coordinatedProgramIds}
                 counts={{
                     students: students ?? undefined,
                     groups: groups ?? undefined,

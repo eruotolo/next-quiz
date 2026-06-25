@@ -15,27 +15,58 @@ import { z } from 'zod';
 const ADMIN_ONLY = [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN] as const;
 const ADMIN_OR_PROFESOR = [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.PROFESOR] as const;
 
-/** Verifica que un grupo pertenezca a los grupos asignados al profesor. */
-async function professorOwnsGroup(groupId: string, professorId: string): Promise<boolean> {
+/** Verifica que un grupo pertenezca al ámbito del profesor: vía Group.professors (legacy),
+ *  vía CourseSection.professors (nuevo), o vía programas coordinados. */
+async function professorOwnsGroup(
+    groupId: string,
+    professorId: string,
+    coordinatedProgramIds: string[] = [],
+): Promise<boolean> {
     const count = await prisma.group.count({
-        where: { id: groupId, ...groupProfessorFilter(professorId) },
+        where: {
+            id: groupId,
+            OR: [
+                groupProfessorFilter(professorId),
+                { courseSections: { some: { professors: { some: { id: professorId } } } } },
+                ...(coordinatedProgramIds.length > 0
+                    ? [{ programId: { in: coordinatedProgramIds } }]
+                    : []),
+            ],
+        },
     });
     return count > 0;
 }
 
-/** Verifica que un profesor tenga acceso al grupo del estudiante en su institución. */
+/** Verifica que un profesor tenga acceso al estudiante: vía Group.professors (legacy),
+ *  vía CourseSection.professors (nuevo), o vía programas coordinados. */
 async function professorHasAccess(
     studentId: string,
     professorId: string,
     institutionId: string,
+    coordinatedProgramIds: string[] = [],
 ): Promise<boolean> {
     const student = await prisma.user.findFirst({
         where: { id: studentId, academicInstitutionId: institutionId },
         select: {
-            group: { select: { professors: { where: { id: professorId }, select: { id: true } } } },
+            group: {
+                select: {
+                    programId: true,
+                    professors: { where: { id: professorId }, select: { id: true } },
+                    courseSections: {
+                        where: { professors: { some: { id: professorId } } },
+                        select: { id: true },
+                    },
+                },
+            },
         },
     });
-    return (student?.group?.professors.length ?? 0) > 0;
+    if (!student?.group) return false;
+    if (student.group.professors.length > 0) return true;
+    if (student.group.courseSections.length > 0) return true;
+    if (coordinatedProgramIds.length > 0 && student.group.programId) {
+        return coordinatedProgramIds.includes(student.group.programId);
+    }
+    return false;
 }
 
 export async function createStudent(
@@ -49,7 +80,7 @@ export async function createStudent(
         if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? 'Datos inválidos');
 
         const { groupId, ...rest } = parsed.data;
-        if (ctx.isProfesor && !(await professorOwnsGroup(groupId, ctx.userId))) {
+        if (ctx.isProfesor && !(await professorOwnsGroup(groupId, ctx.userId, ctx.coordinatedProgramIds))) {
             return fail('Solo puedes crear estudiantes en tus grupos.');
         }
 
@@ -91,7 +122,7 @@ export async function updateStudent(
         const parsed = studentSchema.safeParse(data);
         if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? 'Datos inválidos');
 
-        if (ctx.isProfesor && !(await professorHasAccess(id, ctx.userId, ctx.institutionId))) {
+        if (ctx.isProfesor && !(await professorHasAccess(id, ctx.userId, ctx.institutionId, ctx.coordinatedProgramIds))) {
             return fail('Sin permisos sobre este estudiante.');
         }
 
@@ -165,7 +196,7 @@ export async function toggleStudentActive(
     try {
         const ctx = await requireInstitutionAccess(slug, [...ADMIN_OR_PROFESOR]);
 
-        if (ctx.isProfesor && !(await professorHasAccess(id, ctx.userId, ctx.institutionId))) {
+        if (ctx.isProfesor && !(await professorHasAccess(id, ctx.userId, ctx.institutionId, ctx.coordinatedProgramIds))) {
             return fail('Sin permisos sobre este estudiante.');
         }
 
@@ -222,7 +253,13 @@ export async function importStudents(
             const ownGroups = await prisma.group.findMany({
                 where: {
                     academicInstitutionId: ctx.institutionId,
-                    ...groupProfessorFilter(ctx.userId),
+                    OR: [
+                        groupProfessorFilter(ctx.userId),
+                        { courseSections: { some: { professors: { some: { id: ctx.userId } } } } },
+                        ...(ctx.coordinatedProgramIds.length > 0
+                            ? [{ programId: { in: ctx.coordinatedProgramIds } }]
+                            : []),
+                    ],
                 },
                 select: { id: true },
             });

@@ -16,7 +16,11 @@ export default async function ProfessorsPage({
                 academicInstitutionId: institutionId,
                 userRole: { name: { in: ['Profesor', 'Administrador'] } },
             },
-            include: { userRole: true, professorGroups: true },
+            include: {
+                userRole: true,
+                professorGroups: true,
+                _count: { select: { taughtSections: true } },
+            },
             orderBy: { lastname: 'asc' },
         }),
         prisma.group.findMany({

@@ -11,7 +11,7 @@ export default async function ExamsPage({ params }: { params: Promise<{ slug: st
 
     // Scope: exámenes y grupos de la institución; el Profesor solo los de sus grupos.
     // En modo demo, además, cada visitante solo ve los exámenes de su sesión.
-    const [exams, groups] = await Promise.all([
+    const [exams, groups, courseSections] = await Promise.all([
         prisma.exam.findMany({
             where: {
                 academicInstitutionId: institutionId,
@@ -20,6 +20,7 @@ export default async function ExamsPage({ params }: { params: Promise<{ slug: st
             },
             include: {
                 groups: true,
+                courseSection: { select: { id: true, name: true } },
                 _count: { select: { questions: true, results: true } },
             },
             orderBy: { createdAt: 'desc' },
@@ -31,7 +32,12 @@ export default async function ExamsPage({ params }: { params: Promise<{ slug: st
             },
             orderBy: { name: 'asc' },
         }),
+        prisma.courseSection.findMany({
+            where: { period: { academicInstitutionId: institutionId } },
+            select: { id: true, name: true },
+            orderBy: { name: 'asc' },
+        }),
     ]);
 
-    return <ExamsClient exams={exams} groups={groups} />;
+    return <ExamsClient exams={exams} groups={groups} courseSections={courseSections} />;
 }

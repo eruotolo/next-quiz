@@ -55,12 +55,26 @@ async function assertGroupsBelongToInstitution(
     if (count !== groupIds.length) throw new Error('Forbidden');
 }
 
+/** La asignatura (CourseSection), si se indica, debe pertenecer a la institución. */
+async function assertCourseSectionBelongsToInstitution(
+    courseSectionId: string | null | undefined,
+    institutionId: string,
+): Promise<void> {
+    if (!courseSectionId) return;
+    const cs = await prisma.courseSection.findFirst({
+        where: { id: courseSectionId, period: { academicInstitutionId: institutionId } },
+        select: { id: true },
+    });
+    if (!cs) throw new Error('Forbidden');
+}
+
 export async function createExam(slug: string, data: unknown): Promise<{ id: string }> {
     const { userId, userEmail, userRole, institutionId, demoSessionId } =
         await getSessionUser(slug);
     const { groupIds, ...rest } = examSchema.parse(data);
 
     await assertGroupsBelongToInstitution(groupIds, institutionId);
+    await assertCourseSectionBelongsToInstitution(rest.courseSectionId, institutionId);
 
     if (userRole === USER_ROLE.PROFESOR) {
         const professorGroupIds = await getProfessorGroupIds(userId);
@@ -104,6 +118,7 @@ export async function updateExam(slug: string, id: string, data: unknown): Promi
     if (!owned) throw new Error('Forbidden');
 
     await assertGroupsBelongToInstitution(groupIds, institutionId);
+    await assertCourseSectionBelongsToInstitution(rest.courseSectionId, institutionId);
 
     let finalGroupIds: string[];
 

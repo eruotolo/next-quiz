@@ -16,14 +16,16 @@ interface NormalizedGroup {
     name: string;
     stream: string | null;
     tutorId: string | null;
+    programId: string | null;
 }
 
 /**
  * Normaliza los datos del grupo y valida que el tutor (si se indica) sea un
- * profesor de la misma institución. Devuelve null si el tutor no es válido.
+ * profesor de la misma institución, y que el programa (si se indica) pertenezca
+ * a la institución. Devuelve null si alguno no es válido.
  */
 async function normalizeGroupData(
-    parsed: { name: string; stream?: string; tutorId?: string | null },
+    parsed: { name: string; stream?: string; tutorId?: string | null; programId?: string | null },
     institutionId: string,
 ): Promise<NormalizedGroup | null> {
     const tutorId = parsed.tutorId ?? null;
@@ -38,10 +40,19 @@ async function normalizeGroupData(
         });
         if (!tutor) return null;
     }
+    const programId = parsed.programId ?? null;
+    if (programId) {
+        const program = await prisma.program.findFirst({
+            where: { id: programId, academicInstitutionId: institutionId },
+            select: { id: true },
+        });
+        if (!program) return null;
+    }
     return {
         name: parsed.name,
         stream: parsed.stream && parsed.stream !== '' ? parsed.stream : null,
         tutorId,
+        programId,
     };
 }
 

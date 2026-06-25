@@ -81,12 +81,11 @@ import { useRef, useState, useTransition } from 'react';
 import { cn } from '@/shared/lib/utils';
 
 interface StudentWithGroup extends User {
-    group: Group | null;
+    group: (Group & { program: { id: string; name: string } | null }) | null;
 }
 
 interface Props {
     slug: string;
-    institutionName: string;
     students: StudentWithGroup[];
     groups: Group[];
     canCreate: boolean;
@@ -114,9 +113,9 @@ interface ParsedRow {
 
 const emptyForm: FormState = { name: '', lastname: '', email: '', rut: '', groupId: '' };
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: componente CRUD con tabla, modal, importación y filtros
 export function StudentsClient({
     slug,
-    institutionName,
     students,
     groups,
     canCreate,
@@ -577,12 +576,19 @@ export function StudentsClient({
                                         </TableCell>
                                         <TableCell>
                                             {s.group ? (
-                                                <Tag
-                                                    tone="outline"
-                                                    className="border-border bg-paper-warm/50 h-6 font-mono text-[11px]"
-                                                >
-                                                    {s.group.name}
-                                                </Tag>
+                                                <div className="flex flex-col gap-1">
+                                                    <Tag
+                                                        tone="outline"
+                                                        className="border-border bg-paper-warm/50 h-6 w-fit font-mono text-[11px]"
+                                                    >
+                                                        {s.group.name}
+                                                    </Tag>
+                                                    {s.group.program && (
+                                                        <span className="text-mute text-[10.5px] font-medium">
+                                                            {s.group.program.name}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             ) : (
                                                 <span className="text-mute text-[11.5px]">—</span>
                                             )}
@@ -605,7 +611,6 @@ export function StudentsClient({
                                                     <Button
                                                         variant="ghost"
                                                         size="icon-sm"
-                                                        className="opacity-0 transition-opacity group-hover:opacity-100"
                                                     >
                                                         <MoreHorizontal
                                                             size={16}

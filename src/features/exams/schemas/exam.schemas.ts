@@ -64,6 +64,9 @@ export const examSchema = z
         passingPercentage: z.coerce.number().int().min(1).max(99).default(60),
         subject: optionalText,
         unit: optionalText,
+        // Asignatura/materia del plan académico (CourseSection). Metadata de
+        // categorización únicamente (D6): NO decide quién rinde el examen.
+        courseSectionId: z.string().uuid('Asignatura inválida').nullable().optional(),
         scheduledAt: optionalDate,
         closesAt: optionalDate,
     })

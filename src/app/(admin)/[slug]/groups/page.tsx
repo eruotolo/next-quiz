@@ -13,7 +13,7 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
     // Solo Admin/SuperAdmin mutan grupos; el Profesor solo ve los suyos.
     const canMutate = !isProfesor;
 
-    const [groups, professors] = await Promise.all([
+    const [groups, professors, programs] = await Promise.all([
         prisma.group.findMany({
             where: {
                 academicInstitutionId: institutionId,
@@ -22,6 +22,7 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
             include: {
                 _count: { select: { users: true, exams: true } },
                 tutor: { select: { id: true, name: true, lastname: true } },
+                program: { select: { id: true, name: true } },
                 users: {
                     where: { userRole: { name: USER_ROLE.STUDENT } },
                     select: { id: true, name: true, lastname: true, rut: true, active: true },
@@ -34,6 +35,11 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
             where: { academicInstitutionId: institutionId, userRole: { name: USER_ROLE.PROFESOR } },
             select: { id: true, name: true, lastname: true },
             orderBy: { lastname: 'asc' },
+        }),
+        prisma.program.findMany({
+            where: { academicInstitutionId: institutionId },
+            select: { id: true, name: true },
+            orderBy: { name: 'asc' },
         }),
     ]);
 
@@ -87,6 +93,7 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
             slug={slug}
             groups={groupsWithAvg}
             professors={professors}
+            programs={programs}
             canMutate={canMutate}
         />
     );

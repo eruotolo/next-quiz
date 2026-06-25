@@ -49,7 +49,11 @@ import {
 } from '@/shared/components/ui/dropdown-menu';
 
 export type ProfessorWithRelations = Prisma.UserGetPayload<{
-    include: { userRole: true; professorGroups: true };
+    include: {
+        userRole: true;
+        professorGroups: true;
+        _count: { select: { taughtSections: true } };
+    };
 }>;
 
 interface Props {
@@ -80,6 +84,7 @@ const emptyForm: FormState = {
     groupIds: [],
 };
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: componente CRUD con tabla, modal de formulario y validación integrada
 export function ProfessorsClient({
     professors,
     groups,
@@ -140,6 +145,7 @@ export function ProfessorsClient({
         setIsDelOpen(true);
     };
 
+    // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: valida varios campos del formulario antes de enviar
     const validate = (): boolean => {
         const next: Partial<Record<keyof FormState, string>> = {};
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -230,6 +236,7 @@ export function ProfessorsClient({
                                     <TableHead className="w-[160px]">RUT</TableHead>
                                     <TableHead className="w-[140px]">Rol</TableHead>
                                     <TableHead>Grupos Asignados</TableHead>
+                                    <TableHead className="w-[130px]">Materias</TableHead>
                                     <TableHead className="w-12" />
                                 </TableRow>
                             </TableHeader>
@@ -291,6 +298,13 @@ export function ProfessorsClient({
                                                         —
                                                     </span>
                                                 )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <span className="text-ink-dim text-[13px] font-medium">
+                                                    {p._count.taughtSections > 0
+                                                        ? `${p._count.taughtSections} materia${p._count.taughtSections !== 1 ? 's' : ''}`
+                                                        : '—'}
+                                                </span>
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <DropdownMenu>

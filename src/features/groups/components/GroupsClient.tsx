@@ -59,10 +59,16 @@ interface TutorInfo {
     lastname: string;
 }
 
+interface ProgramInfo {
+    id: string;
+    name: string;
+}
+
 interface GroupWithCount extends Group {
     _count: { users: number; exams: number };
     users: StudentInGroup[];
     tutor: TutorInfo | null;
+    program: ProgramInfo | null;
     avgGrade: number | null;
 }
 
@@ -76,10 +82,12 @@ interface Props {
     slug: string;
     groups: GroupWithCount[];
     professors: ProfessorOption[];
+    programs: ProgramInfo[];
     canMutate: boolean;
 }
 
 const NO_TUTOR = '__none__';
+const NO_PROGRAM = '__none__';
 
 const CARD_COLORS = ['#1F2EFF', '#7C5CFF', '#22C55E', '#FF5A4D', '#F59E0B'];
 
@@ -123,6 +131,7 @@ export function GroupsClient({
     slug,
     groups,
     professors,
+    programs,
     canMutate,
 }: Props) {
     const router = useRouter();
@@ -134,6 +143,7 @@ export function GroupsClient({
     const [name, setName] = useState('');
     const [stream, setStream] = useState('');
     const [tutorId, setTutorId] = useState<string>(NO_TUTOR);
+    const [programId, setProgramId] = useState<string>(NO_PROGRAM);
     const [error, setError] = useState<string | null>(null);
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
@@ -143,6 +153,7 @@ export function GroupsClient({
         setName('');
         setStream('');
         setTutorId(NO_TUTOR);
+        setProgramId(NO_PROGRAM);
         setError(null);
         setIsOpen(true);
     };
@@ -151,6 +162,7 @@ export function GroupsClient({
         setName(g.name);
         setStream(g.stream ?? '');
         setTutorId(g.tutor?.id ?? NO_TUTOR);
+        setProgramId(g.program?.id ?? NO_PROGRAM);
         setError(null);
         setIsOpen(true);
     };
@@ -169,6 +181,7 @@ export function GroupsClient({
             name,
             stream: stream.trim(),
             tutorId: tutorId === NO_TUTOR ? null : tutorId,
+            programId: programId === NO_PROGRAM ? null : programId,
         };
         startTransition(async () => {
             const result = editing
@@ -244,6 +257,14 @@ export function GroupsClient({
                                                     <p className="text-mute mt-1.5 font-mono text-[10px] font-bold tracking-[0.12em] uppercase">
                                                         {g.stream}
                                                     </p>
+                                                )}
+                                                {g.program && (
+                                                    <Tag
+                                                        tone="default"
+                                                        className="border-border mt-2 h-5 text-[10px] font-bold"
+                                                    >
+                                                        {g.program.name}
+                                                    </Tag>
                                                 )}
                                             </div>
                                             <DropdownMenu>
@@ -519,6 +540,24 @@ export function GroupsClient({
                                     {professors.map((p) => (
                                         <SelectItem key={p.id} value={p.id}>
                                             {p.name} {p.lastname}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <span className="text-ink text-[13px] font-bold">
+                                Programa (opcional)
+                            </span>
+                            <Select value={programId} onValueChange={setProgramId}>
+                                <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
+                                    <SelectValue placeholder="Sin programa" />
+                                </SelectTrigger>
+                                <SelectContent className="border-border rounded-xl shadow-xl">
+                                    <SelectItem value={NO_PROGRAM}>Sin programa</SelectItem>
+                                    {programs.map((p) => (
+                                        <SelectItem key={p.id} value={p.id}>
+                                            {p.name}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
