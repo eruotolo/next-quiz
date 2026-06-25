@@ -144,6 +144,7 @@ export async function createCourse(
                         name: groupName,
                         academicInstitutionId: ctx.institutionId,
                         programId: programId ?? null,
+                        periodId,
                     },
                 });
                 groupId = newGroup.id;

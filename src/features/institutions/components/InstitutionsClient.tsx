@@ -39,6 +39,7 @@ import {
     TableRow,
 } from '@/shared/components/ui/table';
 import { TablePaginator } from '@/shared/components/ui/table-paginator';
+import { INSTITUTION_TYPE_OPTIONS } from '@/shared/lib/academic-labels';
 import type { PaginatedResult } from '@/shared/types/pagination';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -57,7 +58,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { FormEvent } from 'react';
 import { useState, useTransition } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { toast } from 'sonner';
 import type { z } from 'zod';
 import { cn } from '@/shared/lib/utils';
@@ -244,12 +245,14 @@ function InstitutionForm({
 }) {
     const {
         register,
+        control,
         handleSubmit,
         formState: { errors },
     } = useForm<InstitutionInput>({
         resolver: zodResolver(institutionSchema),
         defaultValues: {
             country: 'Chile',
+            type: 'OTRO',
             active: true,
             ...defaultValues,
         },
@@ -257,6 +260,32 @@ function InstitutionForm({
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-4">
+            <Controller
+                name="type"
+                control={control}
+                render={({ field }) => (
+                    <div className="flex flex-col gap-1.5">
+                        <label htmlFor="inst-type" className="text-ink text-[13px] font-bold">
+                            Tipo de institución
+                        </label>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger
+                                id="inst-type"
+                                className="border-border data-[size=default]:h-11 w-full rounded-[10px] bg-white"
+                            >
+                                <SelectValue placeholder="Seleccioná el tipo" />
+                            </SelectTrigger>
+                            <SelectContent className="border-border rounded-xl shadow-xl">
+                                {INSTITUTION_TYPE_OPTIONS.map((opt) => (
+                                    <SelectItem key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                )}
+            />
             <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
                     <label htmlFor="inst-name" className="text-ink text-[13px] font-bold">
@@ -522,6 +551,7 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props) 
                                 <TableRow className="border-border border-b hover:bg-transparent">
                                     <TableHead>Nombre / Entidad</TableHead>
                                     <TableHead className="w-[180px]">Identificador</TableHead>
+                                    <TableHead className="w-[150px]">Tipo</TableHead>
                                     <TableHead className="w-[160px]">Ubicación</TableHead>
                                     <TableHead className="w-[150px]">Plan</TableHead>
                                     <TableHead className="w-[100px] text-center">
@@ -558,6 +588,15 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props) 
                                                 className="bg-paper-warm/50 border-border h-6 font-mono text-[11px]"
                                             >
                                                 /{row.slug}
+                                            </Tag>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Tag
+                                                tone="outline"
+                                                className="border-border h-6 w-fit bg-white px-2.5 text-[10.5px] font-bold"
+                                            >
+                                                {INSTITUTION_TYPE_OPTIONS.find((o) => o.value === row.type)
+                                                    ?.label ?? row.type}
                                             </Tag>
                                         </TableCell>
                                         <TableCell>

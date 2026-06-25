@@ -11,6 +11,7 @@ import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { requireInstitutionAccess } from '@/features/auth/lib/auth-guard';
 import { assertQuota } from '@/features/subscriptions/lib/quota';
+import { examProfessorFilter } from '@/shared/lib/scoping';
 import { revalidatePath } from 'next/cache';
 
 async function getSessionUser(requestSlug: string) {
@@ -37,7 +38,7 @@ async function getProfessorGroupIds(professorId: string): Promise<string[]> {
 
 async function assertProfessorExamAccess(examId: string, professorId: string): Promise<void> {
     const exam = await prisma.exam.findFirst({
-        where: { id: examId, groups: { some: { professors: { some: { id: professorId } } } } },
+        where: { id: examId, ...examProfessorFilter(professorId) },
         select: { id: true },
     });
     if (!exam) throw new Error('Forbidden');
@@ -68,6 +69,19 @@ async function assertCourseSectionBelongsToInstitution(
     if (!cs) throw new Error('Forbidden');
 }
 
+/** Si el profesor asigna un ramo, debe pertenecerle. */
+async function assertCourseSectionBelongsToProfessor(
+    courseSectionId: string | null | undefined,
+    professorId: string,
+): Promise<void> {
+    if (!courseSectionId) return;
+    const cs = await prisma.courseSection.findFirst({
+        where: { id: courseSectionId, professors: { some: { id: professorId } } },
+        select: { id: true },
+    });
+    if (!cs) throw new Error('Forbidden');
+}
+
 export async function createExam(slug: string, data: unknown): Promise<{ id: string }> {
     const { userId, userEmail, userRole, institutionId, demoSessionId } =
         await getSessionUser(slug);
@@ -80,6 +94,7 @@ export async function createExam(slug: string, data: unknown): Promise<{ id: str
         const professorGroupIds = await getProfessorGroupIds(userId);
         const invalid = groupIds.filter((id) => !professorGroupIds.includes(id));
         if (invalid.length > 0) throw new Error('Forbidden');
+        await assertCourseSectionBelongsToProfessor(rest.courseSectionId, userId);
     }
 
     await assertQuota(institutionId, 'exam', userRole, 0, demoSessionId);
@@ -127,6 +142,7 @@ export async function updateExam(slug: string, id: string, data: unknown): Promi
         const professorGroupIds = await getProfessorGroupIds(userId);
         const invalid = groupIds.filter((gid) => !professorGroupIds.includes(gid));
         if (invalid.length > 0) throw new Error('Forbidden');
+        await assertCourseSectionBelongsToProfessor(rest.courseSectionId, userId);
         const currentExam = await prisma.exam.findUnique({
             where: { id },
             select: { groups: { select: { id: true } } },

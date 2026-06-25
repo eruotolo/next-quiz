@@ -146,6 +146,7 @@ model AcademicPeriod {
   academicInstitutionId String              @db.Uuid
   academicInstitution   AcademicInstitution @relation(fields: [academicInstitutionId], references: [id], onDelete: Cascade)
   courseSections        CourseSection[]
+  groups                Group[]
   createdAt             DateTime            @default(now())
   updatedAt             DateTime            @updatedAt
 
@@ -204,6 +205,9 @@ model Group {
   // FK opcional al programa académico (jerarquía). Nullable → no breaking.
   programId             String?              @db.Uuid
   program               Program?             @relation(fields: [programId], references: [id], onDelete: SetNull)
+  // FK opcional al período (semestre) del grupo. Nullable → no breaking.
+  periodId              String?              @db.Uuid
+  period                AcademicPeriod?      @relation(fields: [periodId], references: [id], onDelete: SetNull)
   users                 User[]
   professors            User[]               @relation("ProfessorGroups")
   exams                 Exam[]
@@ -214,6 +218,7 @@ model Group {
   @@index([tutorId])
   @@index([academicInstitutionId])
   @@index([programId])
+  @@index([periodId])
 }
 
 model User {

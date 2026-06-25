@@ -39,6 +39,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Command } from 'cmdk';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { searchGlobal, type SearchResult } from '@/shared/lib/search';
+import { academicLabel } from '@/shared/lib/academic-labels';
+import type { InstitutionType } from '@prisma/client';
 
 // ── Nav items ─────────────────────────────────────────────────────────────
 type NavSection = 'principal' | 'academic' | 'sistema';
@@ -277,6 +279,9 @@ interface SidebarProps {
      *  Profesores: habilita el indicador de coordinación en la UI y, cuando exista
      *  la ruta `/programs`, el acceso a su programa. */
     coordinatedProgramIds?: string[];
+    /** Tipo de institución: determina las etiquetas de la sección Académico
+     *  (Programas → Carreras/Niveles/Especialidades; Materias → Ramos/Asignaturas). */
+    institutionType?: InstitutionType;
 }
 
 // Fila de navegación: estado activo, badge de contador y punto "en vivo".
@@ -344,6 +349,7 @@ export function Sidebar({
     institutionList,
     showPlanPromo = false,
     coordinatedProgramIds,
+    institutionType,
 }: SidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
@@ -371,10 +377,20 @@ export function Sidebar({
     // flag disponible para sumar el acceso a su programa cuando exista /programs.
     const isProfesor = !isSuper && userRole === USER_ROLE.PROFESOR;
     const isCoordinator = isProfesor && (coordinatedProgramIds?.length ?? 0) > 0;
+    const labels = academicLabel(institutionType ?? 'OTRO');
+    const adminNav: NavItem[] = ADMIN_NAV.map((item) => {
+        if (item.path === '/programs') return { ...item, label: labels.programPlural };
+        if (item.path === '/periods') return { ...item, label: labels.periodPlural };
+        if (item.path === '/courses') return { ...item, label: labels.coursePlural };
+        return item;
+    });
+    const profesorBaseNav: NavItem[] = PROFESOR_NAV.map((item) =>
+        item.path === '/courses' ? { ...item, label: `Mis ${labels.coursePlural}` } : item,
+    );
     const profesorNav: NavItem[] = isCoordinator
-        ? [{ path: '/programs', label: 'Mi Programa', icon: Layers }, ...PROFESOR_NAV]
-        : PROFESOR_NAV;
-    const navItems = isSuper ? SUPER_NAV : isProfesor ? profesorNav : ADMIN_NAV;
+        ? [{ path: '/programs', label: `Mi ${labels.program}`, icon: Layers }, ...profesorBaseNav]
+        : profesorBaseNav;
+    const navItems = isSuper ? SUPER_NAV : isProfesor ? profesorNav : adminNav;
     const orgLabel = isSuper
         ? 'Aulika · Plataforma'
         : (slug ?? '').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());

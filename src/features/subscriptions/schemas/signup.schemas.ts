@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { isValidRut } from '@/shared/lib/rut';
+import { institutionTypeSchema } from '@/shared/lib/academic-labels';
 
 const rutField = z.string().min(1, 'El RUT es requerido').refine(isValidRut, 'RUT inválido');
 
@@ -8,6 +9,7 @@ export const signupFreeSchema = z.object({
     institutionRut: rutField,
     institutionPhone: z.string().min(8, 'Teléfono inválido').max(30),
     institutionCity: z.string().min(2, 'Ciudad requerida').max(100),
+    institutionType: institutionTypeSchema.default('OTRO'),
     adminName: z.string().min(2, 'Nombre requerido').max(100),
     adminLastname: z.string().min(2, 'Apellido requerido').max(100),
     adminEmail: z.string().email('Email inválido'),
@@ -34,6 +36,7 @@ export const registrationSchema = z.object({
     institutionRut: rutField,
     institutionPhone: z.string().min(8, 'Teléfono inválido').max(30),
     institutionCity: z.string().min(2, 'Ciudad requerida').max(100),
+    institutionType: institutionTypeSchema.default('OTRO'),
     adminName: z.string().min(2, 'Nombre requerido').max(100),
     adminLastname: z.string().min(2, 'Apellido requerido').max(100),
     adminEmail: z.string().email('Email inválido'),

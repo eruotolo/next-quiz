@@ -9,10 +9,19 @@ import type { InstitutionSettings } from '@/features/institutions/actions/querie
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/shared/components/ui/select';
 import { Tag } from '@/shared/components/ui/badge';
 import { cn } from '@/shared/lib/utils';
+import { INSTITUTION_TYPE_OPTIONS } from '@/shared/lib/academic-labels';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Building2, Globe, Lock, Mail, MapPin, Phone, Save, Search } from 'lucide-react';
+import type { InstitutionType } from '@prisma/client';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -50,6 +59,7 @@ export function InstitutionSettingsClient({ institution, slug }: Props) {
         register,
         handleSubmit,
         setValue,
+        watch,
         formState: { errors, isDirty },
     } = useForm<InstitutionSettingsInput>({
         resolver: zodResolver(institutionSettingsSchema),
@@ -60,12 +70,15 @@ export function InstitutionSettingsClient({ institution, slug }: Props) {
             city: institution.city,
             campus: institution.campus ?? '',
             country: institution.country,
+            type: institution.type,
             email: institution.email ?? '',
             seoTitle: institution.seoTitle ?? '',
             seoDescription: institution.seoDescription ?? '',
             seoKeywords: institution.seoKeywords ?? [],
         },
     });
+
+    const type = watch('type');
 
     function onSubmit(data: InstitutionSettingsInput): void {
         startTransition(async () => {
@@ -123,6 +136,32 @@ export function InstitutionSettingsClient({ institution, slug }: Props) {
                                         errors.name && 'border-destructive',
                                     )}
                                 />
+                            </Field>
+
+                            <Field
+                                id="type"
+                                label="Tipo de institución"
+                                error={errors.type?.message}
+                            >
+                                <Select
+                                    value={type}
+                                    onValueChange={(v) =>
+                                        setValue('type', v as InstitutionType, {
+                                            shouldDirty: true,
+                                        })
+                                    }
+                                >
+                                    <SelectTrigger className="border-border data-[size=default]:h-11 rounded-[10px] bg-white">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="border-border rounded-xl shadow-xl">
+                                        {INSTITUTION_TYPE_OPTIONS.map((opt) => (
+                                            <SelectItem key={opt.value} value={opt.value}>
+                                                {opt.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </Field>
 
                             <div className="grid grid-cols-2 gap-4">

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import {
     createExam,
@@ -8,6 +8,13 @@ import {
 } from '@/features/exams/actions/mutations';
 import { toast } from 'sonner';
 import { examSchema } from '@/features/exams/schemas/exam.schemas';
+import {
+    ExamAcademicPicker,
+    NO_COURSE,
+    NO_PERIOD,
+    NO_PROGRAM,
+    type CourseOption,
+} from '@/features/exams/components/ExamAcademicPicker';
 import { generateExcelTemplate, generateMarkdownTemplate } from '@/features/exams/lib/templates';
 import dynamic from 'next/dynamic';
 
@@ -68,7 +75,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition, useMemo } from 'react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -78,11 +85,15 @@ import {
 
 interface ExamWithCount extends Exam {
     groups: Group[];
-    courseSection: { id: string; name: string } | null;
+    courseSection: {
+        id: string;
+        name: string;
+        programId: string | null;
+        periodId: string;
+        groupId: string | null;
+    } | null;
     _count: { questions: number; results: number };
 }
-
-const NO_COURSE = '__none__';
 
 interface FormState {
     title: string;
@@ -95,8 +106,9 @@ interface FormState {
     maxGrade: string;
     passingGrade: string;
     passingPercentage: string;
-    subject: string;
-    unit: string;
+
+    programId: string;
+    periodId: string;
     courseSectionId: string;
     scheduledAt: string;
     closesAt: string;
@@ -113,8 +125,9 @@ const emptyForm: FormState = {
     maxGrade: '7',
     passingGrade: '4',
     passingPercentage: '60',
-    subject: '',
-    unit: '',
+
+    programId: NO_PROGRAM,
+    periodId: NO_PERIOD,
     courseSectionId: NO_COURSE,
     scheduledAt: '',
     closesAt: '',
@@ -236,10 +249,12 @@ export function ExamsClient({
     exams,
     groups,
     courseSections,
+    isProfesor,
 }: {
     exams: ExamWithCount[];
     groups: Group[];
-    courseSections: { id: string; name: string }[];
+    courseSections: CourseOption[];
+    isProfesor: boolean;
 }) {
     const router = useRouter();
     const { slug } = useParams<{ slug: string }>();
@@ -257,6 +272,18 @@ export function ExamsClient({
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
     const [importExamId, setImportExamId] = useState<string | null>(null);
+
+    const filteredGroups = useMemo(() => {
+        return groups.filter((g) => {
+            if (form.programId !== NO_PROGRAM && g.programId !== form.programId) return false;
+            if (form.periodId !== NO_PERIOD && g.periodId !== form.periodId) return false;
+            if (form.courseSectionId !== NO_COURSE) {
+                const course = courseSections.find((c) => c.id === form.courseSectionId);
+                if (course?.groupId && g.id !== course.groupId) return false;
+            }
+            return true;
+        });
+    }, [groups, form.programId, form.periodId, form.courseSectionId, courseSections]);
 
     const setField = <K extends keyof FormState>(field: K, value: FormState[K]): void => {
         setForm((f) => ({ ...f, [field]: value }));
@@ -293,8 +320,9 @@ export function ExamsClient({
             maxGrade: String(exam.maxGrade),
             passingGrade: String(exam.passingGrade),
             passingPercentage: String(exam.passingPercentage),
-            subject: exam.subject ?? '',
-            unit: exam.unit ?? '',
+
+            programId: exam.courseSection?.programId ?? NO_PROGRAM,
+            periodId: exam.courseSection?.periodId ?? NO_PERIOD,
             courseSectionId: exam.courseSection?.id ?? NO_COURSE,
             scheduledAt: toDatetimeLocal(exam.scheduledAt),
             closesAt: toDatetimeLocal(exam.closesAt),
@@ -677,7 +705,7 @@ export function ExamsClient({
 
             {/* Create/Edit dialog */}
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="border-border flex max-h-[90vh] flex-col overflow-hidden rounded-[22px] p-0 shadow-2xl sm:max-w-lg">
+                <DialogContent className="border-border flex max-h-[95vh] flex-col overflow-hidden rounded-[22px] p-0 shadow-2xl sm:max-w-2xl">
                     <div className="border-border bg-paper border-b px-6 py-5">
                         <DialogTitle className="font-display text-ink text-2xl">
                             {editing ? 'Ajustes del examen' : 'Nuevo examen'}
@@ -719,63 +747,66 @@ export function ExamsClient({
                             )}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="flex flex-col gap-1.5">
-                                <label
-                                    htmlFor="exam-form-subject"
-                                    className="text-ink text-[13px] font-bold"
-                                >
-                                    Materia
-                                </label>
-                                <Input
-                                    id="exam-form-subject"
-                                    placeholder="Ej: Historia"
-                                    value={form.subject}
-                                    onChange={(e) => setField('subject', e.target.value)}
-                                    className="border-border h-11 rounded-[10px] bg-white"
-                                />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label
-                                    htmlFor="exam-form-unit"
-                                    className="text-ink text-[13px] font-bold"
-                                >
-                                    Unidad
-                                </label>
-                                <Input
-                                    id="exam-form-unit"
-                                    placeholder="Ej: Unidad 4"
-                                    value={form.unit}
-                                    onChange={(e) => setField('unit', e.target.value)}
-                                    className="border-border h-11 rounded-[10px] bg-white"
-                                />
-                            </div>
-                        </div>
+                        <ExamAcademicPicker
+                            courseSections={courseSections}
+                            value={{
+                                programId: form.programId,
+                                periodId: form.periodId,
+                                courseSectionId: form.courseSectionId,
+                            }}
+                            onChange={(patch) => {
+                                setForm((f) => {
+                                    const next = { ...f, ...patch };
+                                    // Auto-selección del grupo asociado al ramo
+                                    if (patch.courseSectionId && patch.courseSectionId !== NO_COURSE) {
+                                        const course = courseSections.find((c) => c.id === patch.courseSectionId);
+                                        if (course?.groupId && !next.groupIds.includes(course.groupId)) {
+                                            next.groupIds = [...next.groupIds, course.groupId];
+                                        }
+                                    }
+                                    return next;
+                                });
+                            }}
+                        />
 
-                        <div className="flex flex-col gap-1.5">
-                            <span className="text-ink text-[13px] font-bold">
-                                Asignatura (plan académico, opcional)
-                            </span>
-                            <Select
-                                value={form.courseSectionId}
-                                onValueChange={(v) => setField('courseSectionId', v)}
+                        <div className="flex flex-col gap-2">
+                            <span className="text-ink text-[13px] font-bold">Grupos asignados</span>
+                            <div
+                                className={cn(
+                                    'border-border bg-paper-warm/20 max-h-[160px] overflow-y-auto rounded-[12px] border p-2',
+                                    errors.groupIds && 'border-destructive',
+                                )}
                             >
-                                <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
-                                    <SelectValue placeholder="Sin asignatura" />
-                                </SelectTrigger>
-                                <SelectContent className="border-border rounded-xl shadow-xl">
-                                    <SelectItem value={NO_COURSE}>Sin asignatura</SelectItem>
-                                    {courseSections.map((c) => (
-                                        <SelectItem key={c.id} value={c.id}>
-                                            {c.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <p className="text-mute text-[11px] leading-snug">
-                                Vincula este examen a una materia del plan. No define quién lo rinde:
-                                eso lo deciden los grupos asignados.
-                            </p>
+                                {filteredGroups.length === 0 ? (
+                                    <p className="text-mute px-3 py-4 text-center text-[13px]">
+                                        {groups.length === 0 ? 'No hay grupos creados' : 'No hay grupos para esta selección'}
+                                    </p>
+                                ) : (
+                                    <div className="grid grid-cols-2 gap-1 sm:grid-cols-3">
+                                        {filteredGroups.map((g) => (
+                                            <label
+                                                key={g.id}
+                                                className="flex cursor-pointer items-center gap-3 rounded-[8px] px-3 py-2.5 transition-colors hover:bg-white"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={form.groupIds.includes(g.id)}
+                                                    onChange={() => toggleGroup(g.id)}
+                                                    className="accent-primary border-border h-4 w-4 rounded"
+                                                />
+                                                <span className="text-ink truncate text-[13.5px] font-medium" title={g.name}>
+                                                    {g.name}
+                                                </span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            {errors.groupIds && (
+                                <p className="text-destructive text-xs font-medium">
+                                    {errors.groupIds}
+                                </p>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -935,45 +966,7 @@ export function ExamsClient({
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-2">
-                            <span className="text-ink text-[13px] font-bold">Grupos asignados</span>
-                            <div
-                                className={cn(
-                                    'border-border bg-paper-warm/20 max-h-[160px] overflow-y-auto rounded-[12px] border p-2',
-                                    errors.groupIds && 'border-destructive',
-                                )}
-                            >
-                                {groups.length === 0 ? (
-                                    <p className="text-mute px-3 py-4 text-center text-[13px]">
-                                        No hay grupos creados
-                                    </p>
-                                ) : (
-                                    <div className="grid grid-cols-1 gap-1">
-                                        {groups.map((g) => (
-                                            <label
-                                                key={g.id}
-                                                className="flex cursor-pointer items-center gap-3 rounded-[8px] px-3 py-2.5 transition-colors hover:bg-white"
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    checked={form.groupIds.includes(g.id)}
-                                                    onChange={() => toggleGroup(g.id)}
-                                                    className="accent-primary border-border h-4 w-4 rounded"
-                                                />
-                                                <span className="text-ink text-[13.5px] font-medium">
-                                                    {g.name}
-                                                </span>
-                                            </label>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            {errors.groupIds && (
-                                <p className="text-destructive text-xs font-medium">
-                                    {errors.groupIds}
-                                </p>
-                            )}
-                        </div>
+
 
                         <div className="bg-paper border-border flex flex-col gap-3 rounded-[14px] border p-5">
                             <span className="text-ink text-[13px] font-bold">

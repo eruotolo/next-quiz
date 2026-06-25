@@ -59,7 +59,7 @@ export default async function InstitutionLayout({
     // páginas: scope por institución (columna directa) + scope de profesor.
     const profGroupFilter = isProfesor ? groupProfessorFilter(session.user.id) : {};
 
-    const [students, groups, exams, institutionList, quotaUsage] = institutionId
+    const [students, groups, exams, institutionList, quotaUsage, institutionData] = institutionId
         ? await Promise.all([
               prisma.user.count({
                   where: {
@@ -85,19 +85,15 @@ export default async function InstitutionLayout({
                     })
                   : Promise.resolve([]),
               isSuperAdmin ? Promise.resolve([]) : getQuotaUsage(institutionId),
+              prisma.academicInstitution.findUnique({
+                  where: { id: institutionId },
+                  select: { plan: true, type: true },
+              }),
           ])
-        : [undefined, undefined, undefined, [], []];
+        : [undefined, undefined, undefined, [], [], null];
 
     // Banner promocional del sidebar: solo para Administrador en planes Free o Docente.
-    const institutionPlan =
-        institutionId && isAdmin
-            ? ((
-                  await prisma.academicInstitution.findUnique({
-                      where: { id: institutionId },
-                      select: { plan: true },
-                  })
-              )?.plan ?? null)
-            : null;
+    const institutionPlan = isAdmin ? (institutionData?.plan ?? null) : null;
     const showPlanPromo = institutionPlan === 'FREE' || institutionPlan === 'DOCENTE';
 
     // Programas que coordina el usuario (Jefe de Carrera) — solo para Profesores.
@@ -119,6 +115,7 @@ export default async function InstitutionLayout({
                 userName={session.user?.name}
                 userRole={session.user?.userRoleName}
                 coordinatedProgramIds={coordinatedProgramIds}
+                institutionType={institutionData?.type ?? undefined}
                 counts={{
                     students: students ?? undefined,
                     groups: groups ?? undefined,
