@@ -1,7 +1,21 @@
+import type { Metadata } from 'next';
 import { L3SubpageLayout } from '@/features/landing/components/L3SubpageLayout';
 import { L3CTA } from '@/features/landing/components/L3CTA';
 
 export const dynamic = 'force-static';
+
+export const metadata: Metadata = {
+    title: 'Herramientas de Evaluación para Unidades Técnico Pedagógicas',
+    description:
+        'Centraliza la evaluación institucional, estandariza criterios y obtén reportes de cobertura curricular automáticos. La herramienta que necesita el UTP de tu colegio.',
+    alternates: { canonical: 'https://www.aulika.cl/audiencias/utps' },
+    openGraph: {
+        title: 'Herramientas para UTP | Aulika',
+        description:
+            'Supervisión en tiempo real, estandarización de evaluaciones y reportes consolidados por departamento o nivel.',
+        url: 'https://www.aulika.cl/audiencias/utps',
+    },
+};
 
 export default function UTPsPage() {
     return (

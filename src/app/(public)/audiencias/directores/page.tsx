@@ -1,7 +1,21 @@
+import type { Metadata } from 'next';
 import { L3SubpageLayout } from '@/features/landing/components/L3SubpageLayout';
 import { L3CTA } from '@/features/landing/components/L3CTA';
 
 export const dynamic = 'force-static';
+
+export const metadata: Metadata = {
+    title: 'Analítica Educativa para Directores de Colegio',
+    description:
+        'Transforma los datos de evaluación en decisiones estratégicas. Visualiza el rendimiento histórico, detecta brechas de aprendizaje y reduce costos de impresión. Para directores de establecimientos educacionales en Chile.',
+    alternates: { canonical: 'https://www.aulika.cl/audiencias/directores' },
+    openGraph: {
+        title: 'Herramientas de Analítica Educativa para Directores | Aulika',
+        description:
+            'Panel de control institucional con datos de rendimiento histórico, detección temprana de brechas y optimización de recursos.',
+        url: 'https://www.aulika.cl/audiencias/directores',
+    },
+};
 
 export default function DirectoresPage() {
     return (

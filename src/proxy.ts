@@ -27,12 +27,16 @@ export default auth((req: NextAuthRequest) => {
         return NextResponse.next();
     }
 
+    // All protected routes must not be indexed by search engines
+    const protectedResponse = NextResponse.next();
+    protectedResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
+
     if (pathname.startsWith('/config')) {
         if (!session) return NextResponse.redirect(new URL('/login', req.url));
         if (session.user.userRoleName !== USER_ROLE.SUPER_ADMIN) {
             return NextResponse.redirect(new URL('/login', req.url));
         }
-        return NextResponse.next();
+        return protectedResponse;
     }
 
     if (!session) return NextResponse.redirect(new URL('/login', req.url));
@@ -42,13 +46,13 @@ export default auth((req: NextAuthRequest) => {
     }
 
     if (pathname.startsWith('/perfil')) {
-        return NextResponse.next();
+        return protectedResponse;
     }
 
     const slug = pathname.split('/')[1];
 
     if (session.user.userRoleName === USER_ROLE.SUPER_ADMIN) {
-        return NextResponse.next();
+        return protectedResponse;
     }
 
     if (!session.user.institutionSlug || session.user.institutionSlug !== slug) {
@@ -56,11 +60,11 @@ export default auth((req: NextAuthRequest) => {
         return NextResponse.redirect(new URL(target, req.url));
     }
 
-    return NextResponse.next();
+    return protectedResponse;
 });
 
 export const config = {
     matcher: [
-        '/((?!_next|favicon\\.ico|manifest\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|ttf|otf|eot)$).*)',
+        '/((?!_next|favicon\\.ico|sitemap.*\\.xml|robots\\.txt|manifest\\.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|ttf|otf|eot)$).*)',
     ],
 };

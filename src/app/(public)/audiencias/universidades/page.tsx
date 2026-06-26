@@ -1,7 +1,21 @@
+import type { Metadata } from 'next';
 import { L3SubpageLayout } from '@/features/landing/components/L3SubpageLayout';
 import { L3CTA } from '@/features/landing/components/L3CTA';
 
 export const dynamic = 'force-static';
+
+export const metadata: Metadata = {
+    title: 'Plataforma de Evaluación para Universidades e Institutos',
+    description:
+        'Evaluaciones en línea para universidades, institutos profesionales y CFT en Chile. Gestión de estudiantes por RUT, banco de preguntas por ramo y análisis de resultados por cohorte.',
+    alternates: { canonical: 'https://www.aulika.cl/audiencias/universidades' },
+    openGraph: {
+        title: 'Plataforma de Evaluación para Universidades | Aulika',
+        description:
+            'Escala tus evaluaciones sin límites. Integridad académica, múltiples roles y auditoría completa de cada examen.',
+        url: 'https://www.aulika.cl/audiencias/universidades',
+    },
+};
 
 export default function UniversidadesPage() {
     return (

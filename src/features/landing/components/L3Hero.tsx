@@ -196,8 +196,11 @@ export function L3Hero() {
                     </Tag>
                 </div>
 
-                {/* H1 — Massive Impact */}
-                <h1 className="font-display text-ink mx-auto mb-8 max-w-[1100px] text-center text-[64px] leading-[0.9] font-medium tracking-[-0.05em] md:text-[100px] lg:text-[144px]">
+                {/* H1 — Semantic (sr-only) + Visual heading */}
+                <h1 className="sr-only">
+                    Sistema de evaluación online para colegios y universidades en Chile
+                </h1>
+                <p className="font-display text-ink mx-auto mb-8 max-w-[1100px] text-center text-[64px] leading-[0.9] font-medium tracking-[-0.05em] md:text-[100px] lg:text-[144px]" aria-hidden="true">
                     El examen de aula <br className="hidden lg:block" />
                     <span className="text-primary relative inline-block">
                         deja de ser un trámite.
@@ -218,7 +221,7 @@ export function L3Hero() {
                             />
                         </svg>
                     </span>
-                </h1>
+                </p>
 
                 {/* Subtitle */}
                 <p className="text-ink-dim mx-auto mb-10 max-w-[620px] text-center text-[19px] leading-[1.55]">

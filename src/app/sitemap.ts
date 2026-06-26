@@ -1,73 +1,63 @@
 import type { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://www.aulika.cl';
 
     const ROUTES: MetadataRoute.Sitemap = [
-        // Home y accesos
+        // Home
         {
             url: baseUrl,
             lastModified: new Date(),
-            changeFrequency: 'yearly',
+            changeFrequency: 'weekly',
             priority: 1,
         },
-        {
-            url: `${baseUrl}/login`,
-            lastModified: new Date(),
-            changeFrequency: 'monthly',
-            priority: 0.8,
-        },
-        {
-            url: `${baseUrl}/examen/login`,
-            lastModified: new Date(),
-            changeFrequency: 'monthly',
-            priority: 0.8,
-        },
 
-        // PAES y Demo
+        // PAES — página SEO de mayor potencial de tráfico
         {
             url: `${baseUrl}/paes`,
             lastModified: new Date(),
             changeFrequency: 'weekly',
-            priority: 0.9,
-        },
-        {
-            url: `${baseUrl}/demo`,
-            lastModified: new Date(),
-            changeFrequency: 'weekly',
-            priority: 0.7,
+            priority: 0.95,
         },
 
-        // Audiencias
+        // Audiencias — páginas de producto con alta intención comercial
         {
             url: `${baseUrl}/audiencias/colegios`,
             lastModified: new Date(),
             changeFrequency: 'monthly',
-            priority: 0.7,
-        },
-        {
-            url: `${baseUrl}/audiencias/preuniversitarios`,
-            lastModified: new Date(),
-            changeFrequency: 'monthly',
-            priority: 0.7,
+            priority: 0.85,
         },
         {
             url: `${baseUrl}/audiencias/universidades`,
             lastModified: new Date(),
             changeFrequency: 'monthly',
-            priority: 0.7,
+            priority: 0.85,
+        },
+        {
+            url: `${baseUrl}/audiencias/preuniversitarios`,
+            lastModified: new Date(),
+            changeFrequency: 'monthly',
+            priority: 0.85,
         },
         {
             url: `${baseUrl}/audiencias/utps`,
             lastModified: new Date(),
             changeFrequency: 'monthly',
-            priority: 0.7,
+            priority: 0.8,
         },
         {
             url: `${baseUrl}/audiencias/directores`,
             lastModified: new Date(),
             changeFrequency: 'monthly',
-            priority: 0.7,
+            priority: 0.8,
+        },
+
+        // Demo — conversión
+        {
+            url: `${baseUrl}/demo`,
+            lastModified: new Date(),
+            changeFrequency: 'monthly',
+            priority: 0.75,
         },
 
         // Recursos
@@ -87,13 +77,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
             url: `${baseUrl}/recursos/ayuda`,
             lastModified: new Date(),
             changeFrequency: 'monthly',
-            priority: 0.7,
-        },
-        {
-            url: `${baseUrl}/recursos/estado`,
-            lastModified: new Date(),
-            changeFrequency: 'weekly',
-            priority: 0.6,
+            priority: 0.65,
         },
 
         // Empresa
@@ -101,20 +85,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
             url: `${baseUrl}/empresa/manifiesto`,
             lastModified: new Date(),
             changeFrequency: 'yearly',
-            priority: 0.6,
+            priority: 0.55,
         },
         {
             url: `${baseUrl}/empresa/historia`,
             lastModified: new Date(),
             changeFrequency: 'yearly',
-            priority: 0.6,
+            priority: 0.5,
         },
         {
             url: `${baseUrl}/empresa/equipo`,
             lastModified: new Date(),
             changeFrequency: 'yearly',
-            priority: 0.6,
+            priority: 0.5,
         },
+
+        // Excluidos intencionalmente:
+        // /login, /examen/login → páginas de autenticación, no contenido indexable
+        // /recursos/estado → página operacional, no contenido
+        // /demo/exam → protegido por sesión demo
+        // /registro/* → flujos de pago, no indexables
     ];
 
     return ROUTES;

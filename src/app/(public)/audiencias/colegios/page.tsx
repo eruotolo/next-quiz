@@ -1,8 +1,22 @@
+import type { Metadata } from 'next';
 import { L3SubpageLayout } from '@/features/landing/components/L3SubpageLayout';
 import { L3CTA } from '@/features/landing/components/L3CTA';
 import { Check } from 'lucide-react';
 
 export const dynamic = 'force-static';
+
+export const metadata: Metadata = {
+    title: 'Evaluaciones Online para Colegios',
+    description:
+        'Sistema de evaluación digital para colegios chilenos. Corrección automática, banco de preguntas reutilizable y tablero en vivo para el UTP. Sin papel, sin fotocopias.',
+    alternates: { canonical: 'https://www.aulika.cl/audiencias/colegios' },
+    openGraph: {
+        title: 'Evaluaciones Online para Colegios | Aulika',
+        description:
+            'Diseñado para el ritmo del aula escolar chilena. Resultados instantáneos y reportes compatibles con libros de clases digitales.',
+        url: 'https://www.aulika.cl/audiencias/colegios',
+    },
+};
 
 export default function ColegiosPage() {
     return (

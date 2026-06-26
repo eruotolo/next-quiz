@@ -1,8 +1,22 @@
+import type { Metadata } from 'next';
 import { L3SubpageLayout } from '@/features/landing/components/L3SubpageLayout';
 import { L3CTA } from '@/features/landing/components/L3CTA';
 import { Check } from 'lucide-react';
 
 export const dynamic = 'force-static';
+
+export const metadata: Metadata = {
+    title: 'Plataforma de Evaluación para Preuniversitarios y Preparación PAES',
+    description:
+        'Simula ensayos PAES masivos y mide el avance de cada estudiante en tiempo real. Rankings instantáneos, análisis de distractores y reportes por sede. Usado por preuniversitarios chilenos.',
+    alternates: { canonical: 'https://www.aulika.cl/audiencias/preuniversitarios' },
+    openGraph: {
+        title: 'Evaluaciones PAES para Preuniversitarios | Aulika',
+        description:
+            'Ensayos masivos con corrección automática, rankings en tiempo real y análisis por eje temático.',
+        url: 'https://www.aulika.cl/audiencias/preuniversitarios',
+    },
+};
 
 export default function PreuniversitariosPage() {
     return (

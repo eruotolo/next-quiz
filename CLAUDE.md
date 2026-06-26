@@ -551,8 +551,24 @@ export async function createExam(formData: FormData) {
 Rutas **NO indexables** (excluir del sitemap):
 
 - Rutas protegidas: `/[slug]/*`, `/config/*`, `/examen/[examId]/*`
-- Rutas de autenticación: `/auth/*`
+- Rutas de autenticación: `/auth/*`, `/login`, `/examen/login`
 - API routes: `/api/*`
+- Páginas operacionales: `/recursos/estado`, `/demo/exam`, `/registro/*/exito`, `/registro/*/error`
+
+**Schema Markup (JSON-LD):** componentes en `src/shared/components/seo/`:
+
+- `JsonLd.tsx` — componente genérico para inyectar cualquier schema
+- `schemas.ts` — exports: `organizationSchema`, `softwareApplicationSchema`, `websiteSchema`, `faqSchema(faqs)`
+
+La Home importa y renderiza los 4 schemas. Agregar schema específico a nuevas páginas importantes (blog posts → `Article`, páginas de precio → `PriceSpecification`).
+
+**Protección de rutas con X-Robots-Tag:** el proxy (`src/proxy.ts`) emite `X-Robots-Tag: noindex, nofollow` en todas las respuestas de rutas protegidas (admin panels, `/config`, `/perfil`). No requiere mantenimiento manual.
+
+**H1 semántico en Landing:** `L3Hero` tiene un `<h1 className="sr-only">` con keywords para Google, seguido de un `<p aria-hidden="true">` con el texto de impacto visual. No cambiar esta estructura en rediseños.
+
+**robots.txt:** bloquea `/api/`, `/config/`, `/examen/`, `/perfil/`, `/demo/exam`, `/login`, `/recursos/estado` y bots de IA (GPTBot, Google-Extended, CCBot, anthropic-ai, Claude-Web).
+
+**FAQ SEO:** `L3FAQ` exporta `FAQS` (array) y `FaqItem` (tipo). La Home importa `FAQS` para alimentar tanto `<L3FAQ faqs={FAQS} />` como `<JsonLd data={faqSchema(FAQS)} />`. Si cambian las preguntas, solo actualizar `L3FAQ.tsx`.
 
 ## Documentación (REGLA)
 
