@@ -47,6 +47,12 @@ export default async function StudentsPage({ params }: { params: Promise<{ slug:
             },
             include: {
                 group: { include: { program: { select: { id: true, name: true } } } },
+                results: {
+                    include: {
+                        exam: { select: { title: true, maxGrade: true, passingGrade: true, passingPercentage: true } },
+                    },
+                    orderBy: { completedAt: 'desc' },
+                },
             },
             orderBy: [{ group: { name: 'asc' } }, { lastname: 'asc' }],
         }),
@@ -74,6 +80,7 @@ export default async function StudentsPage({ params }: { params: Promise<{ slug:
                 canEdit={canEdit}
                 canDelete={canDelete}
                 canToggleActive={canToggleActive}
+                isProfesor={isProfesor}
             />
         </>
     );

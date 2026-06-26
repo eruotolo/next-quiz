@@ -8,6 +8,8 @@ import {
     updateStudent,
 } from '@/features/students/actions/mutations';
 import type { ImportStudentsResult } from '@/features/students/actions/mutations';
+import { getStudentAcademicHistory } from '@/features/students/actions/academic-history';
+import type { AcademicResultRow } from '@/features/students/actions/academic-history';
 import { toast } from 'sonner';
 import { RutField } from '@/shared/components/ui/rut-field';
 import {
@@ -50,10 +52,12 @@ import { TablePaginator } from '@/shared/components/ui/table-paginator';
 import { Avatar } from '@/shared/components/ui/avatar';
 import { Tag } from '@/shared/components/ui/badge';
 import { formatRut, normalizeRut } from '@/shared/lib/rut';
+import { calcGrade } from '@/shared/lib/grade';
 import { studentSchema } from '@/features/students/schemas/student.schemas';
 import type { Group, User } from '@prisma/client';
 import {
     AlertTriangle,
+    BookOpen,
     CheckCircle2,
     Download,
     Edit2,
@@ -74,8 +78,22 @@ import type { ChangeEvent } from 'react';
 import { useRef, useState, useTransition } from 'react';
 import { cn } from '@/shared/lib/utils';
 
+interface ResultWithExam {
+    id: string;
+    score: number;
+    maxScore: number;
+    completedAt: Date;
+    exam: {
+        title: string;
+        maxGrade: number;
+        passingGrade: number;
+        passingPercentage: number;
+    };
+}
+
 interface StudentWithGroup extends User {
     group: (Group & { program: { id: string; name: string } | null }) | null;
+    results: ResultWithExam[];
 }
 
 interface Props {
@@ -86,6 +104,7 @@ interface Props {
     canEdit: boolean;
     canDelete: boolean;
     canToggleActive: boolean;
+    isProfesor: boolean;
 }
 
 interface FormState {
@@ -116,6 +135,7 @@ export function StudentsClient({
     canEdit: _canEdit,
     canDelete: _canDelete,
     canToggleActive,
+    isProfesor,
 }: Props) {
     const router = useRouter();
     const [page, setPage] = useState(1);
@@ -126,12 +146,20 @@ export function StudentsClient({
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
     const [importOpen, setImportOpen] = useState(false);
+    const [academicOpen, setAcademicOpen] = useState(false);
     const [editing, setEditing] = useState<StudentWithGroup | null>(null);
     const [toDelete, setToDelete] = useState<StudentWithGroup | null>(null);
+    const [academicStudent, setAcademicStudent] = useState<StudentWithGroup | null>(null);
+    const [academicHistory, setAcademicHistory] = useState<AcademicResultRow[] | null>(null);
+    const [academicError, setAcademicError] = useState<string | null>(null);
+    const [academicYearFilter, setAcademicYearFilter] = useState('all');
+    const [academicMateriaFilter, setAcademicMateriaFilter] = useState('all');
+    const [academicGroupFilter, setAcademicGroupFilter] = useState('all');
     const [form, setForm] = useState<FormState>(emptyForm);
     const [errors, setErrors] = useState<Partial<Record<keyof FormState | 'general', string>>>({});
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
+    const [isPendingAcademic, startAcademicTransition] = useTransition();
 
     // Import state
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -169,6 +197,24 @@ export function StudentsClient({
         setToDelete(s);
         setDeleteError(null);
         setIsDelOpen(true);
+    };
+
+    const openAcademic = (s: StudentWithGroup): void => {
+        setAcademicStudent(s);
+        setAcademicHistory(null);
+        setAcademicError(null);
+        setAcademicYearFilter('all');
+        setAcademicMateriaFilter('all');
+        setAcademicGroupFilter('all');
+        setAcademicOpen(true);
+        startAcademicTransition(async () => {
+            const result = await getStudentAcademicHistory(slug, s.id);
+            if ('error' in result) {
+                setAcademicError(result.error);
+            } else {
+                setAcademicHistory(result.data);
+            }
+        });
     };
 
     const validate = (): boolean => {
@@ -390,6 +436,70 @@ export function StudentsClient({
         });
     };
 
+    const renderAcademicRow = (r: AcademicResultRow) => (
+        <TableRow key={r.id} className="border-border h-12 border-b last:border-0">
+            <TableCell>
+                <span className="text-ink text-[13px] font-medium leading-tight">{r.exam.title}</span>
+            </TableCell>
+            <TableCell>
+                {r.exam.courseSectionName ? (
+                    <Tag tone="outline" className="border-border h-5 text-[10.5px]">
+                        {r.exam.courseSectionName}
+                    </Tag>
+                ) : (
+                    <span className="text-mute text-[12px]">—</span>
+                )}
+            </TableCell>
+            <TableCell className="text-ink-dim text-[12px]">
+                {r.exam.periodName ??
+                    (r.exam.periodYear
+                        ? String(r.exam.periodYear)
+                        : String(new Date(r.completedAt).getFullYear()))}
+            </TableCell>
+            <TableCell className="text-ink-dim text-[12px]">{r.exam.groupName ?? '—'}</TableCell>
+            <TableCell className="text-mute text-[12px]">
+                {new Date(r.completedAt).toLocaleDateString('es-CL', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                })}
+            </TableCell>
+            <TableCell className="text-right">
+                <span className={cn('font-mono text-[14px] font-bold', r.passed ? 'text-[#0f7c4a]' : 'text-[#d5301f]')}>
+                    {r.grade.toFixed(1)}
+                </span>
+            </TableCell>
+        </TableRow>
+    );
+
+    // ── Academic history derived state ────────────────────────────────────────
+    const academicYears = academicHistory
+        ? [...new Set(academicHistory.map((r) => r.exam.periodYear ?? new Date(r.completedAt).getFullYear()))].sort((a, b) => b - a)
+        : [];
+    const academicMaterias = academicHistory
+        ? [...new Set(academicHistory.map((r) => r.exam.courseSectionName).filter((m): m is string => m !== null))].sort()
+        : [];
+    const academicGroups = academicHistory
+        ? [...new Set(academicHistory.map((r) => r.exam.groupName).filter((g): g is string => g !== null))].sort()
+        : [];
+    const academicFiltered = academicHistory
+        ? academicHistory.filter((r) => {
+              const year = r.exam.periodYear ?? new Date(r.completedAt).getFullYear();
+              if (academicYearFilter !== 'all' && String(year) !== academicYearFilter) return false;
+              if (academicMateriaFilter !== 'all' && r.exam.courseSectionName !== academicMateriaFilter) return false;
+              if (academicGroupFilter !== 'all' && r.exam.groupName !== academicGroupFilter) return false;
+              return true;
+          })
+        : [];
+    const academicAvgGrade =
+        academicFiltered.length > 0
+            ? academicFiltered.reduce((sum, r) => sum + r.grade, 0) / academicFiltered.length
+            : null;
+    const academicPassRate =
+        academicFiltered.length > 0
+            ? Math.round((academicFiltered.filter((r) => r.passed).length / academicFiltered.length) * 100)
+            : null;
+
     return (
         <>
             {/* Filter bar + actions */}
@@ -502,7 +612,7 @@ export function StudentsClient({
                                     <TableHead className="w-[160px]">RUT</TableHead>
                                     <TableHead className="w-[100px]">Curso</TableHead>
                                     <TableHead className="w-[120px]">Estado</TableHead>
-                                    <TableHead className="w-[100px] text-right">Exámenes</TableHead>
+                                    <TableHead className="w-[180px] text-right">Último Examen</TableHead>
                                     <TableHead className="w-[100px] text-right">Promedio</TableHead>
                                     <TableHead className="w-12" />
                                 </TableRow>
@@ -581,10 +691,32 @@ export function StudentsClient({
                                                 {s.active ? 'Activa' : 'Inactiva'}
                                             </Tag>
                                         </TableCell>
-                                        <TableCell className="text-mute text-right font-mono text-[12.5px]">
-                                            —
+                                        <TableCell className="text-right">
+                                            {(() => {
+                                                const r = s.results[0];
+                                                if (!r) return <span className="text-mute font-mono text-[12.5px]">—</span>;
+                                                const g = calcGrade(r.score, r.maxScore, r.exam.maxGrade, r.exam.passingGrade, r.exam.passingPercentage);
+                                                return (
+                                                    <div className="flex flex-col items-end gap-0.5">
+                                                        <span className="text-mute max-w-[160px] truncate text-right text-[10.5px]">{r.exam.title}</span>
+                                                        <span className={cn('font-mono text-[13px] font-bold', g >= r.exam.passingGrade ? 'text-[#0f7c4a]' : 'text-[#d5301f]')}>
+                                                            {g.toFixed(1)}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })()}
                                         </TableCell>
-                                        <TableCell className="text-mute text-right">—</TableCell>
+                                        <TableCell className="text-right">
+                                            {(() => {
+                                                if (s.results.length === 0) return <span className="text-mute">—</span>;
+                                                const avg = s.results.reduce((sum, r) => sum + calcGrade(r.score, r.maxScore, r.exam.maxGrade, r.exam.passingGrade, r.exam.passingPercentage), 0) / s.results.length;
+                                                return (
+                                                    <span className={cn('font-mono text-[13.5px] font-bold', avg >= 4.0 ? 'text-[#0f7c4a]' : 'text-[#d5301f]')}>
+                                                        {avg.toFixed(1)}
+                                                    </span>
+                                                );
+                                            })()}
+                                        </TableCell>
                                         <TableCell className="text-right">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -602,6 +734,12 @@ export function StudentsClient({
                                                     align="end"
                                                     className="border-border w-44 rounded-xl shadow-xl"
                                                 >
+                                                    <DropdownMenuItem
+                                                        onClick={() => openAcademic(s)}
+                                                        className="cursor-pointer gap-2 py-2"
+                                                    >
+                                                        <BookOpen size={14} /> Académico
+                                                    </DropdownMenuItem>
                                                     <DropdownMenuItem
                                                         onClick={() => openEdit(s)}
                                                         className="cursor-pointer gap-2 py-2"
@@ -949,6 +1087,127 @@ export function StudentsClient({
                             </>
                         )}
                     </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Modal — Información Académica */}
+            <Dialog open={academicOpen} onOpenChange={setAcademicOpen}>
+                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-4xl">
+                    <DialogHeader>
+                        <DialogTitle className="font-display text-2xl">
+                            Información Académica
+                            {academicStudent && (
+                                <span className="text-mute ml-2 text-lg font-normal">
+                                    — {academicStudent.name} {academicStudent.lastname}
+                                </span>
+                            )}
+                        </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            Historial de exámenes del estudiante.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {isPendingAcademic ? (
+                        <div className="flex items-center justify-center py-20">
+                            <Loader2 className="text-mute size-6 animate-spin" />
+                        </div>
+                    ) : academicError ? (
+                        <p className="text-destructive py-12 text-center text-sm">{academicError}</p>
+                    ) : academicHistory !== null ? (
+                        <div className="flex flex-col gap-4">
+                            {/* Stats */}
+                            <div className="grid grid-cols-3 gap-3">
+                                <div className="bg-paper rounded-[12px] px-4 py-3">
+                                    <p className="text-mute text-[11px] font-bold uppercase tracking-wider">
+                                        {isProfesor ? 'Exámenes (tu materia)' : 'Exámenes totales'}
+                                    </p>
+                                    <p className="text-ink font-display text-2xl font-bold">{academicFiltered.length}</p>
+                                </div>
+                                <div className="bg-paper rounded-[12px] px-4 py-3">
+                                    <p className="text-mute text-[11px] font-bold uppercase tracking-wider">Promedio</p>
+                                    <p className={cn(
+                                        'font-display text-2xl font-bold',
+                                        academicAvgGrade === null ? 'text-mute' :
+                                        academicAvgGrade >= 4 ? 'text-[#0f7c4a]' : 'text-[#d5301f]',
+                                    )}>
+                                        {academicAvgGrade !== null ? academicAvgGrade.toFixed(1) : '—'}
+                                    </p>
+                                </div>
+                                <div className="bg-paper rounded-[12px] px-4 py-3">
+                                    <p className="text-mute text-[11px] font-bold uppercase tracking-wider">Tasa aprobación</p>
+                                    <p className={cn(
+                                        'font-display text-2xl font-bold',
+                                        academicPassRate === null ? 'text-mute' :
+                                        academicPassRate >= 60 ? 'text-[#0f7c4a]' : 'text-[#d5301f]',
+                                    )}>
+                                        {academicPassRate !== null ? `${academicPassRate}%` : '—'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Filters */}
+                            <div className="flex flex-wrap items-center gap-2">
+                                <SearchableSelect
+                                    size="sm"
+                                    value={academicYearFilter}
+                                    onChange={setAcademicYearFilter}
+                                    className="w-[150px]"
+                                    options={[
+                                        { value: 'all', label: 'Año · Todos' },
+                                        ...academicYears.map((y) => ({ value: String(y), label: String(y) })),
+                                    ]}
+                                />
+                                <SearchableSelect
+                                    size="sm"
+                                    value={academicMateriaFilter}
+                                    onChange={setAcademicMateriaFilter}
+                                    className="w-[210px]"
+                                    options={[
+                                        { value: 'all', label: 'Materia · Todas' },
+                                        ...academicMaterias.map((m) => ({ value: m, label: m })),
+                                    ]}
+                                />
+                                <SearchableSelect
+                                    size="sm"
+                                    value={academicGroupFilter}
+                                    onChange={setAcademicGroupFilter}
+                                    className="w-[185px]"
+                                    options={[
+                                        { value: 'all', label: 'Grupo · Todos' },
+                                        ...academicGroups.map((g) => ({ value: g, label: g })),
+                                    ]}
+                                />
+                                <span className="text-mute ml-auto font-mono text-[11px]">
+                                    {academicFiltered.length} resultado{academicFiltered.length !== 1 ? 's' : ''}
+                                </span>
+                            </div>
+
+                            {/* Table */}
+                            <div className="border-border overflow-hidden rounded-[14px] border">
+                                <Table>
+                                    <TableHeader className="bg-paper">
+                                        <TableRow className="border-border border-b hover:bg-transparent">
+                                            <TableHead>Examen</TableHead>
+                                            <TableHead className="w-[160px]">Materia</TableHead>
+                                            <TableHead className="w-[110px]">Período</TableHead>
+                                            <TableHead className="w-[130px]">Grupo</TableHead>
+                                            <TableHead className="w-[100px]">Fecha</TableHead>
+                                            <TableHead className="w-[70px] text-right">Nota</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {academicFiltered.length === 0 ? (
+                                            <TableRow className="hover:bg-transparent">
+                                                <TableCell colSpan={6} className="text-mute py-12 text-center text-sm">
+                                                    No hay resultados para los filtros seleccionados.
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : academicFiltered.map(renderAcademicRow)}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </div>
+                    ) : null}
                 </DialogContent>
             </Dialog>
         </>

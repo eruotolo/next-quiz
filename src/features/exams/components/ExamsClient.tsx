@@ -46,6 +46,7 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import { Switch } from '@/shared/components/ui/switch';
+import { TablePaginator } from '@/shared/components/ui/table-paginator';
 import { Tag } from '@/shared/components/ui/badge';
 import { cn } from '@/shared/lib/utils';
 import type { Exam, Group } from '@prisma/client';
@@ -86,6 +87,9 @@ interface ExamWithCount extends Exam {
         groupId: string | null;
     } | null;
     _count: { questions: number; results: number };
+    avgGrade: number | null;
+    passRate: number | null;
+    totalStudents: number;
 }
 
 interface FormState {
@@ -167,13 +171,6 @@ function tabModeToFlags(mode: TabMode): Pick<FormState, 'antiCheatEnabled' | 'lo
 
 type TabFilter = 'todos' | 'en-curso' | 'programados' | 'corregidos' | 'borradores';
 
-const tabLabels: { id: TabFilter; label: string }[] = [
-    { id: 'todos', label: 'Todos' },
-    { id: 'en-curso', label: 'En curso' },
-    { id: 'programados', label: 'Programados' },
-    { id: 'corregidos', label: 'Corregidos' },
-    { id: 'borradores', label: 'Borradores' },
-];
 
 const EN_CURSO_ACCENT_COLORS = [
     'bg-blue-400',
@@ -216,14 +213,33 @@ const STATUS_BADGE_CONFIG: Record<
     borradores: { tone: 'default', label: 'Borrador' },
 };
 
+function formatCountdown(target: Date | string | null): string {
+    if (!target) return 'Sin fecha';
+    const now = new Date();
+    const t = new Date(target);
+    const diffMs = t.getTime() - now.getTime();
+    if (diffMs <= 0) return 'Próximamente';
+    const totalMin = Math.floor(diffMs / 60000);
+    const totalH = Math.floor(totalMin / 60);
+    const days = Math.floor(totalH / 24);
+    const remH = totalH % 24;
+    if (days >= 1) return `${days}d ${remH}h`;
+    if (totalH >= 1) return `${totalH}h ${totalMin % 60}m`;
+    return `${totalMin}m`;
+}
+
 function formatExamDate(exam: ExamWithCount): string {
     const status = deriveExamStatus(exam);
-    if (status === 'borradores') return 'Sin programar';
-    const date =
-        status === 'programados'
-            ? (exam.scheduledAt ?? exam.closesAt)
-            : (exam.closesAt ?? exam.scheduledAt);
-    if (!date) return 'Sin programar';
+    if (status === 'borradores') return 'Sin publicar';
+    if (status === 'programados') return `Abre en ${formatCountdown(exam.scheduledAt)}`;
+    if (status === 'corregidos') {
+        const d = exam.closesAt ?? exam.scheduledAt;
+        if (!d) return '—';
+        return new Date(d).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+    // en-curso
+    const date = exam.closesAt ?? exam.scheduledAt;
+    if (!date) return 'Sin cierre';
     const d = new Date(date);
     const now = new Date();
     const diffMs = d.getTime() - now.getTime();
@@ -237,12 +253,28 @@ function formatExamDate(exam: ExamWithCount): string {
     return d.toLocaleDateString('es-CL', { weekday: 'short', day: 'numeric' });
 }
 
+function getParticipantsText(exam: ExamWithCount, status: Exclude<TabFilter, 'todos'>): string {
+    if (status === 'en-curso') {
+        return exam.totalStudents > 0
+            ? `${exam._count.results}/${exam.totalStudents}`
+            : `${exam._count.results}`;
+    }
+    if (status === 'corregidos') return `${exam._count.results}`;
+    return '—';
+}
+
+function getInfoText(exam: ExamWithCount, status: Exclude<TabFilter, 'todos'>): string {
+    if (status === 'corregidos' && exam.avgGrade !== null) {
+        return `Prom. ${exam.avgGrade.toFixed(1)}${exam.passRate !== null ? ` · ${exam.passRate}% apr.` : ''}`;
+    }
+    return formatExamDate(exam);
+}
+
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: complex UI component with multiple dialogs
 export function ExamsClient({
     exams,
     groups,
     courseSections,
-    isProfesor,
 }: {
     exams: ExamWithCount[];
     groups: Group[];
@@ -254,6 +286,7 @@ export function ExamsClient({
     const [tab, setTab] = useState<TabFilter>('todos');
     const [searchQuery, setSearchQuery] = useState('');
     const [courseFilter, setCourseFilter] = useState<string>('all');
+    const [groupFilter, setGroupFilter] = useState<string>('all');
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
     const [isToggleOpen, setIsToggleOpen] = useState(false);
@@ -265,8 +298,11 @@ export function ExamsClient({
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
     const [importExamId, setImportExamId] = useState<string | null>(null);
+    const [page, setPage] = useState(1);
+    const PAGE_SIZE = 10;
 
     const filteredGroups = useMemo(() => {
+        // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: multiple interdependent filter conditions
         return groups.filter((g) => {
             if (form.programId !== NO_PROGRAM && g.programId !== form.programId) return false;
             if (form.periodId !== NO_PERIOD && g.periodId !== form.periodId) return false;
@@ -432,36 +468,69 @@ export function ExamsClient({
             e.title.toLowerCase().includes(q) ||
             (e.subject?.toLowerCase().includes(q) ?? false);
         const matchesCourse = courseFilter === 'all' || e.courseSection?.id === courseFilter;
-        return matchesTab && matchesSearch && matchesCourse;
+        const matchesGroup = groupFilter === 'all' || e.groups.some((g) => g.id === groupFilter);
+        return matchesTab && matchesSearch && matchesCourse && matchesGroup;
     });
+
+    const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    const currentPage = Math.min(page, pageCount);
+    const pagedExams = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
     return (
         <>
             {/* Filter + Search bar */}
             <div className="border-border flex items-center justify-between gap-4 border-b bg-white px-8 py-3">
                 <div className="flex items-center gap-1">
-                    {tabLabels.map(({ id, label }) => (
+                    <button
+                        type="button"
+                        onClick={() => { setTab('todos'); setPage(1); }}
+                        className={cn(
+                            'rounded-full px-4 py-1.5 text-[13px] font-medium whitespace-nowrap transition-all',
+                            tab === 'todos' ? 'bg-ink text-white' : 'text-ink-dim hover:bg-paper-warm',
+                        )}
+                    >
+                        Todos · {counts.todos}
+                    </button>
+                    {(
+                        [
+                            { id: 'borradores' as TabFilter, label: 'Borrador', dot: 'bg-gray-400', activeBg: 'bg-gray-100', activeText: 'text-gray-700' },
+                            { id: 'programados' as TabFilter, label: 'Programado', dot: 'bg-amber-400', activeBg: 'bg-amber-50', activeText: 'text-amber-700' },
+                            { id: 'en-curso' as TabFilter, label: 'En curso', dot: 'bg-blue-400', activeBg: 'bg-blue-50', activeText: 'text-blue-700' },
+                            { id: 'corregidos' as TabFilter, label: 'Corregido', dot: 'bg-emerald-500', activeBg: 'bg-emerald-50', activeText: 'text-emerald-700' },
+                        ] as const
+                    ).map(({ id, label, dot, activeBg, activeText }) => (
                         <button
                             key={id}
                             type="button"
-                            onClick={() => setTab(id)}
+                            onClick={() => { setTab(id); setPage(1); }}
                             className={cn(
-                                'rounded-full px-4 py-1.5 text-[13px] font-medium whitespace-nowrap transition-all',
-                                tab === id
-                                    ? 'bg-ink text-white'
-                                    : 'text-ink-dim hover:bg-paper-warm',
+                                'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium whitespace-nowrap transition-all',
+                                tab === id ? cn(activeBg, activeText) : 'text-ink-dim hover:bg-paper-warm',
                             )}
                         >
+                            <span className={cn('h-2 w-2 shrink-0 rounded-full', dot)} />
                             {label} · {counts[id]}
                         </button>
                     ))}
                 </div>
                 <div className="flex items-center gap-2">
+                    {groups.length > 1 && (
+                        <SearchableSelect
+                            size="sm"
+                            value={groupFilter}
+                            onChange={(v) => { setGroupFilter(v); setPage(1); }}
+                            className="w-44"
+                            options={[
+                                { value: 'all', label: 'Todos los grupos' },
+                                ...groups.map((g) => ({ value: g.id, label: g.name })),
+                            ]}
+                        />
+                    )}
                     {courseSections.length > 0 && (
                         <SearchableSelect
                             size="sm"
                             value={courseFilter}
-                            onChange={setCourseFilter}
+                            onChange={(v) => { setCourseFilter(v); setPage(1); }}
                             className="w-48"
                             options={[
                                 { value: 'all', label: 'Todas las asignaturas' },
@@ -477,7 +546,7 @@ export function ExamsClient({
                         <Input
                             placeholder="Buscar examen..."
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
                             className="bg-paper border-border h-9 w-52 rounded-full pl-9 text-[13px]"
                         />
                     </div>
@@ -517,6 +586,38 @@ export function ExamsClient({
 
             {/* List */}
             <main className="flex-1 overflow-auto p-8">
+                {/* Stats tiles */}
+                <div className="mb-6 grid grid-cols-4 gap-3">
+                    {(
+                        [
+                            { id: 'borradores' as TabFilter, label: 'Borrador', bg: 'bg-gray-50', border: 'border-gray-200', ring: 'ring-gray-400', num: 'text-gray-700', dot: 'bg-gray-400' },
+                            { id: 'programados' as TabFilter, label: 'Programado', bg: 'bg-amber-50/60', border: 'border-amber-200', ring: 'ring-amber-400', num: 'text-amber-700', dot: 'bg-amber-400' },
+                            { id: 'en-curso' as TabFilter, label: 'En curso', bg: 'bg-blue-50/60', border: 'border-blue-200', ring: 'ring-blue-400', num: 'text-blue-700', dot: 'bg-blue-400' },
+                            { id: 'corregidos' as TabFilter, label: 'Corregido', bg: 'bg-emerald-50/60', border: 'border-emerald-200', ring: 'ring-emerald-500', num: 'text-emerald-700', dot: 'bg-emerald-500' },
+                        ] as const
+                    ).map(({ id, label, bg, border, ring, num, dot }) => (
+                        <button
+                            key={id}
+                            type="button"
+                            onClick={() => { setTab(tab === id ? 'todos' : id); setPage(1); }}
+                            className={cn(
+                                'cursor-pointer rounded-xl border px-5 py-4 text-left transition-all hover:shadow-sm',
+                                bg,
+                                border,
+                                tab === id && cn('ring-2 ring-offset-1', ring),
+                            )}
+                        >
+                            <div className={cn('text-3xl font-bold tracking-tight', num)}>
+                                {counts[id]}
+                            </div>
+                            <div className="mt-1 flex items-center gap-1.5">
+                                <span className={cn('h-2 w-2 shrink-0 rounded-full', dot)} />
+                                <span className="text-[12px] font-medium text-gray-400">{label}</span>
+                            </div>
+                        </button>
+                    ))}
+                </div>
+
                 {filtered.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
                         <BookOpen size={48} className="text-mute/20 mb-4" />
@@ -544,19 +645,17 @@ export function ExamsClient({
                     </Card>
                 ) : (
                     <div className="flex flex-col gap-2">
-                        {filtered.map((exam) => {
+                        {pagedExams.map((exam) => {
                             const status = deriveExamStatus(exam);
                             const { tone, label: statusLabel } = STATUS_BADGE_CONFIG[status];
                             const accentColor = getAccentColor(exam);
-                            const examTitle = exam.subject
-                                ? `${exam.subject} · ${exam.title}`
-                                : exam.title;
                             const groupNames =
                                 exam.groups.length > 0
                                     ? exam.groups.map((g) => g.name).join(', ')
                                     : '—';
-                            const dateText = formatExamDate(exam);
-                            const showResults = status === 'en-curso' || status === 'corregidos';
+                            const participantsText = getParticipantsText(exam, status);
+                            const infoText = getInfoText(exam, status);
+                            const showParticipants = status === 'en-curso' || status === 'corregidos';
 
                             return (
                                 <div
@@ -568,18 +667,16 @@ export function ExamsClient({
 
                                     {/* Content */}
                                     <div className="flex min-w-0 flex-1 items-center gap-4 px-6 py-4">
-                                        {/* Title + Groups */}
+                                        {/* Title + Subtitle */}
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-ink truncate text-[15px] leading-snug font-semibold">
-                                                {examTitle}
+                                            <p className="text-ink truncate text-[15px] font-semibold leading-snug">
+                                                {exam.title}
                                             </p>
                                             <p className="text-mute mt-0.5 truncate text-[12px]">
                                                 {exam.courseSection && (
-                                                    <>
-                                                        {exam.courseSection.name} ·{' '}
-                                                    </>
+                                                    <>{exam.courseSection.name} · </>
                                                 )}
-                                                Grupos · {groupNames}
+                                                {groupNames}
                                             </p>
                                         </div>
 
@@ -591,21 +688,25 @@ export function ExamsClient({
                                         </div>
 
                                         {/* Question count */}
-                                        <div className="text-ink-dim flex w-[72px] shrink-0 items-center gap-1.5 text-[13px]">
+                                        <div className="text-ink-dim flex w-[80px] shrink-0 items-center gap-1.5 text-[13px]">
                                             <FileText size={14} className="text-mute/60 shrink-0" />
-                                            <span>{exam._count.questions} q.</span>
+                                            <span>{exam._count.questions} preg.</span>
                                         </div>
 
                                         {/* Participation */}
-                                        <div className="text-ink-dim flex w-[56px] shrink-0 items-center gap-1.5 text-[13px]">
+                                        <div className="text-ink-dim flex w-[72px] shrink-0 items-center gap-1.5 text-[13px]">
                                             <Users size={14} className="text-mute/60 shrink-0" />
-                                            <span>{showResults ? exam._count.results : '—'}</span>
+                                            <span className={cn(showParticipants ? 'font-medium' : 'text-mute')}>
+                                                {participantsText}
+                                            </span>
                                         </div>
 
-                                        {/* Date */}
-                                        <div className="text-ink-dim flex w-[112px] shrink-0 items-center gap-1.5 text-[13px]">
+                                        {/* Info */}
+                                        <div className="text-ink-dim flex w-[148px] shrink-0 items-center gap-1.5 text-[13px]">
                                             <Calendar size={14} className="text-mute/60 shrink-0" />
-                                            <span className="truncate">{dateText}</span>
+                                            <span className={cn('truncate', status === 'corregidos' && exam.avgGrade !== null && 'font-medium text-emerald-700')}>
+                                                {infoText}
+                                            </span>
                                         </div>
 
                                         {/* Three-dot menu */}
@@ -669,6 +770,16 @@ export function ExamsClient({
                                 </div>
                             );
                         })}
+                        {filtered.length > PAGE_SIZE && (
+                            <div className="overflow-hidden rounded-xl border border-border">
+                                <TablePaginator
+                                    page={currentPage}
+                                    perPage={PAGE_SIZE}
+                                    total={filtered.length}
+                                    onPageChange={setPage}
+                                />
+                            </div>
+                        )}
                     </div>
                 )}
             </main>
