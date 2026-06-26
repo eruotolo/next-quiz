@@ -31,13 +31,19 @@ test.describe('Admin Courses (/[slug]/courses)', () => {
     });
 
     test('can open the create dialog', async ({ page }) => {
-        await page.getByRole('button', { name: /nueva ramo|nuevo ramo/i }).first().click();
+        await page
+            .getByRole('button', { name: /nueva ramo|nuevo ramo/i })
+            .first()
+            .click();
         await expect(page.getByRole('dialog')).toBeVisible();
         await expect(page.getByLabel(/Nombre/i).first()).toBeVisible();
     });
 
     test('can create a transversal course (sin programa)', async ({ page }) => {
-        await page.getByRole('button', { name: /nueva ramo|nuevo ramo/i }).first().click();
+        await page
+            .getByRole('button', { name: /nueva ramo|nuevo ramo/i })
+            .first()
+            .click();
         await page.waitForSelector('[role="dialog"]');
 
         const nameInput = page.getByLabel(/^Nombre$/i).first();
@@ -46,10 +52,10 @@ test.describe('Admin Courses (/[slug]/courses)', () => {
         // Programa = "Plan Común / Transversal" (default — no change needed)
         // Período: seleccionar el primero disponible
         const periodTrigger = page.getByRole('combobox').nth(1);
-        if (await periodTrigger.count() > 0) {
+        if ((await periodTrigger.count()) > 0) {
             await periodTrigger.click();
             const firstPeriodOption = page.getByRole('option').first();
-            if (await firstPeriodOption.count() > 0) {
+            if ((await firstPeriodOption.count()) > 0) {
                 await firstPeriodOption.click();
             }
         }
@@ -70,7 +76,7 @@ test.describe('Admin Courses (/[slug]/courses)', () => {
             const moreBtn = row.getByRole('button').first();
             await moreBtn.click();
             const detailOption = page.getByRole('menuitem', { name: /Ver detalle/i });
-            if (await detailOption.count() > 0) {
+            if ((await detailOption.count()) > 0) {
                 await detailOption.click();
                 await expect(page).toHaveURL(new RegExp(`/${SLUG}/courses/`));
                 await expect(page.getByRole('heading').first()).toBeVisible();
@@ -87,7 +93,7 @@ test.describe('Admin Courses (/[slug]/courses)', () => {
         const moreBtn = page.locator('tbody tr').first().getByRole('button').first();
         await moreBtn.click();
         const detailOption = page.getByRole('menuitem', { name: /Ver detalle/i });
-        if (await detailOption.count() > 0) {
+        if ((await detailOption.count()) > 0) {
             await detailOption.click();
             await expect(page.getByRole('button', { name: /Alumnos/i })).toBeVisible();
             await expect(page.getByRole('button', { name: /Exámenes/i })).toBeVisible();
@@ -103,7 +109,7 @@ test.describe('Admin Courses (/[slug]/courses)', () => {
         const moreBtn = page.locator('tbody tr').first().getByRole('button').first();
         await moreBtn.click();
         const detailOption = page.getByRole('menuitem', { name: /Ver detalle/i });
-        if (await detailOption.count() > 0) {
+        if ((await detailOption.count()) > 0) {
             await detailOption.click();
             await page.getByRole('button', { name: /Exámenes/i }).click();
             await expect(page.getByRole('link', { name: /Crear examen/i })).toBeVisible();

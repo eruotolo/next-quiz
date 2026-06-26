@@ -64,7 +64,7 @@ export function ConfigGroupsClient({ groups }: Props) {
                     value={query}
                     onChange={(e) => handleQueryChange(e.target.value)}
                     placeholder="Buscar por nombre o institución..."
-                    className="border-border h-9 rounded-[10px] bg-white text-sm w-64"
+                    className="border-border h-9 w-64 rounded-[10px] bg-white text-sm"
                 />
             </div>
 
@@ -78,7 +78,7 @@ export function ConfigGroupsClient({ groups }: Props) {
                 </Card>
             ) : (
                 <>
-                    <Card className="border-border bg-white shadow-sm rounded-[22px] overflow-hidden">
+                    <Card className="border-border overflow-hidden rounded-[22px] bg-white shadow-sm">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -94,13 +94,13 @@ export function ConfigGroupsClient({ groups }: Props) {
                                     <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Período
                                     </TableHead>
-                                    <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase text-center">
+                                    <TableHead className="text-mute text-center font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Estudiantes
                                     </TableHead>
-                                    <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase text-center">
+                                    <TableHead className="text-mute text-center font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Exámenes
                                     </TableHead>
-                                    <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase text-right">
+                                    <TableHead className="text-mute text-right font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Acciones
                                     </TableHead>
                                 </TableRow>
@@ -108,13 +108,13 @@ export function ConfigGroupsClient({ groups }: Props) {
                             <TableBody>
                                 {paginated.map((g) => (
                                     <TableRow key={g.id}>
-                                        <TableCell className="text-ink font-medium text-[13.5px]">
+                                        <TableCell className="text-ink text-[13.5px] font-medium">
                                             {g.name}
                                         </TableCell>
                                         <TableCell>
                                             <Link
                                                 href={`/${g.academicInstitution.slug}/groups`}
-                                                className="text-primary hover:underline text-[13px]"
+                                                className="text-primary text-[13px] hover:underline"
                                             >
                                                 {g.academicInstitution.name}
                                             </Link>
@@ -141,9 +141,12 @@ export function ConfigGroupsClient({ groups }: Props) {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <Link href={`/${g.academicInstitution.slug}/groups`}>
-                                                <Button variant="ghost" size="sm" className="gap-1.5">
-                                                    Ver institución{' '}
-                                                    <ExternalLink size={12} />
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="gap-1.5"
+                                                >
+                                                    Ver institución <ExternalLink size={12} />
                                                 </Button>
                                             </Link>
                                         </TableCell>

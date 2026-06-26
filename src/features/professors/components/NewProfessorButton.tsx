@@ -276,7 +276,9 @@ export function NewProfessorButton({ slug }: Props) {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                            <span className="text-ink text-[13px] font-bold">Rol en el sistema</span>
+                            <span className="text-ink text-[13px] font-bold">
+                                Rol en el sistema
+                            </span>
                             <Select
                                 value={form.roleName}
                                 onValueChange={(v) =>

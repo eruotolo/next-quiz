@@ -5,7 +5,11 @@ import { demoExamFilter } from '@/features/demo/lib/demo';
 import { calcGrade } from '@/shared/lib/grade';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { prisma } from '@/shared/lib/prisma';
-import { examProfessorFilter, groupProfessorFilter, courseSectionProfessorFilter } from '@/shared/lib/scoping';
+import {
+    examProfessorFilter,
+    groupProfessorFilter,
+    courseSectionProfessorFilter,
+} from '@/shared/lib/scoping';
 
 export default async function ExamsPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
@@ -23,7 +27,13 @@ export default async function ExamsPage({ params }: { params: Promise<{ slug: st
             include: {
                 groups: true,
                 courseSection: {
-                    select: { id: true, name: true, programId: true, periodId: true, groupId: true },
+                    select: {
+                        id: true,
+                        name: true,
+                        programId: true,
+                        periodId: true,
+                        groupId: true,
+                    },
                 },
                 _count: { select: { questions: true, results: true } },
             },
@@ -65,7 +75,10 @@ export default async function ExamsPage({ params }: { params: Promise<{ slug: st
     // Identify corregidos: closesAt in the past AND (active OR has results)
     const now = new Date();
     const corregidosIds = exams
-        .filter((e) => !!(e.closesAt && new Date(e.closesAt) < now) && (e.active || e._count.results > 0))
+        .filter(
+            (e) =>
+                !!(e.closesAt && new Date(e.closesAt) < now) && (e.active || e._count.results > 0),
+        )
         .map((e) => e.id);
 
     // Fetch results ONLY for corregidos exams (the only status that shows grade stats)
@@ -109,8 +122,13 @@ export default async function ExamsPage({ params }: { params: Promise<{ slug: st
                 : null;
         const passCount = results.filter(
             (r) =>
-                calcGrade(r.score, r.maxScore, exam.maxGrade, exam.passingGrade, exam.passingPercentage) >=
-                exam.passingGrade,
+                calcGrade(
+                    r.score,
+                    r.maxScore,
+                    exam.maxGrade,
+                    exam.passingGrade,
+                    exam.passingPercentage,
+                ) >= exam.passingGrade,
         ).length;
         const passRate = results.length > 0 ? Math.round((passCount / results.length) * 100) : null;
         const totalStudents = exam.groups.reduce(

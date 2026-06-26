@@ -68,15 +68,11 @@ export function LogoMark({
 
 // Wordmark: "aulika" in Bricolage Grotesque 600, tracking -3.5%
 // style only provides CSS vars; className consumes them via Tailwind arbitrary values.
-export function LogoWordmark({
-    size = 16,
-    color,
-    className,
-}: LogoWordmarkProps) {
+export function LogoWordmark({ size = 16, color, className }: LogoWordmarkProps) {
     return (
         <span
             className={cn(
-                'font-display font-semibold leading-none tracking-[-0.035em] [font-feature-settings:"ss01"_on] [font-size:var(--lw-size)] [color:var(--lw-color)]',
+                'font-display [font-feature-settings:"ss01"_on] [font-size:var(--lw-size)] leading-none font-semibold tracking-[-0.035em] [color:var(--lw-color)]',
                 className,
             )}
             style={
@@ -91,11 +87,7 @@ export function LogoWordmark({
     );
 }
 
-export function LogoLockup({
-    size = 36,
-    variant = 'cobalto',
-    className,
-}: LogoLockupProps) {
+export function LogoLockup({ size = 36, variant = 'cobalto', className }: LogoLockupProps) {
     const markSize = Math.round(size * 1.4);
     const wordSize = size;
     const gap = Math.round(size * 0.33);

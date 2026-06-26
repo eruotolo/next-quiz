@@ -120,12 +120,21 @@ interface Props {
     selectedGroupId: string | null;
 }
 
-async function exportResultsToXlsx(examGroups: ExamGroup[], institutionName: string): Promise<void> {
+async function exportResultsToXlsx(
+    examGroups: ExamGroup[],
+    institutionName: string,
+): Promise<void> {
     const { utils, writeFile } = await import('xlsx');
     const wb = utils.book_new();
     for (const eg of examGroups) {
         const rows = eg.results.map((r) => {
-            const grade = calcGrade(r.score, r.maxScore, eg.maxGrade, eg.passingGrade, eg.passingPercentage);
+            const grade = calcGrade(
+                r.score,
+                r.maxScore,
+                eg.maxGrade,
+                eg.passingGrade,
+                eg.passingPercentage,
+            );
             return {
                 Nombre: r.studentName,
                 RUT: r.studentRut,
@@ -135,13 +144,19 @@ async function exportResultsToXlsx(examGroups: ExamGroup[], institutionName: str
                 Nota: grade.toFixed(1),
                 Estado: grade >= eg.passingGrade ? 'Aprobado' : 'Reprobado',
                 'Fecha entrega': new Date(r.completedAt).toLocaleDateString('es-CL', {
-                    year: 'numeric', month: '2-digit', day: '2-digit',
-                    hour: '2-digit', minute: '2-digit',
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
                 }),
             };
         });
         const ws = utils.json_to_sheet(rows);
-        const sheetName = `${eg.title.slice(0, 20)} - ${eg.groupName.slice(0, 10)}`.replace(/[:/\\?*[\]]/g, '');
+        const sheetName = `${eg.title.slice(0, 20)} - ${eg.groupName.slice(0, 10)}`.replace(
+            /[:/\\?*[\]]/g,
+            '',
+        );
         utils.book_append_sheet(wb, ws, sheetName);
     }
     const date = new Date().toLocaleDateString('es-CL').replace(/\//g, '-');
@@ -258,7 +273,8 @@ export function ResultsClient({
         () =>
             examGroups.filter((eg) => {
                 const matchesProgram = programFilter === 'all' || eg.program?.id === programFilter;
-                const matchesCourse = courseFilter === 'all' || eg.courseSection?.id === courseFilter;
+                const matchesCourse =
+                    courseFilter === 'all' || eg.courseSection?.id === courseFilter;
                 return matchesProgram && matchesCourse;
             }),
         [examGroups, programFilter, courseFilter],
@@ -345,10 +361,7 @@ export function ResultsClient({
                         <span className="text-mute font-mono text-[10px] font-bold tracking-widest uppercase">
                             Filtrar por:
                         </span>
-                        <Select
-                            value={selectedExamId ?? ''}
-                            onValueChange={handleExamChange}
-                        >
+                        <Select value={selectedExamId ?? ''} onValueChange={handleExamChange}>
                             <SelectTrigger className="border-border h-9 w-[220px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
                                 <SelectValue placeholder="Todos los exámenes" />
                             </SelectTrigger>
@@ -362,7 +375,9 @@ export function ResultsClient({
                         </Select>
 
                         {groupOptions.length > 0 && (
-                            <div title={!selectedExamId ? 'Selecciona un examen primero' : undefined}>
+                            <div
+                                title={!selectedExamId ? 'Selecciona un examen primero' : undefined}
+                            >
                                 <Select
                                     value={selectedGroupId ?? ''}
                                     onValueChange={handleGroupChange}
@@ -613,7 +628,10 @@ export function ResultsClient({
             </main>
 
             {/* Delete confirmation */}
-            <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+            <AlertDialog
+                open={!!deleteTarget}
+                onOpenChange={(open) => !open && setDeleteTarget(null)}
+            >
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle className="text-destructive">
@@ -669,13 +687,7 @@ export function ResultsClient({
     );
 }
 
-function AnswersReview({
-    result,
-    exam,
-}: {
-    result: ResultRow;
-    exam: ExamGroup;
-}) {
+function AnswersReview({ result, exam }: { result: ResultRow; exam: ExamGroup }) {
     const answerMap = result.answers;
 
     function getSelectedIds(val: string[] | string | undefined): string[] {
@@ -684,7 +696,10 @@ function AnswersReview({
     }
 
     const analysisMap = useMemo(() => {
-        const map = new Map<string, { correctOptions: QuestionOption[]; correctSet: Set<string> }>();
+        const map = new Map<
+            string,
+            { correctOptions: QuestionOption[]; correctSet: Set<string> }
+        >();
         for (const q of exam.questions) {
             const correctOptions = q.options.filter((o) => o.isCorrect);
             const correctSet = new Set(correctOptions.map((o) => o.id));

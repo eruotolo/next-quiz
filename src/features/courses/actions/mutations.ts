@@ -18,10 +18,7 @@ const AUTO_GROUP_INSTITUTION_TYPES = ['UNIVERSIDAD', 'INSTITUTO_PROFESIONAL', 'C
  * - Admin/SuperAdmin: pueden operar sobre cualquier materia de su institución.
  * - Profesor: solo si es Jefe de Carrera (coordinador) del programa indicado.
  */
-async function authorizeCourseMutation(
-    slug: string,
-    programId?: string | null,
-) {
+async function authorizeCourseMutation(slug: string, programId?: string | null) {
     const ctx = await requireInstitutionAccess(slug, [
         USER_ROLE.ADMIN,
         USER_ROLE.SUPER_ADMIN,
@@ -30,8 +27,7 @@ async function authorizeCourseMutation(
 
     const isAdmin = ctx.userRole === USER_ROLE.ADMIN || ctx.userRole === USER_ROLE.SUPER_ADMIN;
     if (!isAdmin) {
-        const isCoordinator =
-            !!programId && ctx.coordinatedProgramIds.includes(programId);
+        const isCoordinator = !!programId && ctx.coordinatedProgramIds.includes(programId);
         if (!isCoordinator) {
             throw new Error('No tienes permisos de coordinador para este programa.');
         }
@@ -180,11 +176,7 @@ export async function createCourse(
     }
 }
 
-export async function updateCourse(
-    slug: string,
-    id: string,
-    data: unknown,
-): Promise<ActionResult> {
+export async function updateCourse(slug: string, id: string, data: unknown): Promise<ActionResult> {
     try {
         const parsed = courseSchema.safeParse(data);
         if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? 'Datos inválidos');
@@ -234,10 +226,7 @@ export async function updateCourse(
 export async function deleteCourse(slug: string, id: string): Promise<ActionResult> {
     try {
         // Eliminar es exclusivo de Admin/SuperAdmin (matriz: Jefe Carrera ❌).
-        const ctx = await requireInstitutionAccess(slug, [
-            USER_ROLE.ADMIN,
-            USER_ROLE.SUPER_ADMIN,
-        ]);
+        const ctx = await requireInstitutionAccess(slug, [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN]);
 
         const res = await prisma.courseSection.deleteMany({
             where: { id, period: { academicInstitutionId: ctx.institutionId } },
@@ -287,8 +276,7 @@ export async function assignProfessors(
         if (!isAdmin) {
             const isCoordinator =
                 !!course.programId && ctx.coordinatedProgramIds.includes(course.programId);
-            if (!isCoordinator)
-                return fail('No tienes permisos de coordinador para esta materia.');
+            if (!isCoordinator) return fail('No tienes permisos de coordinador para esta materia.');
         }
 
         if (parsed.data.professorIds.length > 0) {

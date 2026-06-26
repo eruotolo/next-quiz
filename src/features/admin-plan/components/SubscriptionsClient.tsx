@@ -81,13 +81,7 @@ interface DetailModalProps {
     cancelling: boolean;
 }
 
-function DetailModal({
-    row,
-    onClose,
-    onCancel,
-    onViewDetail,
-    cancelling,
-}: DetailModalProps) {
+function DetailModal({ row, onClose, onCancel, onViewDetail, cancelling }: DetailModalProps) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <button
@@ -251,7 +245,11 @@ export function SubscriptionsClient({ initial }: Props) {
                     size="sm"
                     value={filters.plan ?? 'all'}
                     onChange={(v) =>
-                        applyFilters({ ...filters, plan: v === 'all' ? undefined : (v as Plan), page: 1 })
+                        applyFilters({
+                            ...filters,
+                            plan: v === 'all' ? undefined : (v as Plan),
+                            page: 1,
+                        })
                     }
                     options={[
                         { value: 'all', label: 'Todos los planes' },
@@ -267,7 +265,11 @@ export function SubscriptionsClient({ initial }: Props) {
                     size="sm"
                     value={filters.status ?? 'all'}
                     onChange={(v) =>
-                        applyFilters({ ...filters, status: v === 'all' ? undefined : (v as SubscriptionStatus), page: 1 })
+                        applyFilters({
+                            ...filters,
+                            status: v === 'all' ? undefined : (v as SubscriptionStatus),
+                            page: 1,
+                        })
                     }
                     options={[
                         { value: 'all', label: 'Todos los estados' },

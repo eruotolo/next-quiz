@@ -4,10 +4,7 @@ import { Loader2, Plus, ShieldCheck, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
-import {
-    assignCoordinator,
-    removeCoordinator,
-} from '@/features/coordinators/actions/mutations';
+import { assignCoordinator, removeCoordinator } from '@/features/coordinators/actions/mutations';
 import type { ProfessorOption } from '@/features/coordinators/actions/queries';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -144,7 +141,7 @@ export function CoordinatorsTab({ slug, programId, coordinators, professors, can
                     <TableBody>
                         {coordinators.map((c) => (
                             <TableRow key={c.id}>
-                                <TableCell className="font-semibold text-ink">{c.name}</TableCell>
+                                <TableCell className="text-ink font-semibold">{c.name}</TableCell>
                                 {canMutate && (
                                     <TableCell>
                                         <Button

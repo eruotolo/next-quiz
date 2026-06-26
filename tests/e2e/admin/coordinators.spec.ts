@@ -7,7 +7,10 @@ const SLUG = 'universidad-de-los-lagos';
 test.describe('Admin Coordinators (program detail · Jefe de Carrera)', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto(`/${SLUG}/programs`);
-        await page.getByText(/Ingeniería Civil Informática/i).first().click();
+        await page
+            .getByText(/Ingeniería Civil Informática/i)
+            .first()
+            .click();
         await expect(page).toHaveURL(new RegExp(`/${SLUG}/programs/`));
         await page.getByRole('button', { name: 'Coordinadores' }).click();
     });

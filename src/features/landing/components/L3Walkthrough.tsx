@@ -91,7 +91,7 @@ function MockResults() {
                 {data.map((d, i) => (
                     <div
                         key={`bar-${i}`}
-                        className="flex-1 rounded-t-[4px] [height:var(--wt-h)] [background-color:var(--wt-bg)] transition-all hover:scale-x-110"
+                        className="[height:var(--wt-h)] flex-1 rounded-t-[4px] [background-color:var(--wt-bg)] transition-all hover:scale-x-110"
                         style={
                             {
                                 '--wt-h': `${d}%`,

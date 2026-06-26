@@ -12,9 +12,7 @@ interface Props {
     searchParams: Promise<{ sub?: string }>;
 }
 
-export default async function DocenteExitoPage({
-    searchParams,
-}: Props) {
+export default async function DocenteExitoPage({ searchParams }: Props) {
     const { sub } = await searchParams;
     if (!sub) notFound();
 

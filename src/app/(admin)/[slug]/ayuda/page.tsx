@@ -7,11 +7,7 @@ export const metadata = {
     title: 'Centro de ayuda · Aulika',
 };
 
-export default async function AyudaPage({
-    params,
-}: {
-    params: Promise<{ slug: string }>;
-}) {
+export default async function AyudaPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
     const { institutionName, isProfesor } = await requireInstitutionPageAccess(slug);
 

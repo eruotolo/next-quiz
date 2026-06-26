@@ -14,7 +14,10 @@ import {
     bankQuestionSchema,
     type BankQuestionInput,
 } from '@/features/questions/schemas/bank-question.schemas';
-import type { SafeBankQuestion, BankQuestionFilters } from '@/features/questions/types/bank-question.types';
+import type {
+    SafeBankQuestion,
+    BankQuestionFilters,
+} from '@/features/questions/types/bank-question.types';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
@@ -132,7 +135,12 @@ function toDraft(q: SafeBankQuestion): QuestionDraft {
         difficulty: q.difficulty,
         tags: q.tags.join(', '),
         feedback: q.feedback ?? '',
-        options: q.options.map((o) => ({ id: o.id, text: o.text, isCorrect: o.isCorrect, _key: nextOptKey() })),
+        options: q.options.map((o) => ({
+            id: o.id,
+            text: o.text,
+            isCorrect: o.isCorrect,
+            _key: nextOptKey(),
+        })),
     };
 }
 
@@ -401,7 +409,7 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
                         <button
                             type="button"
                             onClick={clearFilters}
-                            className="text-mute inline-flex items-center gap-1 text-[12px] font-medium hover:text-ink"
+                            className="text-mute hover:text-ink inline-flex items-center gap-1 text-[12px] font-medium"
                         >
                             <X size={12} />
                             Limpiar
@@ -461,7 +469,12 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
                                 : 'Crea tu primera pregunta reutilizable para compartirla entre exámenes.'}
                         </p>
                         {!hasActiveFilters && (
-                            <Button variant="primary" size="md" onClick={openCreate} className="mt-6 gap-2">
+                            <Button
+                                variant="primary"
+                                size="md"
+                                onClick={openCreate}
+                                className="mt-6 gap-2"
+                            >
                                 <Plus size={16} />
                                 Nueva pregunta
                             </Button>
@@ -480,7 +493,11 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
                                     </p>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon-sm" className="h-9 w-9 shrink-0">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon-sm"
+                                                className="h-9 w-9 shrink-0"
+                                            >
                                                 <MoreHorizontal size={18} className="text-mute" />
                                             </Button>
                                         </DropdownMenuTrigger>
@@ -514,7 +531,10 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
                                     <Tag tone="outline" className="h-5 text-[10px] font-bold">
                                         {q.questionType === 'UNICA' ? 'Única' : 'Múltiple'}
                                     </Tag>
-                                    <Tag tone={DIFFICULTY_TONE[q.difficulty]} className="h-5 text-[10px] font-bold">
+                                    <Tag
+                                        tone={DIFFICULTY_TONE[q.difficulty]}
+                                        className="h-5 text-[10px] font-bold"
+                                    >
                                         {DIFFICULTY_LABEL[q.difficulty]}
                                     </Tag>
                                     {q.subject && (
@@ -523,7 +543,10 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
                                         </Tag>
                                     )}
                                     {q.unit && (
-                                        <Tag tone="outline" className="bg-paper-warm/50 border-border h-5 font-mono text-[10px]">
+                                        <Tag
+                                            tone="outline"
+                                            className="bg-paper-warm/50 border-border h-5 font-mono text-[10px]"
+                                        >
                                             {q.unit}
                                         </Tag>
                                     )}
@@ -537,7 +560,8 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
                                     ))}
                                 </div>
                                 <p className="text-mute mt-3 font-mono text-[11px]">
-                                    {q.options.length} opciones · {q.options.filter((o) => o.isCorrect).length} correcta
+                                    {q.options.length} opciones ·{' '}
+                                    {q.options.filter((o) => o.isCorrect).length} correcta
                                     {q.options.filter((o) => o.isCorrect).length !== 1 ? 's' : ''}
                                 </p>
                             </Card>
@@ -573,7 +597,9 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
                                 autoFocus
                             />
                             {errors.text && (
-                                <p className="text-destructive text-[12px] font-medium">{errors.text}</p>
+                                <p className="text-destructive text-[12px] font-medium">
+                                    {errors.text}
+                                </p>
                             )}
                         </div>
 
@@ -583,7 +609,10 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
                                 <Select
                                     value={draft.questionType}
                                     onValueChange={(v) =>
-                                        setDraft({ ...draft, questionType: v as 'UNICA' | 'MULTIPLE' })
+                                        setDraft({
+                                            ...draft,
+                                            questionType: v as 'UNICA' | 'MULTIPLE',
+                                        })
                                     }
                                 >
                                     <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
@@ -600,7 +629,10 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
                                 <Select
                                     value={draft.difficulty}
                                     onValueChange={(v) =>
-                                        setDraft({ ...draft, difficulty: v as 'FACIL' | 'MEDIA' | 'DIFICIL' })
+                                        setDraft({
+                                            ...draft,
+                                            difficulty: v as 'FACIL' | 'MEDIA' | 'DIFICIL',
+                                        })
                                     }
                                 >
                                     <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
@@ -617,13 +649,18 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
 
                         <div className="grid grid-cols-2 gap-3">
                             <div className="flex flex-col gap-1.5">
-                                <label htmlFor="q-subject" className="text-ink text-[13px] font-bold">
+                                <label
+                                    htmlFor="q-subject"
+                                    className="text-ink text-[13px] font-bold"
+                                >
                                     Asignatura
                                 </label>
                                 <Input
                                     id="q-subject"
                                     value={draft.subject}
-                                    onChange={(e) => setDraft({ ...draft, subject: e.target.value })}
+                                    onChange={(e) =>
+                                        setDraft({ ...draft, subject: e.target.value })
+                                    }
                                     placeholder="Ej: Historia"
                                     className="border-border h-11 rounded-[10px] bg-white"
                                 />
@@ -691,7 +728,9 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
                                 ))}
                             </div>
                             {errors.options && (
-                                <p className="text-destructive mt-1 text-[12px] font-medium">{errors.options}</p>
+                                <p className="text-destructive mt-1 text-[12px] font-medium">
+                                    {errors.options}
+                                </p>
                             )}
                             {draft.options.length < 6 && (
                                 <Button
@@ -708,8 +747,7 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
 
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="q-feedback" className="text-ink text-[13px] font-bold">
-                                Feedback{' '}
-                                <span className="text-mute font-normal">(opcional)</span>
+                                Feedback <span className="text-mute font-normal">(opcional)</span>
                             </label>
                             <Textarea
                                 id="q-feedback"

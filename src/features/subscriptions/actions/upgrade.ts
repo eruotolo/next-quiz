@@ -30,10 +30,7 @@ export async function upgradePlan(
     try {
         if (!PAID_PLANS.includes(plan)) return fail('Plan no válido.');
 
-        const ctx = await requireInstitutionAccess(slug, [
-            USER_ROLE.ADMIN,
-            USER_ROLE.SUPER_ADMIN,
-        ]);
+        const ctx = await requireInstitutionAccess(slug, [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN]);
 
         if (!ctx.userEmail) {
             return fail('Tu cuenta no tiene un email asociado para procesar el pago.');

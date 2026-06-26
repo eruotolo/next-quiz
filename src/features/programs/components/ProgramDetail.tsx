@@ -98,7 +98,12 @@ export function ProgramDetail({
 
             <div className="mb-6 grid gap-4 sm:grid-cols-3">
                 <StatTile label="Grupos" value={stats.groups} icon={<Users />} />
-                <StatTile label={courseLabelPlural} value={stats.courses} tone="primary" icon={<BookOpen />} />
+                <StatTile
+                    label={courseLabelPlural}
+                    value={stats.courses}
+                    tone="primary"
+                    icon={<BookOpen />}
+                />
                 <StatTile label="Alumnos" value={stats.students} icon={<GraduationCap />} />
             </div>
 
@@ -122,9 +127,11 @@ export function ProgramDetail({
             </div>
 
             {tab === 'courses' && (
-                <Card className="overflow-hidden border-border bg-white p-0 shadow-sm">
+                <Card className="border-border overflow-hidden bg-white p-0 shadow-sm">
                     {courses.length === 0 ? (
-                        <EmptyRow text={`Sin ${courseLabelPlural.toLowerCase()} en este programa.`} />
+                        <EmptyRow
+                            text={`Sin ${courseLabelPlural.toLowerCase()} en este programa.`}
+                        />
                     ) : (
                         <Table>
                             <TableHeader>
@@ -138,7 +145,7 @@ export function ProgramDetail({
                             <TableBody>
                                 {courses.map((c) => (
                                     <TableRow key={c.id}>
-                                        <TableCell className="font-semibold text-ink">
+                                        <TableCell className="text-ink font-semibold">
                                             {c.name}
                                         </TableCell>
                                         <TableCell className="text-mute text-[12px]">
@@ -161,7 +168,7 @@ export function ProgramDetail({
             )}
 
             {tab === 'groups' && (
-                <Card className="overflow-hidden border-border bg-white p-0 shadow-sm">
+                <Card className="border-border overflow-hidden bg-white p-0 shadow-sm">
                     {groups.length === 0 ? (
                         <EmptyRow text="Sin grupos vinculados a este programa." />
                     ) : (
@@ -175,7 +182,7 @@ export function ProgramDetail({
                             <TableBody>
                                 {groups.map((g) => (
                                     <TableRow key={g.id}>
-                                        <TableCell className="font-semibold text-ink">
+                                        <TableCell className="text-ink font-semibold">
                                             {g.name}
                                         </TableCell>
                                         <TableCell className="text-center">

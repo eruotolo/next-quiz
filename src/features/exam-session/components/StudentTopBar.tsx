@@ -38,7 +38,9 @@ export function StudentTopBar({
                     <div className="hidden leading-tight sm:block">
                         <p className="text-ink text-[13px] font-semibold">{fullName}</p>
                         {groupName && <p className="text-mute text-[11px]">{groupName}</p>}
-                        {institutionName && <p className="text-mute text-[11px]">{institutionName}</p>}
+                        {institutionName && (
+                            <p className="text-mute text-[11px]">{institutionName}</p>
+                        )}
                     </div>
                 </div>
                 {showLogout && (

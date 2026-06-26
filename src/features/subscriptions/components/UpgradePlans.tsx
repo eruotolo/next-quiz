@@ -133,7 +133,12 @@ function PriceBlock({ plan, billing }: { plan: UpgradePlan; billing: Billing }) 
                 {price > 0 && <span className={cn('text-[12px]', mutedColor)}>/mes</span>}
             </div>
             {price > 0 && billing === 'annual' && (
-                <p className={cn('mt-1 text-[11px]', plan.featured ? 'text-white/40' : 'text-mute')}>
+                <p
+                    className={cn(
+                        'mt-1 text-[11px]',
+                        plan.featured ? 'text-white/40' : 'text-mute',
+                    )}
+                >
                     Facturado {formatCLP(price * 12)} al año
                 </p>
             )}
@@ -254,11 +259,7 @@ interface UpgradePlansProps {
     quoteDefaults?: { name?: string; email?: string; institution?: string };
 }
 
-export function UpgradePlans({
-    slug,
-    currentPlan,
-    quoteDefaults,
-}: UpgradePlansProps) {
+export function UpgradePlans({ slug, currentPlan, quoteDefaults }: UpgradePlansProps) {
     const [billing, setBilling] = useState<Billing>('annual');
     const [quoteOpen, setQuoteOpen] = useState(false);
     const [, startTransition] = useTransition();

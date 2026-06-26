@@ -5,11 +5,7 @@ import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { redirect } from 'next/navigation';
 
-export default async function SettingsPage({
-    params,
-}: {
-    params: Promise<{ slug: string }>;
-}) {
+export default async function SettingsPage({ params }: { params: Promise<{ slug: string }> }) {
     const [{ slug }, session] = await Promise.all([params, auth()]);
     if (!session) redirect('/login');
 

@@ -17,9 +17,7 @@ interface Props {
     params: Promise<{ id: string }>;
 }
 
-export default async function SubscriptionDetailPage({
-    params,
-}: Props) {
+export default async function SubscriptionDetailPage({ params }: Props) {
     const { id } = await params;
     const result = await getSubscriptionById(id);
 

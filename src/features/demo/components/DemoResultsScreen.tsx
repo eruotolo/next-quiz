@@ -50,11 +50,7 @@ interface DemoResultsScreenProps {
     onRetry: () => void;
 }
 
-export function DemoResultsScreen({
-    exam,
-    answersMap,
-    onRetry,
-}: DemoResultsScreenProps) {
+export function DemoResultsScreen({ exam, answersMap, onRetry }: DemoResultsScreenProps) {
     const results = computeResults(exam, answersMap);
     const grade = calcGrade(results.score, results.maxScore, 7, 4, 60);
     const passing = grade >= 4;

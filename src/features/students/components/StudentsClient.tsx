@@ -439,7 +439,9 @@ export function StudentsClient({
     const renderAcademicRow = (r: AcademicResultRow) => (
         <TableRow key={r.id} className="border-border h-12 border-b last:border-0">
             <TableCell>
-                <span className="text-ink text-[13px] font-medium leading-tight">{r.exam.title}</span>
+                <span className="text-ink text-[13px] leading-tight font-medium">
+                    {r.exam.title}
+                </span>
             </TableCell>
             <TableCell>
                 {r.exam.courseSectionName ? (
@@ -465,7 +467,12 @@ export function StudentsClient({
                 })}
             </TableCell>
             <TableCell className="text-right">
-                <span className={cn('font-mono text-[14px] font-bold', r.passed ? 'text-[#0f7c4a]' : 'text-[#d5301f]')}>
+                <span
+                    className={cn(
+                        'font-mono text-[14px] font-bold',
+                        r.passed ? 'text-[#0f7c4a]' : 'text-[#d5301f]',
+                    )}
+                >
                     {r.grade.toFixed(1)}
                 </span>
             </TableCell>
@@ -474,20 +481,43 @@ export function StudentsClient({
 
     // ── Academic history derived state ────────────────────────────────────────
     const academicYears = academicHistory
-        ? [...new Set(academicHistory.map((r) => r.exam.periodYear ?? new Date(r.completedAt).getFullYear()))].sort((a, b) => b - a)
+        ? [
+              ...new Set(
+                  academicHistory.map(
+                      (r) => r.exam.periodYear ?? new Date(r.completedAt).getFullYear(),
+                  ),
+              ),
+          ].sort((a, b) => b - a)
         : [];
     const academicMaterias = academicHistory
-        ? [...new Set(academicHistory.map((r) => r.exam.courseSectionName).filter((m): m is string => m !== null))].sort()
+        ? [
+              ...new Set(
+                  academicHistory
+                      .map((r) => r.exam.courseSectionName)
+                      .filter((m): m is string => m !== null),
+              ),
+          ].sort()
         : [];
     const academicGroups = academicHistory
-        ? [...new Set(academicHistory.map((r) => r.exam.groupName).filter((g): g is string => g !== null))].sort()
+        ? [
+              ...new Set(
+                  academicHistory
+                      .map((r) => r.exam.groupName)
+                      .filter((g): g is string => g !== null),
+              ),
+          ].sort()
         : [];
     const academicFiltered = academicHistory
         ? academicHistory.filter((r) => {
               const year = r.exam.periodYear ?? new Date(r.completedAt).getFullYear();
               if (academicYearFilter !== 'all' && String(year) !== academicYearFilter) return false;
-              if (academicMateriaFilter !== 'all' && r.exam.courseSectionName !== academicMateriaFilter) return false;
-              if (academicGroupFilter !== 'all' && r.exam.groupName !== academicGroupFilter) return false;
+              if (
+                  academicMateriaFilter !== 'all' &&
+                  r.exam.courseSectionName !== academicMateriaFilter
+              )
+                  return false;
+              if (academicGroupFilter !== 'all' && r.exam.groupName !== academicGroupFilter)
+                  return false;
               return true;
           })
         : [];
@@ -497,7 +527,9 @@ export function StudentsClient({
             : null;
     const academicPassRate =
         academicFiltered.length > 0
-            ? Math.round((academicFiltered.filter((r) => r.passed).length / academicFiltered.length) * 100)
+            ? Math.round(
+                  (academicFiltered.filter((r) => r.passed).length / academicFiltered.length) * 100,
+              )
             : null;
 
     return (
@@ -519,7 +551,10 @@ export function StudentsClient({
                 <SearchableSelect
                     size="sm"
                     value={groupFilter}
-                    onChange={(v) => { setGroupFilter(v); setPage(1); }}
+                    onChange={(v) => {
+                        setGroupFilter(v);
+                        setPage(1);
+                    }}
                     className="w-[170px]"
                     options={[
                         { value: 'all', label: 'Curso · Todos' },
@@ -529,7 +564,10 @@ export function StudentsClient({
                 <SearchableSelect
                     size="sm"
                     value={statusFilter}
-                    onChange={(v) => { setStatusFilter(v as 'all' | 'active' | 'inactive'); setPage(1); }}
+                    onChange={(v) => {
+                        setStatusFilter(v as 'all' | 'active' | 'inactive');
+                        setPage(1);
+                    }}
                     className="w-[160px]"
                     options={[
                         { value: 'all', label: 'Estado · Todos' },
@@ -612,7 +650,9 @@ export function StudentsClient({
                                     <TableHead className="w-[160px]">RUT</TableHead>
                                     <TableHead className="w-[100px]">Curso</TableHead>
                                     <TableHead className="w-[120px]">Estado</TableHead>
-                                    <TableHead className="w-[180px] text-right">Último Examen</TableHead>
+                                    <TableHead className="w-[180px] text-right">
+                                        Último Examen
+                                    </TableHead>
                                     <TableHead className="w-[100px] text-right">Promedio</TableHead>
                                     <TableHead className="w-12" />
                                 </TableRow>
@@ -694,12 +734,32 @@ export function StudentsClient({
                                         <TableCell className="text-right">
                                             {(() => {
                                                 const r = s.results[0];
-                                                if (!r) return <span className="text-mute font-mono text-[12.5px]">—</span>;
-                                                const g = calcGrade(r.score, r.maxScore, r.exam.maxGrade, r.exam.passingGrade, r.exam.passingPercentage);
+                                                if (!r)
+                                                    return (
+                                                        <span className="text-mute font-mono text-[12.5px]">
+                                                            —
+                                                        </span>
+                                                    );
+                                                const g = calcGrade(
+                                                    r.score,
+                                                    r.maxScore,
+                                                    r.exam.maxGrade,
+                                                    r.exam.passingGrade,
+                                                    r.exam.passingPercentage,
+                                                );
                                                 return (
                                                     <div className="flex flex-col items-end gap-0.5">
-                                                        <span className="text-mute max-w-[160px] truncate text-right text-[10.5px]">{r.exam.title}</span>
-                                                        <span className={cn('font-mono text-[13px] font-bold', g >= r.exam.passingGrade ? 'text-[#0f7c4a]' : 'text-[#d5301f]')}>
+                                                        <span className="text-mute max-w-[160px] truncate text-right text-[10.5px]">
+                                                            {r.exam.title}
+                                                        </span>
+                                                        <span
+                                                            className={cn(
+                                                                'font-mono text-[13px] font-bold',
+                                                                g >= r.exam.passingGrade
+                                                                    ? 'text-[#0f7c4a]'
+                                                                    : 'text-[#d5301f]',
+                                                            )}
+                                                        >
                                                             {g.toFixed(1)}
                                                         </span>
                                                     </div>
@@ -708,10 +768,30 @@ export function StudentsClient({
                                         </TableCell>
                                         <TableCell className="text-right">
                                             {(() => {
-                                                if (s.results.length === 0) return <span className="text-mute">—</span>;
-                                                const avg = s.results.reduce((sum, r) => sum + calcGrade(r.score, r.maxScore, r.exam.maxGrade, r.exam.passingGrade, r.exam.passingPercentage), 0) / s.results.length;
+                                                if (s.results.length === 0)
+                                                    return <span className="text-mute">—</span>;
+                                                const avg =
+                                                    s.results.reduce(
+                                                        (sum, r) =>
+                                                            sum +
+                                                            calcGrade(
+                                                                r.score,
+                                                                r.maxScore,
+                                                                r.exam.maxGrade,
+                                                                r.exam.passingGrade,
+                                                                r.exam.passingPercentage,
+                                                            ),
+                                                        0,
+                                                    ) / s.results.length;
                                                 return (
-                                                    <span className={cn('font-mono text-[13.5px] font-bold', avg >= 4.0 ? 'text-[#0f7c4a]' : 'text-[#d5301f]')}>
+                                                    <span
+                                                        className={cn(
+                                                            'font-mono text-[13.5px] font-bold',
+                                                            avg >= 4.0
+                                                                ? 'text-[#0f7c4a]'
+                                                                : 'text-[#d5301f]',
+                                                        )}
+                                                    >
                                                         {avg.toFixed(1)}
                                                     </span>
                                                 );
@@ -720,10 +800,7 @@ export function StudentsClient({
                                         <TableCell className="text-right">
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon-sm"
-                                                    >
+                                                    <Button variant="ghost" size="icon-sm">
                                                         <MoreHorizontal
                                                             size={16}
                                                             className="text-mute"
@@ -880,7 +957,7 @@ export function StudentsClient({
                                 onChange={(v) => setField('groupId', v)}
                                 placeholder="Seleccioná un grupo"
                                 options={groups.map((g) => ({ value: g.id, label: g.name }))}
-                                className={errors.groupId ? 'ring-1 ring-destructive' : undefined}
+                                className={errors.groupId ? 'ring-destructive ring-1' : undefined}
                             />
                             {errors.groupId && (
                                 <p className="text-destructive text-xs font-medium">
@@ -1112,34 +1189,54 @@ export function StudentsClient({
                             <Loader2 className="text-mute size-6 animate-spin" />
                         </div>
                     ) : academicError ? (
-                        <p className="text-destructive py-12 text-center text-sm">{academicError}</p>
+                        <p className="text-destructive py-12 text-center text-sm">
+                            {academicError}
+                        </p>
                     ) : academicHistory !== null ? (
                         <div className="flex flex-col gap-4">
                             {/* Stats */}
                             <div className="grid grid-cols-3 gap-3">
                                 <div className="bg-paper rounded-[12px] px-4 py-3">
-                                    <p className="text-mute text-[11px] font-bold uppercase tracking-wider">
+                                    <p className="text-mute text-[11px] font-bold tracking-wider uppercase">
                                         {isProfesor ? 'Exámenes (tu materia)' : 'Exámenes totales'}
                                     </p>
-                                    <p className="text-ink font-display text-2xl font-bold">{academicFiltered.length}</p>
-                                </div>
-                                <div className="bg-paper rounded-[12px] px-4 py-3">
-                                    <p className="text-mute text-[11px] font-bold uppercase tracking-wider">Promedio</p>
-                                    <p className={cn(
-                                        'font-display text-2xl font-bold',
-                                        academicAvgGrade === null ? 'text-mute' :
-                                        academicAvgGrade >= 4 ? 'text-[#0f7c4a]' : 'text-[#d5301f]',
-                                    )}>
-                                        {academicAvgGrade !== null ? academicAvgGrade.toFixed(1) : '—'}
+                                    <p className="text-ink font-display text-2xl font-bold">
+                                        {academicFiltered.length}
                                     </p>
                                 </div>
                                 <div className="bg-paper rounded-[12px] px-4 py-3">
-                                    <p className="text-mute text-[11px] font-bold uppercase tracking-wider">Tasa aprobación</p>
-                                    <p className={cn(
-                                        'font-display text-2xl font-bold',
-                                        academicPassRate === null ? 'text-mute' :
-                                        academicPassRate >= 60 ? 'text-[#0f7c4a]' : 'text-[#d5301f]',
-                                    )}>
+                                    <p className="text-mute text-[11px] font-bold tracking-wider uppercase">
+                                        Promedio
+                                    </p>
+                                    <p
+                                        className={cn(
+                                            'font-display text-2xl font-bold',
+                                            academicAvgGrade === null
+                                                ? 'text-mute'
+                                                : academicAvgGrade >= 4
+                                                  ? 'text-[#0f7c4a]'
+                                                  : 'text-[#d5301f]',
+                                        )}
+                                    >
+                                        {academicAvgGrade !== null
+                                            ? academicAvgGrade.toFixed(1)
+                                            : '—'}
+                                    </p>
+                                </div>
+                                <div className="bg-paper rounded-[12px] px-4 py-3">
+                                    <p className="text-mute text-[11px] font-bold tracking-wider uppercase">
+                                        Tasa aprobación
+                                    </p>
+                                    <p
+                                        className={cn(
+                                            'font-display text-2xl font-bold',
+                                            academicPassRate === null
+                                                ? 'text-mute'
+                                                : academicPassRate >= 60
+                                                  ? 'text-[#0f7c4a]'
+                                                  : 'text-[#d5301f]',
+                                        )}
+                                    >
                                         {academicPassRate !== null ? `${academicPassRate}%` : '—'}
                                     </p>
                                 </div>
@@ -1154,7 +1251,10 @@ export function StudentsClient({
                                     className="w-[150px]"
                                     options={[
                                         { value: 'all', label: 'Año · Todos' },
-                                        ...academicYears.map((y) => ({ value: String(y), label: String(y) })),
+                                        ...academicYears.map((y) => ({
+                                            value: String(y),
+                                            label: String(y),
+                                        })),
                                     ]}
                                 />
                                 <SearchableSelect
@@ -1178,7 +1278,8 @@ export function StudentsClient({
                                     ]}
                                 />
                                 <span className="text-mute ml-auto font-mono text-[11px]">
-                                    {academicFiltered.length} resultado{academicFiltered.length !== 1 ? 's' : ''}
+                                    {academicFiltered.length} resultado
+                                    {academicFiltered.length !== 1 ? 's' : ''}
                                 </span>
                             </div>
 
@@ -1192,17 +1293,25 @@ export function StudentsClient({
                                             <TableHead className="w-[110px]">Período</TableHead>
                                             <TableHead className="w-[130px]">Grupo</TableHead>
                                             <TableHead className="w-[100px]">Fecha</TableHead>
-                                            <TableHead className="w-[70px] text-right">Nota</TableHead>
+                                            <TableHead className="w-[70px] text-right">
+                                                Nota
+                                            </TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {academicFiltered.length === 0 ? (
                                             <TableRow className="hover:bg-transparent">
-                                                <TableCell colSpan={6} className="text-mute py-12 text-center text-sm">
-                                                    No hay resultados para los filtros seleccionados.
+                                                <TableCell
+                                                    colSpan={6}
+                                                    className="text-mute py-12 text-center text-sm"
+                                                >
+                                                    No hay resultados para los filtros
+                                                    seleccionados.
                                                 </TableCell>
                                             </TableRow>
-                                        ) : academicFiltered.map(renderAcademicRow)}
+                                        ) : (
+                                            academicFiltered.map(renderAcademicRow)
+                                        )}
                                     </TableBody>
                                 </Table>
                             </div>

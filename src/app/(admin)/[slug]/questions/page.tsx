@@ -2,13 +2,12 @@ import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { QuestionsClient } from '@/features/questions/components/QuestionsClient';
 import { prisma } from '@/shared/lib/prisma';
-import type { SafeBankQuestion, BankQuestionFilters } from '@/features/questions/types/bank-question.types';
+import type {
+    SafeBankQuestion,
+    BankQuestionFilters,
+} from '@/features/questions/types/bank-question.types';
 
-export default async function QuestionsPage({
-    params,
-}: {
-    params: Promise<{ slug: string }>;
-}) {
+export default async function QuestionsPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
     const { institutionId, institutionName } = await requireInstitutionPageAccess(slug);
 
@@ -65,7 +64,12 @@ export default async function QuestionsPage({
                 breadcrumb={[institutionName, 'Banco de preguntas']}
                 subtitle={`${items.length} pregunta${items.length !== 1 ? 's' : ''} en la biblioteca`}
             />
-            <QuestionsClient slug={slug} initialItems={items} facets={facets} institutionName={institutionName} />
+            <QuestionsClient
+                slug={slug}
+                initialItems={items}
+                facets={facets}
+                institutionName={institutionName}
+            />
         </>
     );
 }

@@ -153,7 +153,9 @@ export function PaesResultsScreen({
                                                         'h-full w-[var(--eje-w)] rounded-full transition-all',
                                                         ejePct >= 60 ? 'bg-success' : 'bg-warning',
                                                     )}
-                                                    style={{ '--eje-w': `${ejePct}%` } as CSSProperties}
+                                                    style={
+                                                        { '--eje-w': `${ejePct}%` } as CSSProperties
+                                                    }
                                                 />
                                             </div>
                                         </div>

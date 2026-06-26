@@ -69,19 +69,26 @@ test.describe('Student Full Exam Flow (requires active exam in DB)', () => {
     test.beforeEach(async ({ page }) => {
         await loginAsStudent(page);
         const availableSection = page.locator('section:has-text("Disponible ahora")');
-        hasAvailableExams = (await availableSection.getByRole('button', { name: /Comenzar/i }).count()) > 0;
+        hasAvailableExams =
+            (await availableSection.getByRole('button', { name: /Comenzar/i }).count()) > 0;
         test.skip(!hasAvailableExams, 'No active exams available.');
     });
 
     test('if an exam is available, student can navigate to intro page', async ({ page }) => {
         const availableSection = page.locator('section:has-text("Disponible ahora")');
-        await availableSection.getByRole('button', { name: /Comenzar/i }).first().click();
+        await availableSection
+            .getByRole('button', { name: /Comenzar/i })
+            .first()
+            .click();
         await expect(page).toHaveURL(/\/examen\/.+\/intro/, { timeout: 10_000 });
     });
 
     test('intro page has accept-terms checkbox and disabled start button', async ({ page }) => {
         const availableSection = page.locator('section:has-text("Disponible ahora")');
-        await availableSection.getByRole('button', { name: /Comenzar/i }).first().click();
+        await availableSection
+            .getByRole('button', { name: /Comenzar/i })
+            .first()
+            .click();
         await page.waitForURL(/\/examen\/.+\/intro/, { timeout: 10_000 });
 
         await expect(page.locator('h1').first()).toBeVisible();
@@ -96,7 +103,10 @@ test.describe('Student Full Exam Flow (requires active exam in DB)', () => {
 
     test('exam carousel renders first question and options fieldset', async ({ page }) => {
         const availableSection = page.locator('section:has-text("Disponible ahora")');
-        await availableSection.getByRole('button', { name: /Comenzar/i }).first().click();
+        await availableSection
+            .getByRole('button', { name: /Comenzar/i })
+            .first()
+            .click();
         await page.waitForURL(/\/examen\/.+\/intro/, { timeout: 10_000 });
         await page.locator('#accept-terms').check();
         await page.getByRole('button', { name: /Comenzar examen/i }).click();
@@ -108,13 +118,18 @@ test.describe('Student Full Exam Flow (requires active exam in DB)', () => {
 
     test('student can select an option and navigate to next question', async ({ page }) => {
         const availableSection = page.locator('section:has-text("Disponible ahora")');
-        await availableSection.getByRole('button', { name: /Comenzar/i }).first().click();
+        await availableSection
+            .getByRole('button', { name: /Comenzar/i })
+            .first()
+            .click();
         await page.waitForURL(/\/examen\/.+\/intro/, { timeout: 10_000 });
         await page.locator('#accept-terms').check();
         await page.getByRole('button', { name: /Comenzar examen/i }).click();
         await page.waitForURL(/\/examen\/[^/]+$/, { timeout: 15_000 });
 
-        const firstOption = page.locator('fieldset[aria-label="Opciones de respuesta"] button').first();
+        const firstOption = page
+            .locator('fieldset[aria-label="Opciones de respuesta"] button')
+            .first();
         await firstOption.click();
 
         const nextBtn = page.getByRole('button', { name: /Siguiente/i });

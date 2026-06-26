@@ -29,7 +29,10 @@ test.describe('Admin Programs (/[slug]/programs)', () => {
     });
 
     test('can open the create dialog', async ({ page }) => {
-        await page.getByRole('button', { name: /Nueva carrera/i }).first().click();
+        await page
+            .getByRole('button', { name: /Nueva carrera/i })
+            .first()
+            .click();
         await expect(page.getByRole('dialog')).toBeVisible();
         await expect(page.getByPlaceholder(/Ingeniería Civil Informática/i)).toBeVisible();
     });

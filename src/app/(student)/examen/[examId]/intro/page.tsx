@@ -10,9 +10,6 @@ interface PageProps {
     params: Promise<{ examId: string }>;
 }
 
-
-
-
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: arma los datos del examen (vigilancia, tipo, cierre, nota) e instrucciones en una sola vista; separarlo dispersaría la presentación
 export default async function ExamIntroPage({ params }: PageProps) {
     const { examId } = await params;
@@ -198,7 +195,7 @@ export default async function ExamIntroPage({ params }: PageProps) {
 
                     {/* Reminder — ink card */}
                     <div
-                        className="rounded-[16px] [background:var(--reminder-bg)] p-6"
+                        className="rounded-[16px] p-6 [background:var(--reminder-bg)]"
                         style={
                             {
                                 '--reminder-bg':
@@ -210,9 +207,9 @@ export default async function ExamIntroPage({ params }: PageProps) {
                             {student.name.toUpperCase()}, NO OLVIDES
                         </span>
                         <p className="text-[13px] leading-relaxed text-white/60">
-                            Si tu equipo se queda sin batería o se cae internet, abrí Aulika de nuevo
-                            con tu RUT y retomás donde quedaste. Las respuestas que ya guardaste se
-                            quedan ahí.
+                            Si tu equipo se queda sin batería o se cae internet, abrí Aulika de
+                            nuevo con tu RUT y retomás donde quedaste. Las respuestas que ya
+                            guardaste se quedan ahí.
                         </p>
                     </div>
                 </aside>

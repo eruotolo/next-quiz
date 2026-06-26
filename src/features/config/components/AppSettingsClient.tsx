@@ -42,7 +42,9 @@ function SettingField({
 
     return (
         <div className="flex flex-col gap-2">
-            <label htmlFor={configKey} className="text-ink text-[13px] font-bold">{label}</label>
+            <label htmlFor={configKey} className="text-ink text-[13px] font-bold">
+                {label}
+            </label>
             <p className="text-mute text-sm">{description}</p>
             <div className="flex gap-2">
                 <Input
@@ -74,81 +76,81 @@ function SettingField({
 export function AppSettingsClient({ config }: Props) {
     return (
         <main className="flex-1 p-8">
-                <div className="flex flex-col gap-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">Brevo — Envío de emails</CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex flex-col gap-6">
-                            <SettingField
-                                label="API Key"
-                                description="Clave de API de Brevo para el envío de emails transaccionales."
-                                configKey={APP_CONFIG_KEY.BREVO_API_KEY}
-                                value={config[APP_CONFIG_KEY.BREVO_API_KEY]}
-                                type="password"
-                            />
-                            <SettingField
-                                label="Email del remitente"
-                                description="Dirección de email que aparece como remitente en los emails enviados."
-                                configKey={APP_CONFIG_KEY.BREVO_SENDER_EMAIL}
-                                value={config[APP_CONFIG_KEY.BREVO_SENDER_EMAIL]}
-                                type="email"
-                            />
-                            <SettingField
-                                label="Nombre del remitente"
-                                description='Nombre que aparece en el campo "De:" de los emails enviados.'
-                                configKey={APP_CONFIG_KEY.BREVO_SENDER_NAME}
-                                value={config[APP_CONFIG_KEY.BREVO_SENDER_NAME]}
-                            />
-                        </CardContent>
-                    </Card>
+            <div className="flex flex-col gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base">Brevo — Envío de emails</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-6">
+                        <SettingField
+                            label="API Key"
+                            description="Clave de API de Brevo para el envío de emails transaccionales."
+                            configKey={APP_CONFIG_KEY.BREVO_API_KEY}
+                            value={config[APP_CONFIG_KEY.BREVO_API_KEY]}
+                            type="password"
+                        />
+                        <SettingField
+                            label="Email del remitente"
+                            description="Dirección de email que aparece como remitente en los emails enviados."
+                            configKey={APP_CONFIG_KEY.BREVO_SENDER_EMAIL}
+                            value={config[APP_CONFIG_KEY.BREVO_SENDER_EMAIL]}
+                            type="email"
+                        />
+                        <SettingField
+                            label="Nombre del remitente"
+                            description='Nombre que aparece en el campo "De:" de los emails enviados.'
+                            configKey={APP_CONFIG_KEY.BREVO_SENDER_NAME}
+                            value={config[APP_CONFIG_KEY.BREVO_SENDER_NAME]}
+                        />
+                    </CardContent>
+                </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-base">SEO Global & IA</CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex flex-col gap-6">
-                            <SettingField
-                                label="Título Global"
-                                description="Título base de la plataforma para buscadores e IAs."
-                                configKey={APP_CONFIG_KEY.SEO_GLOBAL_TITLE}
-                                value={config[APP_CONFIG_KEY.SEO_GLOBAL_TITLE]}
-                            />
-                            <SettingField
-                                label="Descripción Global"
-                                description="Descripción por defecto de la plataforma (máx. 160 caracteres)."
-                                configKey={APP_CONFIG_KEY.SEO_GLOBAL_DESCRIPTION}
-                                value={config[APP_CONFIG_KEY.SEO_GLOBAL_DESCRIPTION]}
-                            />
-                            <SettingField
-                                label="Palabras Clave"
-                                description="Palabras clave globales separadas por comas."
-                                configKey={APP_CONFIG_KEY.SEO_GLOBAL_KEYWORDS}
-                                value={config[APP_CONFIG_KEY.SEO_GLOBAL_KEYWORDS]}
-                            />
-                            <SettingField
-                                label="Imagen OpenGraph (URL)"
-                                description="URL de la imagen que aparece al compartir el sitio en redes sociales."
-                                configKey={APP_CONFIG_KEY.SEO_GLOBAL_OG_IMAGE}
-                                value={config[APP_CONFIG_KEY.SEO_GLOBAL_OG_IMAGE]}
-                            />
-                        </CardContent>
-                    </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base">SEO Global & IA</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-6">
+                        <SettingField
+                            label="Título Global"
+                            description="Título base de la plataforma para buscadores e IAs."
+                            configKey={APP_CONFIG_KEY.SEO_GLOBAL_TITLE}
+                            value={config[APP_CONFIG_KEY.SEO_GLOBAL_TITLE]}
+                        />
+                        <SettingField
+                            label="Descripción Global"
+                            description="Descripción por defecto de la plataforma (máx. 160 caracteres)."
+                            configKey={APP_CONFIG_KEY.SEO_GLOBAL_DESCRIPTION}
+                            value={config[APP_CONFIG_KEY.SEO_GLOBAL_DESCRIPTION]}
+                        />
+                        <SettingField
+                            label="Palabras Clave"
+                            description="Palabras clave globales separadas por comas."
+                            configKey={APP_CONFIG_KEY.SEO_GLOBAL_KEYWORDS}
+                            value={config[APP_CONFIG_KEY.SEO_GLOBAL_KEYWORDS]}
+                        />
+                        <SettingField
+                            label="Imagen OpenGraph (URL)"
+                            description="URL de la imagen que aparece al compartir el sitio en redes sociales."
+                            configKey={APP_CONFIG_KEY.SEO_GLOBAL_OG_IMAGE}
+                            value={config[APP_CONFIG_KEY.SEO_GLOBAL_OG_IMAGE]}
+                        />
+                    </CardContent>
+                </Card>
 
-                    <Card className="opacity-60">
-                        <CardHeader>
-                            <CardTitle className="text-base">
-                                Inteligencia Artificial (próximamente)
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-muted-foreground text-sm">
-                                Aquí se configurará la API key del proveedor de IA para funciones
-                                futuras de la plataforma.
-                            </p>
-                        </CardContent>
-                    </Card>
-                </div>
-            </main>
+                <Card className="opacity-60">
+                    <CardHeader>
+                        <CardTitle className="text-base">
+                            Inteligencia Artificial (próximamente)
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground text-sm">
+                            Aquí se configurará la API key del proveedor de IA para funciones
+                            futuras de la plataforma.
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
+        </main>
     );
 }

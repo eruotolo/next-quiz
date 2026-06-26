@@ -19,8 +19,12 @@ test.describe('Admin Dashboard (/[slug])', () => {
     });
 
     test('shows institution stat cards', async ({ page }) => {
-        await expect(page.locator('p.uppercase').filter({ hasText: /estudiantes activos/i })).toBeVisible();
-        await expect(page.locator('p.uppercase').filter({ hasText: /exámenes abiertos/i })).toBeVisible();
+        await expect(
+            page.locator('p.uppercase').filter({ hasText: /estudiantes activos/i }),
+        ).toBeVisible();
+        await expect(
+            page.locator('p.uppercase').filter({ hasText: /exámenes abiertos/i }),
+        ).toBeVisible();
     });
 
     test('sidebar navigation is rendered', async ({ page }) => {

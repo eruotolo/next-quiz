@@ -22,12 +22,8 @@ test.describe('Profesor — Mis Materias (/[slug]/courses)', () => {
     });
 
     test('sidebar does NOT show "Períodos" or "Ajustes" for professor', async ({ page }) => {
-        await expect(
-            page.getByRole('link', { name: /^Períodos$/i }),
-        ).not.toBeVisible();
-        await expect(
-            page.getByRole('link', { name: /^Ajustes$/i }),
-        ).not.toBeVisible();
+        await expect(page.getByRole('link', { name: /^Períodos$/i })).not.toBeVisible();
+        await expect(page.getByRole('link', { name: /^Ajustes$/i })).not.toBeVisible();
     });
 
     test('professor sees only their CourseSections', async ({ page }) => {
@@ -60,7 +56,7 @@ test.describe('Profesor — Mis Materias (/[slug]/courses)', () => {
         const moreBtn = page.locator('tbody tr').first().getByRole('button').first();
         await moreBtn.click();
         const detailOption = page.getByRole('menuitem', { name: /Ver detalle/i });
-        if (await detailOption.count() > 0) {
+        if ((await detailOption.count()) > 0) {
             await detailOption.click();
             await expect(page).toHaveURL(new RegExp(`/${SLUG}/courses/`));
             await expect(page.getByRole('button', { name: /Alumnos/i })).toBeVisible();

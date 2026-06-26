@@ -66,7 +66,7 @@ export function ConfigExamsClient({ exams }: Props) {
                     value={query}
                     onChange={(e) => handleQueryChange(e.target.value)}
                     placeholder="Buscar por nombre o institución..."
-                    className="border-border h-9 rounded-[10px] bg-white text-sm w-64"
+                    className="border-border h-9 w-64 rounded-[10px] bg-white text-sm"
                 />
             </div>
 
@@ -80,7 +80,7 @@ export function ConfigExamsClient({ exams }: Props) {
                 </Card>
             ) : (
                 <>
-                    <Card className="border-border bg-white shadow-sm rounded-[22px] overflow-hidden">
+                    <Card className="border-border overflow-hidden rounded-[22px] bg-white shadow-sm">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -96,19 +96,19 @@ export function ConfigExamsClient({ exams }: Props) {
                                     <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Estado
                                     </TableHead>
-                                    <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase text-center">
+                                    <TableHead className="text-mute text-center font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Preguntas
                                     </TableHead>
-                                    <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase text-center">
+                                    <TableHead className="text-mute text-center font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Resultados
                                     </TableHead>
-                                    <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase text-center">
+                                    <TableHead className="text-mute text-center font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Grupos
                                     </TableHead>
                                     <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Creado el
                                     </TableHead>
-                                    <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase text-right">
+                                    <TableHead className="text-mute text-right font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Acciones
                                     </TableHead>
                                 </TableRow>
@@ -116,21 +116,23 @@ export function ConfigExamsClient({ exams }: Props) {
                             <TableBody>
                                 {paginated.map((e) => (
                                     <TableRow key={e.id}>
-                                        <TableCell className="text-ink font-medium text-[13.5px] max-w-[220px] truncate">
+                                        <TableCell className="text-ink max-w-[220px] truncate text-[13.5px] font-medium">
                                             {e.title}
                                         </TableCell>
                                         <TableCell>
                                             <Link
                                                 href={`/${e.academicInstitution.slug}/exams`}
-                                                className="text-primary hover:underline text-[13px]"
+                                                className="text-primary text-[13px] hover:underline"
                                             >
                                                 {e.academicInstitution.name}
                                             </Link>
                                         </TableCell>
                                         <TableCell className="text-mute text-[13px]">
-                                            {e.createdBy
-                                                ? `${e.createdBy.name} ${e.createdBy.lastname}`
-                                                : <span className="italic opacity-50">—</span>}
+                                            {e.createdBy ? (
+                                                `${e.createdBy.name} ${e.createdBy.lastname}`
+                                            ) : (
+                                                <span className="italic opacity-50">—</span>
+                                            )}
                                         </TableCell>
                                         <TableCell>
                                             <Tag
@@ -160,9 +162,12 @@ export function ConfigExamsClient({ exams }: Props) {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <Link href={`/${e.academicInstitution.slug}/exams`}>
-                                                <Button variant="ghost" size="sm" className="gap-1.5">
-                                                    Ver institución{' '}
-                                                    <ExternalLink size={12} />
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="gap-1.5"
+                                                >
+                                                    Ver institución <ExternalLink size={12} />
                                                 </Button>
                                             </Link>
                                         </TableCell>

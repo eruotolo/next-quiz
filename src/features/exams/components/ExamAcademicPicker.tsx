@@ -88,7 +88,11 @@ export function ExamAcademicPicker({ courseSections, value, onChange }: Props) {
                     <SearchableSelect
                         value={value.programId}
                         onChange={(v) =>
-                            onChange({ programId: v, periodId: NO_PERIOD, courseSectionId: NO_COURSE })
+                            onChange({
+                                programId: v,
+                                periodId: NO_PERIOD,
+                                courseSectionId: NO_COURSE,
+                            })
                         }
                         options={[
                             { value: NO_PROGRAM, label: 'Sin carrera / Transversal' },

@@ -231,7 +231,11 @@ export async function recordAnswerTiming(questionId: string, ms: number): Promis
  * auto-entrega de un intento cuyo tiempo venció. Idempotente: si ya existe el
  * Result, lo devuelve sin recalcular.
  */
-async function gradeAttempt(studentId: string, examId: string, attemptKey: string): Promise<string> {
+async function gradeAttempt(
+    studentId: string,
+    examId: string,
+    attemptKey: string,
+): Promise<string> {
     const existing = await prisma.result.findUnique({
         where: { studentId_examId: { studentId, examId } },
     });

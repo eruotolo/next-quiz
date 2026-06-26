@@ -51,7 +51,9 @@ export default async function ProgramsPage({ params }: { params: Promise<{ slug:
                 title={labels.programPlural}
                 breadcrumb={[institutionName, labels.programPlural]}
                 subtitle={`${rows.length} ${rows.length === 1 ? labels.program.toLowerCase() : labels.programPlural.toLowerCase()}`}
-                actions={canMutate ? <NewProgramButton slug={slug} label={labels.program} /> : undefined}
+                actions={
+                    canMutate ? <NewProgramButton slug={slug} label={labels.program} /> : undefined
+                }
             />
             <ProgramsClient
                 slug={slug}

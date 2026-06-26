@@ -1,6 +1,11 @@
 'use client';
 
-import { createPeriod, updatePeriod, deletePeriod, setActivePeriod } from '@/features/periods/actions/mutations';
+import {
+    createPeriod,
+    updatePeriod,
+    deletePeriod,
+    setActivePeriod,
+} from '@/features/periods/actions/mutations';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import {
@@ -110,14 +115,14 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
             type,
             startDate: startDate ? startDate : null,
             endDate: endDate ? endDate : null,
-            isActive
+            isActive,
         };
 
         startTransition(async () => {
             const result = editing
                 ? await updatePeriod(slug, editing.id, payload)
                 : await createPeriod(slug, payload);
-            
+
             if (result.error) {
                 setError(result.error);
                 return;
@@ -209,28 +214,57 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
                             <table className="w-full text-sm">
                                 <thead className="bg-paper border-border border-b">
                                     <tr>
-                                        <th className="text-mute px-6 py-3 text-left font-mono text-[10px] font-bold tracking-[0.1em] uppercase">Nombre</th>
-                                        <th className="text-mute px-6 py-3 text-left font-mono text-[10px] font-bold tracking-[0.1em] uppercase">Año</th>
-                                        <th className="text-mute px-6 py-3 text-left font-mono text-[10px] font-bold tracking-[0.1em] uppercase">Tipo</th>
-                                        <th className="text-mute px-6 py-3 text-left font-mono text-[10px] font-bold tracking-[0.1em] uppercase">Fechas</th>
-                                        <th className="text-mute px-6 py-3 text-center font-mono text-[10px] font-bold tracking-[0.1em] uppercase">Estado</th>
+                                        <th className="text-mute px-6 py-3 text-left font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
+                                            Nombre
+                                        </th>
+                                        <th className="text-mute px-6 py-3 text-left font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
+                                            Año
+                                        </th>
+                                        <th className="text-mute px-6 py-3 text-left font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
+                                            Tipo
+                                        </th>
+                                        <th className="text-mute px-6 py-3 text-left font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
+                                            Fechas
+                                        </th>
+                                        <th className="text-mute px-6 py-3 text-center font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
+                                            Estado
+                                        </th>
                                         {canMutate && <th className="px-6 py-3" />}
                                     </tr>
                                 </thead>
                                 <tbody className="divide-border divide-y">
-                                    {periods.map(p => (
-                                        <tr key={p.id} className="hover:bg-paper-warm/30 transition-colors">
-                                            <td className="px-6 py-4 font-semibold text-ink">{p.name}</td>
-                                            <td className="px-6 py-4 text-mute">{p.year}</td>
-                                            <td className="px-6 py-4 text-mute">{p.type}</td>
-                                            <td className="px-6 py-4 text-mute text-xs">
-                                                {p.startDate ? new Date(p.startDate).toLocaleDateString('es-CL') : '—'}
+                                    {periods.map((p) => (
+                                        <tr
+                                            key={p.id}
+                                            className="hover:bg-paper-warm/30 transition-colors"
+                                        >
+                                            <td className="text-ink px-6 py-4 font-semibold">
+                                                {p.name}
+                                            </td>
+                                            <td className="text-mute px-6 py-4">{p.year}</td>
+                                            <td className="text-mute px-6 py-4">{p.type}</td>
+                                            <td className="text-mute px-6 py-4 text-xs">
+                                                {p.startDate
+                                                    ? new Date(p.startDate).toLocaleDateString(
+                                                          'es-CL',
+                                                      )
+                                                    : '—'}
                                                 {' a '}
-                                                {p.endDate ? new Date(p.endDate).toLocaleDateString('es-CL') : '—'}
+                                                {p.endDate
+                                                    ? new Date(p.endDate).toLocaleDateString(
+                                                          'es-CL',
+                                                      )
+                                                    : '—'}
                                             </td>
                                             <td className="px-6 py-4 text-center">
                                                 {p.isActive ? (
-                                                    <Tag tone="success" className="font-bold"><CheckCircle2 size={12} className="mr-1 inline"/> Activo</Tag>
+                                                    <Tag tone="success" className="font-bold">
+                                                        <CheckCircle2
+                                                            size={12}
+                                                            className="mr-1 inline"
+                                                        />{' '}
+                                                        Activo
+                                                    </Tag>
                                                 ) : (
                                                     <Tag tone="default">Inactivo</Tag>
                                                 )}
@@ -239,20 +273,36 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
                                                 <td className="px-6 py-4 text-right">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" size="icon-sm" className="text-mute border-0">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon-sm"
+                                                                className="text-mute border-0"
+                                                            >
                                                                 <Edit2 size={14} />
                                                             </Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent align="end">
                                                             {!p.isActive && (
-                                                                <DropdownMenuItem onClick={() => handleSetActive(p)} className="cursor-pointer gap-2 py-2">
-                                                                    <CheckCircle2 size={14} /> Marcar como activo
+                                                                <DropdownMenuItem
+                                                                    onClick={() =>
+                                                                        handleSetActive(p)
+                                                                    }
+                                                                    className="cursor-pointer gap-2 py-2"
+                                                                >
+                                                                    <CheckCircle2 size={14} />{' '}
+                                                                    Marcar como activo
                                                                 </DropdownMenuItem>
                                                             )}
-                                                            <DropdownMenuItem onClick={() => openEdit(p)} className="cursor-pointer gap-2 py-2">
+                                                            <DropdownMenuItem
+                                                                onClick={() => openEdit(p)}
+                                                                className="cursor-pointer gap-2 py-2"
+                                                            >
                                                                 <Edit2 size={14} /> Editar
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => openDelete(p)} className="text-destructive cursor-pointer gap-2 py-2">
+                                                            <DropdownMenuItem
+                                                                onClick={() => openDelete(p)}
+                                                                className="text-destructive cursor-pointer gap-2 py-2"
+                                                            >
                                                                 <Trash2 size={14} /> Eliminar
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
@@ -274,12 +324,19 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
                         <DialogTitle className="font-display text-2xl">
                             {editing ? 'Editar período' : 'Nuevo período'}
                         </DialogTitle>
-                        <DialogDescription className="sr-only">Formulario de período</DialogDescription>
+                        <DialogDescription className="sr-only">
+                            Formulario de período
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="flex flex-col gap-4 py-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col gap-2">
-                                <label htmlFor="period-form-year" className="text-ink text-[13px] font-bold">Año</label>
+                                <label
+                                    htmlFor="period-form-year"
+                                    className="text-ink text-[13px] font-bold"
+                                >
+                                    Año
+                                </label>
                                 <Input
                                     id="period-form-year"
                                     type="number"
@@ -295,31 +352,68 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {PERIOD_TYPES.map(t => (
-                                            <SelectItem key={t} value={t}>{t}</SelectItem>
+                                        {PERIOD_TYPES.map((t) => (
+                                            <SelectItem key={t} value={t}>
+                                                {t}
+                                            </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
                             </div>
                         </div>
                         <div className="flex flex-col gap-2">
-                            <label htmlFor="period-form-name" className="text-ink text-[13px] font-bold">Nombre del período</label>
+                            <label
+                                htmlFor="period-form-name"
+                                className="text-ink text-[13px] font-bold"
+                            >
+                                Nombre del período
+                            </label>
                             <Input
                                 id="period-form-name"
                                 value={name}
-                                onChange={(e) => { setName(e.target.value); setError(null); }}
-                                className={cn('border-border h-11 rounded-[10px] bg-white', error && 'border-destructive')}
+                                onChange={(e) => {
+                                    setName(e.target.value);
+                                    setError(null);
+                                }}
+                                className={cn(
+                                    'border-border h-11 rounded-[10px] bg-white',
+                                    error && 'border-destructive',
+                                )}
                             />
-                            {error && <p className="text-destructive text-xs font-medium">{error}</p>}
+                            {error && (
+                                <p className="text-destructive text-xs font-medium">{error}</p>
+                            )}
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col gap-2">
-                                <label htmlFor="period-form-start" className="text-ink text-[13px] font-bold">Inicio (opcional)</label>
-                                <Input id="period-form-start" type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="border-border h-11 rounded-[10px] bg-white" />
+                                <label
+                                    htmlFor="period-form-start"
+                                    className="text-ink text-[13px] font-bold"
+                                >
+                                    Inicio (opcional)
+                                </label>
+                                <Input
+                                    id="period-form-start"
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className="border-border h-11 rounded-[10px] bg-white"
+                                />
                             </div>
                             <div className="flex flex-col gap-2">
-                                <label htmlFor="period-form-end" className="text-ink text-[13px] font-bold">Fin (opcional)</label>
-                                <Input id="period-form-end" type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="border-border h-11 rounded-[10px] bg-white" />
+                                <label
+                                    htmlFor="period-form-end"
+                                    className="text-ink text-[13px] font-bold"
+                                >
+                                    Fin (opcional)
+                                </label>
+                                <Input
+                                    id="period-form-end"
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    className="border-border h-11 rounded-[10px] bg-white"
+                                />
                             </div>
                         </div>
                         <div className="mt-2 flex items-center gap-2">
@@ -327,7 +421,7 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
                                 type="checkbox"
                                 id="is-active"
                                 checked={isActive}
-                                onChange={e => setIsActive(e.target.checked)}
+                                onChange={(e) => setIsActive(e.target.checked)}
                                 className="h-4 w-4 rounded border-gray-300 text-[var(--g-accent)] focus:ring-[var(--g-accent)]"
                             />
                             <label htmlFor="is-active" className="text-ink text-[13px] font-medium">
@@ -336,7 +430,14 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="ghost" size="md" onClick={() => setIsOpen(false)} disabled={isPending}>Cancelar</Button>
+                        <Button
+                            variant="ghost"
+                            size="md"
+                            onClick={() => setIsOpen(false)}
+                            disabled={isPending}
+                        >
+                            Cancelar
+                        </Button>
                         <Button variant="ink" size="md" disabled={isPending} onClick={handleSave}>
                             {isPending && <Loader2 className="mr-2 animate-spin" />}
                             {editing ? 'Guardar' : 'Crear'}
@@ -348,16 +449,27 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
             <AlertDialog open={isDelOpen} onOpenChange={setIsDelOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-destructive">Eliminar período</AlertDialogTitle>
+                        <AlertDialogTitle className="text-destructive">
+                            Eliminar período
+                        </AlertDialogTitle>
                         <AlertDialogDescription>
                             ¿Estás seguro de eliminar <strong>{toDelete?.name}</strong>?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
-                    {deleteError && <p className="bg-danger-wash text-destructive rounded-[10px] px-4 py-2 text-sm">{deleteError}</p>}
+                    {deleteError && (
+                        <p className="bg-danger-wash text-destructive rounded-[10px] px-4 py-2 text-sm">
+                            {deleteError}
+                        </p>
+                    )}
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction disabled={isPending} onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
-                            {isPending && <Loader2 className="mr-2 animate-spin" size={14} />} Eliminar
+                        <AlertDialogAction
+                            disabled={isPending}
+                            onClick={handleDelete}
+                            className="bg-destructive hover:bg-destructive/90"
+                        >
+                            {isPending && <Loader2 className="mr-2 animate-spin" size={14} />}{' '}
+                            Eliminar
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

@@ -18,25 +18,29 @@ export default async function StudentsPage({ params }: { params: Promise<{ slug:
 
     // Filtro compuesto: Group.professors (legacy) OR CourseSection.professors (nuevo)
     // OR coordinator (grupos del programa que coordina).
-    const professorStudentWhere = isProfesor ? {
-        OR: [
-            { group: { professors: { some: { id: userId } } } },
-            { group: { courseSections: { some: { professors: { some: { id: userId } } } } } },
-            ...(coordinatedProgramIds.length > 0
-                ? [{ group: { programId: { in: coordinatedProgramIds } } }]
-                : []),
-        ],
-    } : {};
+    const professorStudentWhere = isProfesor
+        ? {
+              OR: [
+                  { group: { professors: { some: { id: userId } } } },
+                  { group: { courseSections: { some: { professors: { some: { id: userId } } } } } },
+                  ...(coordinatedProgramIds.length > 0
+                      ? [{ group: { programId: { in: coordinatedProgramIds } } }]
+                      : []),
+              ],
+          }
+        : {};
 
-    const professorGroupWhere = isProfesor ? {
-        OR: [
-            groupProfessorFilter(userId),
-            { courseSections: { some: { professors: { some: { id: userId } } } } },
-            ...(coordinatedProgramIds.length > 0
-                ? [{ programId: { in: coordinatedProgramIds } }]
-                : []),
-        ],
-    } : {};
+    const professorGroupWhere = isProfesor
+        ? {
+              OR: [
+                  groupProfessorFilter(userId),
+                  { courseSections: { some: { professors: { some: { id: userId } } } } },
+                  ...(coordinatedProgramIds.length > 0
+                      ? [{ programId: { in: coordinatedProgramIds } }]
+                      : []),
+              ],
+          }
+        : {};
 
     const [students, groups] = await Promise.all([
         prisma.user.findMany({
@@ -49,7 +53,14 @@ export default async function StudentsPage({ params }: { params: Promise<{ slug:
                 group: { include: { program: { select: { id: true, name: true } } } },
                 results: {
                     include: {
-                        exam: { select: { title: true, maxGrade: true, passingGrade: true, passingPercentage: true } },
+                        exam: {
+                            select: {
+                                title: true,
+                                maxGrade: true,
+                                passingGrade: true,
+                                passingPercentage: true,
+                            },
+                        },
                     },
                     orderBy: { completedAt: 'desc' },
                 },

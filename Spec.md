@@ -13,14 +13,14 @@ Permite a docentes y administradores **crear exámenes** con preguntas de selecc
 
 ### Áreas del producto
 
-| Área | URL | Acceso |
-| ---- | --- | ------ |
-| Landing / marketing | `/` y `/empresa`, `/audiencias/*`, `/recursos/*` | Público |
-| Registro self-service | `/registro/{free,colegio,docente}` | Público |
-| Demo pública | `/demo` → `/aulika-demo` | Público (Profesor) |
-| Estudiantes | `/examen/*` | Login por RUT, sin contraseña |
-| Admin / Profesor (institución) | `/[slug]/*` | NextAuth (Credentials) |
-| SuperAdministrador (plataforma) | `/config/*` | NextAuth (rol SuperAdministrador) |
+| Área                            | URL                                              | Acceso                            |
+| ------------------------------- | ------------------------------------------------ | --------------------------------- |
+| Landing / marketing             | `/` y `/empresa`, `/audiencias/*`, `/recursos/*` | Público                           |
+| Registro self-service           | `/registro/{free,colegio,docente}`               | Público                           |
+| Demo pública                    | `/demo` → `/aulika-demo`                         | Público (Profesor)                |
+| Estudiantes                     | `/examen/*`                                      | Login por RUT, sin contraseña     |
+| Admin / Profesor (institución)  | `/[slug]/*`                                      | NextAuth (Credentials)            |
+| SuperAdministrador (plataforma) | `/config/*`                                      | NextAuth (rol SuperAdministrador) |
 
 ---
 
@@ -36,30 +36,30 @@ Permite a docentes y administradores **crear exámenes** con preguntas de selecc
 
 ## 3. Stack tecnológico
 
-| Capa | Tecnología |
-| ---- | ---------- |
-| Framework | Next.js 16 (App Router, Turbopack, React 19) |
-| Lenguaje | TypeScript 5.7 (`strict: true`) |
-| Base de datos | PostgreSQL (Docker local, Vercel prod) |
-| ORM | Prisma 7 |
-| Auth admin | NextAuth v5 beta.25 (Credentials, JWT) |
-| Auth estudiante | Jose HS256 (cookie propia) |
-| Estilos | Tailwind CSS 4 |
-| UI primitivos | shadcn/ui + Radix UI |
-| Formularios | React Hook Form + Zod |
-| Íconos | Lucide React |
-| Drag & Drop | @dnd-kit |
-| Toasts | Sonner |
-| Email | Brevo (`@getbrevo/brevo`) |
-| Pagos | MercadoPago SDK |
-| IA | AI SDK (`ai` + `@ai-sdk/google`) — generación de preguntas |
-| Excel | `xlsx` (importación de estudiantes) |
-| Linter | Biome 2 |
-| Formatter | Prettier + prettier-plugin-tailwindcss |
-| Tests unitarios | Vitest + Testing Library |
-| Tests E2E | Playwright |
-| Package manager | pnpm 10 |
-| Hosting | Vercel |
+| Capa            | Tecnología                                                 |
+| --------------- | ---------------------------------------------------------- |
+| Framework       | Next.js 16 (App Router, Turbopack, React 19)               |
+| Lenguaje        | TypeScript 5.7 (`strict: true`)                            |
+| Base de datos   | PostgreSQL (Docker local, Vercel prod)                     |
+| ORM             | Prisma 7                                                   |
+| Auth admin      | NextAuth v5 beta.25 (Credentials, JWT)                     |
+| Auth estudiante | Jose HS256 (cookie propia)                                 |
+| Estilos         | Tailwind CSS 4                                             |
+| UI primitivos   | shadcn/ui + Radix UI                                       |
+| Formularios     | React Hook Form + Zod                                      |
+| Íconos          | Lucide React                                               |
+| Drag & Drop     | @dnd-kit                                                   |
+| Toasts          | Sonner                                                     |
+| Email           | Brevo (`@getbrevo/brevo`)                                  |
+| Pagos           | MercadoPago SDK                                            |
+| IA              | AI SDK (`ai` + `@ai-sdk/google`) — generación de preguntas |
+| Excel           | `xlsx` (importación de estudiantes)                        |
+| Linter          | Biome 2                                                    |
+| Formatter       | Prettier + prettier-plugin-tailwindcss                     |
+| Tests unitarios | Vitest + Testing Library                                   |
+| Tests E2E       | Playwright                                                 |
+| Package manager | pnpm 10                                                    |
+| Hosting         | Vercel                                                     |
 
 ---
 
@@ -123,12 +123,12 @@ src/
 
 ## 5. Usuarios y roles
 
-| Rol | Valor DB | Panel | Institución |
-| --- | -------- | ----- | ----------- |
+| Rol                | Valor DB             | Panel     | Institución   |
+| ------------------ | -------------------- | --------- | ------------- |
 | SuperAdministrador | `SuperAdministrador` | `/config` | null (global) |
-| Administrador | `Administrador` | `/[slug]` | requerida |
-| Profesor | `Profesor` | `/[slug]` | requerida |
-| Estudiante | `Estudiante` | `/examen` | requerida |
+| Administrador      | `Administrador`      | `/[slug]` | requerida     |
+| Profesor           | `Profesor`           | `/[slug]` | requerida     |
+| Estudiante         | `Estudiante`         | `/examen` | requerida     |
 
 > **SuperAdministrador** es la llave maestra: opera en cualquier ruta y nunca es bloqueado/redirigido por el proxy. Cuando su rol es `SuperAdministrador`, las Server Actions que requieren `institutionSlug` lo resuelven desde el JWT o la URL.
 
@@ -143,20 +143,20 @@ src/
 Aplicada en tres capas: `src/proxy.ts`, páginas y Server Actions (`requireInstitutionAccess` + `src/shared/lib/scoping.ts`).
 ✅ permitido · ⚠️ alcance limitado · ❌ denegado
 
-| Recurso / Acción | SuperAdmin | Admin | Profesor |
-| ---------------- | ---------- | ----- | -------- |
-| Dashboard | ✅ | ✅ | ⚠️ sus grupos |
-| Ajustes institución | ✅ | ✅ | ❌ |
-| Estudiantes — ver/crear/editar/activar | ✅ | ✅ | ⚠️ sus grupos |
-| Estudiantes — eliminar | ✅ | ✅ | ❌ |
-| Importar Excel | ✅ | ✅ | ⚠️ sus grupos |
-| Cuerpo docente — ver | ✅ | ✅ | ✅ |
-| Cuerpo docente — CRUD | ✅ | ✅ | ❌ |
-| Grupos — ver | ✅ | ✅ | ⚠️ asignados |
-| Grupos — CRUD | ✅ | ✅ | ❌ |
-| Exámenes — CRUD/publicar/eliminar | ✅ | ✅ | ⚠️ sus grupos |
-| Preguntas — CRUD/importar | ✅ | ✅ | ⚠️ sus grupos |
-| Resultados finales y en vivo | ✅ | ✅ | ⚠️ sus grupos |
+| Recurso / Acción                       | SuperAdmin | Admin | Profesor      |
+| -------------------------------------- | ---------- | ----- | ------------- |
+| Dashboard                              | ✅         | ✅    | ⚠️ sus grupos |
+| Ajustes institución                    | ✅         | ✅    | ❌            |
+| Estudiantes — ver/crear/editar/activar | ✅         | ✅    | ⚠️ sus grupos |
+| Estudiantes — eliminar                 | ✅         | ✅    | ❌            |
+| Importar Excel                         | ✅         | ✅    | ⚠️ sus grupos |
+| Cuerpo docente — ver                   | ✅         | ✅    | ✅            |
+| Cuerpo docente — CRUD                  | ✅         | ✅    | ❌            |
+| Grupos — ver                           | ✅         | ✅    | ⚠️ asignados  |
+| Grupos — CRUD                          | ✅         | ✅    | ❌            |
+| Exámenes — CRUD/publicar/eliminar      | ✅         | ✅    | ⚠️ sus grupos |
+| Preguntas — CRUD/importar              | ✅         | ✅    | ⚠️ sus grupos |
+| Resultados finales y en vivo           | ✅         | ✅    | ⚠️ sus grupos |
 
 ---
 
@@ -203,31 +203,31 @@ PostgreSQL con IDs UUID nativos. Esquema completo en `prisma/schema.prisma`.
 
 ### Entidades principales
 
-| Modelo | Propósito |
-| ------ | --------- |
-| `UserRole` | Catálogo de 4 roles |
-| `AcademicInstitution` | Institución (`slug` único, `isDemo`, `plan`, `type`, `customPlanId`, SEO) |
-| `Program` | Carrera / Nivel / Área según `InstitutionType` |
-| `AcademicPeriod` | Período (2025 - Semestre 1…), `name` único por institución |
-| `CourseSection` | Ramo/asignatura — cruza programa + período + profesores (N:M) + grupo |
-| `ProgramCoordinator` | Vínculo Profesor↔Programa (Jefe de Carrera) |
-| `Group` | Grupo de estudiantes (Carrera + Semestre + Ramos) |
-| `User` | Usuario (email y RUT únicos) |
-| `Exam` | Examen (timeLimit, notas, anti-cheat, ventana horaria, M2M grupos, `demoSessionId`) |
-| `Question` | Pregunta (puntos, orden, tipo, dificultad, tags, feedback) |
-| `Option` | Opción (`isCorrect`) |
-| `Answer` | Respuesta del estudiante (unique por `attemptKey + questionId`) |
-| `ExamAttempt` | Intento en curso (permite reanudar; `endsAt` nulo = no comenzó) |
-| `TabSwitchEvent` | Evento de cambio de pestaña (anti-cheat) |
-| `Result` | Resultado final (unique por `studentId + examId`) |
-| `BankQuestion` / `BankOption` | Banco de preguntas reutilizable por institución |
-| `AuditLog` | Trazas de auditoría |
-| `PlanLimits` | Límites por plan comercial |
-| `CustomPlan` | Plan interno a medida (no comercial) |
-| `Subscription` | Suscripción (MercadoPago) |
-| `Payment` | Pago |
-| `WebhookEvent` | Webhooks entrantes (idempotencia) |
-| `AppConfig` | Configuración global key/value |
+| Modelo                        | Propósito                                                                           |
+| ----------------------------- | ----------------------------------------------------------------------------------- |
+| `UserRole`                    | Catálogo de 4 roles                                                                 |
+| `AcademicInstitution`         | Institución (`slug` único, `isDemo`, `plan`, `type`, `customPlanId`, SEO)           |
+| `Program`                     | Carrera / Nivel / Área según `InstitutionType`                                      |
+| `AcademicPeriod`              | Período (2025 - Semestre 1…), `name` único por institución                          |
+| `CourseSection`               | Ramo/asignatura — cruza programa + período + profesores (N:M) + grupo               |
+| `ProgramCoordinator`          | Vínculo Profesor↔Programa (Jefe de Carrera)                                         |
+| `Group`                       | Grupo de estudiantes (Carrera + Semestre + Ramos)                                   |
+| `User`                        | Usuario (email y RUT únicos)                                                        |
+| `Exam`                        | Examen (timeLimit, notas, anti-cheat, ventana horaria, M2M grupos, `demoSessionId`) |
+| `Question`                    | Pregunta (puntos, orden, tipo, dificultad, tags, feedback)                          |
+| `Option`                      | Opción (`isCorrect`)                                                                |
+| `Answer`                      | Respuesta del estudiante (unique por `attemptKey + questionId`)                     |
+| `ExamAttempt`                 | Intento en curso (permite reanudar; `endsAt` nulo = no comenzó)                     |
+| `TabSwitchEvent`              | Evento de cambio de pestaña (anti-cheat)                                            |
+| `Result`                      | Resultado final (unique por `studentId + examId`)                                   |
+| `BankQuestion` / `BankOption` | Banco de preguntas reutilizable por institución                                     |
+| `AuditLog`                    | Trazas de auditoría                                                                 |
+| `PlanLimits`                  | Límites por plan comercial                                                          |
+| `CustomPlan`                  | Plan interno a medida (no comercial)                                                |
+| `Subscription`                | Suscripción (MercadoPago)                                                           |
+| `Payment`                     | Pago                                                                                |
+| `WebhookEvent`                | Webhooks entrantes (idempotencia)                                                   |
+| `AppConfig`                   | Configuración global key/value                                                      |
 
 ### Enums
 
@@ -281,12 +281,12 @@ Login RUT → /examen/seleccion
 
 ## 11. Planes, límites y monetización
 
-| Plan | Descripción |
-| ---- | ----------- |
-| FREE | Básico, incluye demo |
-| DOCENTE | Pago recurrente (MercadoPago) |
-| COLEGIO | Pago recurrente (MercadoPago) |
-| INSTITUCIONAL | Cotización a medida (Brevo) |
+| Plan          | Descripción                   |
+| ------------- | ----------------------------- |
+| FREE          | Básico, incluye demo          |
+| DOCENTE       | Pago recurrente (MercadoPago) |
+| COLEGIO       | Pago recurrente (MercadoPago) |
+| INSTITUCIONAL | Cotización a medida (Brevo)   |
 
 - `PlanLimits` — límites por plan (grupos, admins, profesores, estudiantes, exámenes/año, programas, cursos).
 - `CustomPlan` — plan interno creado por SuperAdmin; sus límites tienen prioridad sobre el comercial si está asignado.
@@ -305,13 +305,13 @@ Login RUT → /examen/seleccion
 
 ## 13. API y webhooks
 
-| Ruta | Método | Propósito |
-| ---- | ------ | --------- |
-| `/api/auth/[...nextauth]` | — | Handlers NextAuth |
-| `/api/ai/generate-questions` | POST | Generación de preguntas con IA (Google AI) |
-| `/api/webhooks/mercadopago` | POST | Activación de planes por suscripción (idempotente vía `WebhookEvent`) |
-| `/api/cron/demo-reset` | GET | Purga diaria de la demo (CRON_SECRET) |
-| `/api/cron/cleanup-subscriptions` | GET | Limpieza de suscripciones |
+| Ruta                              | Método | Propósito                                                             |
+| --------------------------------- | ------ | --------------------------------------------------------------------- |
+| `/api/auth/[...nextauth]`         | —      | Handlers NextAuth                                                     |
+| `/api/ai/generate-questions`      | POST   | Generación de preguntas con IA (Google AI)                            |
+| `/api/webhooks/mercadopago`       | POST   | Activación de planes por suscripción (idempotente vía `WebhookEvent`) |
+| `/api/cron/demo-reset`            | GET    | Purga diaria de la demo (CRON_SECRET)                                 |
+| `/api/cron/cleanup-subscriptions` | GET    | Limpieza de suscripciones                                             |
 
 ---
 
@@ -378,9 +378,11 @@ CRON_SECRET             # Secret para crons de Vercel
 ## 17. Testing
 
 ### Unitarios (Vitest)
+
 `pnpm test` / `pnpm test:run` / `pnpm test:coverage`.
 
 ### E2E (Playwright)
+
 Estructura en `tests/e2e/`:
 
 ```
@@ -393,6 +395,7 @@ tests/e2e/
 ```
 
 **Credenciales (seed local):**
+
 - Admin: `carlos.lopez@ulagos.cl` / `Admin2026!` → `universidad-de-los-lagos`
 - Profesor: `laura.jimenez@ulagos.cl` / `Admin2026!`
 - Estudiante: RUT `55.555.555-5`

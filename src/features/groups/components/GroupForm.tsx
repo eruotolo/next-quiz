@@ -158,7 +158,7 @@ export function GroupForm({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="border-border sm:max-w-3xl rounded-[22px] shadow-2xl">
+            <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-3xl">
                 <DialogTitle className="font-display text-2xl">
                     {editing ? 'Editar grupo' : 'Nuevo grupo'}
                 </DialogTitle>

@@ -33,11 +33,7 @@ export function NewGroupButton({ slug }: Props) {
                 disabled={isPending}
                 onClick={handleOpen}
             >
-                {isPending ? (
-                    <Loader2 size={15} className="animate-spin" />
-                ) : (
-                    <Plus size={16} />
-                )}
+                {isPending ? <Loader2 size={15} className="animate-spin" /> : <Plus size={16} />}
                 Nuevo grupo
             </Button>
 

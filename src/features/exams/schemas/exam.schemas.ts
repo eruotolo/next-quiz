@@ -74,13 +74,10 @@ export const examSchema = z
         message: 'La nota de aprobación debe ser menor a la nota máxima',
         path: ['passingGrade'],
     })
-    .refine(
-        (data) => !(data.scheduledAt && data.closesAt) || data.scheduledAt < data.closesAt,
-        {
-            message: 'La fecha de inicio debe ser anterior a la de cierre',
-            path: ['closesAt'],
-        },
-    );
+    .refine((data) => !(data.scheduledAt && data.closesAt) || data.scheduledAt < data.closesAt, {
+        message: 'La fecha de inicio debe ser anterior a la de cierre',
+        path: ['closesAt'],
+    });
 
 export type OptionInput = z.infer<typeof optionSchema>;
 export type QuestionInput = z.infer<typeof questionSchema>;

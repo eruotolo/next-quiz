@@ -152,7 +152,9 @@ export function SearchableSelect({
                                         value === opt.value ? 'text-primary' : 'opacity-0',
                                     )}
                                 />
-                                <span className="min-w-0 flex-1 truncate text-left">{opt.label}</span>
+                                <span className="min-w-0 flex-1 truncate text-left">
+                                    {opt.label}
+                                </span>
                             </button>
                         </li>
                     ))
@@ -170,7 +172,7 @@ export function SearchableSelect({
                 disabled={disabled}
                 className={cn(
                     'border-border flex w-full items-center justify-between rounded-[10px] border bg-white px-3 text-sm transition-colors',
-                    'focus:border-primary focus:ring-primary/20 focus:outline-none focus:ring-2',
+                    'focus:border-primary focus:ring-primary/20 focus:ring-2 focus:outline-none',
                     'disabled:cursor-not-allowed disabled:opacity-50',
                     open && 'border-primary ring-primary/20 ring-2',
                     size === 'default' ? 'h-11' : 'h-9',

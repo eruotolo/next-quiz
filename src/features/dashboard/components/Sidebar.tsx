@@ -187,7 +187,9 @@ function CommandPalette({
                         <Command.Input
                             value={query}
                             onValueChange={setQuery}
-                            placeholder={slug ? 'Buscar páginas, alumnos, exámenes…' : 'Buscar páginas…'}
+                            placeholder={
+                                slug ? 'Buscar páginas, alumnos, exámenes…' : 'Buscar páginas…'
+                            }
                             className="text-ink placeholder:text-mute flex-1 bg-transparent text-[14px] outline-none"
                             autoFocus
                         />
@@ -497,7 +499,10 @@ export function Sidebar({
                             <div className="border-border absolute top-full right-0 left-0 z-50 mt-1 min-w-[280px] overflow-hidden rounded-[12px] border bg-white shadow-xl">
                                 {/* Search */}
                                 <div className="border-border relative border-b p-2">
-                                    <Search size={13} className="text-mute pointer-events-none absolute top-1/2 left-4 -translate-y-1/2" />
+                                    <Search
+                                        size={13}
+                                        className="text-mute pointer-events-none absolute top-1/2 left-4 -translate-y-1/2"
+                                    />
                                     <input
                                         ref={switcherSearchRef}
                                         value={switcherQuery}
@@ -606,7 +611,7 @@ export function Sidebar({
                 {showPlanPromo && slug && (
                     <div className="border-border border-t p-3">
                         <div
-                            className="relative overflow-hidden rounded-[12px] [background:var(--promo-bg)] p-4 text-white"
+                            className="relative overflow-hidden rounded-[12px] p-4 text-white [background:var(--promo-bg)]"
                             style={
                                 {
                                     '--promo-bg':

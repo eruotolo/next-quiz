@@ -96,13 +96,13 @@ export function ConfigProgramsClient({ programs }: Props) {
                                     <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Institución
                                     </TableHead>
-                                    <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase text-center">
+                                    <TableHead className="text-mute text-center font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Grupos
                                     </TableHead>
-                                    <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase text-center">
+                                    <TableHead className="text-mute text-center font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Materias
                                     </TableHead>
-                                    <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase text-right">
+                                    <TableHead className="text-mute text-right font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Acciones
                                     </TableHead>
                                 </TableRow>
@@ -110,7 +110,7 @@ export function ConfigProgramsClient({ programs }: Props) {
                             <TableBody>
                                 {paginated.map((p) => (
                                     <TableRow key={p.id}>
-                                        <TableCell className="text-ink font-medium text-[13.5px]">
+                                        <TableCell className="text-ink text-[13.5px] font-medium">
                                             {p.name}
                                             {p.description && (
                                                 <span className="text-mute block max-w-xs truncate text-[11px] font-normal">
@@ -124,7 +124,7 @@ export function ConfigProgramsClient({ programs }: Props) {
                                         <TableCell>
                                             <Link
                                                 href={`/${p.academicInstitution.slug}/programs`}
-                                                className="text-primary hover:underline text-[13px]"
+                                                className="text-primary text-[13px] hover:underline"
                                             >
                                                 {p.academicInstitution.name}
                                             </Link>
@@ -140,16 +140,13 @@ export function ConfigProgramsClient({ programs }: Props) {
                                             </span>
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Link
-                                                href={`/${p.academicInstitution.slug}/programs`}
-                                            >
+                                            <Link href={`/${p.academicInstitution.slug}/programs`}>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     className="gap-1.5"
                                                 >
-                                                    Ver en institución{' '}
-                                                    <ExternalLink size={12} />
+                                                    Ver en institución <ExternalLink size={12} />
                                                 </Button>
                                             </Link>
                                         </TableCell>

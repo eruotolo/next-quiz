@@ -31,7 +31,9 @@ export default async function ProgramDetailPage({ params }: Props) {
                 select: {
                     id: true,
                     name: true,
-                    _count: { select: { users: { where: { userRole: { name: USER_ROLE.STUDENT } } } } },
+                    _count: {
+                        select: { users: { where: { userRole: { name: USER_ROLE.STUDENT } } } },
+                    },
                 },
                 orderBy: { name: 'asc' },
             },
@@ -46,7 +48,11 @@ export default async function ProgramDetailPage({ params }: Props) {
                 orderBy: { name: 'asc' },
             },
             coordinators: {
-                select: { id: true, userId: true, user: { select: { name: true, lastname: true } } },
+                select: {
+                    id: true,
+                    userId: true,
+                    user: { select: { name: true, lastname: true } },
+                },
             },
         },
     });

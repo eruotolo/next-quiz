@@ -34,15 +34,7 @@ const LABEL_TONES = {
     lime: 'text-ink/60',
 } as const;
 
-function StatTile({
-    label,
-    value,
-    sub,
-    diff,
-    icon,
-    tone = 'default',
-    className,
-}: StatTileProps) {
+function StatTile({ label, value, sub, diff, icon, tone = 'default', className }: StatTileProps) {
     const isPositive = diff !== undefined && diff >= 0;
 
     return (

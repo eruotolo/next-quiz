@@ -55,12 +55,12 @@ export default async function CourseDetailPage({ params }: Props) {
         if (!isTeacher && !isCoordinator) notFound();
     }
 
-    const students = (course.group?.users ?? []).map(u => ({
+    const students = (course.group?.users ?? []).map((u) => ({
         ...u,
         rut: u.rut ?? null,
     }));
 
-    const exams = course.exams.map(e => ({
+    const exams = course.exams.map((e) => ({
         id: e.id,
         title: e.title,
         active: e.active,
@@ -81,19 +81,22 @@ export default async function CourseDetailPage({ params }: Props) {
 
             {/* Course header */}
             <div className="mb-8">
-                <h1 className="font-display text-3xl font-bold text-ink">{course.name}</h1>
-                {course.code && (
-                    <p className="mt-1 font-mono text-sm text-mute">{course.code}</p>
-                )}
-                <div className="mt-2 flex flex-wrap gap-4 text-sm text-mute">
+                <h1 className="font-display text-ink text-3xl font-bold">{course.name}</h1>
+                {course.code && <p className="text-mute mt-1 font-mono text-sm">{course.code}</p>}
+                <div className="text-mute mt-2 flex flex-wrap gap-4 text-sm">
                     {course.program && (
-                        <span><strong className="text-ink-dim">Programa:</strong> {course.program.name}</span>
+                        <span>
+                            <strong className="text-ink-dim">Programa:</strong>{' '}
+                            {course.program.name}
+                        </span>
                     )}
-                    <span><strong className="text-ink-dim">Período:</strong> {course.period.name}</span>
+                    <span>
+                        <strong className="text-ink-dim">Período:</strong> {course.period.name}
+                    </span>
                     {course.professors.length > 0 && (
                         <span>
                             <strong className="text-ink-dim">Profesores:</strong>{' '}
-                            {course.professors.map(p => `${p.name} ${p.lastname}`).join(', ')}
+                            {course.professors.map((p) => `${p.name} ${p.lastname}`).join(', ')}
                         </span>
                     )}
                 </div>

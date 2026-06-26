@@ -15,9 +15,7 @@ export const bankQuestionSchema = z
         subject: z
             .preprocess((v) => (v === '' ? null : v), z.string().max(120).nullable())
             .optional(),
-        unit: z
-            .preprocess((v) => (v === '' ? null : v), z.string().max(120).nullable())
-            .optional(),
+        unit: z.preprocess((v) => (v === '' ? null : v), z.string().max(120).nullable()).optional(),
         difficulty: z.enum(['FACIL', 'MEDIA', 'DIFICIL']).default('MEDIA'),
         tags: z.array(z.string().max(60)).max(10).default([]),
         feedback: z

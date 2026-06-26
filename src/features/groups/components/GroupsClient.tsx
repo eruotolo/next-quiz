@@ -121,7 +121,7 @@ function InitialsAvatar({
     return (
         <div
             className={cn(
-                'flex shrink-0 items-center justify-center rounded-full font-bold text-white ring-2 ring-white [background-color:var(--g-bg)]',
+                'flex shrink-0 items-center justify-center rounded-full [background-color:var(--g-bg)] font-bold text-white ring-2 ring-white',
                 size === 'sm' ? 'h-7 w-7 text-[10px]' : 'h-9 w-9 text-[12px]',
             )}
             style={{ '--g-bg': color } as CSSProperties}
@@ -155,7 +155,11 @@ function GroupAcademicTags({
                 </Tag>
             )}
             {courseSections.map((cs) => (
-                <Tag key={cs.id} tone="outline" className="border-border h-5 text-[10px] font-medium">
+                <Tag
+                    key={cs.id}
+                    tone="outline"
+                    className="border-border h-5 text-[10px] font-medium"
+                >
                     {cs.name}
                 </Tag>
             ))}
@@ -241,7 +245,7 @@ export function GroupsClient({
                             return (
                                 <Card
                                     key={g.id}
-                                    className="border-border relative flex flex-col overflow-hidden border-t-[4px] bg-white shadow-sm [border-top-color:var(--g-accent)]"
+                                    className="border-border relative flex flex-col overflow-hidden border-t-[4px] [border-top-color:var(--g-accent)] bg-white shadow-sm"
                                     style={{ '--g-accent': color } as CSSProperties}
                                 >
                                     <div className="flex flex-col p-5">

@@ -6,7 +6,7 @@
         "dev": "next dev --turbopack",
         "clean": "rm -rf .next",
         "devBuild": "rm -rf .next && next build",
-        "build": "prisma generate && prisma migrate deploy && tsx prisma/seeders/demo.ts && next build",
+        "build": "prisma generate && DATABASE_URL=$DIRECT_DATABASE_URL prisma migrate deploy && tsx prisma/seeders/demo.ts && next build",
         "start": "next start",
         "lint": "biome check .",
         "lint:fix": "biome check --write .",

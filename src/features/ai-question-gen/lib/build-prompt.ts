@@ -7,7 +7,15 @@ const DIFFICULTY_LABEL: Record<string, string> = {
 };
 
 export function buildPrompt(input: GenerationInput): string {
-    const { subject, topic, questionCount, optionsPerQuestion, correctAnswers, difficulty, points } = input;
+    const {
+        subject,
+        topic,
+        questionCount,
+        optionsPerQuestion,
+        correctAnswers,
+        difficulty,
+        points,
+    } = input;
 
     const questionType =
         correctAnswers === 1

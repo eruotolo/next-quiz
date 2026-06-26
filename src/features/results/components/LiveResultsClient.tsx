@@ -161,7 +161,9 @@ export function LiveResultsClient({
         if (!examData?.results.length) return [];
         return examData.questions.map((q) => {
             const total = examData.results.length;
-            const counts: Record<string, number> = Object.fromEntries(q.options.map((o) => [o.id, 0]));
+            const counts: Record<string, number> = Object.fromEntries(
+                q.options.map((o) => [o.id, 0]),
+            );
             let answered = 0;
             for (const r of examData.results) {
                 const raw = r.answers[q.id];
@@ -200,7 +202,7 @@ export function LiveResultsClient({
         <>
             {/* Filter / control bar */}
             <div className="border-border flex flex-wrap items-center gap-3 border-b bg-white px-8 py-4">
-                <span className="text-success flex items-center gap-1.5 font-bold text-[13px]">
+                <span className="text-success flex items-center gap-1.5 text-[13px] font-bold">
                     <span className="relative flex h-2 w-2">
                         <span className="bg-success absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
                         <span className="bg-success relative inline-flex h-2 w-2 rounded-full" />
@@ -208,16 +210,15 @@ export function LiveResultsClient({
                     SISTEMA ACTIVO
                 </span>
                 {timeLabel && (
-                    <span className="text-mute text-[13px]">· Última actualización: {timeLabel}</span>
+                    <span className="text-mute text-[13px]">
+                        · Última actualización: {timeLabel}
+                    </span>
                 )}
 
                 <div className="flex-1" />
 
                 {allExams.length > 0 && (
-                    <Select
-                        value={selectedExamId ?? undefined}
-                        onValueChange={handleExamChange}
-                    >
+                    <Select value={selectedExamId ?? undefined} onValueChange={handleExamChange}>
                         <SelectTrigger className="border-border h-9 w-[200px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
                             <SelectValue placeholder="Seleccionar examen..." />
                         </SelectTrigger>
@@ -232,10 +233,7 @@ export function LiveResultsClient({
                 )}
 
                 {selectedExamId && groupOptions.length > 0 && (
-                    <Select
-                        value={selectedGroupId ?? undefined}
-                        onValueChange={handleGroupChange}
-                    >
+                    <Select value={selectedGroupId ?? undefined} onValueChange={handleGroupChange}>
                         <SelectTrigger className="border-border h-9 w-[160px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
                             <SelectValue placeholder="Todos los grupos" />
                         </SelectTrigger>
@@ -408,7 +406,8 @@ export function LiveResultsClient({
                                                                         setPendingAction({
                                                                             type: 'pause',
                                                                             studentId: r.studentId,
-                                                                            studentName: r.studentName,
+                                                                            studentName:
+                                                                                r.studentName,
                                                                             examId: examData.examId,
                                                                         })
                                                                     }
@@ -423,7 +422,8 @@ export function LiveResultsClient({
                                                                         setPendingAction({
                                                                             type: 'cancel',
                                                                             studentId: r.studentId,
-                                                                            studentName: r.studentName,
+                                                                            studentName:
+                                                                                r.studentName,
                                                                             examId: examData.examId,
                                                                         })
                                                                     }
@@ -546,7 +546,8 @@ export function LiveResultsClient({
                                     <div className="space-y-2">
                                         {question.options.map((opt, optIdx) => {
                                             const count = counts[opt.id] ?? 0;
-                                            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                                            const pct =
+                                                total > 0 ? Math.round((count / total) * 100) : 0;
                                             return (
                                                 <div key={opt.id}>
                                                     <div className="mb-0.5 flex items-center gap-1.5">
@@ -576,7 +577,9 @@ export function LiveResultsClient({
                                                                     : 'bg-primary/30',
                                                             )}
                                                             style={
-                                                                { '--qs-w': `${pct}%` } as React.CSSProperties
+                                                                {
+                                                                    '--qs-w': `${pct}%`,
+                                                                } as React.CSSProperties
                                                             }
                                                         />
                                                     </div>
@@ -589,7 +592,8 @@ export function LiveResultsClient({
                                             {answered}/{total} respondieron
                                         </span>
                                         <span className="font-mono">
-                                            Tiempo medio: {formatMs(examData?.avgTimePerQuestion?.[question.id])}
+                                            Tiempo medio:{' '}
+                                            {formatMs(examData?.avgTimePerQuestion?.[question.id])}
                                         </span>
                                     </div>
                                 </Card>
@@ -599,13 +603,14 @@ export function LiveResultsClient({
                 )}
             </main>
 
-            <AlertDialog open={!!pendingAction} onOpenChange={(open) => !open && setPendingAction(null)}>
+            <AlertDialog
+                open={!!pendingAction}
+                onOpenChange={(open) => !open && setPendingAction(null)}
+            >
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>
-                            {pendingAction?.type === 'pause'
-                                ? 'Pausar examen'
-                                : 'Cancelar intento'}
+                            {pendingAction?.type === 'pause' ? 'Pausar examen' : 'Cancelar intento'}
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                             {pendingAction?.type === 'pause' ? (

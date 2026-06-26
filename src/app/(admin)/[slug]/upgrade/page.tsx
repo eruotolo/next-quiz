@@ -10,11 +10,7 @@ export const metadata = {
     title: 'Mejorá tu plan · Aulika',
 };
 
-export default async function UpgradePage({
-    params,
-}: {
-    params: Promise<{ slug: string }>;
-}) {
+export default async function UpgradePage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
     const { isProfesor, institutionId } = await requireInstitutionPageAccess(slug);
 

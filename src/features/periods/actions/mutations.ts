@@ -83,11 +83,7 @@ export async function createPeriod(
     }
 }
 
-export async function updatePeriod(
-    slug: string,
-    id: string,
-    data: unknown,
-): Promise<ActionResult> {
+export async function updatePeriod(slug: string, id: string, data: unknown): Promise<ActionResult> {
     try {
         const ctx = await requireInstitutionAccess(slug, [...ADMIN_ONLY]);
         const parsed = periodSchema.safeParse(data);

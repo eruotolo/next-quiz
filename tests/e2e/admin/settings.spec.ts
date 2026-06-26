@@ -24,7 +24,9 @@ test.describe('Admin Settings (/[slug]/settings)', () => {
     });
 
     test('shows slug field (read-only)', async ({ page }) => {
-        await expect(page.getByText(/universidad-de-los-lagos/).first()).toBeVisible({ timeout: 10_000 });
+        await expect(page.getByText(/universidad-de-los-lagos/).first()).toBeVisible({
+            timeout: 10_000,
+        });
     });
 
     test('has a save button', async ({ page }) => {

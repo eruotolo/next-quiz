@@ -100,7 +100,9 @@ export function NewProgramButton({ slug, label }: Props) {
                                 )}
                                 autoFocus
                             />
-                            {error && <p className="text-destructive text-xs font-medium">{error}</p>}
+                            {error && (
+                                <p className="text-destructive text-xs font-medium">{error}</p>
+                            )}
                         </div>
                         <div className="flex flex-col gap-2">
                             <label htmlFor="np-code" className="text-ink text-[13px] font-bold">

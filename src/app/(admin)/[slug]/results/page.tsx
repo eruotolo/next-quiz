@@ -125,9 +125,7 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
     });
 
     const examOptions: ExamOption[] = examOptionsRaw;
-    const validExamId = examOptionsRaw.some((e) => e.id === paramExamId)
-        ? paramExamId
-        : undefined;
+    const validExamId = examOptionsRaw.some((e) => e.id === paramExamId) ? paramExamId : undefined;
 
     let groupOptions: GroupOption[] = [];
     if (validExamId) {
@@ -138,9 +136,7 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
         groupOptions = examWithGroups?.groups ?? [];
     }
 
-    const validGroupId = groupOptions.some((g) => g.id === paramGroupId)
-        ? paramGroupId
-        : undefined;
+    const validGroupId = groupOptions.some((g) => g.id === paramGroupId) ? paramGroupId : undefined;
 
     const results = await prisma.result.findMany({
         where: {

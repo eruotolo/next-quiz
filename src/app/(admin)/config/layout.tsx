@@ -35,7 +35,7 @@ export default async function ConfigLayout({ children }: Props) {
                 counts={{ institutions: institutionList.length, admins, students }}
                 institutionList={institutionList}
             />
-            <main className="flex-1 flex flex-col overflow-y-auto lg:ml-60">{children}</main>
+            <main className="flex flex-1 flex-col overflow-y-auto lg:ml-60">{children}</main>
         </div>
     );
 }

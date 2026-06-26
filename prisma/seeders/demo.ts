@@ -18,7 +18,12 @@
  * Producción: se ejecuta dentro del script `build`.
  */
 import bcrypt from 'bcryptjs';
-import { DEMO_EMAIL, DEMO_INSTITUTION_NAME, DEMO_PASSWORD, DEMO_SLUG } from '../../src/features/demo/lib/demo';
+import {
+    DEMO_EMAIL,
+    DEMO_INSTITUTION_NAME,
+    DEMO_PASSWORD,
+    DEMO_SLUG,
+} from '../../src/features/demo/lib/demo';
 import { createSeedClient } from '../lib/client';
 
 const prisma = createSeedClient();
@@ -112,7 +117,11 @@ async function main(): Promise<void> {
     const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, 10);
     const professor = await prisma.user.upsert({
         where: { email: DEMO_EMAIL },
-        update: { password: hashedPassword, academicInstitutionId: institution.id, userRoleId: adminRole.id },
+        update: {
+            password: hashedPassword,
+            academicInstitutionId: institution.id,
+            userRoleId: adminRole.id,
+        },
         create: {
             name: 'Administrador',
             lastname: 'Demo',

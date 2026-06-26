@@ -11,7 +11,9 @@ test.describe('Student Login Page (/examen/login)', () => {
 
     test('shows "Acceso estudiante" label', async ({ page }) => {
         // Use span locator to avoid strict mode violation with <title> tag
-        await expect(page.locator('span').getByText('Acceso estudiante', { exact: true })).toBeVisible();
+        await expect(
+            page.locator('span').getByText('Acceso estudiante', { exact: true }),
+        ).toBeVisible();
     });
 
     test('renders the credential input', async ({ page }) => {

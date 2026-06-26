@@ -246,96 +246,100 @@ export function L3Pricing() {
 
     return (
         <>
-        <section className="bg-paper py-24" id="precios">
-            <div className="mx-auto max-w-[1200px] px-6">
-                {/* Header */}
-                <div className="mb-12 text-center">
-                    <p className="text-mute mb-3 font-mono text-[11px] tracking-[0.12em] uppercase">
-                        Precios
-                    </p>
-                    <h2 className="font-display text-ink text-[48px] font-semibold tracking-[-0.03em]">
-                        El plan perfecto para tu establecimiento
-                    </h2>
-                    <p className="text-ink-dim mx-auto mt-3 max-w-md text-[15px]">
-                        Precios pensados para el presupuesto educacional chileno. Sin sorpresas,
-                        cancela cuando quieras.
-                    </p>
-                </div>
-
-                {/* Billing toggle - Refined & Delicate Segmented Control */}
-                <div className="mb-14 flex flex-col items-center gap-3">
-                    <div className="bg-paper-warm/50 border-border/40 relative flex rounded-full border p-0.5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-                        {/* Sliding background */}
-                        <motion.div
-                            className="border-border/10 absolute inset-y-0.5 left-0.5 w-[calc(50%-2px)] rounded-full border bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.02)]"
-                            initial={false}
-                            animate={{
-                                x: billing === 'monthly' ? 0 : '100%',
-                            }}
-                            transition={{ type: 'spring', bounce: 0.1, duration: 0.4 }}
-                        />
-
-                        <button
-                            type="button"
-                            onClick={() => setBilling('monthly')}
-                            className={cn(
-                                'relative z-10 px-6 py-1.5 text-[12px] font-semibold tracking-tight transition-colors duration-200',
-                                billing === 'monthly' ? 'text-primary' : 'text-mute hover:text-ink',
-                            )}
-                        >
-                            Mensual
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setBilling('annual')}
-                            className={cn(
-                                'relative z-10 px-6 py-1.5 text-[12px] font-semibold tracking-tight transition-colors duration-200',
-                                billing === 'annual' ? 'text-primary' : 'text-mute hover:text-ink',
-                            )}
-                        >
-                            Anual
-                        </button>
+            <section className="bg-paper py-24" id="precios">
+                <div className="mx-auto max-w-[1200px] px-6">
+                    {/* Header */}
+                    <div className="mb-12 text-center">
+                        <p className="text-mute mb-3 font-mono text-[11px] tracking-[0.12em] uppercase">
+                            Precios
+                        </p>
+                        <h2 className="font-display text-ink text-[48px] font-semibold tracking-[-0.03em]">
+                            El plan perfecto para tu establecimiento
+                        </h2>
+                        <p className="text-ink-dim mx-auto mt-3 max-w-md text-[15px]">
+                            Precios pensados para el presupuesto educacional chileno. Sin sorpresas,
+                            cancela cuando quieras.
+                        </p>
                     </div>
 
-                    {/* Savings Indicator - More subtle */}
-                    <div
-                        className={cn(
-                            'flex items-center gap-1.5 transition-all duration-500',
-                            billing === 'annual'
-                                ? 'translate-y-0 opacity-100'
-                                : 'pointer-events-none -translate-y-1 opacity-0',
-                        )}
-                    >
-                        <span className="text-success/80 font-mono text-[9px] font-bold tracking-[0.05em] uppercase">
-                            Recomendado
-                        </span>
-                        <div className="bg-border/40 h-3 w-px" />
-                        <span className="text-primary text-[10px] font-bold italic">
-                            Ahorra 17%
-                        </span>
+                    {/* Billing toggle - Refined & Delicate Segmented Control */}
+                    <div className="mb-14 flex flex-col items-center gap-3">
+                        <div className="bg-paper-warm/50 border-border/40 relative flex rounded-full border p-0.5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                            {/* Sliding background */}
+                            <motion.div
+                                className="border-border/10 absolute inset-y-0.5 left-0.5 w-[calc(50%-2px)] rounded-full border bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.02)]"
+                                initial={false}
+                                animate={{
+                                    x: billing === 'monthly' ? 0 : '100%',
+                                }}
+                                transition={{ type: 'spring', bounce: 0.1, duration: 0.4 }}
+                            />
+
+                            <button
+                                type="button"
+                                onClick={() => setBilling('monthly')}
+                                className={cn(
+                                    'relative z-10 px-6 py-1.5 text-[12px] font-semibold tracking-tight transition-colors duration-200',
+                                    billing === 'monthly'
+                                        ? 'text-primary'
+                                        : 'text-mute hover:text-ink',
+                                )}
+                            >
+                                Mensual
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setBilling('annual')}
+                                className={cn(
+                                    'relative z-10 px-6 py-1.5 text-[12px] font-semibold tracking-tight transition-colors duration-200',
+                                    billing === 'annual'
+                                        ? 'text-primary'
+                                        : 'text-mute hover:text-ink',
+                                )}
+                            >
+                                Anual
+                            </button>
+                        </div>
+
+                        {/* Savings Indicator - More subtle */}
+                        <div
+                            className={cn(
+                                'flex items-center gap-1.5 transition-all duration-500',
+                                billing === 'annual'
+                                    ? 'translate-y-0 opacity-100'
+                                    : 'pointer-events-none -translate-y-1 opacity-0',
+                            )}
+                        >
+                            <span className="text-success/80 font-mono text-[9px] font-bold tracking-[0.05em] uppercase">
+                                Recomendado
+                            </span>
+                            <div className="bg-border/40 h-3 w-px" />
+                            <span className="text-primary text-[10px] font-bold italic">
+                                Ahorra 17%
+                            </span>
+                        </div>
                     </div>
-                </div>
 
-                {/* Plan cards */}
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                    {PLANS.map((plan) => (
-                        <PlanCard
-                            key={plan.id}
-                            plan={plan}
-                            billing={billing}
-                            onQuote={() => setQuoteOpen(true)}
-                        />
-                    ))}
-                </div>
+                    {/* Plan cards */}
+                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                        {PLANS.map((plan) => (
+                            <PlanCard
+                                key={plan.id}
+                                plan={plan}
+                                billing={billing}
+                                onQuote={() => setQuoteOpen(true)}
+                            />
+                        ))}
+                    </div>
 
-                {/* Footer note */}
-                <p className="text-mute mt-8 text-center text-[13px]">
-                    Todos los planes incluyen soporte en español · Los precios no incluyen IVA ·
-                    Cancela cuando quieras
-                </p>
-            </div>
-        </section>
-        <QuoteDialog open={quoteOpen} onOpenChange={setQuoteOpen} />
+                    {/* Footer note */}
+                    <p className="text-mute mt-8 text-center text-[13px]">
+                        Todos los planes incluyen soporte en español · Los precios no incluyen IVA ·
+                        Cancela cuando quieras
+                    </p>
+                </div>
+            </section>
+            <QuoteDialog open={quoteOpen} onOpenChange={setQuoteOpen} />
         </>
     );
 }

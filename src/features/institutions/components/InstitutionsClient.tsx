@@ -148,7 +148,10 @@ function PlanForm({
                         <SearchableSelect
                             value={plan}
                             onChange={setPlan}
-                            options={Object.entries(PLAN_LABELS).map(([v, l]) => ({ value: v, label: l }))}
+                            options={Object.entries(PLAN_LABELS).map(([v, l]) => ({
+                                value: v,
+                                label: l,
+                            }))}
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
@@ -564,8 +567,9 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props) 
                                                 tone="outline"
                                                 className="border-border h-6 w-fit bg-white px-2.5 text-[10.5px] font-bold"
                                             >
-                                                {INSTITUTION_TYPE_OPTIONS.find((o) => o.value === row.type)
-                                                    ?.label ?? row.type}
+                                                {INSTITUTION_TYPE_OPTIONS.find(
+                                                    (o) => o.value === row.type,
+                                                )?.label ?? row.type}
                                             </Tag>
                                         </TableCell>
                                         <TableCell>

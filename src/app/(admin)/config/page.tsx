@@ -211,7 +211,7 @@ export default async function ConfigPage() {
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className="group border-border flex items-center gap-4 rounded-[18px] border border-l-[4px] bg-white p-5 shadow-sm [border-left-color:var(--cfg-c)] transition-all hover:shadow-md"
+                                className="group border-border flex items-center gap-4 rounded-[18px] border border-l-[4px] [border-left-color:var(--cfg-c)] bg-white p-5 shadow-sm transition-all hover:shadow-md"
                                 style={
                                     {
                                         '--cfg-c': item.color,

@@ -45,7 +45,7 @@ function RevenueChart({ data }: RevenueChartProps) {
                         className="group relative flex flex-1 flex-col items-center gap-1"
                     >
                         <div
-                            className="w-full rounded-t-[3px] [height:var(--bh)] [min-height:2px] [background-color:var(--bbc)] transition-all duration-300"
+                            className="[height:var(--bh)] [min-height:2px] w-full rounded-t-[3px] [background-color:var(--bbc)] transition-all duration-300"
                             style={
                                 {
                                     '--bh': `${Math.max(pct, hasValue ? 4 : 2)}%`,
@@ -84,9 +84,7 @@ export function BillingDashboardClient({ stats }: Props) {
         <div className="space-y-6">
             {/* Stat cards */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <Card
-                    className="border-border p-6 shadow-sm [background-color:#1f2eff] [border-color:#1a27d9]"
-                >
+                <Card className="border-border [border-color:#1a27d9] [background-color:#1f2eff] p-6 shadow-sm">
                     <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-[10px] bg-white/15">
                         <CreditCard size={18} className="text-white" />
                     </div>
@@ -126,7 +124,11 @@ export function BillingDashboardClient({ stats }: Props) {
                     {growthPct !== null && (
                         <p
                             className="mt-1 text-[12px] font-medium [color:var(--growth-c)]"
-                            style={{ '--growth-c': growthPct >= 0 ? '#0f7c4a' : '#d5301f' } as CSSProperties}
+                            style={
+                                {
+                                    '--growth-c': growthPct >= 0 ? '#0f7c4a' : '#d5301f',
+                                } as CSSProperties
+                            }
                         >
                             {growthPct >= 0 ? '+' : ''}
                             {growthPct}% vs mes anterior
@@ -206,7 +208,9 @@ export function BillingDashboardClient({ stats }: Props) {
                                         <div className="bg-paper-warm h-2 overflow-hidden rounded-full">
                                             <div
                                                 className="h-full w-[var(--plan-w)] rounded-full bg-[#1f2eff] transition-all duration-500"
-                                                style={{ '--plan-w': `${barWidth}%` } as CSSProperties}
+                                                style={
+                                                    { '--plan-w': `${barWidth}%` } as CSSProperties
+                                                }
                                             />
                                         </div>
                                     </div>
@@ -248,7 +252,7 @@ export function BillingDashboardClient({ stats }: Props) {
                     <Link
                         key={item.href}
                         href={item.href}
-                        className="group border-border flex items-center gap-4 rounded-[16px] border border-l-[3px] bg-white p-4 shadow-sm [border-left-color:var(--ql-c)] transition-all hover:shadow-md"
+                        className="group border-border flex items-center gap-4 rounded-[16px] border border-l-[3px] [border-left-color:var(--ql-c)] bg-white p-4 shadow-sm transition-all hover:shadow-md"
                         style={
                             {
                                 '--ql-c': item.color,

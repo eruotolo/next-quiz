@@ -127,9 +127,7 @@ export function ConfigPeriodsClient({ periods }: Props) {
                 <Card className="flex flex-col items-center justify-center border-dashed py-24">
                     <CalendarDays size={48} className="text-mute/20 mb-4" />
                     <p className="text-ink text-lg font-medium">
-                        {periods.length === 0
-                            ? 'No hay períodos registrados'
-                            : 'Sin resultados'}
+                        {periods.length === 0 ? 'No hay períodos registrados' : 'Sin resultados'}
                     </p>
                     <p className="text-mute mt-1 text-sm">
                         {periods.length === 0
@@ -158,10 +156,10 @@ export function ConfigPeriodsClient({ periods }: Props) {
                                     <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Fechas
                                     </TableHead>
-                                    <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase text-center">
+                                    <TableHead className="text-mute text-center font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Estado
                                     </TableHead>
-                                    <TableHead className="text-mute font-mono text-[10px] font-bold tracking-[0.1em] uppercase text-right">
+                                    <TableHead className="text-mute text-right font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                                         Acciones
                                     </TableHead>
                                 </TableRow>
@@ -172,13 +170,13 @@ export function ConfigPeriodsClient({ periods }: Props) {
                                         key={p.id}
                                         className="hover:bg-paper-warm/30 transition-colors"
                                     >
-                                        <TableCell className="text-ink font-semibold text-[13.5px]">
+                                        <TableCell className="text-ink text-[13.5px] font-semibold">
                                             {p.name}
                                         </TableCell>
                                         <TableCell>
                                             <Link
                                                 href={`/${p.academicInstitution.slug}/periods`}
-                                                className="text-primary hover:underline text-[13px]"
+                                                className="text-primary text-[13px] hover:underline"
                                             >
                                                 {p.academicInstitution.name}
                                             </Link>
@@ -208,16 +206,13 @@ export function ConfigPeriodsClient({ periods }: Props) {
                                             )}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Link
-                                                href={`/${p.academicInstitution.slug}/periods`}
-                                            >
+                                            <Link href={`/${p.academicInstitution.slug}/periods`}>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     className="gap-1.5"
                                                 >
-                                                    Ver en institución{' '}
-                                                    <ExternalLink size={12} />
+                                                    Ver en institución <ExternalLink size={12} />
                                                 </Button>
                                             </Link>
                                         </TableCell>

@@ -79,11 +79,7 @@ const emptyForm: FormState = {
 };
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: componente CRUD con tabla, modal de formulario y validación integrada
-export function ProfessorsClient({
-    professors,
-    groups,
-    slug,
-}: Props) {
+export function ProfessorsClient({ professors, groups, slug }: Props) {
     const router = useRouter();
     const [page, setPage] = useState(1);
     const PAGE_SIZE = 10;
@@ -508,7 +504,10 @@ export function ProfessorsClient({
                                 }
                                 options={[
                                     { value: 'Profesor', label: 'Profesor (Solo sus grupos)' },
-                                    { value: 'Administrador', label: 'Administrador (Toda la institución)' },
+                                    {
+                                        value: 'Administrador',
+                                        label: 'Administrador (Toda la institución)',
+                                    },
                                 ]}
                             />
                         </div>
@@ -530,7 +529,7 @@ export function ProfessorsClient({
                                                     key={id}
                                                     type="button"
                                                     onClick={() => toggleGroup(id)}
-                                                    className="bg-primary/8 text-primary border-primary/20 flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[12px] font-medium transition-colors hover:bg-primary/15"
+                                                    className="bg-primary/8 text-primary border-primary/20 hover:bg-primary/15 flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[12px] font-medium transition-colors"
                                                 >
                                                     {g.name}
                                                     <X size={11} className="shrink-0 opacity-70" />
@@ -580,7 +579,10 @@ export function ProfessorsClient({
                                                     onClick={() => toggleGroup(g.id)}
                                                     className="text-ink-dim hover:bg-primary-wash hover:text-primary flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] transition-colors"
                                                 >
-                                                    <Plus size={12} className="text-mute shrink-0" />
+                                                    <Plus
+                                                        size={12}
+                                                        className="text-mute shrink-0"
+                                                    />
                                                     {g.name}
                                                 </button>
                                             ));

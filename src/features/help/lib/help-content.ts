@@ -45,14 +45,16 @@ export const HELP_SECTIONS: HelpSection[] = [
         label: 'Inicio',
         path: '',
         icon: Home,
-        purpose: 'El panel de inicio resume el estado de la institución: estudiantes activos, exámenes en curso, promedio general y los últimos resultados, todo en una sola vista.',
+        purpose:
+            'El panel de inicio resume el estado de la institución: estudiantes activos, exámenes en curso, promedio general y los últimos resultados, todo en una sola vista.',
         steps: [
             'Revisa las tarjetas superiores para ver las métricas clave del momento.',
             'El bloque “Exámenes en curso” lista las evaluaciones activas en tiempo real.',
             'En “Últimos resultados” accedes rápido a las notas más recientes.',
         ],
         professorAccess: 'scoped',
-        professorNote: 'Como profesor ves las métricas y resultados de los grupos donde estás asignado.',
+        professorNote:
+            'Como profesor ves las métricas y resultados de los grupos donde estás asignado.',
         screenshots: { admin: '/help/inicio-admin.webp', professor: '/help/inicio-profesor.webp' },
     },
     {
@@ -60,14 +62,16 @@ export const HELP_SECTIONS: HelpSection[] = [
         label: 'Grupos',
         path: '/groups',
         icon: Users,
-        purpose: 'Los grupos (o cursos) organizan a tus estudiantes. Cada estudiante pertenece a un grupo y los exámenes se asignan a uno o más grupos.',
+        purpose:
+            'Los grupos (o cursos) organizan a tus estudiantes. Cada estudiante pertenece a un grupo y los exámenes se asignan a uno o más grupos.',
         steps: [
             'Crea un grupo con el botón “Nuevo grupo”.',
             'Asigna uno o más profesores al grupo.',
             'Edita o elimina grupos existentes cuando lo necesites.',
         ],
         professorAccess: 'readonly',
-        professorNote: 'Como profesor ves los grupos en los que estás asignado, pero la creación y edición la realiza el administrador.',
+        professorNote:
+            'Como profesor ves los grupos en los que estás asignado, pero la creación y edición la realiza el administrador.',
         screenshots: { admin: '/help/grupos-admin.webp' },
         forms: [
             {
@@ -81,14 +85,16 @@ export const HELP_SECTIONS: HelpSection[] = [
         label: 'Estudiantes',
         path: '/students',
         icon: GraduationCap,
-        purpose: 'Gestión de los alumnos de la institución. Cada estudiante accede a rendir sus exámenes con su RUT, sin contraseña.',
+        purpose:
+            'Gestión de los alumnos de la institución. Cada estudiante accede a rendir sus exámenes con su RUT, sin contraseña.',
         steps: [
             'Agrega estudiantes de a uno con “Nuevo estudiante”.',
             'Importa listas completas desde un archivo Excel.',
             'Edita sus datos o activa/desactiva su acceso.',
         ],
         professorAccess: 'scoped',
-        professorNote: 'Como profesor gestionas los estudiantes de tus grupos (ver, crear, editar). La eliminación queda reservada al administrador.',
+        professorNote:
+            'Como profesor gestionas los estudiantes de tus grupos (ver, crear, editar). La eliminación queda reservada al administrador.',
         screenshots: {
             admin: '/help/estudiantes-admin.webp',
             professor: '/help/estudiantes-profesor.webp',
@@ -109,14 +115,16 @@ export const HELP_SECTIONS: HelpSection[] = [
         label: 'Profesores',
         path: '/professors',
         icon: UserCog,
-        purpose: 'Administración del cuerpo docente: los profesores que crean y aplican exámenes en la institución.',
+        purpose:
+            'Administración del cuerpo docente: los profesores que crean y aplican exámenes en la institución.',
         steps: [
             'Crea profesores con sus datos de acceso (email y contraseña).',
             'Edita o elimina profesores existentes.',
             'Asígnalos a los grupos desde la sección Grupos.',
         ],
         professorAccess: 'readonly',
-        professorNote: 'Como profesor puedes ver el listado del cuerpo docente, pero la gestión la realiza el administrador.',
+        professorNote:
+            'Como profesor puedes ver el listado del cuerpo docente, pero la gestión la realiza el administrador.',
         screenshots: { admin: '/help/profesores-admin.webp' },
         forms: [
             {
@@ -130,7 +138,8 @@ export const HELP_SECTIONS: HelpSection[] = [
         label: 'Exámenes',
         path: '/exams',
         icon: BookOpen,
-        purpose: 'Creación y configuración de evaluaciones: preguntas, tiempo límite, fechas de inicio y cierre, escala de notas y vigilancia anti-trampa.',
+        purpose:
+            'Creación y configuración de evaluaciones: preguntas, tiempo límite, fechas de inicio y cierre, escala de notas y vigilancia anti-trampa.',
         steps: [
             'Crea un examen con “Nuevo examen” y completa materia, unidad y fechas de inicio/cierre.',
             'Carga las preguntas manualmente o impórtalas desde una plantilla.',
@@ -138,12 +147,17 @@ export const HELP_SECTIONS: HelpSection[] = [
             'Publica el examen para que los alumnos del grupo puedan rendirlo.',
         ],
         professorAccess: 'scoped',
-        professorNote: 'Como profesor creas y editas exámenes para tus grupos. Al editar uno compartido, los grupos ajenos ya asignados se conservan.',
-        screenshots: { admin: '/help/examenes-admin.webp', professor: '/help/examenes-profesor.webp' },
+        professorNote:
+            'Como profesor creas y editas exámenes para tus grupos. Al editar uno compartido, los grupos ajenos ya asignados se conservan.',
+        screenshots: {
+            admin: '/help/examenes-admin.webp',
+            professor: '/help/examenes-profesor.webp',
+        },
         forms: [
             {
                 src: '/help/examenes-form-ajustes.webp',
-                caption: 'Configuración del examen: materia, unidad, fechas, anti-trampa y escala de notas.',
+                caption:
+                    'Configuración del examen: materia, unidad, fechas, anti-trampa y escala de notas.',
             },
             {
                 src: '/help/examenes-form-preguntas.webp',
@@ -156,7 +170,8 @@ export const HELP_SECTIONS: HelpSection[] = [
         label: 'Resultados',
         path: '/results',
         icon: BarChart3,
-        purpose: 'Las notas finales de los exámenes entregados, con filtros y el detalle de cada estudiante pregunta por pregunta.',
+        purpose:
+            'Las notas finales de los exámenes entregados, con filtros y el detalle de cada estudiante pregunta por pregunta.',
         steps: [
             'Filtra por examen o por grupo.',
             'Abre el detalle de un resultado para ver la respuesta de cada pregunta.',
@@ -174,7 +189,8 @@ export const HELP_SECTIONS: HelpSection[] = [
         label: 'En vivo',
         path: '/liveresults',
         icon: Activity,
-        purpose: 'Seguimiento en tiempo real mientras los alumnos rinden: quién está respondiendo y cómo avanza cada uno.',
+        purpose:
+            'Seguimiento en tiempo real mientras los alumnos rinden: quién está respondiendo y cómo avanza cada uno.',
         steps: [
             'Elige el examen activo que quieres monitorear.',
             'Observá el avance pregunta por pregunta de cada estudiante a medida que responden.',

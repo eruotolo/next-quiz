@@ -5,11 +5,7 @@ import { ProfessorsClient } from '@/features/professors/components/ProfessorsCli
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 
-export default async function ProfessorsPage({
-    params,
-}: {
-    params: Promise<{ slug: string }>;
-}) {
+export default async function ProfessorsPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
     const { institutionId, institutionName, userRole } = await requireInstitutionPageAccess(slug);
 
@@ -42,11 +38,7 @@ export default async function ProfessorsPage({
                 subtitle={`${professors.length} profesionales registrados en el equipo`}
                 actions={canMutate ? <NewProfessorButton slug={slug} /> : undefined}
             />
-            <ProfessorsClient
-                professors={professors}
-                groups={groups}
-                slug={slug}
-            />
+            <ProfessorsClient professors={professors} groups={groups} slug={slug} />
         </>
     );
 }

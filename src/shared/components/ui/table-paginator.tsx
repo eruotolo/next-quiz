@@ -10,12 +10,7 @@ export interface TablePaginatorProps {
     onPageChange: (page: number) => void;
 }
 
-export function TablePaginator({
-    page,
-    perPage,
-    total,
-    onPageChange,
-}: TablePaginatorProps) {
+export function TablePaginator({ page, perPage, total, onPageChange }: TablePaginatorProps) {
     const totalPages = Math.max(1, Math.ceil(total / perPage));
     const from = total === 0 ? 0 : (page - 1) * perPage + 1;
     const to = Math.min(page * perPage, total);

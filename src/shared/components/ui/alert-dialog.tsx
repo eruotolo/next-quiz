@@ -6,9 +6,7 @@ import { AlertDialog as AlertDialogPrimitive } from 'radix-ui';
 import { cn } from '@/shared/lib/utils';
 import { buttonVariants } from '@/shared/components/ui/button';
 
-function AlertDialog({
-    ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
+function AlertDialog({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {
     return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
 }
 
@@ -18,9 +16,7 @@ function AlertDialogTrigger({
     return <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...props} />;
 }
 
-function AlertDialogPortal({
-    ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Portal>) {
+function AlertDialogPortal({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Portal>) {
     return <AlertDialogPrimitive.Portal {...props} />;
 }
 
@@ -60,17 +56,11 @@ function AlertDialogContent({
     );
 }
 
-function AlertDialogHeader({
-    className,
-    ...props
-}: React.ComponentProps<'div'>) {
+function AlertDialogHeader({ className, ...props }: React.ComponentProps<'div'>) {
     return <div className={cn('flex flex-col gap-2', className)} {...props} />;
 }
 
-function AlertDialogFooter({
-    className,
-    ...props
-}: React.ComponentProps<'div'>) {
+function AlertDialogFooter({ className, ...props }: React.ComponentProps<'div'>) {
     return (
         <div
             className={cn('mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end', className)}

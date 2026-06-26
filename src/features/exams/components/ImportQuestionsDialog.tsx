@@ -38,12 +38,7 @@ interface Props {
 type Tab = 'excel' | 'markdown';
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
-export function ImportQuestionsDialog({
-    slug,
-    examId,
-    open,
-    onOpenChange,
-}: Props) {
+export function ImportQuestionsDialog({ slug, examId, open, onOpenChange }: Props) {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<Tab>('excel');
     const [parseResult, setParseResult] = useState<ParseResult | null>(null);

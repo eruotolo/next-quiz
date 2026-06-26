@@ -4,11 +4,7 @@ import { USER_ROLE } from '@/shared/lib/roles';
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
 
-export default async function PerfilLayout({
-    children,
-}: {
-    children: ReactNode;
-}) {
+export default async function PerfilLayout({ children }: { children: ReactNode }) {
     const session = await auth();
     if (!session) redirect('/login');
 

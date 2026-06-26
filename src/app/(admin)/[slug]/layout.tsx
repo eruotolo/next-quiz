@@ -41,10 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: layout que arma sesión, scope por rol, contadores y banner de plan en una sola pasada
-export default async function InstitutionLayout({
-    children,
-    params,
-}: Props) {
+export default async function InstitutionLayout({ children, params }: Props) {
     const { slug } = await params;
     const session = await auth();
     if (!session) redirect('/login');
@@ -124,8 +121,10 @@ export default async function InstitutionLayout({
                 institutionList={institutionList as { name: string; slug: string }[]}
                 showPlanPromo={showPlanPromo}
             />
-            <main className="flex-1 flex flex-col overflow-y-auto lg:ml-60">
-                {isAdmin && quotaUsage && quotaUsage.length > 0 && <PlanUsageBanner usage={quotaUsage} slug={slug} />}
+            <main className="flex flex-1 flex-col overflow-y-auto lg:ml-60">
+                {isAdmin && quotaUsage && quotaUsage.length > 0 && (
+                    <PlanUsageBanner usage={quotaUsage} slug={slug} />
+                )}
                 {children}
             </main>
         </div>

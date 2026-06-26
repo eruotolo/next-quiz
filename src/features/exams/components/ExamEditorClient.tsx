@@ -17,9 +17,9 @@ const ImportQuestionsDialog = dynamic(
 
 const GenerateQuestionsDialog = dynamic(
     () =>
-        import(
-            '@/features/ai-question-gen/components/GenerateQuestionsDialog'
-        ).then((m) => m.GenerateQuestionsDialog),
+        import('@/features/ai-question-gen/components/GenerateQuestionsDialog').then(
+            (m) => m.GenerateQuestionsDialog,
+        ),
     { ssr: false },
 );
 import { Button } from '@/shared/components/ui/button';
@@ -95,7 +95,13 @@ function defaultQuestionDraft(): QuestionDraft {
 }
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
-export function ExamEditorClient({ exam, subjects = [] }: { exam: ExamWithAll; subjects?: string[] }) {
+export function ExamEditorClient({
+    exam,
+    subjects = [],
+}: {
+    exam: ExamWithAll;
+    subjects?: string[];
+}) {
     const router = useRouter();
     const { slug } = useParams<{ slug: string }>();
     const [isOpen, setIsOpen] = useState(false);
@@ -369,7 +375,7 @@ export function ExamEditorClient({ exam, subjects = [] }: { exam: ExamWithAll; s
                     variant="ghost"
                     size="md"
                     onClick={() => setIsAiOpen(true)}
-                    className="gap-2 text-primary hover:bg-primary-wash"
+                    className="text-primary hover:bg-primary-wash gap-2"
                 >
                     <Sparkles size={15} />
                     Generar con IA
@@ -472,12 +478,17 @@ export function ExamEditorClient({ exam, subjects = [] }: { exam: ExamWithAll; s
                                     variant="ghost"
                                     size="md"
                                     onClick={() => setIsAiOpen(true)}
-                                    className="gap-2 text-primary hover:bg-primary-wash"
+                                    className="text-primary hover:bg-primary-wash gap-2"
                                 >
                                     <Sparkles size={16} />
                                     Generar con IA
                                 </Button>
-                                <Button variant="ghost" size="md" onClick={openBankPicker} className="gap-2">
+                                <Button
+                                    variant="ghost"
+                                    size="md"
+                                    onClick={openBankPicker}
+                                    className="gap-2"
+                                >
                                     <Library size={16} />
                                     Desde banco
                                 </Button>
@@ -834,7 +845,10 @@ export function ExamEditorClient({ exam, subjects = [] }: { exam: ExamWithAll; s
 
             {/* Question create/edit dialog */}
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent showCloseButton={false} className="border-border flex max-h-[90vh] flex-col overflow-hidden rounded-[22px] p-0 shadow-2xl sm:max-w-2xl">
+                <DialogContent
+                    showCloseButton={false}
+                    className="border-border flex max-h-[90vh] flex-col overflow-hidden rounded-[22px] p-0 shadow-2xl sm:max-w-2xl"
+                >
                     <div className="border-border bg-paper-warm border-b px-6 py-5">
                         <DialogTitle className="font-display text-ink text-2xl">
                             {draft?.id ? 'Editar pregunta' : 'Nueva pregunta'}

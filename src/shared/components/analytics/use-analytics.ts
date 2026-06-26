@@ -115,9 +115,7 @@ export function useAnalytics(measurementId?: string) {
             return;
         }
 
-        const url = searchParams?.toString()
-            ? `${pathname}?${searchParams.toString()}`
-            : pathname;
+        const url = searchParams?.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
 
         trackPageView(url, id);
     }, [pathname, searchParams, measurementId]);

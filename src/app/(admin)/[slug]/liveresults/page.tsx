@@ -17,15 +17,13 @@ interface PageProps {
 }
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy complex UI component
-export default async function LiveResultsPage({
-    params,
-    searchParams,
-}: PageProps) {
+export default async function LiveResultsPage({ params, searchParams }: PageProps) {
     const [{ slug }, { examId: paramExamId, groupId: paramGroupId }] = await Promise.all([
         params,
         searchParams,
     ]);
-    const { institutionId, institutionName, isProfesor, userId } = await requireInstitutionPageAccess(slug);
+    const { institutionId, institutionName, isProfesor, userId } =
+        await requireInstitutionPageAccess(slug);
 
     const activeExams = await prisma.exam.findMany({
         where: {
@@ -52,9 +50,7 @@ export default async function LiveResultsPage({
         groupOptions = examWithGroups?.groups ?? [];
     }
 
-    const validGroupId = groupOptions.some((g) => g.id === paramGroupId)
-        ? paramGroupId
-        : undefined;
+    const validGroupId = groupOptions.some((g) => g.id === paramGroupId) ? paramGroupId : undefined;
 
     let examData: LiveExamData | null = null;
 

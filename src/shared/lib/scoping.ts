@@ -82,4 +82,3 @@ export function courseSectionCoordinatorFilter(
 ): Prisma.CourseSectionWhereInput {
     return { programId: { in: programIds } };
 }
-

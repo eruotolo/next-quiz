@@ -21,7 +21,7 @@ export function AdminTopBar({
     return (
         <header
             className={cn(
-                'border-border flex items-end justify-between gap-6 border-b bg-white py-[22px] pl-14 pr-8 lg:px-8',
+                'border-border flex items-end justify-between gap-6 border-b bg-white py-[22px] pr-8 pl-14 lg:px-8',
                 className,
             )}
         >

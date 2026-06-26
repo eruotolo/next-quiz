@@ -4,11 +4,7 @@ import { Edit2, FolderKanban, Loader2, MoreHorizontal, Plus, Trash2 } from 'luci
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, useTransition } from 'react';
 import { toast } from 'sonner';
-import {
-    createProgram,
-    deleteProgram,
-    updateProgram,
-} from '@/features/programs/actions/mutations';
+import { createProgram, deleteProgram, updateProgram } from '@/features/programs/actions/mutations';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -158,14 +154,19 @@ export function ProgramsClient({ slug, programs, canMutate, label, labelPlural }
                             Crea la primera para organizar la jerarquía académica.
                         </p>
                         {canMutate && (
-                            <Button variant="primary" size="md" onClick={openCreate} className="mt-6">
+                            <Button
+                                variant="primary"
+                                size="md"
+                                onClick={openCreate}
+                                className="mt-6"
+                            >
                                 <Plus size={16} />
                                 Crear {label.toLowerCase()}
                             </Button>
                         )}
                     </Card>
                 ) : (
-                    <Card className="overflow-hidden border-border bg-white p-0 shadow-sm">
+                    <Card className="border-border overflow-hidden bg-white p-0 shadow-sm">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -184,7 +185,7 @@ export function ProgramsClient({ slug, programs, canMutate, label, labelPlural }
                                         className="hover:bg-paper-warm/30 cursor-pointer transition-colors"
                                         onClick={() => router.push(`/${slug}/programs/${p.id}`)}
                                     >
-                                        <TableCell className="font-semibold text-ink">
+                                        <TableCell className="text-ink font-semibold">
                                             {p.name}
                                             {p.description && (
                                                 <span className="text-mute block max-w-md truncate text-[12px] font-normal">
@@ -195,8 +196,12 @@ export function ProgramsClient({ slug, programs, canMutate, label, labelPlural }
                                         <TableCell className="text-mute font-mono text-[12px]">
                                             {p.code ?? '—'}
                                         </TableCell>
-                                        <TableCell className="text-center">{p.groupsCount}</TableCell>
-                                        <TableCell className="text-center">{p.coursesCount}</TableCell>
+                                        <TableCell className="text-center">
+                                            {p.groupsCount}
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            {p.coursesCount}
+                                        </TableCell>
                                         <TableCell className="text-center">
                                             {p.coordinatorsCount}
                                         </TableCell>
@@ -251,7 +256,9 @@ export function ProgramsClient({ slug, programs, canMutate, label, labelPlural }
                 <DialogContent className="border-border rounded-[22px] shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-display text-2xl">
-                            {editing ? `Editar ${label.toLowerCase()}` : `Nueva ${label.toLowerCase()}`}
+                            {editing
+                                ? `Editar ${label.toLowerCase()}`
+                                : `Nueva ${label.toLowerCase()}`}
                         </DialogTitle>
                         <DialogDescription className="sr-only">
                             Formulario para crear o editar {label.toLowerCase()}.
@@ -276,7 +283,9 @@ export function ProgramsClient({ slug, programs, canMutate, label, labelPlural }
                                 )}
                                 autoFocus
                             />
-                            {error && <p className="text-destructive text-xs font-medium">{error}</p>}
+                            {error && (
+                                <p className="text-destructive text-xs font-medium">{error}</p>
+                            )}
                         </div>
                         <div className="flex flex-col gap-2">
                             <label htmlFor="prog-code" className="text-ink text-[13px] font-bold">

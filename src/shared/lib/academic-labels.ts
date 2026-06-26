@@ -16,7 +16,6 @@ export const InstitutionType = {
 
 export type InstitutionType = (typeof InstitutionType)[keyof typeof InstitutionType];
 
-
 /**
  * Labels dinámicos de la jerarquía académica (decisión D17 del plan
  * `.doc/jerarquia-educacional.md`). La palabra de cara al usuario para

@@ -171,7 +171,6 @@ function tabModeToFlags(mode: TabMode): Pick<FormState, 'antiCheatEnabled' | 'lo
 
 type TabFilter = 'todos' | 'en-curso' | 'programados' | 'corregidos' | 'borradores';
 
-
 const EN_CURSO_ACCENT_COLORS = [
     'bg-blue-400',
     'bg-rose-400',
@@ -235,7 +234,11 @@ function formatExamDate(exam: ExamWithCount): string {
     if (status === 'corregidos') {
         const d = exam.closesAt ?? exam.scheduledAt;
         if (!d) return '—';
-        return new Date(d).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' });
+        return new Date(d).toLocaleDateString('es-CL', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+        });
     }
     // en-curso
     const date = exam.closesAt ?? exam.scheduledAt;
@@ -376,8 +379,7 @@ export function ExamsClient({
         // Normalizamos el sentinel de "sin asignatura" a null antes de validar.
         const formForValidation = {
             ...form,
-            courseSectionId:
-                form.courseSectionId === NO_COURSE ? null : form.courseSectionId,
+            courseSectionId: form.courseSectionId === NO_COURSE ? null : form.courseSectionId,
         };
         const parsed = examSchema.safeParse(formForValidation);
         if (parsed.success) {
@@ -400,8 +402,7 @@ export function ExamsClient({
                 // Convert datetime-local strings (local browser time) to UTC ISO before
                 // sending to the server, which always runs in UTC and would otherwise
                 // misinterpret the naive string as UTC instead of the user's local time.
-                const toUTC = (v: string): string =>
-                    v ? new Date(v).toISOString() : '';
+                const toUTC = (v: string): string => (v ? new Date(v).toISOString() : '');
                 const data = {
                     ...form,
                     timeLimit: Number(form.timeLimit),
@@ -483,29 +484,63 @@ export function ExamsClient({
                 <div className="flex items-center gap-1">
                     <button
                         type="button"
-                        onClick={() => { setTab('todos'); setPage(1); }}
+                        onClick={() => {
+                            setTab('todos');
+                            setPage(1);
+                        }}
                         className={cn(
                             'rounded-full px-4 py-1.5 text-[13px] font-medium whitespace-nowrap transition-all',
-                            tab === 'todos' ? 'bg-ink text-white' : 'text-ink-dim hover:bg-paper-warm',
+                            tab === 'todos'
+                                ? 'bg-ink text-white'
+                                : 'text-ink-dim hover:bg-paper-warm',
                         )}
                     >
                         Todos · {counts.todos}
                     </button>
                     {(
                         [
-                            { id: 'borradores' as TabFilter, label: 'Borrador', dot: 'bg-gray-400', activeBg: 'bg-gray-100', activeText: 'text-gray-700' },
-                            { id: 'programados' as TabFilter, label: 'Programado', dot: 'bg-amber-400', activeBg: 'bg-amber-50', activeText: 'text-amber-700' },
-                            { id: 'en-curso' as TabFilter, label: 'En curso', dot: 'bg-blue-400', activeBg: 'bg-blue-50', activeText: 'text-blue-700' },
-                            { id: 'corregidos' as TabFilter, label: 'Corregido', dot: 'bg-emerald-500', activeBg: 'bg-emerald-50', activeText: 'text-emerald-700' },
+                            {
+                                id: 'borradores' as TabFilter,
+                                label: 'Borrador',
+                                dot: 'bg-gray-400',
+                                activeBg: 'bg-gray-100',
+                                activeText: 'text-gray-700',
+                            },
+                            {
+                                id: 'programados' as TabFilter,
+                                label: 'Programado',
+                                dot: 'bg-amber-400',
+                                activeBg: 'bg-amber-50',
+                                activeText: 'text-amber-700',
+                            },
+                            {
+                                id: 'en-curso' as TabFilter,
+                                label: 'En curso',
+                                dot: 'bg-blue-400',
+                                activeBg: 'bg-blue-50',
+                                activeText: 'text-blue-700',
+                            },
+                            {
+                                id: 'corregidos' as TabFilter,
+                                label: 'Corregido',
+                                dot: 'bg-emerald-500',
+                                activeBg: 'bg-emerald-50',
+                                activeText: 'text-emerald-700',
+                            },
                         ] as const
                     ).map(({ id, label, dot, activeBg, activeText }) => (
                         <button
                             key={id}
                             type="button"
-                            onClick={() => { setTab(id); setPage(1); }}
+                            onClick={() => {
+                                setTab(id);
+                                setPage(1);
+                            }}
                             className={cn(
                                 'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium whitespace-nowrap transition-all',
-                                tab === id ? cn(activeBg, activeText) : 'text-ink-dim hover:bg-paper-warm',
+                                tab === id
+                                    ? cn(activeBg, activeText)
+                                    : 'text-ink-dim hover:bg-paper-warm',
                             )}
                         >
                             <span className={cn('h-2 w-2 shrink-0 rounded-full', dot)} />
@@ -518,7 +553,10 @@ export function ExamsClient({
                         <SearchableSelect
                             size="sm"
                             value={groupFilter}
-                            onChange={(v) => { setGroupFilter(v); setPage(1); }}
+                            onChange={(v) => {
+                                setGroupFilter(v);
+                                setPage(1);
+                            }}
                             className="w-44"
                             options={[
                                 { value: 'all', label: 'Todos los grupos' },
@@ -530,7 +568,10 @@ export function ExamsClient({
                         <SearchableSelect
                             size="sm"
                             value={courseFilter}
-                            onChange={(v) => { setCourseFilter(v); setPage(1); }}
+                            onChange={(v) => {
+                                setCourseFilter(v);
+                                setPage(1);
+                            }}
                             className="w-48"
                             options={[
                                 { value: 'all', label: 'Todas las asignaturas' },
@@ -546,7 +587,10 @@ export function ExamsClient({
                         <Input
                             placeholder="Buscar examen..."
                             value={searchQuery}
-                            onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                setPage(1);
+                            }}
                             className="bg-paper border-border h-9 w-52 rounded-full pl-9 text-[13px]"
                         />
                     </div>
@@ -590,16 +634,51 @@ export function ExamsClient({
                 <div className="mb-6 grid grid-cols-4 gap-3">
                     {(
                         [
-                            { id: 'borradores' as TabFilter, label: 'Borrador', bg: 'bg-gray-50', border: 'border-gray-200', ring: 'ring-gray-400', num: 'text-gray-700', dot: 'bg-gray-400' },
-                            { id: 'programados' as TabFilter, label: 'Programado', bg: 'bg-amber-50/60', border: 'border-amber-200', ring: 'ring-amber-400', num: 'text-amber-700', dot: 'bg-amber-400' },
-                            { id: 'en-curso' as TabFilter, label: 'En curso', bg: 'bg-blue-50/60', border: 'border-blue-200', ring: 'ring-blue-400', num: 'text-blue-700', dot: 'bg-blue-400' },
-                            { id: 'corregidos' as TabFilter, label: 'Corregido', bg: 'bg-emerald-50/60', border: 'border-emerald-200', ring: 'ring-emerald-500', num: 'text-emerald-700', dot: 'bg-emerald-500' },
+                            {
+                                id: 'borradores' as TabFilter,
+                                label: 'Borrador',
+                                bg: 'bg-gray-50',
+                                border: 'border-gray-200',
+                                ring: 'ring-gray-400',
+                                num: 'text-gray-700',
+                                dot: 'bg-gray-400',
+                            },
+                            {
+                                id: 'programados' as TabFilter,
+                                label: 'Programado',
+                                bg: 'bg-amber-50/60',
+                                border: 'border-amber-200',
+                                ring: 'ring-amber-400',
+                                num: 'text-amber-700',
+                                dot: 'bg-amber-400',
+                            },
+                            {
+                                id: 'en-curso' as TabFilter,
+                                label: 'En curso',
+                                bg: 'bg-blue-50/60',
+                                border: 'border-blue-200',
+                                ring: 'ring-blue-400',
+                                num: 'text-blue-700',
+                                dot: 'bg-blue-400',
+                            },
+                            {
+                                id: 'corregidos' as TabFilter,
+                                label: 'Corregido',
+                                bg: 'bg-emerald-50/60',
+                                border: 'border-emerald-200',
+                                ring: 'ring-emerald-500',
+                                num: 'text-emerald-700',
+                                dot: 'bg-emerald-500',
+                            },
                         ] as const
                     ).map(({ id, label, bg, border, ring, num, dot }) => (
                         <button
                             key={id}
                             type="button"
-                            onClick={() => { setTab(tab === id ? 'todos' : id); setPage(1); }}
+                            onClick={() => {
+                                setTab(tab === id ? 'todos' : id);
+                                setPage(1);
+                            }}
                             className={cn(
                                 'cursor-pointer rounded-xl border px-5 py-4 text-left transition-all hover:shadow-sm',
                                 bg,
@@ -612,7 +691,9 @@ export function ExamsClient({
                             </div>
                             <div className="mt-1 flex items-center gap-1.5">
                                 <span className={cn('h-2 w-2 shrink-0 rounded-full', dot)} />
-                                <span className="text-[12px] font-medium text-gray-400">{label}</span>
+                                <span className="text-[12px] font-medium text-gray-400">
+                                    {label}
+                                </span>
                             </div>
                         </button>
                     ))}
@@ -655,7 +736,8 @@ export function ExamsClient({
                                     : '—';
                             const participantsText = getParticipantsText(exam, status);
                             const infoText = getInfoText(exam, status);
-                            const showParticipants = status === 'en-curso' || status === 'corregidos';
+                            const showParticipants =
+                                status === 'en-curso' || status === 'corregidos';
 
                             return (
                                 <div
@@ -669,7 +751,7 @@ export function ExamsClient({
                                     <div className="flex min-w-0 flex-1 items-center gap-4 px-6 py-4">
                                         {/* Title + Subtitle */}
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-ink truncate text-[15px] font-semibold leading-snug">
+                                            <p className="text-ink truncate text-[15px] leading-snug font-semibold">
                                                 {exam.title}
                                             </p>
                                             <p className="text-mute mt-0.5 truncate text-[12px]">
@@ -696,7 +778,11 @@ export function ExamsClient({
                                         {/* Participation */}
                                         <div className="text-ink-dim flex w-[72px] shrink-0 items-center gap-1.5 text-[13px]">
                                             <Users size={14} className="text-mute/60 shrink-0" />
-                                            <span className={cn(showParticipants ? 'font-medium' : 'text-mute')}>
+                                            <span
+                                                className={cn(
+                                                    showParticipants ? 'font-medium' : 'text-mute',
+                                                )}
+                                            >
                                                 {participantsText}
                                             </span>
                                         </div>
@@ -704,7 +790,14 @@ export function ExamsClient({
                                         {/* Info */}
                                         <div className="text-ink-dim flex w-[148px] shrink-0 items-center gap-1.5 text-[13px]">
                                             <Calendar size={14} className="text-mute/60 shrink-0" />
-                                            <span className={cn('truncate', status === 'corregidos' && exam.avgGrade !== null && 'font-medium text-emerald-700')}>
+                                            <span
+                                                className={cn(
+                                                    'truncate',
+                                                    status === 'corregidos' &&
+                                                        exam.avgGrade !== null &&
+                                                        'font-medium text-emerald-700',
+                                                )}
+                                            >
                                                 {infoText}
                                             </span>
                                         </div>
@@ -771,7 +864,7 @@ export function ExamsClient({
                             );
                         })}
                         {filtered.length > PAGE_SIZE && (
-                            <div className="overflow-hidden rounded-xl border border-border">
+                            <div className="border-border overflow-hidden rounded-xl border">
                                 <TablePaginator
                                     page={currentPage}
                                     perPage={PAGE_SIZE}
@@ -839,9 +932,17 @@ export function ExamsClient({
                                 setForm((f) => {
                                     const next = { ...f, ...patch };
                                     // Auto-selección del grupo asociado al ramo
-                                    if (patch.courseSectionId && patch.courseSectionId !== NO_COURSE) {
-                                        const course = courseSections.find((c) => c.id === patch.courseSectionId);
-                                        if (course?.groupId && !next.groupIds.includes(course.groupId)) {
+                                    if (
+                                        patch.courseSectionId &&
+                                        patch.courseSectionId !== NO_COURSE
+                                    ) {
+                                        const course = courseSections.find(
+                                            (c) => c.id === patch.courseSectionId,
+                                        );
+                                        if (
+                                            course?.groupId &&
+                                            !next.groupIds.includes(course.groupId)
+                                        ) {
                                             next.groupIds = [...next.groupIds, course.groupId];
                                         }
                                     }
@@ -860,7 +961,9 @@ export function ExamsClient({
                             >
                                 {filteredGroups.length === 0 ? (
                                     <p className="text-mute px-3 py-4 text-center text-[13px]">
-                                        {groups.length === 0 ? 'No hay grupos creados' : 'No hay grupos para esta selección'}
+                                        {groups.length === 0
+                                            ? 'No hay grupos creados'
+                                            : 'No hay grupos para esta selección'}
                                     </p>
                                 ) : (
                                     <div className="grid grid-cols-2 gap-1 sm:grid-cols-3">
@@ -875,7 +978,10 @@ export function ExamsClient({
                                                     onChange={() => toggleGroup(g.id)}
                                                     className="accent-primary border-border h-4 w-4 rounded"
                                                 />
-                                                <span className="text-ink truncate text-[13.5px] font-medium" title={g.name}>
+                                                <span
+                                                    className="text-ink truncate text-[13.5px] font-medium"
+                                                    title={g.name}
+                                                >
                                                     {g.name}
                                                 </span>
                                             </label>
@@ -906,8 +1012,8 @@ export function ExamsClient({
                                     className="border-border h-11 rounded-[10px] bg-white"
                                 />
                                 <p className="text-mute text-[11px] leading-snug">
-                                    Antes de esta fecha el examen no se puede rendir. Dejá vacío para
-                                    disponibilidad inmediata.
+                                    Antes de esta fecha el examen no se puede rendir. Dejá vacío
+                                    para disponibilidad inmediata.
                                 </p>
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -1047,8 +1153,6 @@ export function ExamsClient({
                             </div>
                         </div>
 
-
-
                         <div className="bg-paper border-border flex flex-col gap-3 rounded-[14px] border p-5">
                             <span className="text-ink text-[13px] font-bold">
                                 Escala de evaluación
@@ -1156,7 +1260,9 @@ export function ExamsClient({
                         <AlertDialogAction
                             disabled={isPending}
                             onClick={handleTogglePublish}
-                            className={toToggle?.active ? 'bg-destructive hover:bg-destructive/90' : ''}
+                            className={
+                                toToggle?.active ? 'bg-destructive hover:bg-destructive/90' : ''
+                            }
                         >
                             {isPending && <Loader2 className="mr-2 animate-spin" size={14} />}
                             {toToggle?.active ? 'Despublicar' : 'Publicar'}

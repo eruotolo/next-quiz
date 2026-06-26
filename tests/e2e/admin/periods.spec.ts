@@ -29,18 +29,26 @@ test.describe('Admin Periods (/[slug]/periods)', () => {
     });
 
     test('can open the create dialog', async ({ page }) => {
-        await page.getByRole('button', { name: /Nuevo período/i }).first().click();
+        await page
+            .getByRole('button', { name: /Nuevo período/i })
+            .first()
+            .click();
         await expect(page.getByRole('dialog')).toBeVisible();
         await expect(page.getByText(/Nuevo período|Crear período/i).first()).toBeVisible();
     });
 
-    test('two periods with same type and year but different names are both allowed (D4)', async ({ page }) => {
+    test('two periods with same type and year but different names are both allowed (D4)', async ({
+        page,
+    }) => {
         // D4: unique por name, no por year+type. Crear dos períodos del mismo año y tipo
         // con nombres distintos debe funcionar.
         const currentYear = new Date().getFullYear().toString();
 
         // Primer período
-        await page.getByRole('button', { name: /Nuevo período/i }).first().click();
+        await page
+            .getByRole('button', { name: /Nuevo período/i })
+            .first()
+            .click();
         await page.waitForSelector('[role="dialog"]');
         const yearInput = page.getByLabel(/Año/i).first();
         await yearInput.fill(currentYear);
@@ -54,7 +62,10 @@ test.describe('Admin Periods (/[slug]/periods)', () => {
         // Segundo período — mismo año, mismo tipo, nombre distinto
         const hasBtn = await page.getByRole('button', { name: /Nuevo período/i }).count();
         if (hasBtn > 0) {
-            await page.getByRole('button', { name: /Nuevo período/i }).first().click();
+            await page
+                .getByRole('button', { name: /Nuevo período/i })
+                .first()
+                .click();
             await page.waitForSelector('[role="dialog"]');
             const yearInput2 = page.getByLabel(/Año/i).first();
             await yearInput2.fill(currentYear);
@@ -78,7 +89,7 @@ test.describe('Admin Periods (/[slug]/periods)', () => {
         }
         // Abrir el primer dropdown de acciones
         const dropdown = page.getByRole('button').filter({ hasText: '' }).nth(1);
-        if (await dropdown.count() > 0) {
+        if ((await dropdown.count()) > 0) {
             // Solo verifica que la página sigue funcionando tras interacción
             await expect(page.locator('body')).not.toContainText('Something went wrong');
         }

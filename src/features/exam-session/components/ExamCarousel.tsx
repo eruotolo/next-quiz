@@ -348,25 +348,36 @@ export function ExamCarousel({
     useEffect(() => {
         function handleKey(e: KeyboardEvent): void {
             // Ignore when typing in inputs
-            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)
+                return;
             const key = e.key;
 
             // Option selection: A-D or 1-4
             if (/^[a-dA-D]$/.test(key)) {
                 const idx = key.toUpperCase().charCodeAt(0) - 65;
                 const opt = currentQuestion?.options[idx];
-                if (opt) { e.preventDefault(); handleSelect(opt.id); }
+                if (opt) {
+                    e.preventDefault();
+                    handleSelect(opt.id);
+                }
                 return;
             }
             if (/^[1-4]$/.test(key)) {
                 const idx = Number(key) - 1;
                 const opt = currentQuestion?.options[idx];
-                if (opt) { e.preventDefault(); handleSelect(opt.id); }
+                if (opt) {
+                    e.preventDefault();
+                    handleSelect(opt.id);
+                }
                 return;
             }
 
             // Navigate: ArrowLeft / ArrowRight
-            if (key === 'ArrowLeft') { e.preventDefault(); handlePrev(); return; }
+            if (key === 'ArrowLeft') {
+                e.preventDefault();
+                handlePrev();
+                return;
+            }
             if (key === 'ArrowRight' || key === 'Enter') {
                 e.preventDefault();
                 handleNext();
@@ -375,7 +386,7 @@ export function ExamCarousel({
         }
         window.addEventListener('keydown', handleKey);
         return () => window.removeEventListener('keydown', handleKey);
-    // biome-ignore lint/correctness/useExhaustiveDependencies: handleSelect/handlePrev/handleNext are non-useCallback functions; re-registering on every render is intentional
+        // biome-ignore lint/correctness/useExhaustiveDependencies: handleSelect/handlePrev/handleNext are non-useCallback functions; re-registering on every render is intentional
     }, [currentQuestion, handleSelect, handlePrev, handleNext]);
 
     if (!currentQuestion) {

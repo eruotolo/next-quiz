@@ -58,7 +58,9 @@ function FormField({ label, icon, error, children, rightElement }: FormFieldProp
                     </span>
                     {children}
                 </div>
-                {rightElement && <div className="shrink-0 flex items-center justify-center">{rightElement}</div>}
+                {rightElement && (
+                    <div className="flex shrink-0 items-center justify-center">{rightElement}</div>
+                )}
             </label>
             {error && <p className="text-destructive text-[12px]">{error}</p>}
         </div>
@@ -114,19 +116,11 @@ interface SectionProps {
     disabled: boolean;
 }
 
-function InstitutionSection({
-    register,
-    control,
-    errors,
-    disabled,
-}: SectionProps) {
+function InstitutionSection({ register, control, errors, disabled }: SectionProps) {
     return (
         <div className="space-y-2">
             <SectionHeader title="Datos del establecimiento" />
-            <FormField
-                label="Tipo de institución"
-                icon={<Building2 size={14} />}
-            >
+            <FormField label="Tipo de institución" icon={<Building2 size={14} />}>
                 <Controller
                     name="institutionType"
                     control={control}
@@ -136,7 +130,7 @@ function InstitutionSection({
                             onValueChange={field.onChange}
                             disabled={disabled}
                         >
-                            <SelectTrigger className="border-0 bg-transparent p-0 !h-auto outline-none focus:ring-0 focus:ring-offset-0 shadow-none text-ink text-[14px] data-[placeholder]:text-mute/50 w-full leading-normal">
+                            <SelectTrigger className="text-ink data-[placeholder]:text-mute/50 !h-auto w-full border-0 bg-transparent p-0 text-[14px] leading-normal shadow-none outline-none focus:ring-0 focus:ring-offset-0">
                                 <SelectValue placeholder="Seleccioná el tipo" />
                             </SelectTrigger>
                             <SelectContent className="border-border rounded-xl shadow-xl">
@@ -256,7 +250,7 @@ function AdminSection({ register, control, errors, disabled }: SectionProps) {
                     <button
                         type="button"
                         onClick={() => setShowPassword((v) => !v)}
-                        className="text-mute hover:text-ink transition-colors outline-none flex items-center justify-center"
+                        className="text-mute hover:text-ink flex items-center justify-center transition-colors outline-none"
                         tabIndex={-1}
                     >
                         {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -281,11 +275,7 @@ interface Props {
     planName: string;
 }
 
-export function RegistrationForm({
-    subscriptionId,
-    prefillEmail,
-    planName,
-}: Props) {
+export function RegistrationForm({ subscriptionId, prefillEmail, planName }: Props) {
     const router = useRouter();
     const [isPending, setIsPending] = useState(false);
 

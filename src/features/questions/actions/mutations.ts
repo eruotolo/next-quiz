@@ -81,11 +81,7 @@ export async function createBankQuestion(slug: string, data: unknown): Promise<{
     return { id: created.id };
 }
 
-export async function updateBankQuestion(
-    slug: string,
-    id: string,
-    data: unknown,
-): Promise<void> {
+export async function updateBankQuestion(slug: string, id: string, data: unknown): Promise<void> {
     const { userId, userEmail, userRole, institutionId } = await getSessionUser(slug);
     await assertBankQuestionInInstitution(id, institutionId);
     const parsed = bankQuestionSchema.parse(data);

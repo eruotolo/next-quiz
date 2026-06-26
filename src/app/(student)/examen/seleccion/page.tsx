@@ -21,8 +21,6 @@ export const metadata = {
     title: 'Mis exámenes · Aulika',
 };
 
-
-
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: página con clasificación de exámenes en 3 secciones (disponibles, próximos, rendidos) + sidebar; separarla dispersaría la lógica de una sola vista
 export default async function ExamSelectionPage() {
     const authSession = await getStudentAuthSession();
@@ -45,10 +43,7 @@ export default async function ExamSelectionPage() {
             academicInstitutionId: student.academicInstitutionId,
             groups: { some: { id: authSession.groupId } },
             questions: { some: {} },
-            OR: [
-                { active: true },
-                { results: { some: { studentId: authSession.studentId } } }
-            ],
+            OR: [{ active: true }, { results: { some: { studentId: authSession.studentId } } }],
         },
         select: {
             id: true,
@@ -113,10 +108,14 @@ export default async function ExamSelectionPage() {
     for (const e of taken) {
         const r = e.results[0];
         if (!r) continue;
-        grades.push(calcGrade(r.score, r.maxScore, e.maxGrade, e.passingGrade, e.passingPercentage));
+        grades.push(
+            calcGrade(r.score, r.maxScore, e.maxGrade, e.passingGrade, e.passingPercentage),
+        );
     }
     const average =
-        grades.length > 0 ? (grades.reduce((sum, g) => sum + g, 0) / grades.length).toFixed(1) : null;
+        grades.length > 0
+            ? (grades.reduce((sum, g) => sum + g, 0) / grades.length).toFixed(1)
+            : null;
 
     const fullName = `${student.name} ${student.lastname}`;
     const groupName = student.group?.name ?? null;
@@ -239,7 +238,11 @@ export default async function ExamSelectionPage() {
                                                 <form
                                                     action={startSelectedExam.bind(null, exam.id)}
                                                 >
-                                                    <Button variant="primary" size="lg" type="submit">
+                                                    <Button
+                                                        variant="primary"
+                                                        size="lg"
+                                                        type="submit"
+                                                    >
                                                         Comenzar
                                                         <ArrowRight className="size-4" />
                                                     </Button>
@@ -267,7 +270,7 @@ export default async function ExamSelectionPage() {
                                 {upcoming.map((exam) => (
                                     <div
                                         key={exam.id}
-                                        className="border-border rounded-[14px] border border-l-[3px] border-l-primary bg-white p-5"
+                                        className="border-border border-l-primary rounded-[14px] border border-l-[3px] bg-white p-5"
                                     >
                                         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                                             {examContextLabel(exam) && (
@@ -341,7 +344,8 @@ export default async function ExamSelectionPage() {
                                                         </span>
                                                     )}
                                                     <span className="text-success font-mono text-[10px] font-semibold">
-                                                        Entregado · {completedFormatter.format(r.completedAt)}
+                                                        Entregado ·{' '}
+                                                        {completedFormatter.format(r.completedAt)}
                                                     </span>
                                                 </div>
                                                 <p className="text-ink text-[15px] leading-tight font-semibold">
@@ -356,7 +360,9 @@ export default async function ExamSelectionPage() {
                                                     <p
                                                         className={cn(
                                                             'font-display text-[24px] leading-none font-semibold',
-                                                            passing ? 'text-success' : 'text-destructive',
+                                                            passing
+                                                                ? 'text-success'
+                                                                : 'text-destructive',
                                                         )}
                                                     >
                                                         {grade.toFixed(1)}
@@ -376,18 +382,16 @@ export default async function ExamSelectionPage() {
                         </section>
                     )}
 
-                    {available.length === 0 &&
-                        upcoming.length === 0 &&
-                        taken.length === 0 && (
-                            <div className="border-border mt-8 rounded-[16px] border border-dashed bg-white p-10 text-center">
-                                <p className="text-ink text-[15px] font-semibold">
-                                    No tienes exámenes asignados todavía
-                                </p>
-                                <p className="text-mute mt-1 text-[13px]">
-                                    Cuando tu profesor publique uno, va a aparecer acá.
-                                </p>
-                            </div>
-                        )}
+                    {available.length === 0 && upcoming.length === 0 && taken.length === 0 && (
+                        <div className="border-border mt-8 rounded-[16px] border border-dashed bg-white p-10 text-center">
+                            <p className="text-ink text-[15px] font-semibold">
+                                No tienes exámenes asignados todavía
+                            </p>
+                            <p className="text-mute mt-1 text-[13px]">
+                                Cuando tu profesor publique uno, va a aparecer acá.
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Sidebar */}
@@ -459,10 +463,7 @@ export default async function ExamSelectionPage() {
                         <p className="text-ink-dim text-[12px] leading-relaxed">
                             Ingresaste con tu RUT. Si te desconectas, retomas el examen donde
                             quedaste. ¿Dudas?{' '}
-                            <a
-                                href="mailto:hola@aulika.cl"
-                                className="text-primary underline"
-                            >
+                            <a href="mailto:hola@aulika.cl" className="text-primary underline">
                                 hola@aulika.cl
                             </a>
                         </p>

@@ -66,7 +66,7 @@ function Avatar({ name = '', src, size = 36, color, className }: AvatarProps) {
             role="img"
             aria-label={name}
             className={cn(
-                'inline-flex shrink-0 items-center justify-center rounded-full font-mono font-semibold text-white select-none [width:var(--av-size)] [height:var(--av-size)] [background:var(--av-bg)] [font-size:var(--av-fs)]',
+                'inline-flex [height:var(--av-size)] [width:var(--av-size)] shrink-0 items-center justify-center rounded-full font-mono [font-size:var(--av-fs)] font-semibold text-white select-none [background:var(--av-bg)]',
                 className,
             )}
             style={
@@ -83,10 +83,7 @@ function Avatar({ name = '', src, size = 36, color, className }: AvatarProps) {
 }
 
 // ── Backward-compat sub-components (radix pattern) ────────────────────────
-function AvatarImage({
-    className,
-    ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Image>) {
+function AvatarImage({ className, ...props }: React.ComponentProps<typeof AvatarPrimitive.Image>) {
     return (
         <AvatarPrimitive.Image
             data-slot="avatar-image"

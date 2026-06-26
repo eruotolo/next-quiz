@@ -123,76 +123,76 @@ export function HelpGuide({ isProfesor }: HelpGuideProps) {
                         className="border-border rounded-[16px] border bg-white p-6 lg:p-8"
                     >
                         <div className="grid gap-8 lg:grid-cols-2">
-                        {/* Texto */}
-                        <div className="min-w-0">
-                            <div className="mb-3 flex items-center gap-3">
-                                <span className="bg-primary-wash text-primary flex size-9 shrink-0 items-center justify-center rounded-[10px]">
-                                    <section.icon size={18} />
-                                </span>
-                                <h2 className="font-display text-ink flex-1 text-[24px] leading-none font-semibold tracking-[-0.02em]">
-                                    {section.label}
-                                </h2>
-                                {badge && (
-                                    <span
-                                        className={cn(
-                                            'rounded-full px-2.5 py-1 font-mono text-[10px] font-semibold tracking-[0.06em] uppercase',
-                                            badge.tone,
-                                        )}
-                                    >
-                                        {badge.label}
+                            {/* Texto */}
+                            <div className="min-w-0">
+                                <div className="mb-3 flex items-center gap-3">
+                                    <span className="bg-primary-wash text-primary flex size-9 shrink-0 items-center justify-center rounded-[10px]">
+                                        <section.icon size={18} />
                                     </span>
+                                    <h2 className="font-display text-ink flex-1 text-[24px] leading-none font-semibold tracking-[-0.02em]">
+                                        {section.label}
+                                    </h2>
+                                    {badge && (
+                                        <span
+                                            className={cn(
+                                                'rounded-full px-2.5 py-1 font-mono text-[10px] font-semibold tracking-[0.06em] uppercase',
+                                                badge.tone,
+                                            )}
+                                        >
+                                            {badge.label}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <p className="text-ink-dim text-[14px] leading-relaxed">
+                                    {section.purpose}
+                                </p>
+
+                                {showSteps && (
+                                    <div className="mt-5">
+                                        <p className="text-mute mb-3 font-mono text-[10px] tracking-[0.1em] uppercase">
+                                            Cómo se usa
+                                        </p>
+                                        <ol className="flex flex-col gap-2.5">
+                                            {section.steps.map((step, i) => (
+                                                <li key={step} className="flex items-start gap-3">
+                                                    <span className="bg-ink mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-bold text-white">
+                                                        {i + 1}
+                                                    </span>
+                                                    <span className="text-ink-dim text-[13px] leading-relaxed">
+                                                        {step}
+                                                    </span>
+                                                </li>
+                                            ))}
+                                        </ol>
+                                    </div>
+                                )}
+
+                                {isProfesor && section.professorNote && (
+                                    <p className="bg-primary-wash/40 text-ink-dim mt-5 rounded-[10px] px-4 py-3 text-[13px] leading-relaxed">
+                                        {section.professorNote}
+                                    </p>
+                                )}
+                                {!isProfesor && section.adminNote && (
+                                    <p className="bg-paper-warm text-ink-dim mt-5 rounded-[10px] px-4 py-3 text-[13px] leading-relaxed">
+                                        {section.adminNote}
+                                    </p>
                                 )}
                             </div>
 
-                            <p className="text-ink-dim text-[14px] leading-relaxed">
-                                {section.purpose}
-                            </p>
-
-                            {showSteps && (
-                                <div className="mt-5">
-                                    <p className="text-mute mb-3 font-mono text-[10px] tracking-[0.1em] uppercase">
-                                        Cómo se usa
-                                    </p>
-                                    <ol className="flex flex-col gap-2.5">
-                                        {section.steps.map((step, i) => (
-                                            <li key={step} className="flex items-start gap-3">
-                                                <span className="bg-ink mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-bold text-white">
-                                                    {i + 1}
-                                                </span>
-                                                <span className="text-ink-dim text-[13px] leading-relaxed">
-                                                    {step}
-                                                </span>
-                                            </li>
-                                        ))}
-                                    </ol>
+                            {/* Captura */}
+                            {screenshot && (
+                                <div className="border-border self-start overflow-hidden rounded-[12px] border">
+                                    {/* Captura del panel (datos de ejemplo). */}
+                                    {/* biome-ignore lint/performance/noImgElement: captura estática de alto variable, lazy y fuera del LCP; next/image exige dimensiones fijas */}
+                                    <img
+                                        src={screenshot}
+                                        alt={`Captura de la sección ${section.label}`}
+                                        loading="lazy"
+                                        className="w-full"
+                                    />
                                 </div>
                             )}
-
-                            {isProfesor && section.professorNote && (
-                                <p className="bg-primary-wash/40 text-ink-dim mt-5 rounded-[10px] px-4 py-3 text-[13px] leading-relaxed">
-                                    {section.professorNote}
-                                </p>
-                            )}
-                            {!isProfesor && section.adminNote && (
-                                <p className="bg-paper-warm text-ink-dim mt-5 rounded-[10px] px-4 py-3 text-[13px] leading-relaxed">
-                                    {section.adminNote}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* Captura */}
-                        {screenshot && (
-                            <div className="border-border self-start overflow-hidden rounded-[12px] border">
-                                {/* Captura del panel (datos de ejemplo). */}
-                                {/* biome-ignore lint/performance/noImgElement: captura estática de alto variable, lazy y fuera del LCP; next/image exige dimensiones fijas */}
-                                <img
-                                    src={screenshot}
-                                    alt={`Captura de la sección ${section.label}`}
-                                    loading="lazy"
-                                    className="w-full"
-                                />
-                            </div>
-                        )}
                         </div>
 
                         {/* Formularios de la sección (solo a quien la gestiona) */}

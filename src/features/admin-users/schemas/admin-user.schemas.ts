@@ -17,7 +17,6 @@ export const adminUserCreateSchema = z.object({
     academicInstitutionId: z.string().uuid('Institución inválida').optional(),
 });
 
-
 export const adminUserUpdateSchema = z.object({
     name: z.string().min(1, 'Nombre requerido').max(100),
     lastname: z.string().min(1, 'Apellido requerido').max(100),
@@ -34,4 +33,3 @@ export const adminUserUpdateSchema = z.object({
         .optional()
         .refine((v) => !v || v.length >= 8, 'La contraseña debe tener al menos 8 caracteres'),
 });
-

@@ -15,7 +15,11 @@ interface RawQuestion {
     options?: RawOption[];
 }
 
-function validateQuestion(item: unknown, index: number, questionType: 'UNICA' | 'MULTIPLE'): { question: GeneratedQuestion | null; error: string | null } {
+function validateQuestion(
+    item: unknown,
+    index: number,
+    questionType: 'UNICA' | 'MULTIPLE',
+): { question: GeneratedQuestion | null; error: string | null } {
     const q = item as RawQuestion | null;
 
     if (!q || typeof q !== 'object') {
@@ -51,7 +55,10 @@ function validateQuestion(item: unknown, index: number, questionType: 'UNICA' | 
         return { question: null, error: `Pregunta ${index + 1}: sin respuesta correcta marcada` };
     }
     if (questionType === 'MULTIPLE' && correctCount < 2) {
-        return { question: null, error: `Pregunta ${index + 1}: tipo múltiple requiere al menos 2 correctas (tiene ${correctCount})` };
+        return {
+            question: null,
+            error: `Pregunta ${index + 1}: tipo múltiple requiere al menos 2 correctas (tiene ${correctCount})`,
+        };
     }
 
     return { question: { text, questionType: 'UNICA', points: 1, options }, error: null };

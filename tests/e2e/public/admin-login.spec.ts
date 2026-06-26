@@ -11,7 +11,9 @@ test.describe('Admin Login Page (/login)', () => {
 
     test('shows "Acceso docente" label', async ({ page }) => {
         // Use exact + locator to avoid matching the <title> tag
-        await expect(page.locator('span').getByText('Acceso docente', { exact: true })).toBeVisible();
+        await expect(
+            page.locator('span').getByText('Acceso docente', { exact: true }),
+        ).toBeVisible();
     });
 
     test('renders email and password inputs', async ({ page }) => {

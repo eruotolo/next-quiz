@@ -115,4 +115,3 @@ export async function getInstitutions(
 
     return { items, total, page: params.page, perPage: params.perPage };
 }
-

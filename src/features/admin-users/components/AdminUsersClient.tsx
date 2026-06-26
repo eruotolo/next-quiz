@@ -85,13 +85,7 @@ const ROLE_OPTIONS = [
     { value: USER_ROLE.SUPER_ADMIN, label: 'SuperAdministrador' },
 ];
 
-function RoleSelect({
-    value,
-    onChange,
-}: {
-    value: string;
-    onChange: (v: string) => void;
-}) {
+function RoleSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
     return (
         <SearchableSelect
             value={value}

@@ -50,4 +50,3 @@ export const assignPlanSchema = z.object({
         .optional()
         .or(z.literal('')),
 });
-

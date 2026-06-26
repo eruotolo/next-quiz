@@ -8,9 +8,7 @@ test.describe('Admin Results (/[slug]/results)', () => {
     });
 
     test('renders the page heading', async ({ page }) => {
-        await expect(
-            page.getByRole('heading', { name: /Historial de Resultados/i }),
-        ).toBeVisible();
+        await expect(page.getByRole('heading', { name: /Historial de Resultados/i })).toBeVisible();
     });
 
     test('shows the results count in subtitle', async ({ page }) => {

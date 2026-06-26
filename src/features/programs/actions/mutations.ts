@@ -26,7 +26,8 @@ function normalizeProgramData(parsed: {
     return {
         name: parsed.name.trim(),
         code: parsed.code && parsed.code !== '' ? parsed.code.trim() : null,
-        description: parsed.description && parsed.description !== '' ? parsed.description.trim() : null,
+        description:
+            parsed.description && parsed.description !== '' ? parsed.description.trim() : null,
     };
 }
 
@@ -72,7 +73,11 @@ export async function createProgram(
     }
 }
 
-export async function updateProgram(slug: string, id: string, data: unknown): Promise<ActionResult> {
+export async function updateProgram(
+    slug: string,
+    id: string,
+    data: unknown,
+): Promise<ActionResult> {
     try {
         const ctx = await requireInstitutionAccess(slug, [...ADMIN_ONLY]);
         const parsed = programSchema.safeParse(data);

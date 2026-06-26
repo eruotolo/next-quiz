@@ -12,7 +12,7 @@ export function AuthShell({ children, side }: AuthShellProps) {
         <div className="grid min-h-screen lg:grid-cols-[0.9fr_1.1fr]">
             {/* Left — ink panel with radial gradients */}
             <aside
-                className="relative hidden flex-col justify-between [background:var(--auth-bg)] p-12 lg:flex"
+                className="relative hidden flex-col justify-between p-12 [background:var(--auth-bg)] lg:flex"
                 style={
                     {
                         '--auth-bg':

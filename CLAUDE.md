@@ -15,28 +15,31 @@ Este archivo proporciona instrucciones permanentes a Claude Code cuando trabaja 
 **LEER CLAUDE.md ANTES DE CADA FEATURE** — Al comenzar cualquier tarea, leer este archivo completo.
 
 **DRY — Regla estricta** — Verificar si ya existe algo equivalente antes de crear cualquier componente, hook, helper o lógica:
+
 - Componentes UI → `src/shared/components/ui/`
 - Lógica de dominio → `src/features/{dominio}/lib/`
 - Utilidades → `src/shared/lib/`
 
 ## 🤖 FLUJO DE TRABAJO CON GSTACK
 
-| Etapa | Herramienta |
-| ----- | ----------- |
-| Explorar / entender código | CodeGraph (`codegraph_explore` ANTES de editar) |
-| Especificar features ambiguos | `/spec` |
-| Investigar bugs | `/investigate` |
-| QA en navegador | `/qa` (corrige) o `/qa-only` (solo reporta) |
-| Review pre-commit | `/review` |
-| Auditoría de diseño | `/design-review` |
-| Commit + ship | `/ship` (solo cuando el usuario lo pida) |
+| Etapa                         | Herramienta                                     |
+| ----------------------------- | ----------------------------------------------- |
+| Explorar / entender código    | CodeGraph (`codegraph_explore` ANTES de editar) |
+| Especificar features ambiguos | `/spec`                                         |
+| Investigar bugs               | `/investigate`                                  |
+| QA en navegador               | `/qa` (corrige) o `/qa-only` (solo reporta)     |
+| Review pre-commit             | `/review`                                       |
+| Auditoría de diseño           | `/design-review`                                |
+| Commit + ship                 | `/ship` (solo cuando el usuario lo pida)        |
 
 **Formato de commit OBLIGATORIO:**
+
 ```
 Tarea: {descripción en español}
 Fecha: {DD-MM-YYYY}
 Versión: {X.Y.Z}
 ```
+
 No commitear ni pushear sin pedido explícito del usuario.
 
 ## Project Overview
@@ -46,29 +49,30 @@ No commitear ni pushear sin pedido explícito del usuario.
 > **Especificación funcional y técnica completa**: ver `Spec.md` en la raíz del proyecto (resumen, stack, arquitectura, roles, modelo de datos, flujos clave, seguridad, planes, API, convenciones y testing).
 
 Tres áreas con autenticación y routing distintos:
+
 - **Estudiantes** → `/examen/login` (login por RUT, sin contraseña)
 - **Administradores / Profesores** → `/[slug]/` (panel scoped a su institución)
 - **SuperAdministrador** → `/config/` (panel global de la plataforma)
 
 ## Stack Tecnológico
 
-| Capa | Tecnología |
-| ---- | ---------- |
-| Framework | Next.js 16 (App Router, React 19) |
-| Lenguaje | TypeScript 5.7 strict |
-| Base de datos | PostgreSQL (Docker local, Vercel prod) |
-| ORM | Prisma 6 |
-| Auth (admin) | NextAuth v5 beta.25 (Credentials, JWT) |
-| Auth (estudiante) | Jose HS256 (cookie propia) |
-| Estilos | Tailwind CSS 4 |
-| UI primitivos | shadcn/ui + Radix UI |
-| Validación | Zod |
-| Formularios | React Hook Form |
-| Íconos | Lucide React |
-| Toasts | Sonner |
-| Linter | Biome 2 |
-| Package manager | pnpm |
-| Hosting | Vercel |
+| Capa              | Tecnología                             |
+| ----------------- | -------------------------------------- |
+| Framework         | Next.js 16 (App Router, React 19)      |
+| Lenguaje          | TypeScript 5.7 strict                  |
+| Base de datos     | PostgreSQL (Docker local, Vercel prod) |
+| ORM               | Prisma 6                               |
+| Auth (admin)      | NextAuth v5 beta.25 (Credentials, JWT) |
+| Auth (estudiante) | Jose HS256 (cookie propia)             |
+| Estilos           | Tailwind CSS 4                         |
+| UI primitivos     | shadcn/ui + Radix UI                   |
+| Validación        | Zod                                    |
+| Formularios       | React Hook Form                        |
+| Íconos            | Lucide React                           |
+| Toasts            | Sonner                                 |
+| Linter            | Biome 2                                |
+| Package manager   | pnpm                                   |
+| Hosting           | Vercel                                 |
 
 ## Development Commands
 
@@ -104,6 +108,7 @@ Llave maestra del sistema: tiene permiso para **absolutamente todo**, sin restri
 - El proxy NUNCA debe bloquear ni redirigir al SuperAdministrador.
 
 Patrón obligatorio en `getSessionUser()`:
+
 ```ts
 if (session.user.userRoleName === USER_ROLE.SUPER_ADMIN) {
     return { slug: null, userId: ..., userRole: ..., ... };
@@ -176,6 +181,7 @@ src/
 `AdminTopBar` se renderiza en un `layout.tsx` servidor por sección, **no** dentro del componente cliente. Esto permite SSR del header con datos reales (counts, título dinámico) sin hidratar el componente.
 
 Estructura típica de un sub-layout:
+
 ```tsx
 // src/app/(admin)/[slug]/students/layout.tsx
 export default async function StudentsLayout({ children, params }) {
@@ -216,26 +222,26 @@ Regla: si AdminTopBar necesita **acciones con estado** (abrir modal, setCreateOp
 
 ### Imports correctos
 
-| Necesitás importar | Path correcto |
-| ------------------ | ------------- |
-| NextAuth (auth, handlers) | `@/features/auth/auth` |
-| Prisma singleton | `@/shared/lib/prisma` |
-| cn() | `@/shared/lib/utils` |
-| RUT helpers | `@/shared/lib/rut` |
-| Roles / USER_ROLE | `@/shared/lib/roles` |
-| shadcn/ui componente | `@/shared/components/ui/{componente}` |
-| RutField | `@/shared/components/ui/rut-field` |
-| TablePaginator | `@/shared/components/ui/table-paginator` |
-| Timer (countdown) | `@/shared/components/ui/timer` |
-| Filtros de scoping | `@/shared/lib/scoping` |
-| Guard página [slug] | `@/shared/lib/auth-guard` (`requireInstitutionPageAccess`) |
-| AdminTopBar | `@/shared/components/layout/AdminTopBar` |
-| Logo | `@/shared/components/branding/logo` |
-| Sidebar | `@/features/dashboard/components/Sidebar` |
-| ExamCarousel | `@/features/exam-session/components/ExamCarousel` |
-| Cálculo de notas | `@/features/results/lib/grade` |
-| Session JWT estudiante | `@/features/exam-session/lib/session` |
-| SafeExam / SafeQuestion | `@/features/exam-session/types/exam.types` |
+| Necesitás importar        | Path correcto                                              |
+| ------------------------- | ---------------------------------------------------------- |
+| NextAuth (auth, handlers) | `@/features/auth/auth`                                     |
+| Prisma singleton          | `@/shared/lib/prisma`                                      |
+| cn()                      | `@/shared/lib/utils`                                       |
+| RUT helpers               | `@/shared/lib/rut`                                         |
+| Roles / USER_ROLE         | `@/shared/lib/roles`                                       |
+| shadcn/ui componente      | `@/shared/components/ui/{componente}`                      |
+| RutField                  | `@/shared/components/ui/rut-field`                         |
+| TablePaginator            | `@/shared/components/ui/table-paginator`                   |
+| Timer (countdown)         | `@/shared/components/ui/timer`                             |
+| Filtros de scoping        | `@/shared/lib/scoping`                                     |
+| Guard página [slug]       | `@/shared/lib/auth-guard` (`requireInstitutionPageAccess`) |
+| AdminTopBar               | `@/shared/components/layout/AdminTopBar`                   |
+| Logo                      | `@/shared/components/branding/logo`                        |
+| Sidebar                   | `@/features/dashboard/components/Sidebar`                  |
+| ExamCarousel              | `@/features/exam-session/components/ExamCarousel`          |
+| Cálculo de notas          | `@/features/results/lib/grade`                             |
+| Session JWT estudiante    | `@/features/exam-session/lib/session`                      |
+| SafeExam / SafeQuestion   | `@/features/exam-session/types/exam.types`                 |
 
 ## Proxy (`src/proxy.ts`)
 
@@ -253,12 +259,12 @@ Next.js 16 usa `proxy.ts` en lugar de `middleware.ts`.
 
 ## Roles de usuario
 
-| Rol | Valor en DB | Panel | Institución |
-| --- | ----------- | ----- | ----------- |
+| Rol                | Valor en DB            | Panel     | Institución   |
+| ------------------ | ---------------------- | --------- | ------------- |
 | SuperAdministrador | `'SuperAdministrador'` | `/config` | null (global) |
-| Administrador | `'Administrador'` | `/[slug]` | requerida |
-| Profesor | `'Profesor'` | `/[slug]` | requerida |
-| Estudiante | `'Estudiante'` | `/examen` | requerida |
+| Administrador      | `'Administrador'`      | `/[slug]` | requerida     |
+| Profesor           | `'Profesor'`           | `/[slug]` | requerida     |
+| Estudiante         | `'Estudiante'`         | `/examen` | requerida     |
 
 > SuperAdministrador NO tiene `academicInstitutionId` (null por diseño).
 
@@ -267,20 +273,20 @@ Next.js 16 usa `proxy.ts` en lugar de `middleware.ts`.
 Permisos aplicados en tres capas: `src/proxy.ts`, páginas y Server Actions (`requireInstitutionAccess` + `src/shared/lib/scoping.ts`).
 Leyenda: ✅ permitido · ⚠️ alcance limitado · ❌ denegado
 
-| Recurso / Acción | SuperAdmin | Admin | Profesor |
-| ---------------- | ---------- | ----- | -------- |
-| Dashboard | ✅ | ✅ | ⚠️ sus grupos |
-| Ajustes institución | ✅ | ✅ | ❌ |
-| Estudiantes — ver/crear/editar/activar | ✅ | ✅ | ⚠️ sus grupos |
-| Estudiantes — eliminar | ✅ | ✅ | ❌ |
-| Importar Excel | ✅ | ✅ | ⚠️ sus grupos |
-| Cuerpo docente — ver | ✅ | ✅ | ✅ |
-| Cuerpo docente — CRUD | ✅ | ✅ | ❌ |
-| Grupos — ver | ✅ | ✅ | ⚠️ asignados |
-| Grupos — CRUD | ✅ | ✅ | ❌ |
-| Exámenes — ver/crear/editar/publicar/eliminar | ✅ | ✅ | ⚠️ sus grupos |
-| Preguntas — CRUD/importar | ✅ | ✅ | ⚠️ sus grupos |
-| Resultados finales y en vivo | ✅ | ✅ | ⚠️ sus grupos |
+| Recurso / Acción                              | SuperAdmin | Admin | Profesor      |
+| --------------------------------------------- | ---------- | ----- | ------------- |
+| Dashboard                                     | ✅         | ✅    | ⚠️ sus grupos |
+| Ajustes institución                           | ✅         | ✅    | ❌            |
+| Estudiantes — ver/crear/editar/activar        | ✅         | ✅    | ⚠️ sus grupos |
+| Estudiantes — eliminar                        | ✅         | ✅    | ❌            |
+| Importar Excel                                | ✅         | ✅    | ⚠️ sus grupos |
+| Cuerpo docente — ver                          | ✅         | ✅    | ✅            |
+| Cuerpo docente — CRUD                         | ✅         | ✅    | ❌            |
+| Grupos — ver                                  | ✅         | ✅    | ⚠️ asignados  |
+| Grupos — CRUD                                 | ✅         | ✅    | ❌            |
+| Exámenes — ver/crear/editar/publicar/eliminar | ✅         | ✅    | ⚠️ sus grupos |
+| Preguntas — CRUD/importar                     | ✅         | ✅    | ⚠️ sus grupos |
+| Resultados finales y en vivo                  | ✅         | ✅    | ⚠️ sus grupos |
 
 > **SuperAdmin**: llave maestra, opera en cualquier institución por el `slug` de la URL.
 > **Profesor**: alcance acotado a grupos donde figura como profesor (`professors: { some: { id } }`); al editar un examen se preservan los grupos ajenos ya asignados.
@@ -328,14 +334,16 @@ import type { CSSProperties } from 'react';
 El proyecto usa `"jsx": "react-jsx"` (transform automático). **No importar React para JSX** — el runtime no lo necesita.
 
 ### ❌ Prohibido
+
 ```tsx
-import React from 'react';               // runtime import innecesario
-import type React from 'react';          // default type import obsoleto
-import type * as React from 'react';     // namespace type import obsoleto
-export function Foo(): React.JSX.Element // anotación de retorno redundante (TS infiere)
+import React from 'react'; // runtime import innecesario
+import type React from 'react'; // default type import obsoleto
+import type * as React from 'react'; // namespace type import obsoleto
+export function Foo(): React.JSX.Element; // anotación de retorno redundante (TS infiere)
 ```
 
 ### ✅ Correcto
+
 ```tsx
 // Solo importar los tipos que se usan, con named imports:
 import type { CSSProperties, FormEvent, ReactNode, ComponentType } from 'react';
@@ -350,21 +358,24 @@ style={{ '--token': value } as CSSProperties}
 ```
 
 ### Excepción — shadcn/ui (`src/shared/components/ui/`)
+
 Los 16 componentes de shadcn usan `React.ComponentProps<typeof Primitive.X>` con namespace import. **No tocar** — el CLI de shadcn los regenera con ese patrón y `ComponentProps` acoplado al namespace es intencional en Radix primitives.
 
 ### Tipos comunes → named imports
-| Antes (prohibido) | Después (correcto) |
-|---|---|
-| `React.CSSProperties` | `CSSProperties` |
-| `React.FormEvent<T>` | `FormEvent<T>` |
-| `React.ChangeEvent<T>` | `ChangeEvent<T>` |
-| `React.ReactNode` | `ReactNode` |
-| `React.ComponentType<T>` | `ComponentType<T>` |
-| `React.JSX.Element` | *(eliminar — TS infiere)* |
+
+| Antes (prohibido)        | Después (correcto)        |
+| ------------------------ | ------------------------- |
+| `React.CSSProperties`    | `CSSProperties`           |
+| `React.FormEvent<T>`     | `FormEvent<T>`            |
+| `React.ChangeEvent<T>`   | `ChangeEvent<T>`          |
+| `React.ReactNode`        | `ReactNode`               |
+| `React.ComponentType<T>` | `ComponentType<T>`        |
+| `React.JSX.Element`      | _(eliminar — TS infiere)_ |
 
 ## Centro de ayuda (`/[slug]/ayuda`)
 
 Feature en `src/features/help/`:
+
 - `lib/help-content.ts` — fuente de verdad del contenido de cada sección.
 - `components/HelpGuide.tsx` — render (server). Profesor no ve secciones con `professorAccess: 'none'`; `'readonly'` se muestra sin pasos; `'scoped'` lleva badge "Tus grupos".
 
@@ -409,6 +420,7 @@ Feature en `src/features/demo/`. Institución `slug = 'aulika-demo'`, `isDemo = 
 ## Tests End-to-End (Playwright)
 
 Estructura en `tests/e2e/`:
+
 ```
 tests/e2e/
 ├── global-setup.ts       ← autentica admin y superadmin, guarda cookies en .auth/
@@ -420,6 +432,7 @@ tests/e2e/
 ```
 
 **Credenciales de prueba (local-test seed):**
+
 - Admin: `carlos.lopez@ulagos.cl` / `Admin2026!` → `universidad-de-los-lagos`
 - Profesor: `laura.jimenez@ulagos.cl` / `Admin2026!`
 - Estudiante: RUT `55.555.555-5` (juan.perez@test.cl)
@@ -446,17 +459,17 @@ CRON_SECRET            # Secret para los cron de Vercel
 
 ## Modelos Prisma
 
-| Modelo | Descripción |
-| ------ | ----------- |
-| `UserRole` | Catálogo de 4 roles |
-| `AcademicInstitution` | Institución con `slug` único, `isDemo`, `plan`, `demoSessionId` |
-| `User` | Email único, RUT único, FK a rol, institución, grupo |
-| `Group` | Grupo de estudiantes, M2M con exámenes |
-| `Exam` | Examen con timeLimit, notas, anti-cheat, grupos M2M, `demoSessionId` |
-| `Question` | Pregunta con puntos y orden |
-| `Option` | Opción con `isCorrect` |
-| `Answer` | Respuesta del estudiante (unique por `attemptKey + questionId`) |
-| `Result` | Resultado final (unique por `studentId + examId`) |
+| Modelo                | Descripción                                                          |
+| --------------------- | -------------------------------------------------------------------- |
+| `UserRole`            | Catálogo de 4 roles                                                  |
+| `AcademicInstitution` | Institución con `slug` único, `isDemo`, `plan`, `demoSessionId`      |
+| `User`                | Email único, RUT único, FK a rol, institución, grupo                 |
+| `Group`               | Grupo de estudiantes, M2M con exámenes                               |
+| `Exam`                | Examen con timeLimit, notas, anti-cheat, grupos M2M, `demoSessionId` |
+| `Question`            | Pregunta con puntos y orden                                          |
+| `Option`              | Opción con `isCorrect`                                               |
+| `Answer`              | Respuesta del estudiante (unique por `attemptKey + questionId`)      |
+| `Result`              | Resultado final (unique por `studentId + examId`)                    |
 
 ## ExamsClient — rediseño de vista (v0.4.x)
 
@@ -466,10 +479,10 @@ CRON_SECRET            # Secret para los cron de Vercel
 - **Filtro por grupo**: nuevo `SearchableSelect` en la barra de filtros cuando `groups.length > 1`.
 - **Tabs mejorados**: los pills de tab ahora incluyen un dot de color por estado.
 - **Cards context-aware**:
-  - Título: muestra solo `exam.title` (se eliminó el prefijo `exam.subject`).
-  - Preguntas: "N preg." en lugar de "N q.".
-  - Columna participantes: `—` para borradores/programados, `X/Y` para en-curso (entregados/total alumnos del grupo), `N` para corregidos.
-  - Columna info: "Sin publicar" (borrador), "Abre en Xd Yh" (programado), fecha relativa (en-curso), "Prom. X.X · YY% apr." en verde (corregido).
+    - Título: muestra solo `exam.title` (se eliminó el prefijo `exam.subject`).
+    - Preguntas: "N preg." en lugar de "N q.".
+    - Columna participantes: `—` para borradores/programados, `X/Y` para en-curso (entregados/total alumnos del grupo), `N` para corregidos.
+    - Columna info: "Sin publicar" (borrador), "Abre en Xd Yh" (programado), fecha relativa (en-curso), "Prom. X.X · YY% apr." en verde (corregido).
 - **Data server**: `page.tsx` incluye `results: { score, maxScore }` en la query de exámenes y hace una query adicional para contar alumnos por grupo. Computa `avgGrade`, `passRate` y `totalStudents` en el servidor antes de pasar al cliente.
 - **Helpers extraídos**: `formatCountdown`, `getParticipantsText`, `getInfoText` como funciones módulo-nivel para reducir complejidad cognitiva.
 
@@ -478,6 +491,7 @@ CRON_SECRET            # Secret para los cron de Vercel
 Implementación en `src/shared/components/analytics/`:
 
 **Componentes y exports:**
+
 - `GoogleAnalytics` — inyecta scripts de GA4 en el RootLayout
 - `AnalyticsProvider` — envuelve el hook `useAnalytics` con Suspense (necessary para `useSearchParams`)
 - `useAnalytics(measurementId?)` — hook que auto-trackea cambios de ruta y expone `track` para eventos
@@ -485,32 +499,36 @@ Implementación en `src/shared/components/analytics/`:
 - `trackEvent(eventName, params?)` — función helper para trackear eventos personalizados (standalone)
 
 **Variables de entorno:**
+
 - `NEXT_PUBLIC_GA_MEASUREMENT_ID` — ID de medición de GA4 (formato: `G-XXXXXXXXXX`)
 - `NEXT_PUBLIC_GA_DISABLED` — desabilita GA completamente cuando es `'true'` (útil para demo, GDPR, desarrollo)
 
 **Características:**
+
 - ✅ No duplica `page_view` — `send_page_view: false` en el script + tracking manual en `useAnalytics`
 - ✅ Guardias de disponibilidad — verifica si `gtag` está cargado y si GA no está deshabilitado antes de trackear
 - ✅ Logging en desarrollo — `console.debug` con tag `[Analytics]` para debugging
 - ✅ Funciones helper standalone — permiten trackear eventos desde cualquier contexto (Server Actions, etc.)
 
 **Uso en componentes:**
+
 ```tsx
 'use client';
 import { useAnalytics } from '@/shared/components/analytics';
 
 export function MyComponent() {
     const { track } = useAnalytics();
-    
+
     const handleClick = () => {
         track('button_clicked', { label: 'submit_quiz' });
     };
-    
+
     return <button onClick={handleClick}>Enviar</button>;
 }
 ```
 
 **Uso fuera de componentes (Server Actions, helpers):**
+
 ```ts
 import { trackEvent } from '@/shared/components/analytics';
 
@@ -531,6 +549,7 @@ export async function createExam(formData: FormData) {
 **Sitemap automático:** Next.js genera `/sitemap.xml` desde `src/app/sitemap.ts`. Siempre que **se agregue una nueva página pública**, actualizar `sitemap.ts` para incluirla. Las rutas públicas linkeadas en el footer **DEBEN estar en el sitemap**. No esperar a que se descubra después.
 
 Rutas **NO indexables** (excluir del sitemap):
+
 - Rutas protegidas: `/[slug]/*`, `/config/*`, `/examen/[examId]/*`
 - Rutas de autenticación: `/auth/*`
 - API routes: `/api/*`
@@ -540,6 +559,7 @@ Rutas **NO indexables** (excluir del sitemap):
 Siempre que se actualice el proyecto, **documentar el cambio en este `CLAUDE.md`** en la sección correspondiente, como parte de la misma tarea.
 
 Al finalizar, también hacer append en Obsidian:
+
 ```bash
 cat >> "/Users/edgardoruotolo/SitesDoc/nextjs_projects/next-quiz/next-quiz.md" << 'EOF'
 
@@ -551,22 +571,26 @@ EOF
 ## Herramientas Obligatorias (gstack + CodeGraph)
 
 **gstack está REQUERIDO**. Verificar al inicio de sesión:
+
 ```bash
 test -d ~/.claude/skills/gstack && echo "✅ GSTACK OK" || echo "❌ GSTACK MISSING"
 ```
 
 Si falta, instalar y reiniciar antes de continuar:
+
 ```bash
 git clone --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
 cd ~/.claude/skills/gstack && ./setup --team
 ```
 
 **CodeGraph** (MCP `codegraph`) — consultar ANTES de editar:
+
 - `codegraph_explore` — herramienta primaria: arquitectura, flujos, "cómo funciona X".
 - `codegraph_search` — ubicar símbolo por nombre.
 - `codegraph_callers` / `codegraph_callees` — quién llama a X, qué llama X.
 
 **Documentación en Obsidian** — al inicio de cada sesión de trabajo:
+
 ```bash
 cat "/Users/edgardoruotolo/SitesDoc/nextjs_projects/next-quiz/next-quiz.md"
 ```

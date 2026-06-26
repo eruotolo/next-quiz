@@ -80,7 +80,10 @@ export async function createStudent(
         if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? 'Datos inválidos');
 
         const { groupId, ...rest } = parsed.data;
-        if (ctx.isProfesor && !(await professorOwnsGroup(groupId, ctx.userId, ctx.coordinatedProgramIds))) {
+        if (
+            ctx.isProfesor &&
+            !(await professorOwnsGroup(groupId, ctx.userId, ctx.coordinatedProgramIds))
+        ) {
             return fail('Solo puedes crear estudiantes en tus grupos.');
         }
 
@@ -122,13 +125,21 @@ export async function updateStudent(
         const parsed = studentSchema.safeParse(data);
         if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? 'Datos inválidos');
 
-        if (ctx.isProfesor && !(await professorHasAccess(id, ctx.userId, ctx.institutionId, ctx.coordinatedProgramIds))) {
+        if (
+            ctx.isProfesor &&
+            !(await professorHasAccess(
+                id,
+                ctx.userId,
+                ctx.institutionId,
+                ctx.coordinatedProgramIds,
+            ))
+        ) {
             return fail('Sin permisos sobre este estudiante.');
         }
 
         if (parsed.data.groupId) {
             const group = await prisma.group.findFirst({
-                where: { id: parsed.data.groupId, academicInstitutionId: ctx.institutionId }
+                where: { id: parsed.data.groupId, academicInstitutionId: ctx.institutionId },
             });
             if (!group) return fail('El grupo no pertenece a la institución.');
         }
@@ -196,7 +207,15 @@ export async function toggleStudentActive(
     try {
         const ctx = await requireInstitutionAccess(slug, [...ADMIN_OR_PROFESOR]);
 
-        if (ctx.isProfesor && !(await professorHasAccess(id, ctx.userId, ctx.institutionId, ctx.coordinatedProgramIds))) {
+        if (
+            ctx.isProfesor &&
+            !(await professorHasAccess(
+                id,
+                ctx.userId,
+                ctx.institutionId,
+                ctx.coordinatedProgramIds,
+            ))
+        ) {
             return fail('Sin permisos sobre este estudiante.');
         }
 

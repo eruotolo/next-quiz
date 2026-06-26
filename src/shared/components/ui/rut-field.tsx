@@ -19,13 +19,7 @@ interface RutFieldProps {
     className?: string;
 }
 
-export function RutField({
-    id,
-    value,
-    onChange,
-    disabled,
-    className,
-}: RutFieldProps) {
+export function RutField({ id, value, onChange, disabled, className }: RutFieldProps) {
     return (
         <IMaskInput
             id={id}

@@ -8,10 +8,7 @@ import { requireInstitutionAccess } from '@/features/auth/lib/auth-guard';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-        return NextResponse.json(
-            { error: 'Servicio de IA no configurado' },
-            { status: 503 },
-        );
+        return NextResponse.json({ error: 'Servicio de IA no configurado' }, { status: 503 });
     }
 
     let body: unknown;
@@ -36,8 +33,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const input = parsed.data;
-    const questionType: 'UNICA' | 'MULTIPLE' =
-        input.correctAnswers === 1 ? 'UNICA' : 'MULTIPLE';
+    const questionType: 'UNICA' | 'MULTIPLE' = input.correctAnswers === 1 ? 'UNICA' : 'MULTIPLE';
 
     try {
         const { text } = await generateText({
@@ -49,9 +45,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         return NextResponse.json(result);
     } catch {
-        return NextResponse.json(
-            { error: 'Error al generar preguntas con IA' },
-            { status: 500 },
-        );
+        return NextResponse.json({ error: 'Error al generar preguntas con IA' }, { status: 500 });
     }
 }

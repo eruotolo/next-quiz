@@ -214,13 +214,7 @@ function validateExamForm(form: ExamFormState): Record<string, string> {
 
 // ── Sub-components ─────────────────────────────────────────────────────────
 
-function ExamRow({
-    exam,
-    onView,
-}: {
-    exam: ActiveExamInfo;
-    onView: () => void;
-}) {
+function ExamRow({ exam, onView }: { exam: ActiveExamInfo; onView: () => void }) {
     const pct = exam.totalStudents > 0 ? exam.submittedCount / exam.totalStudents : 0;
     return (
         <div className="flex items-center gap-4 px-6 py-4">
@@ -241,7 +235,10 @@ function ExamRow({
             <div className="w-28 shrink-0 space-y-1">
                 <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#e5e2dc]">
                     <div
-                        className={cn('h-full w-[var(--bar-w)] rounded-full transition-all', progressColor(pct))}
+                        className={cn(
+                            'h-full w-[var(--bar-w)] rounded-full transition-all',
+                            progressColor(pct),
+                        )}
                         style={{ '--bar-w': `${Math.round(pct * 100)}%` } as React.CSSProperties}
                     />
                 </div>
@@ -419,7 +416,10 @@ function CreateGroupDialog({
                             setGroupName(e.target.value);
                             setGroupError(null);
                         }}
-                        className={cn('border-border h-11 rounded-[10px] bg-white', groupError && 'border-destructive')}
+                        className={cn(
+                            'border-border h-11 rounded-[10px] bg-white',
+                            groupError && 'border-destructive',
+                        )}
                         autoFocus
                     />
                     {groupError && (
@@ -1006,7 +1006,7 @@ export function DashboardClient({
                             {GRADE_BARS.map(({ id, val }, i) => (
                                 <div
                                     key={id}
-                                    className="flex-1 rounded-t-[4px] [height:var(--bar-h)] [background-color:var(--bar-bg)] transition-all hover:opacity-80"
+                                    className="[height:var(--bar-h)] flex-1 rounded-t-[4px] [background-color:var(--bar-bg)] transition-all hover:opacity-80"
                                     style={
                                         {
                                             '--bar-h': `${val * 100}%`,

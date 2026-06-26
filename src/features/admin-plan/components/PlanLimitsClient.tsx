@@ -297,7 +297,7 @@ export function PlanLimitsClient({ limits, customPlans }: Props) {
                                                         handleChange(l.plan, field, e.target.value)
                                                     }
                                                     placeholder="∞"
-                                                    className="border-border bg-white text-ink placeholder:text-mute/40 focus:border-primary focus:ring-primary/20 w-20 rounded-[8px] border px-2 py-1.5 text-center text-[13px] outline-none focus:ring-2"
+                                                    className="border-border text-ink placeholder:text-mute/40 focus:border-primary focus:ring-primary/20 w-20 rounded-[8px] border bg-white px-2 py-1.5 text-center text-[13px] outline-none focus:ring-2"
                                                 />
                                             </td>
                                         ))}

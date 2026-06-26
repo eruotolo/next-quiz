@@ -36,7 +36,10 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
             orderBy: { name: 'asc' },
         }),
         prisma.user.findMany({
-            where: { academicInstitutionId: institutionId, userRole: { name: { in: [USER_ROLE.PROFESOR, USER_ROLE.ADMIN] } } },
+            where: {
+                academicInstitutionId: institutionId,
+                userRole: { name: { in: [USER_ROLE.PROFESOR, USER_ROLE.ADMIN] } },
+            },
             select: { id: true, name: true, lastname: true },
             orderBy: { lastname: 'asc' },
         }),

@@ -19,4 +19,3 @@ export const createProfessorSchema = z.object({
 export const updateProfessorSchema = createProfessorSchema.extend({
     password: z.string().min(8, 'Mínimo 8 caracteres').optional().or(z.literal('')),
 });
-

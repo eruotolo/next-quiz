@@ -49,12 +49,7 @@ function truncate(str: string | null, len: number): string {
     return str.length > len ? `${str.slice(0, len)}…` : str;
 }
 
-export function AuditClient({
-    result,
-    distinctActions,
-    institutions,
-    currentFilters,
-}: Props) {
+export function AuditClient({ result, distinctActions, institutions, currentFilters }: Props) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -209,7 +204,9 @@ export function AuditClient({
                 </span>
             </div>
 
-            <main className={`flex-1 overflow-auto p-8 transition-opacity ${isPending ? 'opacity-60' : ''}`}>
+            <main
+                className={`flex-1 overflow-auto p-8 transition-opacity ${isPending ? 'opacity-60' : ''}`}
+            >
                 {result.items.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
                         <ScrollText size={48} className="text-mute/20 mb-4" />

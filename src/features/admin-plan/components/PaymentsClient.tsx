@@ -124,7 +124,11 @@ export function PaymentsClient({ initial }: Props) {
                     size="sm"
                     value={filters.plan ?? 'all'}
                     onChange={(v) =>
-                        applyFilters({ ...filters, plan: v === 'all' ? undefined : (v as Plan), page: 1 })
+                        applyFilters({
+                            ...filters,
+                            plan: v === 'all' ? undefined : (v as Plan),
+                            page: 1,
+                        })
                     }
                     options={[
                         { value: 'all', label: 'Todos los planes' },
@@ -139,7 +143,11 @@ export function PaymentsClient({ initial }: Props) {
                     size="sm"
                     value={filters.status ?? 'all'}
                     onChange={(v) =>
-                        applyFilters({ ...filters, status: v === 'all' ? undefined : (v as PaymentStatus), page: 1 })
+                        applyFilters({
+                            ...filters,
+                            status: v === 'all' ? undefined : (v as PaymentStatus),
+                            page: 1,
+                        })
                     }
                     options={[
                         { value: 'all', label: 'Todos los estados' },

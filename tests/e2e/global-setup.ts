@@ -26,7 +26,9 @@ setup('authenticate superadmin', async ({ page }) => {
     const password = process.env.ADMIN_PASSWORD;
 
     if (!email || !password) {
-        console.warn('[setup] ADMIN_EMAIL or ADMIN_PASSWORD not set — writing empty superadmin auth');
+        console.warn(
+            '[setup] ADMIN_EMAIL or ADMIN_PASSWORD not set — writing empty superadmin auth',
+        );
         fs.writeFileSync(SUPERADMIN_AUTH_FILE, JSON.stringify({ cookies: [], origins: [] }));
         return;
     }
@@ -40,7 +42,9 @@ setup('authenticate superadmin', async ({ page }) => {
         await page.context().storageState({ path: SUPERADMIN_AUTH_FILE });
     } catch {
         // Superadmin may not be seeded locally — write empty state so tests skip cleanly
-        console.warn('[setup] Superadmin login failed — check that pnpm db:seed was run. Writing empty auth.');
+        console.warn(
+            '[setup] Superadmin login failed — check that pnpm db:seed was run. Writing empty auth.',
+        );
         fs.writeFileSync(SUPERADMIN_AUTH_FILE, JSON.stringify({ cookies: [], origins: [] }));
     }
 });

@@ -135,7 +135,9 @@ export default async function ResultadoPage({ params }: PageProps) {
     const fullName = `${result.student.name} ${result.student.lastname}`;
     const groupName = result.student.group?.name ?? null;
     const institutionName = result.student.academicInstitution?.name ?? null;
-    const topbarLabel = [institutionName, result.exam.title, 'entregado'].filter(Boolean).join(' · ');
+    const topbarLabel = [institutionName, result.exam.title, 'entregado']
+        .filter(Boolean)
+        .join(' · ');
 
     return (
         <div className="bg-paper flex min-h-screen flex-col print:bg-white">
@@ -285,7 +287,10 @@ export default async function ResultadoPage({ params }: PageProps) {
                                     .filter((l): l is (typeof LABELS)[number] => Boolean(l));
 
                                 return (
-                                    <TableRow key={q.id} className={cn(!isCorrect && 'bg-danger-wash/30')}>
+                                    <TableRow
+                                        key={q.id}
+                                        className={cn(!isCorrect && 'bg-danger-wash/30')}
+                                    >
                                         <TableCell className="text-mute font-mono text-[12px]">
                                             {idx + 1}
                                         </TableCell>

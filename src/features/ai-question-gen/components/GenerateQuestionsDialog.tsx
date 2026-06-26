@@ -20,13 +20,7 @@ import {
     SelectValue,
 } from '@/shared/components/ui/select';
 import { cn } from '@/shared/lib/utils';
-import {
-    AlertTriangle,
-    CheckCircle,
-    Loader2,
-    Sparkles,
-    XCircle,
-} from 'lucide-react';
+import { AlertTriangle, CheckCircle, Loader2, Sparkles, XCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
@@ -86,8 +80,7 @@ function ConfigurationForm({
     onUpdate: <K extends keyof FormData>(key: K, value: FormData[K]) => void;
     onGenerate: () => void;
 }) {
-    const questionType: 'UNICA' | 'MULTIPLE' =
-        form.correctAnswers === 1 ? 'UNICA' : 'MULTIPLE';
+    const questionType: 'UNICA' | 'MULTIPLE' = form.correctAnswers === 1 ? 'UNICA' : 'MULTIPLE';
 
     return (
         <div className="space-y-4">
@@ -144,7 +137,10 @@ function ConfigurationForm({
                         value={form.difficulty}
                         onValueChange={(v) => onUpdate('difficulty', v as Difficulty)}
                     >
-                        <SelectTrigger id="ai-difficulty" className="border-border h-10 w-full rounded-[10px] bg-white">
+                        <SelectTrigger
+                            id="ai-difficulty"
+                            className="border-border h-10 w-full rounded-[10px] bg-white"
+                        >
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -229,7 +225,10 @@ function SubjectField({
                     value={subjects.includes(form.subject) ? form.subject : undefined}
                     onValueChange={(v) => onUpdate('subject', v)}
                 >
-                    <SelectTrigger id="ai-subject" className="border-border h-10 w-full rounded-[10px] bg-white">
+                    <SelectTrigger
+                        id="ai-subject"
+                        className="border-border h-10 w-full rounded-[10px] bg-white"
+                    >
                         <SelectValue placeholder="Seleccioná o escribí..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -339,15 +338,11 @@ function PreviewSection({
                                 <th className="px-3 py-2 text-left text-xs font-semibold">
                                     Pregunta
                                 </th>
-                                <th className="px-3 py-2 text-left text-xs font-semibold">
-                                    Tipo
-                                </th>
+                                <th className="px-3 py-2 text-left text-xs font-semibold">Tipo</th>
                                 <th className="px-3 py-2 text-center text-xs font-semibold">
                                     Ptos
                                 </th>
-                                <th className="px-3 py-2 text-center text-xs font-semibold">
-                                    Ops
-                                </th>
+                                <th className="px-3 py-2 text-center text-xs font-semibold">Ops</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -359,25 +354,14 @@ function PreviewSection({
                 </div>
             )}
 
-            <Button
-                variant="ghost"
-                size="sm"
-                onClick={onBack}
-                className="gap-1.5"
-            >
+            <Button variant="ghost" size="sm" onClick={onBack} className="gap-1.5">
                 ← Cambiar parámetros
             </Button>
         </div>
     );
 }
 
-function PreviewRow({
-    question,
-    index,
-}: {
-    question: GeneratedQuestion;
-    index: number;
-}) {
+function PreviewRow({ question, index }: { question: GeneratedQuestion; index: number }) {
     const correctCount = question.options.filter((o) => o.isCorrect).length;
 
     return (
@@ -404,20 +388,13 @@ function PreviewRow({
                 {question.points}
             </td>
             <td className="text-muted-foreground px-3 py-2 text-center text-xs">
-                {question.options.length}{' '}
-                <span className="text-success">({correctCount}✓)</span>
+                {question.options.length} <span className="text-success">({correctCount}✓)</span>
             </td>
         </tr>
     );
 }
 
-export function GenerateQuestionsDialog({
-    slug,
-    examId,
-    open,
-    onOpenChange,
-    subjects,
-}: Props) {
+export function GenerateQuestionsDialog({ slug, examId, open, onOpenChange, subjects }: Props) {
     const router = useRouter();
     const [form, setForm] = useState<FormData>(defaultForm());
     const [generating, setGenerating] = useState(false);
