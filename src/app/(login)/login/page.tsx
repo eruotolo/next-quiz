@@ -16,7 +16,7 @@ export default async function LoginPage({
 }: LoginPageProps) {
     const session = await auth();
 
-    if (session?.user) {
+    if (session?.user && !session.user.isDemo) {
         if (session.user.userRoleName === USER_ROLE.SUPER_ADMIN) {
             redirect('/config');
         } else if (session.user.institutionSlug) {
