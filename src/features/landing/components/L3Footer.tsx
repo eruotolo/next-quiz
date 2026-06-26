@@ -120,9 +120,9 @@ export function L3Footer() {
                 <div className="border-border/50 text-mute mt-20 flex flex-col items-start justify-between gap-6 border-t pt-8 font-mono text-[10px] font-bold tracking-widest uppercase sm:flex-row sm:items-center">
                     <p>
                         <a target="_blank" rel="noopener" href="https://crowadvance.com">
-                            Crow Advance EIRL
+                            Crow Advance E.I.R.L.
                         </a>{' '}
-                        © {new Date().getFullYear()} · RUT 27.039.635-6 · Chonchi, Chiloé, Chile
+                        © {new Date().getFullYear()} · RUT 78.456.748-6 · Chonchi, Chiloé, Chile
                     </p>
                     <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                         <Link

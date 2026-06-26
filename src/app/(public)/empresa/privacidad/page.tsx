@@ -7,7 +7,7 @@ export const dynamic = 'force-static';
 export const metadata: Metadata = {
     title: 'Política de Privacidad | Aulika',
     description:
-        'Cómo Crow Advance EIRL trata y protege los datos personales de instituciones educativas, docentes y estudiantes en la plataforma Aulika. Cumplimiento Ley 21.719 y Ley 19.628.',
+        'Cómo Crow Advance E.I.R.L. trata y protege los datos personales de instituciones educativas, docentes y estudiantes en la plataforma Aulika. Cumplimiento Ley 21.719 y Ley 19.628.',
     alternates: { canonical: 'https://www.aulika.cl/empresa/privacidad' },
     robots: { index: true, follow: true },
 };
@@ -20,7 +20,7 @@ export default function PrivacidadPage() {
             <L3SubpageLayout
                 tag="LEGAL · PRIVACIDAD"
                 title="Política de Privacidad."
-                description="Cómo Crow Advance EIRL gestiona y protege los datos personales de instituciones, docentes y estudiantes en la plataforma Aulika."
+                description="Cómo Crow Advance E.I.R.L. gestiona y protege los datos personales de instituciones, docentes y estudiantes en la plataforma Aulika."
             >
                 <div className="text-ink-dim space-y-14 leading-relaxed">
                     {/* Meta info */}
@@ -29,12 +29,19 @@ export default function PrivacidadPage() {
                             <strong className="text-ink">Versión vigente:</strong> {LAST_UPDATED}
                         </p>
                         <p className="mt-1">
-                            <strong className="text-ink">Encargado del Tratamiento:</strong> Crow
-                            Advance EIRL — RUT 27.039.635-6
+                            <strong className="text-ink">Razón Social:</strong> EDGARDO ANTONIO
+                            RUOTOLO CARDOZO CONSULTORIA INFORMATICA E.I.R.L.
+                        </p>
+                        <p className="mt-1">
+                            <strong className="text-ink">Nombre de Fantasía:</strong> Crow Advance
+                            E.I.R.L.
+                        </p>
+                        <p className="mt-1">
+                            <strong className="text-ink">RUT:</strong> 78.456.748-6
                         </p>
                         <p className="mt-1">
                             <strong className="text-ink">Representante legal:</strong> Edgardo
-                            Ruotolo Cardozo
+                            Antonio Ruotolo Cardozo
                         </p>
                         <p className="mt-1">
                             <strong className="text-ink">Domicilio:</strong> Centenario 493,
@@ -124,7 +131,7 @@ export default function PrivacidadPage() {
                                     </span>
                                 </h3>
                                 <p className="text-sm">
-                                    <strong>Crow Advance EIRL (Aulika)</strong>, quien trata los
+                                    <strong>Crow Advance E.I.R.L. (Aulika)</strong>, quien trata los
                                     datos únicamente por instrucción y en nombre del Responsable,
                                     sin utilizarlos para fines propios. Actúa en calidad de
                                     Mandatario del Tratamiento conforme al artículo 16 de la Ley
@@ -301,7 +308,7 @@ export default function PrivacidadPage() {
                         <ul className="mt-4 list-disc space-y-2 pl-6">
                             <li>
                                 La ejecución del contrato de servicios suscrito entre la institución
-                                y Crow Advance EIRL.
+                                y Crow Advance E.I.R.L..
                             </li>
                             <li>
                                 El consentimiento de los titulares, obtenido y gestionado por el
@@ -310,7 +317,7 @@ export default function PrivacidadPage() {
                             <li>
                                 El interés legítimo en la prestación y mejora del servicio educativo.
                             </li>
-                            <li>Las obligaciones legales aplicables a Crow Advance EIRL.</li>
+                            <li>Las obligaciones legales aplicables a Crow Advance E.I.R.L..</li>
                         </ul>
                     </section>
 
@@ -344,7 +351,7 @@ export default function PrivacidadPage() {
                             </div>
                         </div>
                         <p className="mt-4 text-sm">
-                            Crow Advance EIRL ha suscrito Acuerdos de Tratamiento de Datos con
+                            Crow Advance E.I.R.L. ha suscrito Acuerdos de Tratamiento de Datos con
                             cada sub-encargado, garantizando que{' '}
                             <strong className="text-ink">
                                 todos los datos viajan y se almacenan bajo cifrado SSL/TLS en
@@ -454,7 +461,7 @@ export default function PrivacidadPage() {
                             Artículo 10 — Medidas de Seguridad
                         </h2>
                         <p>
-                            Crow Advance EIRL implementa las siguientes medidas técnicas y
+                            Crow Advance E.I.R.L. implementa las siguientes medidas técnicas y
                             organizativas para proteger los datos:
                         </p>
                         <ul className="mt-4 list-disc space-y-2 pl-6">
@@ -548,7 +555,7 @@ export default function PrivacidadPage() {
                         </h2>
                         <div className="border-border bg-paper rounded-xl border p-6 text-sm">
                             <p className="text-ink font-semibold">
-                                Crow Advance EIRL — Aulika
+                                Crow Advance E.I.R.L. — Aulika
                             </p>
                             <p className="mt-2">
                                 Responsable: Edgardo Ruotolo Cardozo

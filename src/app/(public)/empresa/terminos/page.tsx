@@ -7,7 +7,7 @@ export const dynamic = 'force-static';
 export const metadata: Metadata = {
     title: 'Términos y Condiciones | Aulika',
     description:
-        'Condiciones de uso del servicio SaaS Aulika para instituciones educativas. Licencia, propiedad intelectual, SLA, limitación de responsabilidad e IA. Crow Advance EIRL.',
+        'Condiciones de uso del servicio SaaS Aulika para instituciones educativas. Licencia, propiedad intelectual, SLA, limitación de responsabilidad e IA. Crow Advance E.I.R.L..',
     alternates: { canonical: 'https://www.aulika.cl/empresa/terminos' },
     robots: { index: true, follow: true },
 };
@@ -29,12 +29,19 @@ export default function TerminosPage() {
                             <strong className="text-ink">Versión vigente:</strong> {LAST_UPDATED}
                         </p>
                         <p className="mt-1">
-                            <strong className="text-ink">Proveedor del servicio:</strong> Crow
-                            Advance EIRL — RUT 27.039.635-6
+                            <strong className="text-ink">Razón Social:</strong> EDGARDO ANTONIO
+                            RUOTOLO CARDOZO CONSULTORIA INFORMATICA E.I.R.L.
+                        </p>
+                        <p className="mt-1">
+                            <strong className="text-ink">Nombre de Fantasía:</strong> Crow Advance
+                            E.I.R.L.
+                        </p>
+                        <p className="mt-1">
+                            <strong className="text-ink">RUT:</strong> 78.456.748-6
                         </p>
                         <p className="mt-1">
                             <strong className="text-ink">Representante legal:</strong> Edgardo
-                            Ruotolo Cardozo
+                            Antonio Ruotolo Cardozo
                         </p>
                         <p className="mt-1">
                             <strong className="text-ink">Domicilio:</strong> Centenario 493,
@@ -58,8 +65,8 @@ export default function TerminosPage() {
                         </h2>
                         <p>
                             El presente contrato se celebra entre{' '}
-                            <strong className="text-ink">Crow Advance EIRL</strong> (RUT
-                            27.039.635-6), titular de la plataforma Aulika (en adelante, "Aulika"
+                            <strong className="text-ink">Crow Advance E.I.R.L.</strong> (RUT
+                            78.456.748-6), titular de la plataforma Aulika (en adelante, "Aulika"
                             o "el Proveedor"), y la{' '}
                             <strong className="text-ink">institución educativa</strong> (en
                             adelante, "el Cliente") que ha aceptado estos términos al contratar o
@@ -126,7 +133,7 @@ export default function TerminosPage() {
                             El código fuente, diseño, interfaces, logotipos, nombre comercial,
                             arquitectura de software, bases de datos propias y toda la
                             documentación técnica de Aulika son propiedad exclusiva de{' '}
-                            <strong className="text-ink">Crow Advance EIRL</strong>, protegidos
+                            <strong className="text-ink">Crow Advance E.I.R.L.</strong>, protegidos
                             por la Ley Nº 17.336 sobre Propiedad Intelectual y sus modificaciones,
                             incluyendo la Ley Nº 20.435.
                         </p>
@@ -449,7 +456,7 @@ export default function TerminosPage() {
                             Artículo 11 — Protocolo de Seguridad y Notificación de Brechas
                         </h2>
                         <p>
-                            Crow Advance EIRL implementa medidas de seguridad descritas en la
+                            Crow Advance E.I.R.L. implementa medidas de seguridad descritas en la
                             Política de Privacidad. En caso de detectar una brecha de seguridad
                             que afecte o pueda afectar datos del Cliente, Aulika:
                         </p>
@@ -515,7 +522,7 @@ export default function TerminosPage() {
                     <section>
                         <h2 className="text-ink mb-4 text-2xl font-bold">Contacto Legal</h2>
                         <div className="border-border bg-paper rounded-xl border p-6 text-sm">
-                            <p className="text-ink font-semibold">Crow Advance EIRL — Aulika</p>
+                            <p className="text-ink font-semibold">Crow Advance E.I.R.L. — Aulika</p>
                             <p className="mt-2">
                                 Responsable: Edgardo Ruotolo Cardozo
                             </p>
