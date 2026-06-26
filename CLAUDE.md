@@ -458,6 +458,68 @@ CRON_SECRET            # Secret para los cron de Vercel
 | `Answer` | Respuesta del estudiante (unique por `attemptKey + questionId`) |
 | `Result` | Resultado final (unique por `studentId + examId`) |
 
+## ExamsClient — rediseño de vista (v0.4.x)
+
+`src/app/(admin)/[slug]/exams/page.tsx` y `src/features/exams/components/ExamsClient.tsx`:
+
+- **Stats tiles**: 4 tiles clicables (Borrador / Programado / En curso / Corregido) visibles sobre la lista; funcionan como atajos de filtro y muestran los conteos de un vistazo.
+- **Filtro por grupo**: nuevo `SearchableSelect` en la barra de filtros cuando `groups.length > 1`.
+- **Tabs mejorados**: los pills de tab ahora incluyen un dot de color por estado.
+- **Cards context-aware**:
+  - Título: muestra solo `exam.title` (se eliminó el prefijo `exam.subject`).
+  - Preguntas: "N preg." en lugar de "N q.".
+  - Columna participantes: `—` para borradores/programados, `X/Y` para en-curso (entregados/total alumnos del grupo), `N` para corregidos.
+  - Columna info: "Sin publicar" (borrador), "Abre en Xd Yh" (programado), fecha relativa (en-curso), "Prom. X.X · YY% apr." en verde (corregido).
+- **Data server**: `page.tsx` incluye `results: { score, maxScore }` en la query de exámenes y hace una query adicional para contar alumnos por grupo. Computa `avgGrade`, `passRate` y `totalStudents` en el servidor antes de pasar al cliente.
+- **Helpers extraídos**: `formatCountdown`, `getParticipantsText`, `getInfoText` como funciones módulo-nivel para reducir complejidad cognitiva.
+
+## Google Analytics (GA4)
+
+Implementación en `src/shared/components/analytics/`:
+
+**Componentes y exports:**
+- `GoogleAnalytics` — inyecta scripts de GA4 en el RootLayout
+- `AnalyticsProvider` — envuelve el hook `useAnalytics` con Suspense (necessary para `useSearchParams`)
+- `useAnalytics(measurementId?)` — hook que auto-trackea cambios de ruta y expone `track` para eventos
+- `trackPageView(url, measurementId?)` — función helper para trackear página manualmente (standalone)
+- `trackEvent(eventName, params?)` — función helper para trackear eventos personalizados (standalone)
+
+**Variables de entorno:**
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID` — ID de medición de GA4 (formato: `G-XXXXXXXXXX`)
+- `NEXT_PUBLIC_GA_DISABLED` — desabilita GA completamente cuando es `'true'` (útil para demo, GDPR, desarrollo)
+
+**Características:**
+- ✅ No duplica `page_view` — `send_page_view: false` en el script + tracking manual en `useAnalytics`
+- ✅ Guardias de disponibilidad — verifica si `gtag` está cargado y si GA no está deshabilitado antes de trackear
+- ✅ Logging en desarrollo — `console.debug` con tag `[Analytics]` para debugging
+- ✅ Funciones helper standalone — permiten trackear eventos desde cualquier contexto (Server Actions, etc.)
+
+**Uso en componentes:**
+```tsx
+'use client';
+import { useAnalytics } from '@/shared/components/analytics';
+
+export function MyComponent() {
+    const { track } = useAnalytics();
+    
+    const handleClick = () => {
+        track('button_clicked', { label: 'submit_quiz' });
+    };
+    
+    return <button onClick={handleClick}>Enviar</button>;
+}
+```
+
+**Uso fuera de componentes (Server Actions, helpers):**
+```ts
+import { trackEvent } from '@/shared/components/analytics';
+
+export async function createExam(formData: FormData) {
+    // ... lógica
+    trackEvent('exam_created', { title: formData.get('title') });
+}
+```
+
 ## Convenciones de RUT chileno
 
 - Almacenado sin puntos ni guión (ej: `270396356`).

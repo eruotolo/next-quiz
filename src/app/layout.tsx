@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Bricolage_Grotesque, Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from '@/shared/components/ui/sonner';
 import { getGlobalSeo } from '@/shared/lib/seo';
+import { GoogleAnalytics, AnalyticsProvider } from '@/shared/components/analytics';
 import './globals.css';
 
 const bricolage = Bricolage_Grotesque({
@@ -107,6 +108,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+    const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? '';
+
     return (
         <html
             lang="es"
@@ -115,6 +118,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <body className="min-h-screen font-sans">
                 {children}
                 <Toaster richColors position="top-right" />
+                {/* Google Analytics — solo carga si la variable de entorno está definida */}
+                <GoogleAnalytics measurementId={gaMeasurementId} />
+                <AnalyticsProvider />
             </body>
         </html>
     );
