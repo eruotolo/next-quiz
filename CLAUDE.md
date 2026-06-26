@@ -43,6 +43,8 @@ No commitear ni pushear sin pedido explícito del usuario.
 
 **Aulika** — Sistema de evaluación en línea para colegios y universidades.
 
+> **Especificación funcional y técnica completa**: ver `Spec.md` en la raíz del proyecto (resumen, stack, arquitectura, roles, modelo de datos, flujos clave, seguridad, planes, API, convenciones y testing).
+
 Tres áreas con autenticación y routing distintos:
 - **Estudiantes** → `/examen/login` (login por RUT, sin contraseña)
 - **Administradores / Profesores** → `/[slug]/` (panel scoped a su institución)

@@ -21,7 +21,7 @@ import { cn } from '@/shared/lib/utils';
 import { INSTITUTION_TYPE_OPTIONS } from '@/shared/lib/academic-labels';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Building2, Globe, Lock, Mail, MapPin, Phone, Save, Search } from 'lucide-react';
-import type { InstitutionType } from '@prisma/client';
+import type { InstitutionType } from '@/shared/lib/academic-labels';
 import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';

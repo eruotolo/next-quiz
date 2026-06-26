@@ -16,10 +16,11 @@
  * Uso:
  *   pnpm db:seed:bulk
  */
-import { type Prisma, PrismaClient } from '@prisma/client';
+import { type Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { createSeedClient } from '../lib/client';
 
-const prisma = new PrismaClient();
+const prisma = createSeedClient();
 
 const STAFF_PASSWORD = 'Guns@026772';
 const GROUPS_PER_INSTITUTION = 3;

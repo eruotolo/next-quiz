@@ -1,10 +1,10 @@
 'use client';
 
 import type React from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
-import { Activity, RefreshCw, User } from 'lucide-react';
+import { Activity, PauseCircle, RefreshCw, User, XCircle } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Tag } from '@/shared/components/ui/badge';
@@ -15,6 +15,18 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/shared/components/ui/select';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/shared/components/ui/alert-dialog';
+import { pauseExamAttempt, cancelExamAttempt } from '@/features/results/actions/exam-control';
+import { toast } from 'sonner';
 
 interface QuestionOption {
     id: string;
@@ -88,6 +100,13 @@ function formatMs(ms: number | null | undefined): string {
     return `${Math.floor(s / 60)}m ${s % 60}s`;
 }
 
+type PendingAction = {
+    type: 'pause' | 'cancel';
+    studentId: string;
+    studentName: string;
+    examId: string;
+};
+
 export function LiveResultsClient({
     allExams,
     selectedExamId,
@@ -100,6 +119,28 @@ export function LiveResultsClient({
     const [autoRefresh, setAutoRefresh] = useState(true);
     const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+    const [isPending, startTransition] = useTransition();
+
+    function handleActionConfirm(): void {
+        if (!pendingAction) return;
+        startTransition(async () => {
+            try {
+                if (pendingAction.type === 'pause') {
+                    await pauseExamAttempt(slug, pendingAction.studentId, pendingAction.examId);
+                    toast.success(`Examen de ${pendingAction.studentName} pausado`);
+                } else {
+                    await cancelExamAttempt(slug, pendingAction.studentId, pendingAction.examId);
+                    toast.success(`Intento de ${pendingAction.studentName} cancelado`);
+                }
+                router.refresh();
+            } catch {
+                toast.error('Ocurrió un error. Intenta de nuevo.');
+            } finally {
+                setPendingAction(null);
+            }
+        });
+    }
 
     useEffect(() => {
         setLastRefreshed(new Date());
@@ -342,7 +383,7 @@ export function LiveResultsClient({
                                                     <div className="flex items-center gap-3">
                                                         <div
                                                             className={cn(
-                                                                'size-2 rounded-full',
+                                                                'size-2 shrink-0 rounded-full',
                                                                 r.status === 'in-progress'
                                                                     ? 'bg-primary animate-pulse shadow-[0_0_8px_rgba(31,46,255,0.5)]'
                                                                     : 'bg-success',
@@ -358,6 +399,40 @@ export function LiveResultsClient({
                                                         >
                                                             {r.studentName}
                                                         </span>
+                                                        {r.status === 'in-progress' && examData && (
+                                                            <div className="ml-auto flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                                                <button
+                                                                    type="button"
+                                                                    title="Pausar examen"
+                                                                    onClick={() =>
+                                                                        setPendingAction({
+                                                                            type: 'pause',
+                                                                            studentId: r.studentId,
+                                                                            studentName: r.studentName,
+                                                                            examId: examData.examId,
+                                                                        })
+                                                                    }
+                                                                    className="text-warning hover:bg-warning/10 rounded p-1 transition-colors"
+                                                                >
+                                                                    <PauseCircle className="size-4" />
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    title="Cancelar intento"
+                                                                    onClick={() =>
+                                                                        setPendingAction({
+                                                                            type: 'cancel',
+                                                                            studentId: r.studentId,
+                                                                            studentName: r.studentName,
+                                                                            examId: examData.examId,
+                                                                        })
+                                                                    }
+                                                                    className="text-danger hover:bg-danger/10 rounded p-1 transition-colors"
+                                                                >
+                                                                    <XCircle className="size-4" />
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </td>
 
@@ -523,6 +598,53 @@ export function LiveResultsClient({
                     </div>
                 )}
             </main>
+
+            <AlertDialog open={!!pendingAction} onOpenChange={(open) => !open && setPendingAction(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            {pendingAction?.type === 'pause'
+                                ? 'Pausar examen'
+                                : 'Cancelar intento'}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {pendingAction?.type === 'pause' ? (
+                                <>
+                                    ¿Pausar el examen de{' '}
+                                    <strong>{pendingAction?.studentName}</strong>? El alumno volverá
+                                    a la pantalla de instrucciones. Sus respuestas se conservan y
+                                    podrá retomar el examen con tiempo nuevo.
+                                </>
+                            ) : (
+                                <>
+                                    ¿Cancelar el intento de{' '}
+                                    <strong>{pendingAction?.studentName}</strong>? Se eliminarán
+                                    todas sus respuestas. El alumno podrá rendir el examen
+                                    nuevamente desde cero.
+                                </>
+                            )}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isPending}>Volver</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleActionConfirm}
+                            disabled={isPending}
+                            className={
+                                pendingAction?.type === 'cancel'
+                                    ? 'bg-danger hover:bg-danger/90 text-white'
+                                    : undefined
+                            }
+                        >
+                            {isPending
+                                ? 'Procesando...'
+                                : pendingAction?.type === 'pause'
+                                  ? 'Pausar'
+                                  : 'Cancelar intento'}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }

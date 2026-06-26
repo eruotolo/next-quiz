@@ -1,7 +1,8 @@
-import { PrismaClient, type Plan } from '@prisma/client';
+import { type Plan } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { createSeedClient } from './lib/client';
 
-const prisma = new PrismaClient();
+const prisma = createSeedClient();
 
 const USER_ROLES = ['SuperAdministrador', 'Administrador', 'Profesor', 'Estudiante'] as const;
 

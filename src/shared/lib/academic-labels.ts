@@ -1,5 +1,21 @@
 import { z } from 'zod';
-import { InstitutionType } from '@prisma/client';
+
+// Definición local del tipo para que este módulo sea seguro en el browser.
+// Usa const + type en lugar de enum para mantener compatibilidad estructural
+// con el InstitutionType generado por Prisma en server-side code.
+// Los valores deben mantenerse en sincronía con el schema de Prisma.
+export const InstitutionType = {
+    COLEGIO: 'COLEGIO',
+    LICEO_TECNICO: 'LICEO_TECNICO',
+    PREUNIVERSITARIO: 'PREUNIVERSITARIO',
+    UNIVERSIDAD: 'UNIVERSIDAD',
+    INSTITUTO_PROFESIONAL: 'INSTITUTO_PROFESIONAL',
+    CFT: 'CFT',
+    OTRO: 'OTRO',
+} as const;
+
+export type InstitutionType = (typeof InstitutionType)[keyof typeof InstitutionType];
+
 
 /**
  * Labels dinámicos de la jerarquía académica (decisión D17 del plan

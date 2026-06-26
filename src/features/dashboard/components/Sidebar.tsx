@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import type { ComponentType, CSSProperties } from 'react';
 import { useEffect, useRef, useState, useTransition } from 'react';
@@ -43,7 +43,7 @@ import { Command } from 'cmdk';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { searchGlobal, type SearchResult } from '@/shared/lib/search';
 import { academicLabel } from '@/shared/lib/academic-labels';
-import type { InstitutionType } from '@prisma/client';
+import type { InstitutionType } from '@/shared/lib/academic-labels';
 
 // ── Nav items ─────────────────────────────────────────────────────────────
 type NavSection = 'principal' | 'academic' | 'sistema';

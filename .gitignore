@@ -85,6 +85,7 @@ parse_html.js
 .doc/
 .seeders/
 prisma/seeders/local-*.ts
+prisma/seeders/e2e-full.ts
 .codegraph/
 
 .env*.local
