@@ -87,6 +87,9 @@ parse_html.js
 prisma/seeders/local-*.ts
 prisma/seeders/e2e-full.ts
 .codegraph/
+.air/
+design/
+scripts/
 
 .env*.local
 .gstack/
