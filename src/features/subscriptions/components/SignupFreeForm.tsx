@@ -290,9 +290,10 @@ export function SignupFreeForm() {
         register,
         control,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, isValid },
     } = useForm<SignupFreeInput>({
         resolver: zodResolver(signupFreeSchema),
+        mode: 'onChange',
         defaultValues: { acceptTerms: false, institutionType: 'OTRO' },
     });
 
@@ -367,19 +368,19 @@ export function SignupFreeForm() {
                         <span className="text-ink-dim text-[13px] leading-snug">
                             Acepto los{' '}
                             <Link
-                                href="/terminos"
+                                href="/empresa/terminos"
                                 className="text-primary font-medium hover:underline"
                                 target="_blank"
                             >
-                                términos de uso
+                                Términos y Condiciones
                             </Link>{' '}
                             y la{' '}
                             <Link
-                                href="/privacidad"
+                                href="/empresa/privacidad"
                                 className="text-primary font-medium hover:underline"
                                 target="_blank"
                             >
-                                política de privacidad
+                                Política de Privacidad
                             </Link>
                         </span>
                     </label>
@@ -392,7 +393,7 @@ export function SignupFreeForm() {
                     variant="ink"
                     size="lg"
                     type="submit"
-                    disabled={isPending}
+                    disabled={isPending || !isValid}
                     className="mt-1 w-full"
                 >
                     {isPending ? (

@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { IMaskInput } from 'react-imask';
+import Link from 'next/link';
 import {
     ArrowRight,
     Building2,
@@ -283,6 +284,7 @@ export function RegistrationForm({ subscriptionId, prefillEmail, planName }: Pro
         register,
         control,
         handleSubmit,
+        watch,
         formState: { errors },
     } = useForm<RegistrationInput>({
         resolver: zodResolver(registrationSchema),
@@ -293,6 +295,8 @@ export function RegistrationForm({ subscriptionId, prefillEmail, planName }: Pro
             institutionType: 'OTRO',
         },
     });
+
+    const acceptTerms = watch('acceptTerms');
 
     async function onSubmit(data: RegistrationInput): Promise<void> {
         setIsPending(true);
@@ -363,7 +367,22 @@ export function RegistrationForm({ subscriptionId, prefillEmail, planName }: Pro
                             className="accent-primary mt-0.5 size-4 shrink-0"
                         />
                         <span className="text-ink-dim text-[13px] leading-snug">
-                            Acepto los términos de uso y la política de privacidad
+                            Acepto los{' '}
+                            <Link
+                                href="/empresa/terminos"
+                                className="text-primary font-medium hover:underline"
+                                target="_blank"
+                            >
+                                Términos y Condiciones
+                            </Link>{' '}
+                            y la{' '}
+                            <Link
+                                href="/empresa/privacidad"
+                                className="text-primary font-medium hover:underline"
+                                target="_blank"
+                            >
+                                Política de Privacidad
+                            </Link>
                         </span>
                     </label>
                     {errors.acceptTerms && (
@@ -375,7 +394,7 @@ export function RegistrationForm({ subscriptionId, prefillEmail, planName }: Pro
                     variant="ink"
                     size="lg"
                     type="submit"
-                    disabled={isPending}
+                    disabled={isPending || !acceptTerms}
                     className="mt-1 w-full"
                 >
                     {isPending ? (
