@@ -1,6 +1,7 @@
+import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
+import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { QuestionsClient } from '@/features/questions/components/QuestionsClient';
 import { prisma } from '@/shared/lib/prisma';
-import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import type { SafeBankQuestion, BankQuestionFilters } from '@/features/questions/types/bank-question.types';
 
 export default async function QuestionsPage({
@@ -57,5 +58,14 @@ export default async function QuestionsPage({
         tags: [...tagSet].sort(),
     };
 
-    return <QuestionsClient slug={slug} initialItems={items} facets={facets} institutionName={institutionName} />;
+    return (
+        <>
+            <AdminTopBar
+                title="Banco de Preguntas"
+                breadcrumb={[institutionName, 'Banco de preguntas']}
+                subtitle={`${items.length} pregunta${items.length !== 1 ? 's' : ''} en la biblioteca`}
+            />
+            <QuestionsClient slug={slug} initialItems={items} facets={facets} institutionName={institutionName} />
+        </>
+    );
 }

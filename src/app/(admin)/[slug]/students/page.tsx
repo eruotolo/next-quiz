@@ -1,12 +1,13 @@
-import { prisma } from '@/shared/lib/prisma';
+import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
-import { groupProfessorFilter } from '@/shared/lib/scoping';
-import { USER_ROLE } from '@/shared/lib/roles';
 import { StudentsClient } from '@/features/students/components/StudentsClient';
+import { prisma } from '@/shared/lib/prisma';
+import { USER_ROLE } from '@/shared/lib/roles';
+import { groupProfessorFilter } from '@/shared/lib/scoping';
 
 export default async function StudentsPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const { institutionId, userId, isProfesor, coordinatedProgramIds } =
+    const { institutionId, institutionName, userId, isProfesor, coordinatedProgramIds } =
         await requireInstitutionPageAccess(slug);
 
     // Profesor: ve, edita y crea (individual + import) solo en sus grupos; no elimina.
@@ -59,14 +60,21 @@ export default async function StudentsPage({ params }: { params: Promise<{ slug:
     ]);
 
     return (
-        <StudentsClient
-            slug={slug}
-            students={students}
-            groups={groups}
-            canCreate={canCreate}
-            canEdit={canEdit}
-            canDelete={canDelete}
-            canToggleActive={canToggleActive}
-        />
+        <>
+            <AdminTopBar
+                title="Estudiantes"
+                breadcrumb={[institutionName, 'Estudiantes']}
+                subtitle={`${students.length} registrados`}
+            />
+            <StudentsClient
+                slug={slug}
+                students={students}
+                groups={groups}
+                canCreate={canCreate}
+                canEdit={canEdit}
+                canDelete={canDelete}
+                canToggleActive={canToggleActive}
+            />
+        </>
     );
 }

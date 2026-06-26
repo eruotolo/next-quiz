@@ -1,12 +1,13 @@
+import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
+import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { ExamsClient } from '@/features/exams/components/ExamsClient';
 import { demoExamFilter } from '@/features/demo/lib/demo';
 import { prisma } from '@/shared/lib/prisma';
-import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { examProfessorFilter, groupProfessorFilter, courseSectionProfessorFilter } from '@/shared/lib/scoping';
 
 export default async function ExamsPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const { institutionId, isProfesor, userId, isDemo, demoSessionId } =
+    const { institutionId, institutionName, isProfesor, userId, isDemo, demoSessionId } =
         await requireInstitutionPageAccess(slug);
 
     // Scope: exámenes y grupos de la institución; el Profesor solo los de sus grupos.
@@ -53,11 +54,18 @@ export default async function ExamsPage({ params }: { params: Promise<{ slug: st
     ]);
 
     return (
-        <ExamsClient
-            exams={exams}
-            groups={groups}
-            courseSections={courseSections}
-            isProfesor={isProfesor}
-        />
+        <>
+            <AdminTopBar
+                title="Exámenes"
+                breadcrumb={[institutionName, 'Exámenes']}
+                subtitle={`${exams.length} examen${exams.length !== 1 ? 'es' : ''} registrados`}
+            />
+            <ExamsClient
+                exams={exams}
+                groups={groups}
+                courseSections={courseSections}
+                isProfesor={isProfesor}
+            />
+        </>
     );
 }

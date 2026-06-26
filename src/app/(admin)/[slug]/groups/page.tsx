@@ -1,17 +1,19 @@
+import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
+import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { GroupsClient } from '@/features/groups/components/GroupsClient';
+import { NewGroupButton } from '@/features/groups/components/NewGroupButton';
 import { calcGrade } from '@/shared/lib/grade';
 import { prisma } from '@/shared/lib/prisma';
-import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
-import { groupProfessorFilter } from '@/shared/lib/scoping';
 import { USER_ROLE } from '@/shared/lib/roles';
+import { groupProfessorFilter } from '@/shared/lib/scoping';
 
 export default async function GroupsPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const { institutionId, userId, isProfesor } =
+    const { institutionId, institutionName, userId, isProfesor, userRole } =
         await requireInstitutionPageAccess(slug);
 
     // Solo Admin/SuperAdmin mutan grupos; el Profesor solo ve los suyos.
-    const canMutate = !isProfesor;
+    const canMutate = userRole === USER_ROLE.ADMIN || userRole === USER_ROLE.SUPER_ADMIN;
 
     const [groups, professors, programs, periods, courseSections] = await Promise.all([
         prisma.group.findMany({
@@ -34,7 +36,7 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
             orderBy: { name: 'asc' },
         }),
         prisma.user.findMany({
-            where: { academicInstitutionId: institutionId, userRole: { name: USER_ROLE.PROFESOR } },
+            where: { academicInstitutionId: institutionId, userRole: { name: { in: [USER_ROLE.PROFESOR, USER_ROLE.ADMIN] } } },
             select: { id: true, name: true, lastname: true },
             orderBy: { lastname: 'asc' },
         }),
@@ -101,14 +103,22 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
     });
 
     return (
-        <GroupsClient
-            slug={slug}
-            groups={groupsWithAvg}
-            professors={professors}
-            programs={programs}
-            periods={periods}
-            courseSections={courseSections}
-            canMutate={canMutate}
-        />
+        <>
+            <AdminTopBar
+                title="Grupos"
+                breadcrumb={[institutionName, 'Grupos']}
+                subtitle={`${groupsWithAvg.length} grupos registrados`}
+                actions={canMutate ? <NewGroupButton slug={slug} /> : undefined}
+            />
+            <GroupsClient
+                slug={slug}
+                groups={groupsWithAvg}
+                professors={professors}
+                programs={programs}
+                periods={periods}
+                courseSections={courseSections}
+                canMutate={canMutate}
+            />
+        </>
     );
 }

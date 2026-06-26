@@ -14,7 +14,7 @@ export interface ProfessorOption {
 export async function getInstitutionProfessors(slug: string): Promise<ProfessorOption[]> {
     const { institutionId } = await requireInstitutionAccess(slug);
     return prisma.user.findMany({
-        where: { academicInstitutionId: institutionId, userRole: { name: USER_ROLE.PROFESOR } },
+        where: { academicInstitutionId: institutionId, userRole: { name: { in: [USER_ROLE.PROFESOR, USER_ROLE.ADMIN] } } },
         select: { id: true, name: true, lastname: true },
         orderBy: { lastname: 'asc' },
     });

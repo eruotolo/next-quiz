@@ -11,7 +11,7 @@ import {
     Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
+import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/shared/components/ui/dropdown-menu';
 import { Edit2, Loader2, Plus, Trash2, BookOpen, MoreHorizontal } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -20,13 +20,16 @@ import { toast } from 'sonner';
 
 import type { CourseSection, Program, AcademicPeriod, Group, User } from '@prisma/client';
 
+interface GroupWithProfessors extends Group {
+    professors: User[];
+}
+
 interface CourseSectionWithRelations extends CourseSection {
     program: Program | null;
     period: AcademicPeriod;
-    group: Group | null;
+    group: GroupWithProfessors | null;
     professors: User[];
     _count: { exams: number };
-    // Derived count (group users)
     studentsCount: number;
 }
 
@@ -36,12 +39,11 @@ interface Props {
     programs: Program[];
     periods: AcademicPeriod[];
     groups: Group[];
-    professors: User[];
     canMutate: boolean;
     courseLabel: string;
 }
 
-export function CoursesClient({ slug, courses, programs, periods, groups, professors, canMutate, courseLabel }: Props) {
+export function CoursesClient({ slug, courses, programs, periods, groups, canMutate, courseLabel }: Props) {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
@@ -53,8 +55,6 @@ export function CoursesClient({ slug, courses, programs, periods, groups, profes
     const [programId, setProgramId] = useState<string>('none');
     const [periodId, setPeriodId] = useState<string>('');
     const [groupId, setGroupId] = useState<string>('none');
-    const [professorIds, setProfessorIds] = useState<string[]>([]);
-
     const [error, setError] = useState<string | null>(null);
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
@@ -66,7 +66,6 @@ export function CoursesClient({ slug, courses, programs, periods, groups, profes
         setProgramId('none');
         setPeriodId(periods.length > 0 ? (periods[0]?.id ?? '') : '');
         setGroupId('none');
-        setProfessorIds([]);
         setError(null);
         setIsOpen(true);
     };
@@ -78,7 +77,6 @@ export function CoursesClient({ slug, courses, programs, periods, groups, profes
         setProgramId(c.programId ?? 'none');
         setPeriodId(c.periodId);
         setGroupId(c.groupId ?? 'none');
-        setProfessorIds(c.professors.map(p => p.id));
         setError(null);
         setIsOpen(true);
     };
@@ -94,10 +92,6 @@ export function CoursesClient({ slug, courses, programs, periods, groups, profes
         return groups.filter(g => g.programId === programId || !g.programId);
     }, [groups, programId]);
 
-    const toggleProfessor = (id: string) => {
-        setProfessorIds(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
-    };
-
     const handleSave = (): void => {
         if (!name.trim()) { setError('El nombre es requerido.'); return; }
         if (!periodId) { setError('El período es requerido.'); return; }
@@ -108,7 +102,7 @@ export function CoursesClient({ slug, courses, programs, periods, groups, profes
             programId: programId === 'none' ? null : programId,
             periodId,
             groupId: groupId === 'none' ? null : groupId,
-            professorIds
+            professorIds: [],
         };
 
         startTransition(async () => {
@@ -191,8 +185,8 @@ export function CoursesClient({ slug, courses, programs, periods, groups, profes
                                             <td className="px-6 py-4 text-mute text-xs">{c.program?.name ?? 'Transversal'}</td>
                                             <td className="px-6 py-4 text-mute text-xs">{c.period?.name}</td>
                                             <td className="px-6 py-4 text-mute text-xs">
-                                                {c.professors.length > 0 
-                                                    ? c.professors.map(p => `${p.name} ${p.lastname}`).join(', ') 
+                                                {(c.group?.professors?.length ?? 0) > 0
+                                                    ? c.group!.professors.map(p => `${p.name} ${p.lastname}`).join(', ')
                                                     : 'Sin asignar'}
                                             </td>
                                             <td className="px-6 py-4 text-center font-bold text-ink">{c.studentsCount}</td>
@@ -231,7 +225,7 @@ export function CoursesClient({ slug, courses, programs, periods, groups, profes
             </main>
 
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="border-border rounded-[22px] shadow-2xl max-w-2xl">
+                <DialogContent className="border-border sm:max-w-3xl rounded-[22px] shadow-2xl">
                     <DialogHeader>
                         <DialogTitle className="font-display text-2xl">
                             {editing ? `Editar ${courseLabel.toLowerCase()}` : `Nueva ${courseLabel.toLowerCase()}`}
@@ -241,59 +235,46 @@ export function CoursesClient({ slug, courses, programs, periods, groups, profes
                     <div className="grid grid-cols-2 gap-4 py-4">
                         <div className="flex flex-col gap-2">
                             <label htmlFor="course-form-name" className="text-ink text-[13px] font-bold">Nombre</label>
-                            <Input id="course-form-name" value={name} onChange={e => { setName(e.target.value); setError(null); }} className="h-11 bg-white" />
+                            <Input id="course-form-name" value={name} onChange={e => { setName(e.target.value); setError(null); }} className="border-border h-11 rounded-[10px] bg-white" />
                         </div>
                         <div className="flex flex-col gap-2">
                             <label htmlFor="course-form-code" className="text-ink text-[13px] font-bold">Código (opcional)</label>
-                            <Input id="course-form-code" value={code} onChange={e => setCode(e.target.value)} className="h-11 bg-white" />
+                            <Input id="course-form-code" value={code} onChange={e => setCode(e.target.value)} className="border-border h-11 rounded-[10px] bg-white" />
                         </div>
 
                         <div className="flex flex-col gap-2">
                             <span className="text-ink text-[13px] font-bold">Programa / Carrera (opcional)</span>
-                            <Select value={programId} onValueChange={setProgramId}>
-                                <SelectTrigger className="h-11 bg-white"><SelectValue placeholder="Transversal" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="none">Plan Común / Transversal</SelectItem>
-                                    {programs.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
+                            <SearchableSelect
+                                value={programId}
+                                onChange={setProgramId}
+                                options={[
+                                    { value: 'none', label: 'Plan Común / Transversal' },
+                                    ...programs.map(p => ({ value: p.id, label: p.name })),
+                                ]}
+                                placeholder="Plan Común / Transversal"
+                            />
                         </div>
                         <div className="flex flex-col gap-2">
                             <span className="text-ink text-[13px] font-bold">Período Académico</span>
-                            <Select value={periodId} onValueChange={setPeriodId}>
-                                <SelectTrigger className="h-11 bg-white"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    {periods.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
+                            <SearchableSelect
+                                value={periodId}
+                                onChange={setPeriodId}
+                                options={periods.map(p => ({ value: p.id, label: p.name }))}
+                                placeholder="Seleccioná un período"
+                            />
                         </div>
 
                         <div className="flex flex-col gap-2">
                             <span className="text-ink text-[13px] font-bold">Grupo de alumnos (opcional)</span>
-                            <Select value={groupId} onValueChange={setGroupId}>
-                                <SelectTrigger className="h-11 bg-white"><SelectValue placeholder="Sin grupo / Crear automático" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="none">Sin grupo / Se creará automáticamente</SelectItem>
-                                    {filteredGroups.map(g => <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        
-                        <div className="flex flex-col gap-2">
-                            <span className="text-ink text-[13px] font-bold">Profesores (opcional)</span>
-                            {/* Simple multi-select simulation */}
-                            <div className="h-24 overflow-y-auto border rounded-[10px] p-2 bg-white">
-                                {professors.map(p => (
-                                    <label key={p.id} className="flex items-center gap-2 text-sm p-1">
-                                        <input 
-                                            type="checkbox" 
-                                            checked={professorIds.includes(p.id)}
-                                            onChange={() => toggleProfessor(p.id)}
-                                        />
-                                        {p.name} {p.lastname}
-                                    </label>
-                                ))}
-                            </div>
+                            <SearchableSelect
+                                value={groupId}
+                                onChange={setGroupId}
+                                options={[
+                                    { value: 'none', label: 'Sin grupo / Se creará automáticamente' },
+                                    ...filteredGroups.map(g => ({ value: g.id, label: g.name })),
+                                ]}
+                                placeholder="Sin grupo / Se creará automáticamente"
+                            />
                         </div>
 
                         {error && <div className="col-span-2 text-destructive text-sm font-medium">{error}</div>}

@@ -1,6 +1,5 @@
-import { prisma } from '@/shared/lib/prisma';
+import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
-import type { Prisma } from '@prisma/client';
 import {
     ResultsClient,
     type ExamGroup,
@@ -8,6 +7,8 @@ import {
     type GroupOption,
     type ResultRow,
 } from '@/features/results/components/ResultsClient';
+import { prisma } from '@/shared/lib/prisma';
+import type { Prisma } from '@prisma/client';
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -155,15 +156,22 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
     });
 
     return (
-        <ResultsClient
-            examGroups={buildExamGroups(results)}
-            totalCount={results.length}
-            slug={slug}
-            institutionName={institutionName}
-            examOptions={examOptions}
-            groupOptions={groupOptions}
-            selectedExamId={validExamId ?? null}
-            selectedGroupId={validGroupId ?? null}
-        />
+        <>
+            <AdminTopBar
+                title="Historial de Resultados"
+                breadcrumb={[institutionName, 'Resultados']}
+                subtitle={`${results.length} evaluaciones completadas y procesadas`}
+            />
+            <ResultsClient
+                examGroups={buildExamGroups(results)}
+                totalCount={results.length}
+                slug={slug}
+                institutionName={institutionName}
+                examOptions={examOptions}
+                groupOptions={groupOptions}
+                selectedExamId={validExamId ?? null}
+                selectedGroupId={validGroupId ?? null}
+            />
+        </>
     );
 }

@@ -4,17 +4,10 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreditCard, Download, ExternalLink, Search, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/shared/components/ui/select';
+import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import {
     Table,
     TableBody,
@@ -241,24 +234,6 @@ export function SubscriptionsClient({ initial }: Props) {
 
     return (
         <>
-            <AdminTopBar
-                breadcrumb={['Aulika · Plataforma', 'Panel Global', 'Suscripciones']}
-                title="Suscripciones y pagos"
-                subtitle={`${data.total} registros en total`}
-                icon={<CreditCard size={18} />}
-                actions={
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => void handleExport()}
-                        className="gap-1.5"
-                    >
-                        <Download size={14} />
-                        Exportar CSV
-                    </Button>
-                }
-            />
-
             {/* Filter bar */}
             <div className="border-border flex flex-wrap items-center gap-2 border-b bg-white px-8 py-4">
                 <div className="relative max-w-sm flex-1">
@@ -268,73 +243,66 @@ export function SubscriptionsClient({ initial }: Props) {
                         value={search}
                         onChange={(e) => handleSearch(e.target.value)}
                         placeholder="Buscar pagador, email o institución..."
-                        className="border-border h-[38px] bg-white pl-9"
+                        className="border-border h-9 rounded-[10px] bg-white pl-9"
                     />
                 </div>
 
-                <Select
+                <SearchableSelect
+                    size="sm"
                     value={filters.plan ?? 'all'}
-                    onValueChange={(v) =>
-                        applyFilters({
-                            ...filters,
-                            plan: v === 'all' ? undefined : (v as Plan),
-                            page: 1,
-                        })
+                    onChange={(v) =>
+                        applyFilters({ ...filters, plan: v === 'all' ? undefined : (v as Plan), page: 1 })
                     }
-                >
-                    <SelectTrigger className="border-border h-[38px] w-44 bg-white text-sm">
-                        <SelectValue placeholder="Plan" />
-                    </SelectTrigger>
-                    <SelectContent className="border-border rounded-xl shadow-xl">
-                        <SelectItem value="all">Todos los planes</SelectItem>
-                        {(['FREE', 'DOCENTE', 'COLEGIO', 'INSTITUCIONAL'] as Plan[]).map((p) => (
-                            <SelectItem key={p} value={p}>
-                                {PLAN_LABELS[p]}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                    options={[
+                        { value: 'all', label: 'Todos los planes' },
+                        { value: 'FREE', label: 'Free' },
+                        { value: 'DOCENTE', label: 'Docente' },
+                        { value: 'COLEGIO', label: 'Colegio' },
+                        { value: 'INSTITUCIONAL', label: 'Institución' },
+                    ]}
+                    className="w-44"
+                />
 
-                <Select
+                <SearchableSelect
+                    size="sm"
                     value={filters.status ?? 'all'}
-                    onValueChange={(v) =>
-                        applyFilters({
-                            ...filters,
-                            status: v === 'all' ? undefined : (v as SubscriptionStatus),
-                            page: 1,
-                        })
+                    onChange={(v) =>
+                        applyFilters({ ...filters, status: v === 'all' ? undefined : (v as SubscriptionStatus), page: 1 })
                     }
-                >
-                    <SelectTrigger className="border-border h-[38px] w-40 bg-white text-sm">
-                        <SelectValue placeholder="Estado" />
-                    </SelectTrigger>
-                    <SelectContent className="border-border rounded-xl shadow-xl">
-                        <SelectItem value="all">Todos los estados</SelectItem>
-                        {(Object.values(SubscriptionStatus) as SubscriptionStatus[]).map((s) => (
-                            <SelectItem key={s} value={s}>
-                                {STATUS_LABELS[s]}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                    options={[
+                        { value: 'all', label: 'Todos los estados' },
+                        ...(Object.values(SubscriptionStatus) as SubscriptionStatus[]).map((s) => ({
+                            value: s,
+                            label: STATUS_LABELS[s],
+                        })),
+                    ]}
+                    className="w-40"
+                />
 
-                <Select
+                <SearchableSelect
+                    size="sm"
                     value={filters.billing ?? 'all'}
-                    onValueChange={(v) =>
+                    onChange={(v) =>
                         applyFilters({ ...filters, billing: v === 'all' ? undefined : v, page: 1 })
                     }
-                >
-                    <SelectTrigger className="border-border h-[38px] w-40 bg-white text-sm">
-                        <SelectValue placeholder="Modalidad" />
-                    </SelectTrigger>
-                    <SelectContent className="border-border rounded-xl shadow-xl">
-                        <SelectItem value="all">Mensual y Anual</SelectItem>
-                        <SelectItem value="monthly">Mensual</SelectItem>
-                        <SelectItem value="annual">Anual</SelectItem>
-                    </SelectContent>
-                </Select>
+                    options={[
+                        { value: 'all', label: 'Mensual y Anual' },
+                        { value: 'monthly', label: 'Mensual' },
+                        { value: 'annual', label: 'Anual' },
+                    ]}
+                    className="w-40"
+                />
 
                 <div className="flex-1" />
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => void handleExport()}
+                    className="gap-1.5"
+                >
+                    <Download size={14} />
+                    Exportar CSV
+                </Button>
                 <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
                     {data.total} registros
                 </span>

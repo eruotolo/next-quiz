@@ -1,12 +1,6 @@
 'use client';
 
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/shared/components/ui/select';
+import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import { useMemo } from 'react';
 
 export interface CourseOption {
@@ -91,63 +85,40 @@ export function ExamAcademicPicker({ courseSections, value, onChange }: Props) {
             <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1.5">
                     <span className="text-ink text-[13px] font-bold">Carrera</span>
-                    <Select
+                    <SearchableSelect
                         value={value.programId}
-                        onValueChange={(v) =>
+                        onChange={(v) =>
                             onChange({ programId: v, periodId: NO_PERIOD, courseSectionId: NO_COURSE })
                         }
-                    >
-                        <SelectTrigger className="border-border data-[size=default]:h-11 rounded-[10px] bg-white">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="border-border rounded-xl shadow-xl">
-                            <SelectItem value={NO_PROGRAM}>Sin carrera / Transversal</SelectItem>
-                            {programs.map((p) => (
-                                <SelectItem key={p.id} value={p.id}>
-                                    {p.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                        options={[
+                            { value: NO_PROGRAM, label: 'Sin carrera / Transversal' },
+                            ...programs.map((p) => ({ value: p.id, label: p.name })),
+                        ]}
+                    />
                 </div>
                 <div className="flex flex-col gap-1.5">
                     <span className="text-ink text-[13px] font-bold">Semestre</span>
-                    <Select
+                    <SearchableSelect
                         value={value.periodId}
-                        onValueChange={(v) => onChange({ periodId: v, courseSectionId: NO_COURSE })}
-                    >
-                        <SelectTrigger className="border-border data-[size=default]:h-11 rounded-[10px] bg-white">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="border-border rounded-xl shadow-xl">
-                            <SelectItem value={NO_PERIOD}>Sin semestre</SelectItem>
-                            {periods.map((p) => (
-                                <SelectItem key={p.id} value={p.id}>
-                                    {p.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                        onChange={(v) => onChange({ periodId: v, courseSectionId: NO_COURSE })}
+                        options={[
+                            { value: NO_PERIOD, label: 'Sin semestre' },
+                            ...periods.map((p) => ({ value: p.id, label: p.name })),
+                        ]}
+                    />
                 </div>
             </div>
             <div className="flex flex-col gap-1.5">
                 <span className="text-ink text-[13px] font-bold">Ramo</span>
-                <Select
+                <SearchableSelect
                     value={value.courseSectionId}
-                    onValueChange={(v) => onChange({ courseSectionId: v })}
-                >
-                    <SelectTrigger className="border-border data-[size=default]:h-11 rounded-[10px] bg-white">
-                        <SelectValue placeholder="Sin asignatura" />
-                    </SelectTrigger>
-                    <SelectContent className="border-border rounded-xl shadow-xl">
-                        <SelectItem value={NO_COURSE}>Sin asignatura</SelectItem>
-                        {courses.map((c) => (
-                            <SelectItem key={c.id} value={c.id}>
-                                {c.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                    onChange={(v) => onChange({ courseSectionId: v })}
+                    placeholder="Sin asignatura"
+                    options={[
+                        { value: NO_COURSE, label: 'Sin asignatura' },
+                        ...courses.map((c) => ({ value: c.id, label: c.name })),
+                    ]}
+                />
                 <p className="text-mute text-[11px] leading-snug">
                     Opcional. Vincula el examen a una materia del plan; no define quién lo rinde (lo
                     deciden los grupos).

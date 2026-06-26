@@ -1,4 +1,6 @@
+import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
+import { NewProgramButton } from '@/features/programs/components/NewProgramButton';
 import { ProgramsClient, type ProgramRow } from '@/features/programs/components/ProgramsClient';
 import { academicLabel } from '@/shared/lib/academic-labels';
 import { prisma } from '@/shared/lib/prisma';
@@ -6,7 +8,7 @@ import { USER_ROLE } from '@/shared/lib/roles';
 
 export default async function ProgramsPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const { institutionId, userRole, isProfesor, coordinatedProgramIds } =
+    const { institutionId, institutionName, userRole, isProfesor, coordinatedProgramIds } =
         await requireInstitutionPageAccess(slug);
 
     const institution = await prisma.academicInstitution.findUnique({
@@ -44,12 +46,20 @@ export default async function ProgramsPage({ params }: { params: Promise<{ slug:
     }));
 
     return (
-        <ProgramsClient
-            slug={slug}
-            programs={rows}
-            canMutate={canMutate}
-            label={labels.program}
-            labelPlural={labels.programPlural}
-        />
+        <>
+            <AdminTopBar
+                title={labels.programPlural}
+                breadcrumb={[institutionName, labels.programPlural]}
+                subtitle={`${rows.length} ${rows.length === 1 ? labels.program.toLowerCase() : labels.programPlural.toLowerCase()}`}
+                actions={canMutate ? <NewProgramButton slug={slug} label={labels.program} /> : undefined}
+            />
+            <ProgramsClient
+                slug={slug}
+                programs={rows}
+                canMutate={canMutate}
+                label={labels.program}
+                labelPlural={labels.programPlural}
+            />
+        </>
     );
 }

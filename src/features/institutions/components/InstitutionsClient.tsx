@@ -10,13 +10,7 @@ import {
 } from '@/features/institutions/actions/mutations';
 import type { InstitutionRow } from '@/features/institutions/actions/queries';
 import { institutionSchema } from '@/features/institutions/schemas/institution.schemas';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/shared/components/ui/select';
+import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import {
@@ -137,35 +131,25 @@ function PlanForm({
         <div className="flex flex-col gap-5 py-4">
             <div className="flex flex-col gap-1.5">
                 <span className="text-ink text-[13px] font-bold">Tipo de plan</span>
-                <Select value={kind} onValueChange={(v) => setKind(v as 'commercial' | 'custom')}>
-                    <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="border-border rounded-xl shadow-xl">
-                        <SelectItem value="commercial">Comercial</SelectItem>
-                        <SelectItem value="custom" disabled={noCustom}>
-                            Interno
-                        </SelectItem>
-                    </SelectContent>
-                </Select>
+                <SearchableSelect
+                    value={kind}
+                    onChange={(v) => setKind(v as 'commercial' | 'custom')}
+                    options={[
+                        { value: 'commercial', label: 'Comercial' },
+                        { value: 'custom', label: 'Interno', disabled: noCustom },
+                    ]}
+                />
             </div>
 
             {kind === 'commercial' ? (
                 <>
                     <div className="flex flex-col gap-1.5">
                         <span className="text-ink text-[13px] font-bold">Plan comercial</span>
-                        <Select value={plan} onValueChange={setPlan}>
-                            <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="border-border rounded-xl shadow-xl">
-                                {Object.entries(PLAN_LABELS).map(([value, label]) => (
-                                    <SelectItem key={value} value={value}>
-                                        {label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                            value={plan}
+                            onChange={setPlan}
+                            options={Object.entries(PLAN_LABELS).map(([v, l]) => ({ value: v, label: l }))}
+                        />
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="plan-expires" className="text-ink text-[13px] font-bold">
@@ -177,7 +161,7 @@ function PlanForm({
                             value={expires}
                             onChange={(e) => setExpires(e.target.value)}
                             disabled={plan === 'FREE'}
-                            className="h-11 rounded-[10px]"
+                            className="border-border h-11 rounded-[10px] bg-white"
                         />
                         <p className="text-mute text-[11px]">
                             {plan === 'FREE'
@@ -189,18 +173,12 @@ function PlanForm({
             ) : (
                 <div className="flex flex-col gap-1.5">
                     <span className="text-ink text-[13px] font-bold">Plan interno</span>
-                    <Select value={customPlanId} onValueChange={setCustomPlanId}>
-                        <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
-                            <SelectValue placeholder="Seleccioná un plan interno" />
-                        </SelectTrigger>
-                        <SelectContent className="border-border rounded-xl shadow-xl">
-                            {customPlans.map((cp) => (
-                                <SelectItem key={cp.id} value={cp.id}>
-                                    {cp.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <SearchableSelect
+                        value={customPlanId}
+                        onChange={setCustomPlanId}
+                        options={customPlans.map((cp) => ({ value: cp.id, label: cp.name }))}
+                        placeholder="Seleccioná un plan interno"
+                    />
                     <p className="text-mute text-[11px]">
                         Los planes internos se crean en Planes. No son visibles para el cliente
                         final.
@@ -268,21 +246,12 @@ function InstitutionForm({
                         <label htmlFor="inst-type" className="text-ink text-[13px] font-bold">
                             Tipo de institución
                         </label>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger
-                                id="inst-type"
-                                className="border-border data-[size=default]:h-11 w-full rounded-[10px] bg-white"
-                            >
-                                <SelectValue placeholder="Seleccioná el tipo" />
-                            </SelectTrigger>
-                            <SelectContent className="border-border rounded-xl shadow-xl">
-                                {INSTITUTION_TYPE_OPTIONS.map((opt) => (
-                                    <SelectItem key={opt.value} value={opt.value}>
-                                        {opt.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                            value={field.value}
+                            onChange={field.onChange}
+                            options={INSTITUTION_TYPE_OPTIONS}
+                            placeholder="Seleccioná el tipo"
+                        />
                     </div>
                 )}
             />
@@ -508,7 +477,7 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props) 
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Buscar institución por nombre o slug..."
-                        className="border-border h-[38px] bg-white pl-9"
+                        className="border-border h-9 rounded-[10px] bg-white pl-9"
                     />
                 </form>
                 <div className="flex-1" />
@@ -758,7 +727,7 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props) 
 
             {/* Plan dialog */}
             <Dialog open={!!planRow} onOpenChange={(o) => !o && setPlanRow(null)}>
-                <DialogContent className="border-border max-w-md overflow-hidden rounded-[22px] p-0 shadow-2xl">
+                <DialogContent className="border-border max-w-lg overflow-hidden rounded-[22px] p-0 shadow-2xl">
                     <div className="border-border bg-paper border-b px-6 py-5">
                         <DialogTitle className="font-display text-ink text-2xl">
                             Asignar plan

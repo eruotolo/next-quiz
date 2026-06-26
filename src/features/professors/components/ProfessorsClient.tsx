@@ -17,13 +17,7 @@ import {
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/shared/components/ui/select';
+import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import {
     Table,
     TableBody,
@@ -37,7 +31,7 @@ import { Avatar } from '@/shared/components/ui/avatar';
 import { Tag } from '@/shared/components/ui/badge';
 import { formatRut, isValidRut, normalizeRut } from '@/shared/lib/rut';
 import type { Group, Prisma } from '@prisma/client';
-import { Edit2, Loader2, Plus, Trash2, UserCog, MoreHorizontal, Search } from 'lucide-react';
+import { Edit2, Loader2, Plus, Trash2, UserCog, MoreHorizontal, Search, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { cn } from '@/shared/lib/utils';
@@ -89,7 +83,7 @@ export function ProfessorsClient({
     professors,
     groups,
     slug,
-}: Props): React.ReactElement {
+}: Props) {
     const router = useRouter();
     const [page, setPage] = useState(1);
     const PAGE_SIZE = 10;
@@ -101,6 +95,7 @@ export function ProfessorsClient({
     const [errors, setErrors] = useState<Partial<Record<keyof FormState | 'general', string>>>({});
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
+    const [groupSearch, setGroupSearch] = useState('');
 
     const setField = <K extends keyof FormState>(field: K, value: FormState[K]): void => {
         setForm((f) => ({ ...f, [field]: value }));
@@ -120,6 +115,7 @@ export function ProfessorsClient({
         setEditing(null);
         setForm(emptyForm);
         setErrors({});
+        setGroupSearch('');
         setIsOpen(true);
     };
 
@@ -136,6 +132,7 @@ export function ProfessorsClient({
             groupIds: p.professorGroups.map((g) => g.id),
         });
         setErrors({});
+        setGroupSearch('');
         setIsOpen(true);
     };
 
@@ -504,24 +501,16 @@ export function ProfessorsClient({
                             <span className="text-ink text-[13px] font-bold">
                                 Rol en el sistema
                             </span>
-                            <Select
+                            <SearchableSelect
                                 value={form.roleName}
-                                onValueChange={(v) =>
+                                onChange={(v) =>
                                     setField('roleName', v as 'Profesor' | 'Administrador')
                                 }
-                            >
-                                <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent className="border-border rounded-xl shadow-xl">
-                                    <SelectItem value="Profesor">
-                                        Profesor (Solo sus grupos)
-                                    </SelectItem>
-                                    <SelectItem value="Administrador">
-                                        Administrador (Toda la institución)
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
+                                options={[
+                                    { value: 'Profesor', label: 'Profesor (Solo sus grupos)' },
+                                    { value: 'Administrador', label: 'Administrador (Toda la institución)' },
+                                ]}
+                            />
                         </div>
 
                         {groups.length > 0 && (
@@ -529,24 +518,73 @@ export function ProfessorsClient({
                                 <span className="text-ink text-[13px] font-bold">
                                     Grupos asociados
                                 </span>
-                                <div className="border-border bg-paper-warm/20 max-h-[140px] overflow-y-auto rounded-[12px] border p-2">
-                                    <div className="grid grid-cols-1 gap-1">
-                                        {groups.map((g) => (
-                                            <label
-                                                key={g.id}
-                                                className="flex cursor-pointer items-center gap-3 rounded-[8px] px-3 py-2 transition-colors hover:bg-white"
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    checked={form.groupIds.includes(g.id)}
-                                                    onChange={() => toggleGroup(g.id)}
-                                                    className="accent-primary border-border h-4 w-4 rounded"
-                                                />
-                                                <span className="text-ink text-[13.5px] font-medium">
+
+                                {/* Chips de grupos seleccionados */}
+                                {form.groupIds.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {form.groupIds.map((id) => {
+                                            const g = groups.find((gr) => gr.id === id);
+                                            if (!g) return null;
+                                            return (
+                                                <button
+                                                    key={id}
+                                                    type="button"
+                                                    onClick={() => toggleGroup(id)}
+                                                    className="bg-primary/8 text-primary border-primary/20 flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[12px] font-medium transition-colors hover:bg-primary/15"
+                                                >
                                                     {g.name}
-                                                </span>
-                                            </label>
-                                        ))}
+                                                    <X size={11} className="shrink-0 opacity-70" />
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+
+                                {/* Buscador + lista de grupos disponibles */}
+                                <div className="border-border overflow-hidden rounded-[12px] border">
+                                    <div className="border-border relative border-b">
+                                        <Search
+                                            size={13}
+                                            className="text-mute pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+                                        />
+                                        <input
+                                            value={groupSearch}
+                                            onChange={(e) => setGroupSearch(e.target.value)}
+                                            placeholder="Buscar grupo..."
+                                            className="placeholder:text-mute text-ink w-full py-2 pr-3 pl-8 text-[13px] outline-none"
+                                        />
+                                    </div>
+                                    <div className="max-h-[180px] overflow-y-auto py-1">
+                                        {(() => {
+                                            const available = groups.filter(
+                                                (g) =>
+                                                    !form.groupIds.includes(g.id) &&
+                                                    (!groupSearch.trim() ||
+                                                        g.name
+                                                            .toLowerCase()
+                                                            .includes(groupSearch.toLowerCase())),
+                                            );
+                                            if (available.length === 0) {
+                                                return (
+                                                    <p className="text-mute px-3 py-4 text-center text-[12.5px]">
+                                                        {groupSearch
+                                                            ? 'Sin resultados'
+                                                            : 'Todos los grupos ya están asignados'}
+                                                    </p>
+                                                );
+                                            }
+                                            return available.map((g) => (
+                                                <button
+                                                    key={g.id}
+                                                    type="button"
+                                                    onClick={() => toggleGroup(g.id)}
+                                                    className="text-ink-dim hover:bg-primary-wash hover:text-primary flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] transition-colors"
+                                                >
+                                                    <Plus size={12} className="text-mute shrink-0" />
+                                                    {g.name}
+                                                </button>
+                                            ));
+                                        })()}
                                     </div>
                                 </div>
                             </div>

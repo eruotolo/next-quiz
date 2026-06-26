@@ -9,9 +9,12 @@ import {
     BookMarked,
     BookOpen,
     Building2,
+    CalendarDays,
     CalendarRange,
     ChevronDown,
+    ClipboardList,
     CreditCard,
+    FolderKanban,
     Globe,
     HelpCircle,
     GraduationCap,
@@ -101,12 +104,16 @@ const SUPER_NAV: NavItem[] = [
     },
     { path: '/config/students', label: 'Alumnos', icon: GraduationCap, countKey: 'students' },
     { path: '/config/admins', label: 'Administradores', icon: UserCog, countKey: 'admins' },
-    { path: '/config/plan-limits', label: 'Planes', icon: Layers },
-    { path: '/config/subscriptions', label: 'Suscripciones', icon: Receipt },
-    { path: '/config/billing', label: 'Facturación', icon: CreditCard },
-    { path: '/config/payments', label: 'Pagos', icon: Wallet },
-    { path: '/config/auditoria', label: 'Auditoría', icon: ScrollText },
-    { path: '/config/settings', label: 'Sistema', icon: Settings },
+    { path: '/config/programs', label: 'Programas', icon: FolderKanban, section: 'academic' },
+    { path: '/config/periods', label: 'Períodos', icon: CalendarDays, section: 'academic' },
+    { path: '/config/groups', label: 'Grupos', icon: Users, section: 'academic' },
+    { path: '/config/exams', label: 'Exámenes', icon: ClipboardList, section: 'academic' },
+    { path: '/config/plan-limits', label: 'Planes', icon: Layers, section: 'sistema' },
+    { path: '/config/subscriptions', label: 'Suscripciones', icon: Receipt, section: 'sistema' },
+    { path: '/config/billing', label: 'Facturación', icon: CreditCard, section: 'sistema' },
+    { path: '/config/payments', label: 'Pagos', icon: Wallet, section: 'sistema' },
+    { path: '/config/auditoria', label: 'Auditoría', icon: ScrollText, section: 'sistema' },
+    { path: '/config/settings', label: 'Sistema', icon: Settings, section: 'sistema' },
 ];
 
 // ── ⌘K Command Palette ────────────────────────────────────────────────────
@@ -355,8 +362,10 @@ export function Sidebar({
     const router = useRouter();
     const [cmdOpen, setCmdOpen] = useState(false);
     const [switcherOpen, setSwitcherOpen] = useState(false);
+    const [switcherQuery, setSwitcherQuery] = useState('');
     const [mobileOpen, setMobileOpen] = useState(false);
     const switcherRef = useRef<HTMLDivElement>(null);
+    const switcherSearchRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         function handleClickOutside(e: MouseEvent): void {
@@ -367,6 +376,19 @@ export function Sidebar({
         if (switcherOpen) document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [switcherOpen]);
+
+    useEffect(() => {
+        if (switcherOpen) {
+            setSwitcherQuery('');
+            setTimeout(() => switcherSearchRef.current?.focus(), 10);
+        }
+    }, [switcherOpen]);
+
+    const filteredInstitutions = switcherQuery.trim()
+        ? (institutionList ?? []).filter((inst) =>
+              inst.name.toLowerCase().includes(switcherQuery.toLowerCase()),
+          )
+        : (institutionList ?? []);
 
     const canSwitch = institutionList && institutionList.length > 0;
 
@@ -472,7 +494,19 @@ export function Sidebar({
                         </div>
 
                         {switcherOpen && canSwitch && (
-                            <div className="border-border absolute top-full right-0 left-0 z-50 mt-1 overflow-hidden rounded-[10px] border bg-white shadow-lg">
+                            <div className="border-border absolute top-full right-0 left-0 z-50 mt-1 min-w-[280px] overflow-hidden rounded-[12px] border bg-white shadow-xl">
+                                {/* Search */}
+                                <div className="border-border relative border-b p-2">
+                                    <Search size={13} className="text-mute pointer-events-none absolute top-1/2 left-4 -translate-y-1/2" />
+                                    <input
+                                        ref={switcherSearchRef}
+                                        value={switcherQuery}
+                                        onChange={(e) => setSwitcherQuery(e.target.value)}
+                                        placeholder="Buscar institución..."
+                                        className="placeholder:text-mute text-ink bg-paper w-full rounded-[8px] py-1.5 pr-3 pl-7 text-[12.5px] outline-none"
+                                    />
+                                </div>
+
                                 {!isSuper && (
                                     <>
                                         <button
@@ -489,30 +523,36 @@ export function Sidebar({
                                         <div className="border-border border-t" />
                                     </>
                                 )}
-                                <div className="max-h-[220px] overflow-y-auto py-1">
-                                    {institutionList?.map((inst) => (
-                                        <button
-                                            key={inst.slug}
-                                            type="button"
-                                            onClick={() => {
-                                                router.push(`/${inst.slug}`);
-                                                setSwitcherOpen(false);
-                                            }}
-                                            className={cn(
-                                                'flex w-full items-center gap-2 px-3 py-2 text-left text-[12.5px] transition-colors',
-                                                inst.slug === slug
-                                                    ? 'bg-primary-wash text-primary font-semibold'
-                                                    : 'text-ink-dim hover:bg-paper-warm hover:text-ink',
-                                            )}
-                                        >
-                                            <span className="flex-1 truncate">{inst.name}</span>
-                                            {inst.slug === slug && (
-                                                <span className="text-primary font-mono text-[10px]">
-                                                    ✓
-                                                </span>
-                                            )}
-                                        </button>
-                                    ))}
+                                <div className="max-h-[320px] overflow-y-auto py-1">
+                                    {filteredInstitutions.length === 0 ? (
+                                        <p className="text-mute px-3 py-5 text-center text-[12.5px]">
+                                            Sin resultados
+                                        </p>
+                                    ) : (
+                                        filteredInstitutions.map((inst) => (
+                                            <button
+                                                key={inst.slug}
+                                                type="button"
+                                                onClick={() => {
+                                                    router.push(`/${inst.slug}`);
+                                                    setSwitcherOpen(false);
+                                                }}
+                                                className={cn(
+                                                    'flex w-full items-center gap-2 px-3 py-2 text-left text-[12.5px] transition-colors',
+                                                    inst.slug === slug
+                                                        ? 'bg-primary-wash text-primary font-semibold'
+                                                        : 'text-ink-dim hover:bg-paper-warm hover:text-ink',
+                                                )}
+                                            >
+                                                <span className="flex-1 truncate">{inst.name}</span>
+                                                {inst.slug === slug && (
+                                                    <span className="text-primary font-mono text-[10px]">
+                                                        ✓
+                                                    </span>
+                                                )}
+                                            </button>
+                                        ))
+                                    )}
                                 </div>
                             </div>
                         )}

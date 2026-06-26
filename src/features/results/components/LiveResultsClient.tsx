@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
 import { Activity, RefreshCw, User } from 'lucide-react';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Tag } from '@/shared/components/ui/badge';
@@ -157,75 +156,68 @@ export function LiveResultsClient({
     const completedCount = examData?.results.filter((r) => r.status === 'completed').length ?? 0;
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
-            {/* Header */}
-            <AdminTopBar
-                breadcrumb={['Monitor', 'En Vivo']}
-                title="Monitoreo en Tiempo Real"
-                subtitle={
-                    <div className="flex items-center gap-3">
-                        <span className="text-success flex items-center gap-1.5 font-bold">
-                            <span className="relative flex h-2 w-2">
-                                <span className="bg-success absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
-                                <span className="bg-success relative inline-flex h-2 w-2 rounded-full" />
-                            </span>
-                            SISTEMA ACTIVO
-                        </span>
-                        {timeLabel && (
-                            <span className="text-mute">· Última actualización: {timeLabel}</span>
-                        )}
-                    </div>
-                }
-                actions={
-                    <div className="flex items-center gap-3">
-                        {allExams.length > 0 && (
-                            <Select
-                                value={selectedExamId ?? undefined}
-                                onValueChange={handleExamChange}
-                            >
-                                <SelectTrigger className="border-border h-10 w-[200px] rounded-[12px] bg-white text-[13px] font-bold shadow-sm">
-                                    <SelectValue placeholder="Seleccionar examen..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {allExams.map((e) => (
-                                        <SelectItem key={e.id} value={e.id}>
-                                            {e.active ? '● ' : '○ '} {e.title}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )}
+        <>
+            {/* Filter / control bar */}
+            <div className="border-border flex flex-wrap items-center gap-3 border-b bg-white px-8 py-4">
+                <span className="text-success flex items-center gap-1.5 font-bold text-[13px]">
+                    <span className="relative flex h-2 w-2">
+                        <span className="bg-success absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
+                        <span className="bg-success relative inline-flex h-2 w-2 rounded-full" />
+                    </span>
+                    SISTEMA ACTIVO
+                </span>
+                {timeLabel && (
+                    <span className="text-mute text-[13px]">· Última actualización: {timeLabel}</span>
+                )}
 
-                        {selectedExamId && groupOptions.length > 0 && (
-                            <Select
-                                value={selectedGroupId ?? undefined}
-                                onValueChange={handleGroupChange}
-                            >
-                                <SelectTrigger className="border-border h-10 w-[160px] rounded-[12px] bg-white text-[13px] font-bold shadow-sm">
-                                    <SelectValue placeholder="Todos los grupos" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {groupOptions.map((g) => (
-                                        <SelectItem key={g.id} value={g.id}>
-                                            {g.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )}
+                <div className="flex-1" />
 
-                        <Button
-                            variant={autoRefresh ? 'ink' : 'ghost'}
-                            size="md"
-                            className="min-w-[120px] gap-2"
-                            onClick={() => setAutoRefresh((v) => !v)}
-                        >
-                            <RefreshCw size={15} className={cn(isRefreshing && 'animate-spin')} />
-                            {autoRefresh ? 'Pausar' : 'Reanudar'}
-                        </Button>
-                    </div>
-                }
-            />
+                {allExams.length > 0 && (
+                    <Select
+                        value={selectedExamId ?? undefined}
+                        onValueChange={handleExamChange}
+                    >
+                        <SelectTrigger className="border-border h-9 w-[200px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
+                            <SelectValue placeholder="Seleccionar examen..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {allExams.map((e) => (
+                                <SelectItem key={e.id} value={e.id}>
+                                    {e.active ? '● ' : '○ '} {e.title}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                )}
+
+                {selectedExamId && groupOptions.length > 0 && (
+                    <Select
+                        value={selectedGroupId ?? undefined}
+                        onValueChange={handleGroupChange}
+                    >
+                        <SelectTrigger className="border-border h-9 w-[160px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
+                            <SelectValue placeholder="Todos los grupos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {groupOptions.map((g) => (
+                                <SelectItem key={g.id} value={g.id}>
+                                    {g.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                )}
+
+                <Button
+                    variant={autoRefresh ? 'ink' : 'ghost'}
+                    size="md"
+                    className="min-w-[120px] gap-2"
+                    onClick={() => setAutoRefresh((v) => !v)}
+                >
+                    <RefreshCw size={15} className={cn(isRefreshing && 'animate-spin')} />
+                    {autoRefresh ? 'Pausar' : 'Reanudar'}
+                </Button>
+            </div>
 
             <main className="flex flex-1 flex-col space-y-6 overflow-hidden p-8">
                 {examData && (
@@ -531,7 +523,7 @@ export function LiveResultsClient({
                     </div>
                 )}
             </main>
-        </div>
+        </>
     );
 }
 

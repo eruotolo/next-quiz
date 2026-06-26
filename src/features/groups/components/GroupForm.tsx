@@ -10,13 +10,7 @@ import {
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/shared/components/ui/select';
+import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import { cn } from '@/shared/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -164,7 +158,7 @@ export function GroupForm({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="border-border max-w-2xl rounded-[22px] shadow-2xl">
+            <DialogContent className="border-border sm:max-w-3xl rounded-[22px] shadow-2xl">
                 <DialogTitle className="font-display text-2xl">
                     {editing ? 'Editar grupo' : 'Nuevo grupo'}
                 </DialogTitle>
@@ -211,53 +205,44 @@ export function GroupForm({
                         <span className="text-ink text-[13px] font-bold">
                             Profesor/a tutor/a (opcional)
                         </span>
-                        <Select value={tutorId} onValueChange={setTutorId}>
-                            <SelectTrigger className="border-border data-[size=default]:h-11 rounded-[10px] bg-white">
-                                <SelectValue placeholder="Sin tutor asignado" />
-                            </SelectTrigger>
-                            <SelectContent className="border-border rounded-xl shadow-xl">
-                                <SelectItem value={NO_TUTOR}>Sin tutor asignado</SelectItem>
-                                {professors.map((p) => (
-                                    <SelectItem key={p.id} value={p.id}>
-                                        {p.name} {p.lastname}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                            value={tutorId}
+                            onChange={setTutorId}
+                            placeholder="Sin tutor asignado"
+                            options={[
+                                { value: NO_TUTOR, label: 'Sin tutor asignado' },
+                                ...professors.map((p) => ({
+                                    value: p.id,
+                                    label: `${p.name} ${p.lastname}`,
+                                })),
+                            ]}
+                        />
                     </div>
 
                     <div className="flex flex-col gap-2">
                         <span className="text-ink text-[13px] font-bold">Carrera (opcional)</span>
-                        <Select value={programId} onValueChange={setProgramId}>
-                            <SelectTrigger className="border-border data-[size=default]:h-11 rounded-[10px] bg-white">
-                                <SelectValue placeholder="Sin carrera" />
-                            </SelectTrigger>
-                            <SelectContent className="border-border rounded-xl shadow-xl">
-                                <SelectItem value={NO_PROGRAM}>Sin carrera / Transversal</SelectItem>
-                                {programs.map((p) => (
-                                    <SelectItem key={p.id} value={p.id}>
-                                        {p.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                            value={programId}
+                            onChange={setProgramId}
+                            placeholder="Sin carrera"
+                            options={[
+                                { value: NO_PROGRAM, label: 'Sin carrera / Transversal' },
+                                ...programs.map((p) => ({ value: p.id, label: p.name })),
+                            ]}
+                        />
                     </div>
 
                     <div className="flex flex-col gap-2">
                         <span className="text-ink text-[13px] font-bold">Semestre (opcional)</span>
-                        <Select value={periodId} onValueChange={setPeriodId}>
-                            <SelectTrigger className="border-border data-[size=default]:h-11 rounded-[10px] bg-white">
-                                <SelectValue placeholder="Sin semestre" />
-                            </SelectTrigger>
-                            <SelectContent className="border-border rounded-xl shadow-xl">
-                                <SelectItem value={NO_PERIOD}>Sin semestre</SelectItem>
-                                {periods.map((p) => (
-                                    <SelectItem key={p.id} value={p.id}>
-                                        {p.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                            value={periodId}
+                            onChange={setPeriodId}
+                            placeholder="Sin semestre"
+                            options={[
+                                { value: NO_PERIOD, label: 'Sin semestre' },
+                                ...periods.map((p) => ({ value: p.id, label: p.name })),
+                            ]}
+                        />
                     </div>
 
                     <div className="col-span-2 flex flex-col gap-2">

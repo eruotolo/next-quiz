@@ -75,7 +75,7 @@ async function assertCourseRelationsInstitution(
                   where: {
                       id: { in: refs.professorIds },
                       academicInstitutionId: institutionId,
-                      userRole: { name: USER_ROLE.PROFESOR },
+                      userRole: { name: { in: [USER_ROLE.PROFESOR, USER_ROLE.ADMIN] } },
                   },
               })
             : Promise.resolve(0),
@@ -100,7 +100,7 @@ async function countValidProfessors(
         where: {
             id: { in: professorIds },
             academicInstitutionId: institutionId,
-            userRole: { name: USER_ROLE.PROFESOR },
+            userRole: { name: { in: [USER_ROLE.PROFESOR, USER_ROLE.ADMIN] } },
         },
     });
 }

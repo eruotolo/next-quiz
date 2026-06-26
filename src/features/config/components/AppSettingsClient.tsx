@@ -5,9 +5,7 @@ import { APP_CONFIG_KEY, type AppConfigKey } from '@/features/config/lib/app-con
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
-import { Label } from '@/shared/components/ui/label';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
-import { Loader2, Save, Settings } from 'lucide-react';
+import { Loader2, Save } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
@@ -44,20 +42,20 @@ function SettingField({
 
     return (
         <div className="flex flex-col gap-2">
-            <Label htmlFor={configKey}>{label}</Label>
-            <p className="text-muted-foreground text-sm">{description}</p>
+            <label htmlFor={configKey} className="text-ink text-[13px] font-bold">{label}</label>
+            <p className="text-mute text-sm">{description}</p>
             <div className="flex gap-2">
                 <Input
                     id={configKey}
                     type={type ?? 'text'}
                     value={fieldValue}
                     onChange={(e) => setFieldValue(e.target.value)}
-                    className="max-w-md font-mono text-sm"
+                    className="border-border h-11 max-w-md rounded-[10px] bg-white font-mono text-sm"
                     placeholder={label}
                 />
                 <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ink"
+                    size="md"
                     onClick={handleSave}
                     disabled={isPending || fieldValue === value}
                 >
@@ -75,14 +73,7 @@ function SettingField({
 
 export function AppSettingsClient({ config }: Props) {
     return (
-        <>
-            <AdminTopBar
-                breadcrumb={['Sistema', 'Configuración']}
-                title="Configuración"
-                subtitle="Ajustes globales de la plataforma."
-                icon={<Settings size={18} />}
-            />
-            <main className="flex-1 p-8">
+        <main className="flex-1 p-8">
                 <div className="flex flex-col gap-6">
                     <Card>
                         <CardHeader>
@@ -159,6 +150,5 @@ export function AppSettingsClient({ config }: Props) {
                     </Card>
                 </div>
             </main>
-        </>
     );
 }

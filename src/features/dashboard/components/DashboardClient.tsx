@@ -16,13 +16,7 @@ import {
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/shared/components/ui/select';
+import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import { cn } from '@/shared/lib/utils';
 import { isValidRut, normalizeRut } from '@/shared/lib/rut';
 import type { Group } from '@prisma/client';
@@ -425,7 +419,7 @@ function CreateGroupDialog({
                             setGroupName(e.target.value);
                             setGroupError(null);
                         }}
-                        className={cn('h-11 rounded-[10px]', groupError && 'border-destructive')}
+                        className={cn('border-border h-11 rounded-[10px] bg-white', groupError && 'border-destructive')}
                         autoFocus
                     />
                     {groupError && (
@@ -508,7 +502,7 @@ function CreateStudentDialog({
                                 id="s-name"
                                 value={form.name}
                                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                                className="h-11 rounded-[10px]"
+                                className="border-border h-11 rounded-[10px] bg-white"
                                 autoFocus
                             />
                             {errors.name && (
@@ -528,7 +522,7 @@ function CreateStudentDialog({
                                 onChange={(e) =>
                                     setForm((f) => ({ ...f, lastname: e.target.value }))
                                 }
-                                className="h-11 rounded-[10px]"
+                                className="border-border h-11 rounded-[10px] bg-white"
                             />
                             {errors.lastname && (
                                 <p className="text-destructive text-xs">{errors.lastname}</p>
@@ -544,7 +538,7 @@ function CreateStudentDialog({
                             type="email"
                             value={form.email}
                             onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                            className="h-11 rounded-[10px]"
+                            className="border-border h-11 rounded-[10px] bg-white"
                         />
                         {errors.email && <p className="text-destructive text-xs">{errors.email}</p>}
                     </div>
@@ -558,22 +552,13 @@ function CreateStudentDialog({
                         {errors.rut && <p className="text-destructive text-xs">{errors.rut}</p>}
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <span className="text-[12.5px] font-bold text-[#0b0b11]">Grupo</span>
-                        <Select
+                        <span className="text-ink text-[12.5px] font-bold">Grupo</span>
+                        <SearchableSelect
                             value={form.groupId}
-                            onValueChange={(v) => setForm((f) => ({ ...f, groupId: v }))}
-                        >
-                            <SelectTrigger className="h-11 rounded-[10px]">
-                                <SelectValue placeholder="Seleccioná un grupo" />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-xl">
-                                {groups.map((g) => (
-                                    <SelectItem key={g.id} value={g.id}>
-                                        {g.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                            onChange={(v) => setForm((f) => ({ ...f, groupId: v }))}
+                            placeholder="Seleccioná un grupo"
+                            options={groups.map((g) => ({ value: g.id, label: g.name }))}
+                        />
                         {errors.groupId && (
                             <p className="text-destructive text-xs">{errors.groupId}</p>
                         )}
@@ -678,7 +663,7 @@ function CreateExamDialog({
                             placeholder="Ej: Matemáticas — Unidad 3"
                             value={form.title}
                             onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                            className="h-11 rounded-[10px]"
+                            className="border-border h-11 rounded-[10px] bg-white"
                             autoFocus
                         />
                         {errors.title && <p className="text-destructive text-xs">{errors.title}</p>}
@@ -692,7 +677,7 @@ function CreateExamDialog({
                             type="number"
                             value={form.timeLimit}
                             onChange={(e) => setForm((f) => ({ ...f, timeLimit: e.target.value }))}
-                            className="h-11 rounded-[10px]"
+                            className="border-border h-11 rounded-[10px] bg-white"
                         />
                         {errors.timeLimit && (
                             <p className="text-destructive text-xs">{errors.timeLimit}</p>

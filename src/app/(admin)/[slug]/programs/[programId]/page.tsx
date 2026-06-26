@@ -61,7 +61,7 @@ export default async function ProgramDetailPage({ params }: Props) {
         ? await prisma.user.findMany({
               where: {
                   academicInstitutionId: institutionId,
-                  userRole: { name: USER_ROLE.PROFESOR },
+                  userRole: { name: { in: [USER_ROLE.PROFESOR, USER_ROLE.ADMIN] } },
               },
               select: { id: true, name: true, lastname: true },
               orderBy: { lastname: 'asc' },

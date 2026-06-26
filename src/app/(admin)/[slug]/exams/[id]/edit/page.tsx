@@ -1,7 +1,8 @@
+import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
+import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { ExamEditorClient } from '@/features/exams/components/ExamEditorClient';
 import { demoExamFilter } from '@/features/demo/lib/demo';
 import { prisma } from '@/shared/lib/prisma';
-import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { notFound } from 'next/navigation';
 
 interface PageProps {
@@ -53,5 +54,14 @@ export default async function ExamEditorPage({ params }: PageProps) {
         .filter((s): s is string => s !== null)
         .sort();
 
-    return <ExamEditorClient exam={exam} subjects={subjectList} />;
+    return (
+        <>
+            <AdminTopBar
+                breadcrumb={['Exámenes', exam.title]}
+                title={exam.title}
+                subtitle={`${exam.groups.map((g) => g.name).join(' · ')} · ${exam.timeLimit} min · ${exam.questions.length} pregunta${exam.questions.length !== 1 ? 's' : ''}`}
+            />
+            <ExamEditorClient exam={exam} subjects={subjectList} />
+        </>
+    );
 }

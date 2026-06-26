@@ -1,12 +1,9 @@
-import { Skeleton } from '@/shared/components/ui/skeleton';
+import { Loader2 } from 'lucide-react';
 
-export default function ProgramsLoading() {
+export default function Loading() {
     return (
-        <div className="space-y-4 p-8">
-            <Skeleton className="h-10 w-full" />
-            {['a', 'b', 'c', 'd', 'e'].map((id) => (
-                <Skeleton key={id} className="h-14 w-full" />
-            ))}
+        <div className="flex flex-1 items-center justify-center py-24">
+            <Loader2 className="text-primary size-6 animate-spin" />
         </div>
     );
 }

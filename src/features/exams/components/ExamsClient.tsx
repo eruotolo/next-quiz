@@ -25,7 +25,6 @@ const ImportQuestionsDialog = dynamic(
         ),
     { ssr: false },
 );
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -45,13 +44,7 @@ import {
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/shared/components/ui/select';
+import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import { Switch } from '@/shared/components/ui/switch';
 import { Tag } from '@/shared/components/ui/badge';
 import { cn } from '@/shared/lib/utils';
@@ -75,7 +68,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useRef, useState, useTransition, useMemo } from 'react';
+import { useState, useTransition, useMemo } from 'react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -431,15 +424,6 @@ export function ExamsClient({
         borradores: exams.filter((e) => deriveExamStatus(e) === 'borradores').length,
     };
 
-    const statsSubtitle = [
-        `${exams.length} totales`,
-        counts['en-curso'] > 0 && `${counts['en-curso']} en curso`,
-        counts.programados > 0 && `${counts.programados} programados`,
-        counts.borradores > 0 && `${counts.borradores} borradores`,
-    ]
-        .filter(Boolean)
-        .join(' · ');
-
     const filtered = exams.filter((e) => {
         const matchesTab = tab === 'todos' || deriveExamStatus(e) === tab;
         const q = searchQuery.toLowerCase();
@@ -452,49 +436,7 @@ export function ExamsClient({
     });
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
-            {/* Header */}
-            <AdminTopBar
-                breadcrumb={['Institución', 'Exámenes']}
-                title="Exámenes"
-                subtitle={statsSubtitle || undefined}
-                actions={
-                    <>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="md" className="gap-2">
-                                    <LayoutTemplate size={16} />
-                                    Plantillas
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                                align="end"
-                                className="border-border w-52 rounded-xl shadow-xl"
-                            >
-                                <DropdownMenuItem
-                                    onClick={() => generateExcelTemplate()}
-                                    className="cursor-pointer gap-2 py-2.5"
-                                >
-                                    <FileSpreadsheet size={14} />
-                                    Descargar Excel (.xlsx)
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    onClick={() => generateMarkdownTemplate()}
-                                    className="cursor-pointer gap-2 py-2.5"
-                                >
-                                    <FileText size={14} />
-                                    Descargar Markdown (.md)
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                        <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
-                            <Plus size={16} />
-                            Nuevo examen
-                        </Button>
-                    </>
-                }
-            />
-
+        <>
             {/* Filter + Search bar */}
             <div className="border-border flex items-center justify-between gap-4 border-b bg-white px-8 py-3">
                 <div className="flex items-center gap-1">
@@ -516,19 +458,16 @@ export function ExamsClient({
                 </div>
                 <div className="flex items-center gap-2">
                     {courseSections.length > 0 && (
-                        <Select value={courseFilter} onValueChange={setCourseFilter}>
-                            <SelectTrigger className="bg-paper border-border h-9 w-48 rounded-full text-[13px]">
-                                <SelectValue placeholder="Asignatura" />
-                            </SelectTrigger>
-                            <SelectContent className="border-border rounded-xl shadow-xl">
-                                <SelectItem value="all">Todas las asignaturas</SelectItem>
-                                {courseSections.map((c) => (
-                                    <SelectItem key={c.id} value={c.id}>
-                                        {c.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                            size="sm"
+                            value={courseFilter}
+                            onChange={setCourseFilter}
+                            className="w-48"
+                            options={[
+                                { value: 'all', label: 'Todas las asignaturas' },
+                                ...courseSections.map((c) => ({ value: c.id, label: c.name })),
+                            ]}
+                        />
                     )}
                     <div className="relative shrink-0">
                         <Search
@@ -542,6 +481,37 @@ export function ExamsClient({
                             className="bg-paper border-border h-9 w-52 rounded-full pl-9 text-[13px]"
                         />
                     </div>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="md" className="gap-2">
+                                <LayoutTemplate size={16} />
+                                Plantillas
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                            align="end"
+                            className="border-border w-52 rounded-xl shadow-xl"
+                        >
+                            <DropdownMenuItem
+                                onClick={() => generateExcelTemplate()}
+                                className="cursor-pointer gap-2 py-2.5"
+                            >
+                                <FileSpreadsheet size={14} />
+                                Descargar Excel (.xlsx)
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => generateMarkdownTemplate()}
+                                className="cursor-pointer gap-2 py-2.5"
+                            >
+                                <FileText size={14} />
+                                Descargar Markdown (.md)
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
+                        <Plus size={16} />
+                        Nuevo examen
+                    </Button>
                 </div>
             </div>
 
@@ -1115,6 +1085,6 @@ export function ExamsClient({
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </>
     );
 }
