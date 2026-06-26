@@ -526,6 +526,15 @@ export async function createExam(formData: FormData) {
 - Validación matemática del dígito verificador obligatoria.
 - Utilities: `@/shared/lib/rut.ts`. Input UI canónico: `RutField` en `@/shared/components/ui/rut-field.tsx`.
 
+## SEO y Sitemap (REGLA)
+
+**Sitemap automático:** Next.js genera `/sitemap.xml` desde `src/app/sitemap.ts`. Siempre que **se agregue una nueva página pública**, actualizar `sitemap.ts` para incluirla. Las rutas públicas linkeadas en el footer **DEBEN estar en el sitemap**. No esperar a que se descubra después.
+
+Rutas **NO indexables** (excluir del sitemap):
+- Rutas protegidas: `/[slug]/*`, `/config/*`, `/examen/[examId]/*`
+- Rutas de autenticación: `/auth/*`
+- API routes: `/api/*`
+
 ## Documentación (REGLA)
 
 Siempre que se actualice el proyecto, **documentar el cambio en este `CLAUDE.md`** en la sección correspondiente, como parte de la misma tarea.
