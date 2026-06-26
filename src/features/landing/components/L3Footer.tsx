@@ -117,14 +117,26 @@ export function L3Footer() {
                 </div>
 
                 {/* Bottom bar */}
-                <div className="border-border/50 text-mute mt-20 flex flex-col items-center justify-between gap-6 border-t pt-8 font-mono text-[10px] font-bold tracking-widest uppercase sm:flex-row">
+                <div className="border-border/50 text-mute mt-20 flex flex-col items-start justify-between gap-6 border-t pt-8 font-mono text-[10px] font-bold tracking-widest uppercase sm:flex-row sm:items-center">
                     <p>
                         <a target="_blank" rel="noopener" href="https://crowadvance.com">
-                            Crow Advance
+                            Crow Advance EIRL
                         </a>{' '}
-                        © {new Date().getFullYear()} · Hecho en Castro, Chiloé, Chile
+                        © {new Date().getFullYear()} · RUT 27.039.635-6 · Chonchi, Chiloé, Chile
                     </p>
-                    <div className="flex items-center gap-6">
+                    <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                        <Link
+                            href="/empresa/privacidad"
+                            className="hover:text-ink transition-colors"
+                        >
+                            Privacidad
+                        </Link>
+                        <Link
+                            href="/empresa/terminos"
+                            className="hover:text-ink transition-colors"
+                        >
+                            Términos
+                        </Link>
                         <Link href="/examen/login" className="hover:text-ink transition-colors">
                             Acceso alumnos
                         </Link>

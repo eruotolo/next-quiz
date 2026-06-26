@@ -100,6 +100,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.5,
         },
 
+        // Legal — indexables para confianza y cumplimiento
+        {
+            url: `${baseUrl}/empresa/privacidad`,
+            lastModified: new Date('2026-06-26'),
+            changeFrequency: 'yearly',
+            priority: 0.4,
+        },
+        {
+            url: `${baseUrl}/empresa/terminos`,
+            lastModified: new Date('2026-06-26'),
+            changeFrequency: 'yearly',
+            priority: 0.4,
+        },
+
         // Excluidos intencionalmente:
         // /login, /examen/login → páginas de autenticación, no contenido indexable
         // /recursos/estado → página operacional, no contenido

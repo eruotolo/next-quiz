@@ -570,6 +570,36 @@ La Home importa y renderiza los 4 schemas. Agregar schema específico a nuevas p
 
 **FAQ SEO:** `L3FAQ` exporta `FAQS` (array) y `FaqItem` (tipo). La Home importa `FAQS` para alimentar tanto `<L3FAQ faqs={FAQS} />` como `<JsonLd data={faqSchema(FAQS)} />`. Si cambian las preguntas, solo actualizar `L3FAQ.tsx`.
 
+## Páginas Legales
+
+Ubicadas en `src/app/(public)/empresa/`:
+
+- `/empresa/privacidad` — Política de Privacidad y Tratamiento de Datos
+- `/empresa/terminos` — Términos y Condiciones de Uso
+
+**Marco legal cubierto:**
+- Ley Nº 19.628 (vigente) + Ley Nº 21.719 (vacatio legis hasta dic. 2026)
+- Decreto Exento MINEDUC Nº 678/2018 (protección datos escolares)
+- Ley Nº 17.336 Propiedad Intelectual
+- Boletín Nº 16821-19 (Proyecto IA Chile)
+
+**Datos legales de la empresa:**
+- Razón social: Crow Advance EIRL — RUT 27.039.635-6
+- Representante: Edgardo Ruotolo Cardozo
+- Domicilio: Centenario 493, Chonchi, Chiloé, Región de Los Lagos, Chile
+- Email legal: edgardoruotolo@crowadvance.com
+
+**Puntos clave:**
+- Crow Advance = Encargado del Tratamiento; Institución educativa = Responsable
+- IA solo para generación de preguntas (MCP), con supervisión humana obligatoria
+- IA no corrige ni califica exámenes (calificación matemática determinista)
+- Servidores en EE.UU. (Vercel + Neon / AWS us-east-1) — declarado en Política de Privacidad
+- Derechos ARCO vía institución o directo a edgardoruotolo@crowadvance.com (plazo 15 días hábiles)
+- SLA 99% mensual, notificación de brechas en 72 horas
+- Al término del contrato: 30 días para exportar datos, luego eliminación segura
+
+**Footer:** links "Privacidad" y "Términos" agregados en la barra inferior con RUT y razón social legal.
+
 ## Documentación (REGLA)
 
 Siempre que se actualice el proyecto, **documentar el cambio en este `CLAUDE.md`** en la sección correspondiente, como parte de la misma tarea.
