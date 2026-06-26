@@ -70,11 +70,11 @@ async function main(): Promise<void> {
     console.log('Seeding demo sandbox...');
 
     // Roles base: upsert idempotente para que el seeder sea robusto en el build.
-    const [profesorRole, studentRole] = await Promise.all([
+    const [adminRole, studentRole] = await Promise.all([
         prisma.userRole.upsert({
-            where: { name: 'Profesor' },
+            where: { name: 'Administrador' },
             update: {},
-            create: { name: 'Profesor' },
+            create: { name: 'Administrador' },
         }),
         prisma.userRole.upsert({
             where: { name: 'Estudiante' },
@@ -112,14 +112,14 @@ async function main(): Promise<void> {
     const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, 10);
     const professor = await prisma.user.upsert({
         where: { email: DEMO_EMAIL },
-        update: { password: hashedPassword, academicInstitutionId: institution.id },
+        update: { password: hashedPassword, academicInstitutionId: institution.id, userRoleId: adminRole.id },
         create: {
-            name: 'Profesor',
+            name: 'Administrador',
             lastname: 'Demo',
             email: DEMO_EMAIL,
             rut: rutAt(0),
             password: hashedPassword,
-            userRoleId: profesorRole.id,
+            userRoleId: adminRole.id,
             academicInstitutionId: institution.id,
         },
         select: { id: true },
