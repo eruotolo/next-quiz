@@ -11,9 +11,9 @@
  *   Local:      pnpm db:backfill
  *   Producción: DATABASE_URL="<prod>" pnpm exec tsx prisma/scripts/backfill-institution.ts
  */
-import { PrismaClient } from '@prisma/client';
+import { createSeedClient } from '../lib/client';
 
-const prisma = new PrismaClient();
+const prisma = createSeedClient();
 
 async function backfillGroups(): Promise<void> {
     const groups = await prisma.group.findMany({

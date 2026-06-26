@@ -7,7 +7,6 @@ import {
     type GlobalStudentRow,
 } from '@/features/students/actions/global';
 import type { InstitutionRow } from '@/features/institutions/actions/queries';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import {
@@ -19,13 +18,7 @@ import {
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/shared/components/ui/select';
+import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import {
     Table,
     TableBody,
@@ -157,21 +150,12 @@ function StudentForm({
             </div>
             <div className="flex flex-col gap-1.5">
                 <span className="text-ink text-[13px] font-bold">Institución</span>
-                <Select
+                <SearchableSelect
                     value={form.academicInstitutionId}
-                    onValueChange={(v) => handleChange('academicInstitutionId', v)}
-                >
-                    <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
-                        <SelectValue placeholder="Seleccioná una institución" />
-                    </SelectTrigger>
-                    <SelectContent className="border-border rounded-xl shadow-xl">
-                        {institutions.map((i) => (
-                            <SelectItem key={i.id} value={i.id}>
-                                {i.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                    onChange={(v) => handleChange('academicInstitutionId', v)}
+                    options={institutions.map((i) => ({ value: i.id, label: i.name }))}
+                    placeholder="Seleccioná una institución"
+                />
             </div>
             <div className="mt-4 flex justify-end gap-2">
                 <Button type="submit" disabled={isPending} variant="ink" size="md">
@@ -255,24 +239,6 @@ export function GlobalStudentsClient({
 
     return (
         <>
-            {/* Header */}
-            <AdminTopBar
-                breadcrumb={['Sistema', 'Base Global']}
-                title="Todos los Estudiantes"
-                subtitle={`${result.total} alumnos registrados en la red Aulika`}
-                actions={
-                    <Button
-                        variant="ink"
-                        size="md"
-                        onClick={() => setCreateOpen(true)}
-                        className="gap-2"
-                    >
-                        <Plus size={16} />
-                        Nuevo alumno
-                    </Button>
-                }
-            />
-
             {/* Filter bar */}
             <div className="border-border flex items-center gap-2 border-b bg-white px-8 py-4">
                 <form onSubmit={handleSearchSubmit} className="relative max-w-sm flex-1">
@@ -281,38 +247,38 @@ export function GlobalStudentsClient({
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Buscar por nombre, RUT o email..."
-                        className="border-border h-[38px] bg-white pl-9"
+                        className="border-border h-9 rounded-[10px] bg-white pl-9"
                     />
                 </form>
 
                 <div className="flex items-center gap-2">
                     <Building2 size={16} className="text-mute ml-4" />
-                    <Select
+                    <SearchableSelect
+                        size="sm"
                         value={institutionFilter || '__all__'}
-                        onValueChange={(v) => {
+                        onChange={(v) => {
                             const val = v === '__all__' ? '' : v;
                             setInstitutionFilter(val);
                             pushUrl({ institutionId: val, page: 1 });
                         }}
-                    >
-                        <SelectTrigger className="border-border h-[38px] w-52 bg-white">
-                            <SelectValue placeholder="Todas las instituciones" />
-                        </SelectTrigger>
-                        <SelectContent className="border-border rounded-xl shadow-xl">
-                            <SelectItem value="__all__">Todas las instituciones</SelectItem>
-                            {institutions.map((i) => (
-                                <SelectItem key={i.id} value={i.id}>
-                                    {i.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                        options={[
+                            { value: '__all__', label: 'Todas las instituciones' },
+                            ...institutions.map((i) => ({ value: i.id, label: i.name })),
+                        ]}
+                        className="w-52"
+                    />
                 </div>
 
                 <div className="flex-1" />
-                <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
-                    {result.total} resultados
-                </span>
+                <Button
+                    variant="ink"
+                    size="md"
+                    onClick={() => setCreateOpen(true)}
+                    className="gap-2"
+                >
+                    <Plus size={16} />
+                    Nuevo alumno
+                </Button>
             </div>
 
             <main className="flex-1 overflow-auto p-8">

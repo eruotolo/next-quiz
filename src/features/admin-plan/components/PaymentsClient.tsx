@@ -4,17 +4,10 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Download, ExternalLink, Search, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/shared/components/ui/select';
+import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import {
     Table,
     TableBody,
@@ -114,24 +107,6 @@ export function PaymentsClient({ initial }: Props) {
 
     return (
         <>
-            <AdminTopBar
-                breadcrumb={['Aulika · Plataforma', 'Panel Global', 'Pagos']}
-                title="Pagos"
-                subtitle={`${data.total} cobros registrados`}
-                icon={<Wallet size={18} />}
-                actions={
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => void handleExport()}
-                        className="gap-1.5"
-                    >
-                        <Download size={14} />
-                        Exportar CSV
-                    </Button>
-                }
-            />
-
             {/* Filter bar */}
             <div className="border-border flex flex-wrap items-center gap-2 border-b bg-white px-8 py-4">
                 <div className="relative max-w-sm flex-1">
@@ -141,55 +116,40 @@ export function PaymentsClient({ initial }: Props) {
                         value={search}
                         onChange={(e) => handleSearch(e.target.value)}
                         placeholder="Buscar institución..."
-                        className="border-border h-[38px] bg-white pl-9"
+                        className="border-border h-9 rounded-[10px] bg-white pl-9"
                     />
                 </div>
 
-                <Select
+                <SearchableSelect
+                    size="sm"
                     value={filters.plan ?? 'all'}
-                    onValueChange={(v) =>
-                        applyFilters({
-                            ...filters,
-                            plan: v === 'all' ? undefined : (v as Plan),
-                            page: 1,
-                        })
+                    onChange={(v) =>
+                        applyFilters({ ...filters, plan: v === 'all' ? undefined : (v as Plan), page: 1 })
                     }
-                >
-                    <SelectTrigger className="border-border h-[38px] w-44 bg-white text-sm">
-                        <SelectValue placeholder="Plan" />
-                    </SelectTrigger>
-                    <SelectContent className="border-border rounded-xl shadow-xl">
-                        <SelectItem value="all">Todos los planes</SelectItem>
-                        {(['DOCENTE', 'COLEGIO', 'INSTITUCIONAL'] as Plan[]).map((p) => (
-                            <SelectItem key={p} value={p}>
-                                {PLAN_LABELS[p]}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                    options={[
+                        { value: 'all', label: 'Todos los planes' },
+                        { value: 'DOCENTE', label: 'Docente' },
+                        { value: 'COLEGIO', label: 'Colegio' },
+                        { value: 'INSTITUCIONAL', label: 'Institución' },
+                    ]}
+                    className="w-44"
+                />
 
-                <Select
+                <SearchableSelect
+                    size="sm"
                     value={filters.status ?? 'all'}
-                    onValueChange={(v) =>
-                        applyFilters({
-                            ...filters,
-                            status: v === 'all' ? undefined : (v as PaymentStatus),
-                            page: 1,
-                        })
+                    onChange={(v) =>
+                        applyFilters({ ...filters, status: v === 'all' ? undefined : (v as PaymentStatus), page: 1 })
                     }
-                >
-                    <SelectTrigger className="border-border h-[38px] w-40 bg-white text-sm">
-                        <SelectValue placeholder="Estado" />
-                    </SelectTrigger>
-                    <SelectContent className="border-border rounded-xl shadow-xl">
-                        <SelectItem value="all">Todos los estados</SelectItem>
-                        {(Object.values(PaymentStatus) as PaymentStatus[]).map((s) => (
-                            <SelectItem key={s} value={s}>
-                                {PAYMENT_STATUS_LABELS[s]}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                    options={[
+                        { value: 'all', label: 'Todos los estados' },
+                        ...(Object.values(PaymentStatus) as PaymentStatus[]).map((s) => ({
+                            value: s,
+                            label: PAYMENT_STATUS_LABELS[s],
+                        })),
+                    ]}
+                    className="w-40"
+                />
 
                 <div className="flex items-center gap-1.5">
                     <span className="text-mute text-[11px] whitespace-nowrap">Desde</span>
@@ -224,6 +184,15 @@ export function PaymentsClient({ initial }: Props) {
                 </div>
 
                 <div className="flex-1" />
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => void handleExport()}
+                    className="gap-1.5"
+                >
+                    <Download size={14} />
+                    Exportar CSV
+                </Button>
                 <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
                     {data.total} cobros
                 </span>

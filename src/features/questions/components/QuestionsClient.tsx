@@ -15,7 +15,6 @@ import {
     type BankQuestionInput,
 } from '@/features/questions/schemas/bank-question.schemas';
 import type { SafeBankQuestion, BankQuestionFilters } from '@/features/questions/types/bank-question.types';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
@@ -322,19 +321,7 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
     }
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
-            <AdminTopBar
-                breadcrumb={[institutionName, 'Banco de preguntas']}
-                title="Banco de Preguntas"
-                subtitle={`${items.length} pregunta${items.length !== 1 ? 's' : ''} en la biblioteca`}
-                actions={
-                    <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
-                        <Plus size={16} />
-                        Nueva pregunta
-                    </Button>
-                }
-            />
-
+        <>
             {/* Filter bar */}
             <div className="border-border border-b bg-white px-8 py-4">
                 <div className="flex flex-wrap items-center gap-3">
@@ -423,8 +410,12 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
 
                     <div className="flex-1" />
                     <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
-                        {items.length} registradas
+                        {items.length} preguntas
                     </span>
+                    <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
+                        <Plus size={16} />
+                        Nueva pregunta
+                    </Button>
                 </div>
 
                 {facets.tags.length > 0 && (
@@ -779,6 +770,6 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </>
     );
 }

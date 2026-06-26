@@ -10,13 +10,7 @@ import {
 } from '@/features/institutions/actions/mutations';
 import type { InstitutionRow } from '@/features/institutions/actions/queries';
 import { institutionSchema } from '@/features/institutions/schemas/institution.schemas';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/shared/components/ui/select';
+import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import {
@@ -39,6 +33,7 @@ import {
     TableRow,
 } from '@/shared/components/ui/table';
 import { TablePaginator } from '@/shared/components/ui/table-paginator';
+import { INSTITUTION_TYPE_OPTIONS } from '@/shared/lib/academic-labels';
 import type { PaginatedResult } from '@/shared/types/pagination';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -57,7 +52,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { FormEvent } from 'react';
 import { useState, useTransition } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { toast } from 'sonner';
 import type { z } from 'zod';
 import { cn } from '@/shared/lib/utils';
@@ -136,35 +131,25 @@ function PlanForm({
         <div className="flex flex-col gap-5 py-4">
             <div className="flex flex-col gap-1.5">
                 <span className="text-ink text-[13px] font-bold">Tipo de plan</span>
-                <Select value={kind} onValueChange={(v) => setKind(v as 'commercial' | 'custom')}>
-                    <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="border-border rounded-xl shadow-xl">
-                        <SelectItem value="commercial">Comercial</SelectItem>
-                        <SelectItem value="custom" disabled={noCustom}>
-                            Interno
-                        </SelectItem>
-                    </SelectContent>
-                </Select>
+                <SearchableSelect
+                    value={kind}
+                    onChange={(v) => setKind(v as 'commercial' | 'custom')}
+                    options={[
+                        { value: 'commercial', label: 'Comercial' },
+                        { value: 'custom', label: 'Interno', disabled: noCustom },
+                    ]}
+                />
             </div>
 
             {kind === 'commercial' ? (
                 <>
                     <div className="flex flex-col gap-1.5">
                         <span className="text-ink text-[13px] font-bold">Plan comercial</span>
-                        <Select value={plan} onValueChange={setPlan}>
-                            <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="border-border rounded-xl shadow-xl">
-                                {Object.entries(PLAN_LABELS).map(([value, label]) => (
-                                    <SelectItem key={value} value={value}>
-                                        {label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <SearchableSelect
+                            value={plan}
+                            onChange={setPlan}
+                            options={Object.entries(PLAN_LABELS).map(([v, l]) => ({ value: v, label: l }))}
+                        />
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <label htmlFor="plan-expires" className="text-ink text-[13px] font-bold">
@@ -176,7 +161,7 @@ function PlanForm({
                             value={expires}
                             onChange={(e) => setExpires(e.target.value)}
                             disabled={plan === 'FREE'}
-                            className="h-11 rounded-[10px]"
+                            className="border-border h-11 rounded-[10px] bg-white"
                         />
                         <p className="text-mute text-[11px]">
                             {plan === 'FREE'
@@ -188,18 +173,12 @@ function PlanForm({
             ) : (
                 <div className="flex flex-col gap-1.5">
                     <span className="text-ink text-[13px] font-bold">Plan interno</span>
-                    <Select value={customPlanId} onValueChange={setCustomPlanId}>
-                        <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
-                            <SelectValue placeholder="Seleccioná un plan interno" />
-                        </SelectTrigger>
-                        <SelectContent className="border-border rounded-xl shadow-xl">
-                            {customPlans.map((cp) => (
-                                <SelectItem key={cp.id} value={cp.id}>
-                                    {cp.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <SearchableSelect
+                        value={customPlanId}
+                        onChange={setCustomPlanId}
+                        options={customPlans.map((cp) => ({ value: cp.id, label: cp.name }))}
+                        placeholder="Seleccioná un plan interno"
+                    />
                     <p className="text-mute text-[11px]">
                         Los planes internos se crean en Planes. No son visibles para el cliente
                         final.
@@ -244,12 +223,14 @@ function InstitutionForm({
 }) {
     const {
         register,
+        control,
         handleSubmit,
         formState: { errors },
     } = useForm<InstitutionInput>({
         resolver: zodResolver(institutionSchema),
         defaultValues: {
             country: 'Chile',
+            type: 'OTRO',
             active: true,
             ...defaultValues,
         },
@@ -257,6 +238,23 @@ function InstitutionForm({
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 py-4">
+            <Controller
+                name="type"
+                control={control}
+                render={({ field }) => (
+                    <div className="flex flex-col gap-1.5">
+                        <label htmlFor="inst-type" className="text-ink text-[13px] font-bold">
+                            Tipo de institución
+                        </label>
+                        <SearchableSelect
+                            value={field.value}
+                            onChange={field.onChange}
+                            options={INSTITUTION_TYPE_OPTIONS}
+                            placeholder="Seleccioná el tipo"
+                        />
+                    </div>
+                )}
+            />
             <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
                     <label htmlFor="inst-name" className="text-ink text-[13px] font-bold">
@@ -479,7 +477,7 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props) 
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Buscar institución por nombre o slug..."
-                        className="border-border h-[38px] bg-white pl-9"
+                        className="border-border h-9 rounded-[10px] bg-white pl-9"
                     />
                 </form>
                 <div className="flex-1" />
@@ -522,6 +520,7 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props) 
                                 <TableRow className="border-border border-b hover:bg-transparent">
                                     <TableHead>Nombre / Entidad</TableHead>
                                     <TableHead className="w-[180px]">Identificador</TableHead>
+                                    <TableHead className="w-[150px]">Tipo</TableHead>
                                     <TableHead className="w-[160px]">Ubicación</TableHead>
                                     <TableHead className="w-[150px]">Plan</TableHead>
                                     <TableHead className="w-[100px] text-center">
@@ -558,6 +557,15 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props) 
                                                 className="bg-paper-warm/50 border-border h-6 font-mono text-[11px]"
                                             >
                                                 /{row.slug}
+                                            </Tag>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Tag
+                                                tone="outline"
+                                                className="border-border h-6 w-fit bg-white px-2.5 text-[10.5px] font-bold"
+                                            >
+                                                {INSTITUTION_TYPE_OPTIONS.find((o) => o.value === row.type)
+                                                    ?.label ?? row.type}
                                             </Tag>
                                         </TableCell>
                                         <TableCell>
@@ -719,7 +727,7 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props) 
 
             {/* Plan dialog */}
             <Dialog open={!!planRow} onOpenChange={(o) => !o && setPlanRow(null)}>
-                <DialogContent className="border-border max-w-md overflow-hidden rounded-[22px] p-0 shadow-2xl">
+                <DialogContent className="border-border max-w-lg overflow-hidden rounded-[22px] p-0 shadow-2xl">
                     <div className="border-border bg-paper border-b px-6 py-5">
                         <DialogTitle className="font-display text-ink text-2xl">
                             Asignar plan

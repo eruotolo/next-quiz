@@ -3,7 +3,7 @@
 import { auth } from '@/features/auth/auth';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
-import type { Plan } from '@prisma/client';
+import type { InstitutionType, Plan } from '@prisma/client';
 import type { PaginatedResult, PaginationParams } from '@/shared/types/pagination';
 
 export interface InstitutionSettings {
@@ -15,6 +15,7 @@ export interface InstitutionSettings {
     city: string;
     campus: string | null;
     country: string;
+    type: InstitutionType;
     email: string | null;
     seoTitle: string | null;
     seoDescription: string | null;
@@ -42,6 +43,7 @@ export async function getInstitutionSettings(slug: string): Promise<InstitutionS
             city: true,
             campus: true,
             country: true,
+            type: true,
             email: true,
             seoTitle: true,
             seoDescription: true,
@@ -60,6 +62,7 @@ export interface InstitutionRow {
     address: string;
     campus: string | null;
     active: boolean;
+    type: InstitutionType;
     plan: Plan;
     planExpiresAt: Date | null;
     customPlan: { id: string; name: string } | null;
@@ -100,6 +103,7 @@ export async function getInstitutions(
                 address: true,
                 campus: true,
                 active: true,
+                type: true,
                 plan: true,
                 planExpiresAt: true,
                 customPlan: { select: { id: true, name: true } },

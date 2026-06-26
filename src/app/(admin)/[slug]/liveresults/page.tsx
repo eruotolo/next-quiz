@@ -1,7 +1,5 @@
-import { prisma } from '@/shared/lib/prisma';
+import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
-import { examProfessorFilter } from '@/shared/lib/scoping';
-import { calcGrade } from '@/shared/lib/grade';
 import {
     LiveResultsClient,
     type ExamOption,
@@ -9,6 +7,9 @@ import {
     type LiveExamData,
     type LiveResultRow,
 } from '@/features/results/components/LiveResultsClient';
+import { calcGrade } from '@/shared/lib/grade';
+import { prisma } from '@/shared/lib/prisma';
+import { examProfessorFilter } from '@/shared/lib/scoping';
 
 interface PageProps {
     params: Promise<{ slug: string }>;
@@ -24,7 +25,7 @@ export default async function LiveResultsPage({
         params,
         searchParams,
     ]);
-    const { institutionId, isProfesor, userId } = await requireInstitutionPageAccess(slug);
+    const { institutionId, institutionName, isProfesor, userId } = await requireInstitutionPageAccess(slug);
 
     const activeExams = await prisma.exam.findMany({
         where: {
@@ -198,12 +199,19 @@ export default async function LiveResultsPage({
     }
 
     return (
-        <LiveResultsClient
-            allExams={examOptions}
-            selectedExamId={examId ?? null}
-            examData={examData}
-            groupOptions={groupOptions}
-            selectedGroupId={validGroupId ?? null}
-        />
+        <>
+            <AdminTopBar
+                title="Monitoreo en Tiempo Real"
+                breadcrumb={[institutionName, 'En Vivo']}
+                subtitle="Seguimiento en tiempo real de exámenes activos"
+            />
+            <LiveResultsClient
+                allExams={examOptions}
+                selectedExamId={examId ?? null}
+                examData={examData}
+                groupOptions={groupOptions}
+                selectedGroupId={validGroupId ?? null}
+            />
+        </>
     );
 }

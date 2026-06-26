@@ -22,7 +22,6 @@ const GenerateQuestionsDialog = dynamic(
         ).then((m) => m.GenerateQuestionsDialog),
     { ssr: false },
 );
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Tag } from '@/shared/components/ui/badge';
@@ -357,47 +356,42 @@ export function ExamEditorClient({ exam, subjects = [] }: { exam: ExamWithAll; s
     const totalPoints = exam.questions.reduce((s, q) => s + q.points, 0);
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
-            <AdminTopBar
-                breadcrumb={['Exámenes', exam.title]}
-                title={exam.title}
-                subtitle={`${exam.groups.map((g) => g.name).join(' · ')} · ${exam.timeLimit} min · ${exam.questions.length} pregunta${exam.questions.length !== 1 ? 's' : ''} · ${totalPoints} pts`}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <Button
-                            variant="ghost"
-                            size="md"
-                            onClick={() => setIsAiOpen(true)}
-                            className="gap-2 text-primary hover:bg-primary-wash"
-                        >
-                            <Sparkles size={15} />
-                            Generar con IA
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="md"
-                            onClick={() => setIsImportOpen(true)}
-                            className="gap-2"
-                        >
-                            <Upload size={15} />
-                            Importar
-                        </Button>
-                        <Button variant="ghost" size="md" onClick={openBankPicker} className="gap-2">
-                            <Library size={15} />
-                            Desde banco
-                        </Button>
-                        <Button variant="ink" size="md" onClick={openNew} className="gap-2">
-                            <Plus size={15} />
-                            Agregar pregunta
-                        </Button>
-                        <Button variant="ghost" size="icon-sm" asChild>
-                            <Link href={`/${slug}/exams`}>
-                                <ArrowLeft size={16} />
-                            </Link>
-                        </Button>
-                    </div>
-                }
-            />
+        <>
+            {/* Toolbar */}
+            <div className="border-border flex items-center gap-2 border-b bg-white px-8 py-3">
+                <Button variant="ghost" size="icon-sm" asChild>
+                    <Link href={`/${slug}/exams`}>
+                        <ArrowLeft size={16} />
+                    </Link>
+                </Button>
+                <div className="flex-1" />
+                <Button
+                    variant="ghost"
+                    size="md"
+                    onClick={() => setIsAiOpen(true)}
+                    className="gap-2 text-primary hover:bg-primary-wash"
+                >
+                    <Sparkles size={15} />
+                    Generar con IA
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="md"
+                    onClick={() => setIsImportOpen(true)}
+                    className="gap-2"
+                >
+                    <Upload size={15} />
+                    Importar
+                </Button>
+                <Button variant="ghost" size="md" onClick={openBankPicker} className="gap-2">
+                    <Library size={15} />
+                    Desde banco
+                </Button>
+                <Button variant="ink" size="md" onClick={openNew} className="gap-2">
+                    <Plus size={15} />
+                    Agregar pregunta
+                </Button>
+            </div>
 
             <div className="flex flex-1 overflow-hidden">
                 {/* Left sidebar: question map */}
@@ -1050,6 +1044,6 @@ export function ExamEditorClient({ exam, subjects = [] }: { exam: ExamWithAll; s
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </>
     );
 }

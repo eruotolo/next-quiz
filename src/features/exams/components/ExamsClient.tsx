@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import {
     createExam,
@@ -8,6 +8,13 @@ import {
 } from '@/features/exams/actions/mutations';
 import { toast } from 'sonner';
 import { examSchema } from '@/features/exams/schemas/exam.schemas';
+import {
+    ExamAcademicPicker,
+    NO_COURSE,
+    NO_PERIOD,
+    NO_PROGRAM,
+    type CourseOption,
+} from '@/features/exams/components/ExamAcademicPicker';
 import { generateExcelTemplate, generateMarkdownTemplate } from '@/features/exams/lib/templates';
 import dynamic from 'next/dynamic';
 
@@ -18,7 +25,6 @@ const ImportQuestionsDialog = dynamic(
         ),
     { ssr: false },
 );
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -38,6 +44,7 @@ import {
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
+import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import { Switch } from '@/shared/components/ui/switch';
 import { Tag } from '@/shared/components/ui/badge';
 import { cn } from '@/shared/lib/utils';
@@ -61,7 +68,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useMemo } from 'react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -71,6 +78,13 @@ import {
 
 interface ExamWithCount extends Exam {
     groups: Group[];
+    courseSection: {
+        id: string;
+        name: string;
+        programId: string | null;
+        periodId: string;
+        groupId: string | null;
+    } | null;
     _count: { questions: number; results: number };
 }
 
@@ -85,8 +99,10 @@ interface FormState {
     maxGrade: string;
     passingGrade: string;
     passingPercentage: string;
-    subject: string;
-    unit: string;
+
+    programId: string;
+    periodId: string;
+    courseSectionId: string;
     scheduledAt: string;
     closesAt: string;
 }
@@ -102,8 +118,10 @@ const emptyForm: FormState = {
     maxGrade: '7',
     passingGrade: '4',
     passingPercentage: '60',
-    subject: '',
-    unit: '',
+
+    programId: NO_PROGRAM,
+    periodId: NO_PERIOD,
+    courseSectionId: NO_COURSE,
     scheduledAt: '',
     closesAt: '',
 };
@@ -223,14 +241,19 @@ function formatExamDate(exam: ExamWithCount): string {
 export function ExamsClient({
     exams,
     groups,
+    courseSections,
+    isProfesor,
 }: {
     exams: ExamWithCount[];
     groups: Group[];
+    courseSections: CourseOption[];
+    isProfesor: boolean;
 }) {
     const router = useRouter();
     const { slug } = useParams<{ slug: string }>();
     const [tab, setTab] = useState<TabFilter>('todos');
     const [searchQuery, setSearchQuery] = useState('');
+    const [courseFilter, setCourseFilter] = useState<string>('all');
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
     const [isToggleOpen, setIsToggleOpen] = useState(false);
@@ -242,6 +265,18 @@ export function ExamsClient({
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
     const [importExamId, setImportExamId] = useState<string | null>(null);
+
+    const filteredGroups = useMemo(() => {
+        return groups.filter((g) => {
+            if (form.programId !== NO_PROGRAM && g.programId !== form.programId) return false;
+            if (form.periodId !== NO_PERIOD && g.periodId !== form.periodId) return false;
+            if (form.courseSectionId !== NO_COURSE) {
+                const course = courseSections.find((c) => c.id === form.courseSectionId);
+                if (course?.groupId && g.id !== course.groupId) return false;
+            }
+            return true;
+        });
+    }, [groups, form.programId, form.periodId, form.courseSectionId, courseSections]);
 
     const setField = <K extends keyof FormState>(field: K, value: FormState[K]): void => {
         setForm((f) => ({ ...f, [field]: value }));
@@ -278,8 +313,10 @@ export function ExamsClient({
             maxGrade: String(exam.maxGrade),
             passingGrade: String(exam.passingGrade),
             passingPercentage: String(exam.passingPercentage),
-            subject: exam.subject ?? '',
-            unit: exam.unit ?? '',
+
+            programId: exam.courseSection?.programId ?? NO_PROGRAM,
+            periodId: exam.courseSection?.periodId ?? NO_PERIOD,
+            courseSectionId: exam.courseSection?.id ?? NO_COURSE,
             scheduledAt: toDatetimeLocal(exam.scheduledAt),
             closesAt: toDatetimeLocal(exam.closesAt),
         });
@@ -300,7 +337,13 @@ export function ExamsClient({
 
     const validate = (): boolean => {
         // Misma fuente de verdad que el servidor: validar con el schema Zod.
-        const parsed = examSchema.safeParse(form);
+        // Normalizamos el sentinel de "sin asignatura" a null antes de validar.
+        const formForValidation = {
+            ...form,
+            courseSectionId:
+                form.courseSectionId === NO_COURSE ? null : form.courseSectionId,
+        };
+        const parsed = examSchema.safeParse(formForValidation);
         if (parsed.success) {
             setErrors({});
             return true;
@@ -329,6 +372,8 @@ export function ExamsClient({
                     maxGrade: Number(form.maxGrade),
                     passingGrade: Number(form.passingGrade),
                     passingPercentage: Number(form.passingPercentage),
+                    courseSectionId:
+                        form.courseSectionId === NO_COURSE ? null : form.courseSectionId,
                     scheduledAt: toUTC(form.scheduledAt),
                     closesAt: toUTC(form.closesAt),
                 };
@@ -379,15 +424,6 @@ export function ExamsClient({
         borradores: exams.filter((e) => deriveExamStatus(e) === 'borradores').length,
     };
 
-    const statsSubtitle = [
-        `${exams.length} totales`,
-        counts['en-curso'] > 0 && `${counts['en-curso']} en curso`,
-        counts.programados > 0 && `${counts.programados} programados`,
-        counts.borradores > 0 && `${counts.borradores} borradores`,
-    ]
-        .filter(Boolean)
-        .join(' · ');
-
     const filtered = exams.filter((e) => {
         const matchesTab = tab === 'todos' || deriveExamStatus(e) === tab;
         const q = searchQuery.toLowerCase();
@@ -395,53 +431,12 @@ export function ExamsClient({
             !q ||
             e.title.toLowerCase().includes(q) ||
             (e.subject?.toLowerCase().includes(q) ?? false);
-        return matchesTab && matchesSearch;
+        const matchesCourse = courseFilter === 'all' || e.courseSection?.id === courseFilter;
+        return matchesTab && matchesSearch && matchesCourse;
     });
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
-            {/* Header */}
-            <AdminTopBar
-                breadcrumb={['Institución', 'Exámenes']}
-                title="Exámenes"
-                subtitle={statsSubtitle || undefined}
-                actions={
-                    <>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="md" className="gap-2">
-                                    <LayoutTemplate size={16} />
-                                    Plantillas
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                                align="end"
-                                className="border-border w-52 rounded-xl shadow-xl"
-                            >
-                                <DropdownMenuItem
-                                    onClick={() => generateExcelTemplate()}
-                                    className="cursor-pointer gap-2 py-2.5"
-                                >
-                                    <FileSpreadsheet size={14} />
-                                    Descargar Excel (.xlsx)
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    onClick={() => generateMarkdownTemplate()}
-                                    className="cursor-pointer gap-2 py-2.5"
-                                >
-                                    <FileText size={14} />
-                                    Descargar Markdown (.md)
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                        <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
-                            <Plus size={16} />
-                            Nuevo examen
-                        </Button>
-                    </>
-                }
-            />
-
+        <>
             {/* Filter + Search bar */}
             <div className="border-border flex items-center justify-between gap-4 border-b bg-white px-8 py-3">
                 <div className="flex items-center gap-1">
@@ -461,17 +456,62 @@ export function ExamsClient({
                         </button>
                     ))}
                 </div>
-                <div className="relative shrink-0">
-                    <Search
-                        size={14}
-                        className="text-mute pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
-                    />
-                    <Input
-                        placeholder="Buscar examen..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="bg-paper border-border h-9 w-52 rounded-full pl-9 text-[13px]"
-                    />
+                <div className="flex items-center gap-2">
+                    {courseSections.length > 0 && (
+                        <SearchableSelect
+                            size="sm"
+                            value={courseFilter}
+                            onChange={setCourseFilter}
+                            className="w-48"
+                            options={[
+                                { value: 'all', label: 'Todas las asignaturas' },
+                                ...courseSections.map((c) => ({ value: c.id, label: c.name })),
+                            ]}
+                        />
+                    )}
+                    <div className="relative shrink-0">
+                        <Search
+                            size={14}
+                            className="text-mute pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+                        />
+                        <Input
+                            placeholder="Buscar examen..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="bg-paper border-border h-9 w-52 rounded-full pl-9 text-[13px]"
+                        />
+                    </div>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="md" className="gap-2">
+                                <LayoutTemplate size={16} />
+                                Plantillas
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                            align="end"
+                            className="border-border w-52 rounded-xl shadow-xl"
+                        >
+                            <DropdownMenuItem
+                                onClick={() => generateExcelTemplate()}
+                                className="cursor-pointer gap-2 py-2.5"
+                            >
+                                <FileSpreadsheet size={14} />
+                                Descargar Excel (.xlsx)
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => generateMarkdownTemplate()}
+                                className="cursor-pointer gap-2 py-2.5"
+                            >
+                                <FileText size={14} />
+                                Descargar Markdown (.md)
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
+                        <Plus size={16} />
+                        Nuevo examen
+                    </Button>
                 </div>
             </div>
 
@@ -534,6 +574,11 @@ export function ExamsClient({
                                                 {examTitle}
                                             </p>
                                             <p className="text-mute mt-0.5 truncate text-[12px]">
+                                                {exam.courseSection && (
+                                                    <>
+                                                        {exam.courseSection.name} ·{' '}
+                                                    </>
+                                                )}
                                                 Grupos · {groupNames}
                                             </p>
                                         </div>
@@ -630,7 +675,7 @@ export function ExamsClient({
 
             {/* Create/Edit dialog */}
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="border-border flex max-h-[90vh] flex-col overflow-hidden rounded-[22px] p-0 shadow-2xl sm:max-w-lg">
+                <DialogContent className="border-border flex max-h-[95vh] flex-col overflow-hidden rounded-[22px] p-0 shadow-2xl sm:max-w-2xl">
                     <div className="border-border bg-paper border-b px-6 py-5">
                         <DialogTitle className="font-display text-ink text-2xl">
                             {editing ? 'Ajustes del examen' : 'Nuevo examen'}
@@ -672,37 +717,66 @@ export function ExamsClient({
                             )}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="flex flex-col gap-1.5">
-                                <label
-                                    htmlFor="exam-form-subject"
-                                    className="text-ink text-[13px] font-bold"
-                                >
-                                    Materia
-                                </label>
-                                <Input
-                                    id="exam-form-subject"
-                                    placeholder="Ej: Historia"
-                                    value={form.subject}
-                                    onChange={(e) => setField('subject', e.target.value)}
-                                    className="border-border h-11 rounded-[10px] bg-white"
-                                />
+                        <ExamAcademicPicker
+                            courseSections={courseSections}
+                            value={{
+                                programId: form.programId,
+                                periodId: form.periodId,
+                                courseSectionId: form.courseSectionId,
+                            }}
+                            onChange={(patch) => {
+                                setForm((f) => {
+                                    const next = { ...f, ...patch };
+                                    // Auto-selección del grupo asociado al ramo
+                                    if (patch.courseSectionId && patch.courseSectionId !== NO_COURSE) {
+                                        const course = courseSections.find((c) => c.id === patch.courseSectionId);
+                                        if (course?.groupId && !next.groupIds.includes(course.groupId)) {
+                                            next.groupIds = [...next.groupIds, course.groupId];
+                                        }
+                                    }
+                                    return next;
+                                });
+                            }}
+                        />
+
+                        <div className="flex flex-col gap-2">
+                            <span className="text-ink text-[13px] font-bold">Grupos asignados</span>
+                            <div
+                                className={cn(
+                                    'border-border bg-paper-warm/20 max-h-[160px] overflow-y-auto rounded-[12px] border p-2',
+                                    errors.groupIds && 'border-destructive',
+                                )}
+                            >
+                                {filteredGroups.length === 0 ? (
+                                    <p className="text-mute px-3 py-4 text-center text-[13px]">
+                                        {groups.length === 0 ? 'No hay grupos creados' : 'No hay grupos para esta selección'}
+                                    </p>
+                                ) : (
+                                    <div className="grid grid-cols-2 gap-1 sm:grid-cols-3">
+                                        {filteredGroups.map((g) => (
+                                            <label
+                                                key={g.id}
+                                                className="flex cursor-pointer items-center gap-3 rounded-[8px] px-3 py-2.5 transition-colors hover:bg-white"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={form.groupIds.includes(g.id)}
+                                                    onChange={() => toggleGroup(g.id)}
+                                                    className="accent-primary border-border h-4 w-4 rounded"
+                                                />
+                                                <span className="text-ink truncate text-[13.5px] font-medium" title={g.name}>
+                                                    {g.name}
+                                                </span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label
-                                    htmlFor="exam-form-unit"
-                                    className="text-ink text-[13px] font-bold"
-                                >
-                                    Unidad
-                                </label>
-                                <Input
-                                    id="exam-form-unit"
-                                    placeholder="Ej: Unidad 4"
-                                    value={form.unit}
-                                    onChange={(e) => setField('unit', e.target.value)}
-                                    className="border-border h-11 rounded-[10px] bg-white"
-                                />
-                            </div>
+                            {errors.groupIds && (
+                                <p className="text-destructive text-xs font-medium">
+                                    {errors.groupIds}
+                                </p>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -862,45 +936,7 @@ export function ExamsClient({
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-2">
-                            <span className="text-ink text-[13px] font-bold">Grupos asignados</span>
-                            <div
-                                className={cn(
-                                    'border-border bg-paper-warm/20 max-h-[160px] overflow-y-auto rounded-[12px] border p-2',
-                                    errors.groupIds && 'border-destructive',
-                                )}
-                            >
-                                {groups.length === 0 ? (
-                                    <p className="text-mute px-3 py-4 text-center text-[13px]">
-                                        No hay grupos creados
-                                    </p>
-                                ) : (
-                                    <div className="grid grid-cols-1 gap-1">
-                                        {groups.map((g) => (
-                                            <label
-                                                key={g.id}
-                                                className="flex cursor-pointer items-center gap-3 rounded-[8px] px-3 py-2.5 transition-colors hover:bg-white"
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    checked={form.groupIds.includes(g.id)}
-                                                    onChange={() => toggleGroup(g.id)}
-                                                    className="accent-primary border-border h-4 w-4 rounded"
-                                                />
-                                                <span className="text-ink text-[13.5px] font-medium">
-                                                    {g.name}
-                                                </span>
-                                            </label>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            {errors.groupIds && (
-                                <p className="text-destructive text-xs font-medium">
-                                    {errors.groupIds}
-                                </p>
-                            )}
-                        </div>
+
 
                         <div className="bg-paper border-border flex flex-col gap-3 rounded-[14px] border p-5">
                             <span className="text-ink text-[13px] font-bold">
@@ -1049,6 +1085,6 @@ export function ExamsClient({
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </>
     );
 }

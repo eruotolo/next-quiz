@@ -59,7 +59,7 @@ export default async function InstitutionLayout({
     // páginas: scope por institución (columna directa) + scope de profesor.
     const profGroupFilter = isProfesor ? groupProfessorFilter(session.user.id) : {};
 
-    const [students, groups, exams, institutionList, quotaUsage] = institutionId
+    const [students, groups, exams, institutionList, quotaUsage, institutionData] = institutionId
         ? await Promise.all([
               prisma.user.count({
                   where: {
@@ -85,20 +85,28 @@ export default async function InstitutionLayout({
                     })
                   : Promise.resolve([]),
               isSuperAdmin ? Promise.resolve([]) : getQuotaUsage(institutionId),
+              prisma.academicInstitution.findUnique({
+                  where: { id: institutionId },
+                  select: { plan: true, type: true },
+              }),
           ])
-        : [undefined, undefined, undefined, [], []];
+        : [undefined, undefined, undefined, [], [], null];
 
     // Banner promocional del sidebar: solo para Administrador en planes Free o Docente.
-    const institutionPlan =
-        institutionId && isAdmin
-            ? ((
-                  await prisma.academicInstitution.findUnique({
-                      where: { id: institutionId },
-                      select: { plan: true },
-                  })
-              )?.plan ?? null)
-            : null;
+    const institutionPlan = isAdmin ? (institutionData?.plan ?? null) : null;
     const showPlanPromo = institutionPlan === 'FREE' || institutionPlan === 'DOCENTE';
+
+    // Programas que coordina el usuario (Jefe de Carrera) — solo para Profesores.
+    // Habilita el indicador de coordinación en el Sidebar (Fase 5). El JWT no lo
+    // lleva porque cambia, así que se resuelve por request como en auth-guard.
+    const coordinatedProgramIds = isProfesor
+        ? (
+              await prisma.programCoordinator.findMany({
+                  where: { userId: session.user.id },
+                  select: { programId: true },
+              })
+          ).map((c) => c.programId)
+        : [];
 
     return (
         <div className="bg-paper flex min-h-screen">
@@ -106,6 +114,8 @@ export default async function InstitutionLayout({
                 slug={slug}
                 userName={session.user?.name}
                 userRole={session.user?.userRoleName}
+                coordinatedProgramIds={coordinatedProgramIds}
+                institutionType={institutionData?.type ?? undefined}
                 counts={{
                     students: students ?? undefined,
                     groups: groups ?? undefined,

@@ -3,299 +3,421 @@
 // All IDs use PostgreSQL native UUID. See docs in src/lib/rut.ts for RUT normalization.
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
 }
 
 // ─── Enums de dominio ────────────────────────────────────────────────────────
 
 enum Plan {
-    FREE
-    DOCENTE
-    COLEGIO
-    INSTITUCIONAL
+  FREE
+  DOCENTE
+  COLEGIO
+  INSTITUCIONAL
 }
 
 enum SubscriptionStatus {
-    pending
-    authorized
-    active
-    paused
-    cancelled
-    failed
+  pending
+  authorized
+  active
+  paused
+  cancelled
+  failed
 }
 
 enum PaymentStatus {
-    APPROVED
-    PENDING
-    REJECTED
-    REFUNDED
+  APPROVED
+  PENDING
+  REJECTED
+  REFUNDED
+}
+
+// Tipo de institución. Define el label dinámico de la jerarquía académica
+// (Carrera / Nivel / Área / Especialidad) en la UI. Las instituciones previas
+// quedan en OTRO; las nuevas eligen su tipo al crearse.
+enum InstitutionType {
+  COLEGIO
+  LICEO_TECNICO
+  PREUNIVERSITARIO
+  UNIVERSIDAD
+  INSTITUTO_PROFESIONAL
+  CFT
+  OTRO
+}
+
+// Tipo de período académico. El detalle legible vive en `AcademicPeriod.name`
+// (libre y único por institución), por lo que el enum solo agrupa de forma laxa.
+enum PeriodType {
+  ANUAL
+  SEMESTRE
+  TRIMESTRE
+  MODULO
+  OTRO
 }
 
 // ─── Catálogos ───────────────────────────────────────────────────────────────
 
 model UserRole {
-    id        String   @id @default(uuid()) @db.Uuid
-    name      String   @unique
-    users     User[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  users     User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AcademicInstitution {
-    id                   String         @id @default(uuid()) @db.Uuid
-    name                 String         @unique
-    slug                 String         @unique
-    phone                String
-    address              String
-    city                 String
-    campus               String?
-    country              String
-    email                String?
-    active               Boolean        @default(true)
-    // Institución sandbox del modo demo público. Su contenido es efímero y se
-    // limpia por sesión (al cerrar sesión) y por cron diario de respaldo.
-    isDemo               Boolean        @default(false)
-    plan                 Plan           @default(FREE)
-    activatedAt          DateTime?
-    planExpiresAt        DateTime?
-    mpSubscriptionId     String?
-    mpCustomerId         String?
-    allowedEmailDomains  String[]       @default([])
-    // Plan interno (no comercial) asignado por el SuperAdmin. Si está seteado,
-    // sus límites tienen prioridad sobre los del plan comercial.
-    customPlanId         String?        @db.Uuid
-    customPlan           CustomPlan?    @relation(fields: [customPlanId], references: [id], onDelete: SetNull)
-    // SEO
-    seoTitle             String?
-    seoDescription       String?
-    seoKeywords          String[]       @default([])
-    users                User[]
-    exams                Exam[]
-    groups               Group[]
-    subscriptions        Subscription[]
-    auditLogs            AuditLog[]
-    bankQuestions        BankQuestion[]
-    createdAt            DateTime       @default(now())
-    updatedAt            DateTime       @updatedAt
+  id                  String           @id @default(uuid()) @db.Uuid
+  name                String           @unique
+  slug                String           @unique
+  phone               String
+  address             String
+  city                String
+  campus              String?
+  country             String
+  email               String?
+  active              Boolean          @default(true)
+  // Tipo de institución (jerarquía académica). Default OTRO para datos previos.
+  type                InstitutionType  @default(OTRO)
+  // Institución sandbox del modo demo público. Su contenido es efímero y se
+  // limpia por sesión (al cerrar sesión) y por cron diario de respaldo.
+  isDemo              Boolean          @default(false)
+  plan                Plan             @default(FREE)
+  activatedAt         DateTime?
+  planExpiresAt       DateTime?
+  mpSubscriptionId    String?
+  mpCustomerId        String?
+  allowedEmailDomains String[]         @default([])
+  // Plan interno (no comercial) asignado por el SuperAdmin. Si está seteado,
+  // sus límites tienen prioridad sobre los del plan comercial.
+  customPlanId        String?          @db.Uuid
+  customPlan          CustomPlan?      @relation(fields: [customPlanId], references: [id], onDelete: SetNull)
+  // SEO
+  seoTitle            String?
+  seoDescription      String?
+  seoKeywords         String[]         @default([])
+  users               User[]
+  exams               Exam[]
+  groups              Group[]
+  programs            Program[]
+  academicPeriods     AcademicPeriod[]
+  subscriptions       Subscription[]
+  auditLogs           AuditLog[]
+  bankQuestions       BankQuestion[]
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
 
-    @@index([customPlanId])
+  @@index([customPlanId])
+}
+
+// ─── Jerarquía académica ─────────────────────────────────────────────────────
+
+// Programa = Carrera / Nivel / Área / Especialidad según el tipo de institución.
+model Program {
+  id                    String               @id @default(uuid()) @db.Uuid
+  name                  String
+  code                  String?
+  description           String?
+  academicInstitutionId String               @db.Uuid
+  academicInstitution   AcademicInstitution  @relation(fields: [academicInstitutionId], references: [id], onDelete: Cascade)
+  groups                Group[]
+  courseSections        CourseSection[]
+  coordinators          ProgramCoordinator[]
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  @@unique([academicInstitutionId, name])
+  @@index([academicInstitutionId])
+}
+
+// Período académico (2025 - Anual / Semestre 1 / Módulo 2…). El `name` es la
+// clave legible única por institución; `year` y `type` son metadata agrupadora.
+model AcademicPeriod {
+  id                    String              @id @default(uuid()) @db.Uuid
+  name                  String
+  year                  Int
+  type                  PeriodType
+  startDate             DateTime?
+  endDate               DateTime?
+  isActive              Boolean             @default(false)
+  academicInstitutionId String              @db.Uuid
+  academicInstitution   AcademicInstitution @relation(fields: [academicInstitutionId], references: [id], onDelete: Cascade)
+  courseSections        CourseSection[]
+  groups                Group[]
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  @@unique([academicInstitutionId, name])
+  @@index([academicInstitutionId])
+}
+
+// Materia dictada (asignatura/ramo). Pieza central de la jerarquía: cruza
+// programa (opcional → transversal), período, profesores (N:M co-docencia) y
+// grupo (opcional → se autocrea en universidades).
+model CourseSection {
+  id         String         @id @default(uuid()) @db.Uuid
+  name       String
+  code       String?
+  programId  String?        @db.Uuid
+  program    Program?       @relation(fields: [programId], references: [id], onDelete: SetNull)
+  periodId   String         @db.Uuid
+  period     AcademicPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  professors User[]         @relation("CourseSectionTeachers")
+  groupId    String?        @db.Uuid
+  group      Group?         @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  exams      Exam[]
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@unique([programId, periodId, name, groupId])
+  @@index([programId])
+  @@index([periodId])
+  @@index([groupId])
+}
+
+// Jefe de Carrera = vínculo Profesor↔Programa (no es un 5° rol). Otorga alcance
+// extendido dentro de su programa, resuelto en Server Actions vía scoping.
+model ProgramCoordinator {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  programId String   @db.Uuid
+  program   Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, programId])
+  @@index([programId])
 }
 
 // ─── Users & Groups ──────────────────────────────────────────────────────────
 
 model Group {
-    id                    String               @id @default(uuid()) @db.Uuid
-    name                  String
-    stream                String?
-    tutorId               String?              @db.Uuid
-    tutor                 User?                @relation("GroupTutor", fields: [tutorId], references: [id], onDelete: SetNull)
-    academicInstitutionId String?              @db.Uuid
-    academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
-    users                 User[]
-    professors            User[]               @relation("ProfessorGroups")
-    exams                 Exam[]
-    createdAt             DateTime             @default(now())
-    updatedAt             DateTime             @updatedAt
+  id                    String               @id @default(uuid()) @db.Uuid
+  name                  String
+  stream                String?
+  tutorId               String?              @db.Uuid
+  tutor                 User?                @relation("GroupTutor", fields: [tutorId], references: [id], onDelete: SetNull)
+  academicInstitutionId String?              @db.Uuid
+  academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
+  // FK opcional al programa académico (jerarquía). Nullable → no breaking.
+  programId             String?              @db.Uuid
+  program               Program?             @relation(fields: [programId], references: [id], onDelete: SetNull)
+  // FK opcional al período (semestre) del grupo. Nullable → no breaking.
+  periodId              String?              @db.Uuid
+  period                AcademicPeriod?      @relation(fields: [periodId], references: [id], onDelete: SetNull)
+  users                 User[]
+  professors            User[]               @relation("ProfessorGroups")
+  exams                 Exam[]
+  courseSections        CourseSection[]
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
 
-    @@index([tutorId])
-    @@index([academicInstitutionId])
+  @@index([tutorId])
+  @@index([academicInstitutionId])
+  @@index([programId])
+  @@index([periodId])
 }
 
 model User {
-    id                    String               @id @default(uuid()) @db.Uuid
-    name                  String
-    lastname              String
-    email                 String               @unique
-    rut                   String               @unique
-    phone                 String?
-    password              String?
-    userRoleId            String?              @db.Uuid
-    userRole              UserRole?            @relation(fields: [userRoleId], references: [id], onDelete: SetNull)
-    academicInstitutionId String?              @db.Uuid
-    academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
-    groupId               String?              @db.Uuid
-    group                 Group?               @relation(fields: [groupId], references: [id], onDelete: SetNull)
-    professorGroups       Group[]              @relation("ProfessorGroups")
-    tutorOfGroups         Group[]              @relation("GroupTutor")
-    active                Boolean              @default(true)
-    results               Result[]
-    answers               Answer[]
-    examAttempts          ExamAttempt[]
-    createdExams          Exam[]               @relation("ExamCreatedBy")
-    auditLogs             AuditLog[]
-    createdBankQuestions  BankQuestion[]       @relation("BankQuestionCreatedBy")
-    createdAt             DateTime             @default(now())
-    updatedAt             DateTime             @updatedAt
+  id                    String               @id @default(uuid()) @db.Uuid
+  name                  String
+  lastname              String
+  email                 String               @unique
+  rut                   String               @unique
+  phone                 String?
+  password              String?
+  userRoleId            String?              @db.Uuid
+  userRole              UserRole?            @relation(fields: [userRoleId], references: [id], onDelete: SetNull)
+  academicInstitutionId String?              @db.Uuid
+  academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
+  groupId               String?              @db.Uuid
+  group                 Group?               @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  professorGroups       Group[]              @relation("ProfessorGroups")
+  tutorOfGroups         Group[]              @relation("GroupTutor")
+  taughtSections        CourseSection[]      @relation("CourseSectionTeachers")
+  coordinatedPrograms   ProgramCoordinator[]
+  active                Boolean              @default(true)
+  results               Result[]
+  answers               Answer[]
+  examAttempts          ExamAttempt[]
+  createdExams          Exam[]               @relation("ExamCreatedBy")
+  auditLogs             AuditLog[]
+  createdBankQuestions  BankQuestion[]       @relation("BankQuestionCreatedBy")
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
 
-    @@index([userRoleId])
-    @@index([academicInstitutionId])
-    @@index([groupId])
+  @@index([userRoleId])
+  @@index([academicInstitutionId])
+  @@index([groupId])
 }
 
 enum QuestionType {
-    UNICA
-    MULTIPLE
+  UNICA
+  MULTIPLE
 }
 
 enum QuestionDifficulty {
-    FACIL
-    MEDIA
-    DIFICIL
+  FACIL
+  MEDIA
+  DIFICIL
 }
 
 // ─── Exams ───────────────────────────────────────────────────────────────────
 
 model Exam {
-    id                    String               @id @default(uuid()) @db.Uuid
-    title                 String
-    timeLimit             Int
-    active                Boolean              @default(false)
-    maxGrade              Float                @default(7)
-    passingGrade          Float                @default(4)
-    passingPercentage     Int                  @default(60)
-    antiCheatEnabled      Boolean              @default(false)
-    subject               String?
-    unit                  String?
-    scheduledAt           DateTime?
-    closesAt              DateTime?
-    randomizeQuestions    Boolean              @default(false)
-    lockTabSwitch         Boolean              @default(false)
-    oneAttempt            Boolean              @default(true)
-    uniqueIp              Boolean              @default(false)
-    academicInstitutionId String?              @db.Uuid
-    academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
-    createdById           String?              @db.Uuid
-    createdBy             User?                @relation("ExamCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-    // Aísla los exámenes creados por cada visitante del modo demo (un id por
-    // login). Null para exámenes reales. Permite cupo FREE y limpieza por sesión.
-    demoSessionId         String?
-    groups                Group[]
-    questions             Question[]
-    results               Result[]
-    answers               Answer[]
-    attempts              ExamAttempt[]
-    createdAt             DateTime             @default(now())
-    updatedAt             DateTime             @updatedAt
+  id                    String               @id @default(uuid()) @db.Uuid
+  title                 String
+  timeLimit             Int
+  active                Boolean              @default(false)
+  maxGrade              Float                @default(7)
+  passingGrade          Float                @default(4)
+  passingPercentage     Int                  @default(60)
+  antiCheatEnabled      Boolean              @default(false)
+  subject               String?
+  unit                  String?
+  scheduledAt           DateTime?
+  closesAt              DateTime?
+  randomizeQuestions    Boolean              @default(false)
+  lockTabSwitch         Boolean              @default(false)
+  oneAttempt            Boolean              @default(true)
+  uniqueIp              Boolean              @default(false)
+  academicInstitutionId String?              @db.Uuid
+  academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
+  createdById           String?              @db.Uuid
+  createdBy             User?                @relation("ExamCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  // Aísla los exámenes creados por cada visitante del modo demo (un id por
+  // login). Null para exámenes reales. Permite cupo FREE y limpieza por sesión.
+  demoSessionId         String?
+  // Metadata de categorización académica (jerarquía). NO decide quién rinde:
+  // la fuente de verdad del gating sigue siendo la relación M2M `groups`.
+  courseSectionId       String?              @db.Uuid
+  courseSection         CourseSection?       @relation(fields: [courseSectionId], references: [id], onDelete: SetNull)
+  groups                Group[]
+  questions             Question[]
+  results               Result[]
+  answers               Answer[]
+  attempts              ExamAttempt[]
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
 
-    @@index([active])
-    @@index([academicInstitutionId])
-    @@index([createdById])
-    @@index([demoSessionId])
+  @@index([active])
+  @@index([academicInstitutionId])
+  @@index([createdById])
+  @@index([demoSessionId])
+  @@index([courseSectionId])
 }
 
 model Question {
-    id           String             @id @default(uuid()) @db.Uuid
-    text         String
-    points       Int                @default(1)
-    order        Int                @default(0)
-    questionType QuestionType       @default(UNICA)
-    subject      String?
-    unit         String?
-    difficulty   QuestionDifficulty @default(MEDIA)
-    tags         String[]           @default([])
-    usageCount   Int                @default(0)
-    feedback     String?
-    examId       String             @db.Uuid
-    exam         Exam               @relation(fields: [examId], references: [id], onDelete: Cascade)
-    options      Option[]
-    answers      Answer[]
-    createdAt    DateTime           @default(now())
-    updatedAt    DateTime           @updatedAt
+  id           String             @id @default(uuid()) @db.Uuid
+  text         String
+  points       Int                @default(1)
+  order        Int                @default(0)
+  questionType QuestionType       @default(UNICA)
+  subject      String?
+  unit         String?
+  difficulty   QuestionDifficulty @default(MEDIA)
+  tags         String[]           @default([])
+  usageCount   Int                @default(0)
+  feedback     String?
+  examId       String             @db.Uuid
+  exam         Exam               @relation(fields: [examId], references: [id], onDelete: Cascade)
+  options      Option[]
+  answers      Answer[]
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
 
-    @@index([examId])
-    @@index([subject, unit])
-    @@index([difficulty])
+  @@index([examId])
+  @@index([subject, unit])
+  @@index([difficulty])
 }
 
 model Option {
-    id         String   @id @default(uuid()) @db.Uuid
-    text       String
-    isCorrect  Boolean  @default(false)
-    questionId String   @db.Uuid
-    question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-    answers    Answer[]
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
+  id         String   @id @default(uuid()) @db.Uuid
+  text       String
+  isCorrect  Boolean  @default(false)
+  questionId String   @db.Uuid
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers    Answer[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-    @@index([questionId])
+  @@index([questionId])
 }
 
 // ─── Results & Answers ───────────────────────────────────────────────────────
 
 model Answer {
-    id               String    @id @default(uuid()) @db.Uuid
-    attemptKey       String
-    studentId        String    @db.Uuid
-    student          User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
-    examId           String    @db.Uuid
-    exam             Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
-    questionId       String    @db.Uuid
-    question         Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
-    optionId         String    @db.Uuid
-    option           Option    @relation(fields: [optionId], references: [id], onDelete: Cascade)
-    ip               String?
-    markedForReview  Boolean   @default(false)
-    timeSpentMs      Int?
-    answeredAt       DateTime?
-    createdAt        DateTime  @default(now())
-    updatedAt        DateTime  @updatedAt
+  id              String    @id @default(uuid()) @db.Uuid
+  attemptKey      String
+  studentId       String    @db.Uuid
+  student         User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  examId          String    @db.Uuid
+  exam            Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
+  questionId      String    @db.Uuid
+  question        Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  optionId        String    @db.Uuid
+  option          Option    @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  ip              String?
+  markedForReview Boolean   @default(false)
+  timeSpentMs     Int?
+  answeredAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-    @@unique([attemptKey, questionId, optionId])
-    @@index([attemptKey])
-    @@index([studentId])
-    @@index([examId])
+  @@unique([attemptKey, questionId, optionId])
+  @@index([attemptKey])
+  @@index([studentId])
+  @@index([examId])
 }
 
 // Intento en curso de un examen. Permite reanudar tras un re-login sin
 // resetear el tiempo ni perder respuestas (la corrección lee por attemptKey).
 // endsAt nulo = el estudiante todavía no presionó "Comenzar examen".
 model ExamAttempt {
-    id         String    @id @default(uuid()) @db.Uuid
-    attemptKey String    @unique
-    studentId  String    @db.Uuid
-    student    User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
-    examId     String    @db.Uuid
-    exam       Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
-    startedAt  DateTime?
-    endsAt     DateTime?
-    createdAt  DateTime  @default(now())
-    updatedAt  DateTime  @updatedAt
+  id         String    @id @default(uuid()) @db.Uuid
+  attemptKey String    @unique
+  studentId  String    @db.Uuid
+  student    User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  examId     String    @db.Uuid
+  exam       Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
+  startedAt  DateTime?
+  endsAt     DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
-    @@unique([studentId, examId])
-    @@index([examId])
+  @@unique([studentId, examId])
+  @@index([examId])
 }
 
 model TabSwitchEvent {
-    id         String   @id @default(uuid()) @db.Uuid
-    attemptKey String
-    studentId  String   @db.Uuid
-    examId     String   @db.Uuid
-    durationMs Int
-    createdAt  DateTime @default(now())
+  id         String   @id @default(uuid()) @db.Uuid
+  attemptKey String
+  studentId  String   @db.Uuid
+  examId     String   @db.Uuid
+  durationMs Int
+  createdAt  DateTime @default(now())
 
-    @@index([attemptKey])
-    @@index([examId])
+  @@index([attemptKey])
+  @@index([examId])
 }
 
 model Result {
-    id          String   @id @default(uuid()) @db.Uuid
-    studentId   String   @db.Uuid
-    student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-    examId      String   @db.Uuid
-    exam        Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
-    score       Int
-    maxScore    Int
-    answers     Json
-    completedAt DateTime @default(now())
+  id          String   @id @default(uuid()) @db.Uuid
+  studentId   String   @db.Uuid
+  student     User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  examId      String   @db.Uuid
+  exam        Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  score       Int
+  maxScore    Int
+  answers     Json
+  completedAt DateTime @default(now())
 
-    @@unique([studentId, examId])
-    @@index([studentId])
-    @@index([examId])
+  @@unique([studentId, examId])
+  @@index([studentId])
+  @@index([examId])
 }
 
 // ─── Question Bank ──────────────────────────────────────────────────────────
@@ -304,162 +426,166 @@ model Result {
 // Question + Option (copyBankQuestionToExam). Así el banco persiste aunque el
 // examen se borre, y los docentes acumulan una biblioteca por asignatura/unidad.
 model BankQuestion {
-    id                    String               @id @default(uuid()) @db.Uuid
-    text                  String
-    questionType          QuestionType         @default(UNICA)
-    subject               String?
-    unit                  String?
-    difficulty            QuestionDifficulty   @default(MEDIA)
-    tags                  String[]             @default([])
-    feedback              String?
-    academicInstitutionId String?              @db.Uuid
-    academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
-    createdById           String?              @db.Uuid
-    createdBy             User?                @relation("BankQuestionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
-    options               BankOption[]
-    createdAt             DateTime             @default(now())
-    updatedAt             DateTime             @updatedAt
+  id                    String               @id @default(uuid()) @db.Uuid
+  text                  String
+  questionType          QuestionType         @default(UNICA)
+  subject               String?
+  unit                  String?
+  difficulty            QuestionDifficulty   @default(MEDIA)
+  tags                  String[]             @default([])
+  feedback              String?
+  academicInstitutionId String?              @db.Uuid
+  academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
+  createdById           String?              @db.Uuid
+  createdBy             User?                @relation("BankQuestionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  options               BankOption[]
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
 
-    @@index([academicInstitutionId])
-    @@index([subject, unit])
-    @@index([difficulty])
-    @@index([createdById])
+  @@index([academicInstitutionId])
+  @@index([subject, unit])
+  @@index([difficulty])
+  @@index([createdById])
 }
 
 model BankOption {
-    id             String       @id @default(uuid()) @db.Uuid
-    text           String
-    isCorrect      Boolean      @default(false)
-    bankQuestionId String       @db.Uuid
-    bankQuestion   BankQuestion @relation(fields: [bankQuestionId], references: [id], onDelete: Cascade)
-    createdAt      DateTime     @default(now())
-    updatedAt      DateTime     @updatedAt
+  id             String       @id @default(uuid()) @db.Uuid
+  text           String
+  isCorrect      Boolean      @default(false)
+  bankQuestionId String       @db.Uuid
+  bankQuestion   BankQuestion @relation(fields: [bankQuestionId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
-    @@index([bankQuestionId])
+  @@index([bankQuestionId])
 }
 
 // ─── Audit ───────────────────────────────────────────────────────────────────
 
 model AuditLog {
-    id                    String   @id @default(uuid()) @db.Uuid
-    action                String
-    entity                String?
-    entityId              String?  @db.Uuid
-    actorId               String?  @db.Uuid
-    actorEmail            String?
-    actorRole             String?
-    academicInstitutionId String?  @db.Uuid
-    status                String
-    ip                    String?
-    userAgent             String?
-    metadata              Json?
-    createdAt             DateTime @default(now())
+  id                    String   @id @default(uuid()) @db.Uuid
+  action                String
+  entity                String?
+  entityId              String?  @db.Uuid
+  actorId               String?  @db.Uuid
+  actorEmail            String?
+  actorRole             String?
+  academicInstitutionId String?  @db.Uuid
+  status                String
+  ip                    String?
+  userAgent             String?
+  metadata              Json?
+  createdAt             DateTime @default(now())
 
-    actor       User?                @relation(fields: [actorId], references: [id], onDelete: SetNull)
-    institution AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
+  actor       User?                @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  institution AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
 
-    @@index([createdAt])
-    @@index([action])
-    @@index([actorId])
-    @@index([academicInstitutionId])
-    @@index([entity, entityId])
+  @@index([createdAt])
+  @@index([action])
+  @@index([actorId])
+  @@index([academicInstitutionId])
+  @@index([entity, entityId])
 }
 
 // ─── App Config ───────────────────────────────────────────────────────────────
 
 model AppConfig {
-    id        String   @id @default(uuid()) @db.Uuid
-    key       String   @unique
-    value     String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ─── Plans & Subscriptions ────────────────────────────────────────────────────
 
 model PlanLimits {
-    id              String   @id @default(uuid()) @db.Uuid
-    plan            Plan     @unique
-    maxGroups       Int?
-    maxAdmins       Int?
-    maxProfessors   Int?
-    maxStudents     Int?
-    maxExamsPerYear Int?
-    description     String?
-    createdAt       DateTime @default(now())
-    updatedAt       DateTime @updatedAt
+  id              String   @id @default(uuid()) @db.Uuid
+  plan            Plan     @unique
+  maxGroups       Int?
+  maxAdmins       Int?
+  maxProfessors   Int?
+  maxStudents     Int?
+  maxExamsPerYear Int?
+  maxPrograms     Int?
+  maxCourses      Int?
+  description     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 // Planes internos creados por el SuperAdmin (no comerciales, no visibles para
 // el cliente final). Se asignan a una institución para darle límites a medida.
 model CustomPlan {
-    id              String                @id @default(uuid()) @db.Uuid
-    name            String                @unique
-    maxGroups       Int?
-    maxAdmins       Int?
-    maxProfessors   Int?
-    maxStudents     Int?
-    maxExamsPerYear Int?
-    description     String?
-    institutions    AcademicInstitution[]
-    createdAt       DateTime              @default(now())
-    updatedAt       DateTime              @updatedAt
+  id              String                @id @default(uuid()) @db.Uuid
+  name            String                @unique
+  maxGroups       Int?
+  maxAdmins       Int?
+  maxProfessors   Int?
+  maxStudents     Int?
+  maxExamsPerYear Int?
+  maxPrograms     Int?
+  maxCourses      Int?
+  description     String?
+  institutions    AcademicInstitution[]
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
 }
 
 model Subscription {
-    id                    String               @id @default(uuid()) @db.Uuid
-    academicInstitutionId String?              @db.Uuid
-    academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
-    plan                  Plan
-    billing               String               @default("monthly")
-    status                SubscriptionStatus   @default(pending)
-    mpSubscriptionId      String?
-    mpPlanId              String?
-    amount                Float?
-    currency              String?              @default("CLP")
-    startedAt             DateTime?
-    expiresAt             DateTime?
-    cancelledAt           DateTime?
-    pausedAt              DateTime?
-    metadata              Json?
-    payments              Payment[]
-    createdAt             DateTime             @default(now())
-    updatedAt             DateTime             @updatedAt
+  id                    String               @id @default(uuid()) @db.Uuid
+  academicInstitutionId String?              @db.Uuid
+  academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
+  plan                  Plan
+  billing               String               @default("monthly")
+  status                SubscriptionStatus   @default(pending)
+  mpSubscriptionId      String?
+  mpPlanId              String?
+  amount                Float?
+  currency              String?              @default("CLP")
+  startedAt             DateTime?
+  expiresAt             DateTime?
+  cancelledAt           DateTime?
+  pausedAt              DateTime?
+  metadata              Json?
+  payments              Payment[]
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
 
-    @@index([academicInstitutionId])
-    @@index([mpSubscriptionId])
-    @@index([status])
+  @@index([academicInstitutionId])
+  @@index([mpSubscriptionId])
+  @@index([status])
 }
 
 model Payment {
-    id             String         @id @default(uuid()) @db.Uuid
-    subscriptionId String         @db.Uuid
-    subscription   Subscription   @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-    mpPaymentId    String?        @unique
-    amount         Float
-    currency       String         @default("CLP")
-    status         PaymentStatus
-    paidAt         DateTime?
-    periodStart    DateTime?
-    periodEnd      DateTime?
-    rawPayload     Json?
-    createdAt      DateTime       @default(now())
+  id             String        @id @default(uuid()) @db.Uuid
+  subscriptionId String        @db.Uuid
+  subscription   Subscription  @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  mpPaymentId    String?       @unique
+  amount         Float
+  currency       String        @default("CLP")
+  status         PaymentStatus
+  paidAt         DateTime?
+  periodStart    DateTime?
+  periodEnd      DateTime?
+  rawPayload     Json?
+  createdAt      DateTime      @default(now())
 
-    @@index([subscriptionId])
-    @@index([status])
-    @@index([paidAt])
+  @@index([subscriptionId])
+  @@index([status])
+  @@index([paidAt])
 }
 
 model WebhookEvent {
-    id         String   @id @default(uuid()) @db.Uuid
-    provider   String   @default("mercadopago")
-    topic      String
-    externalId String
-    rawPayload Json
-    processed  Boolean  @default(false)
-    error      String?
-    receivedAt DateTime @default(now())
+  id         String   @id @default(uuid()) @db.Uuid
+  provider   String   @default("mercadopago")
+  topic      String
+  externalId String
+  rawPayload Json
+  processed  Boolean  @default(false)
+  error      String?
+  receivedAt DateTime @default(now())
 
-    @@index([topic, externalId])
-    @@index([receivedAt])
+  @@index([topic, externalId])
+  @@index([receivedAt])
 }

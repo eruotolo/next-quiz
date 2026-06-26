@@ -1,34 +1,42 @@
 import { getStudentsGlobal } from '@/features/students/actions/global';
 import { GlobalStudentsClient } from '@/features/students/components/GlobalStudentsClient';
+import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { prisma } from '@/shared/lib/prisma';
+import { USER_ROLE } from '@/shared/lib/roles';
 
 interface PageProps {
     searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function StudentsGlobalPage({
-    searchParams,
-}: PageProps) {
+export default async function StudentsGlobalPage({ searchParams }: PageProps) {
     const sp = await searchParams;
     const q = typeof sp.q === 'string' ? sp.q : '';
     const page = Math.max(1, Number(sp.page) || 1);
     const institutionId = typeof sp.institutionId === 'string' ? sp.institutionId : '';
 
-    const [result, institutions] = await Promise.all([
+    const [result, institutions, total] = await Promise.all([
         getStudentsGlobal({ page, perPage: 10, q, institutionId: institutionId || undefined }),
         prisma.academicInstitution.findMany({
             where: { active: true },
             orderBy: { name: 'asc' },
             select: { id: true, name: true },
         }),
+        prisma.user.count({ where: { userRole: { name: USER_ROLE.STUDENT } } }),
     ]);
 
     return (
-        <GlobalStudentsClient
-            result={result}
-            institutions={institutions}
-            q={q}
-            institutionId={institutionId}
-        />
+        <>
+            <AdminTopBar
+                title="Todos los Estudiantes"
+                breadcrumb={['Sistema', 'Base Global']}
+                subtitle={`${total} alumnos registrados en la red Aulika`}
+            />
+            <GlobalStudentsClient
+                result={result}
+                institutions={institutions}
+                q={q}
+                institutionId={institutionId}
+            />
+        </>
     );
 }

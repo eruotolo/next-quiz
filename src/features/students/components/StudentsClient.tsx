@@ -37,13 +37,7 @@ import {
     DropdownMenuTrigger,
 } from '@/shared/components/ui/dropdown-menu';
 import { Input } from '@/shared/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/shared/components/ui/select';
+import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import {
     Table,
     TableBody,
@@ -81,12 +75,11 @@ import { useRef, useState, useTransition } from 'react';
 import { cn } from '@/shared/lib/utils';
 
 interface StudentWithGroup extends User {
-    group: Group | null;
+    group: (Group & { program: { id: string; name: string } | null }) | null;
 }
 
 interface Props {
     slug: string;
-    institutionName: string;
     students: StudentWithGroup[];
     groups: Group[];
     canCreate: boolean;
@@ -114,9 +107,9 @@ interface ParsedRow {
 
 const emptyForm: FormState = { name: '', lastname: '', email: '', rut: '', groupId: '' };
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: componente CRUD con tabla, modal, importación y filtros
 export function StudentsClient({
     slug,
-    institutionName,
     students,
     groups,
     canCreate,
@@ -413,41 +406,27 @@ export function StudentsClient({
                         className="border-border focus-visible:ring-primary/20 h-[38px] bg-white pl-9"
                     />
                 </div>
-                <Select
+                <SearchableSelect
+                    size="sm"
                     value={groupFilter}
-                    onValueChange={(v) => {
-                        setGroupFilter(v);
-                        setPage(1);
-                    }}
-                >
-                    <SelectTrigger className="border-border h-[38px] w-[170px] bg-white">
-                        <SelectValue placeholder="Curso · Todos" />
-                    </SelectTrigger>
-                    <SelectContent className="border-border rounded-xl shadow-xl">
-                        <SelectItem value="all">Curso · Todos</SelectItem>
-                        {groups.map((g) => (
-                            <SelectItem key={g.id} value={g.id}>
-                                {g.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Select
+                    onChange={(v) => { setGroupFilter(v); setPage(1); }}
+                    className="w-[170px]"
+                    options={[
+                        { value: 'all', label: 'Curso · Todos' },
+                        ...groups.map((g) => ({ value: g.id, label: g.name })),
+                    ]}
+                />
+                <SearchableSelect
+                    size="sm"
                     value={statusFilter}
-                    onValueChange={(v) => {
-                        setStatusFilter(v as 'all' | 'active' | 'inactive');
-                        setPage(1);
-                    }}
-                >
-                    <SelectTrigger className="border-border h-[38px] w-[160px] bg-white">
-                        <SelectValue placeholder="Estado · Todos" />
-                    </SelectTrigger>
-                    <SelectContent className="border-border rounded-xl shadow-xl">
-                        <SelectItem value="all">Estado · Todos</SelectItem>
-                        <SelectItem value="active">Activos</SelectItem>
-                        <SelectItem value="inactive">Inactivos</SelectItem>
-                    </SelectContent>
-                </Select>
+                    onChange={(v) => { setStatusFilter(v as 'all' | 'active' | 'inactive'); setPage(1); }}
+                    className="w-[160px]"
+                    options={[
+                        { value: 'all', label: 'Estado · Todos' },
+                        { value: 'active', label: 'Activos' },
+                        { value: 'inactive', label: 'Inactivos' },
+                    ]}
+                />
                 <div className="flex-1" />
                 <span className="text-mute font-mono text-[11px] tracking-wider uppercase">
                     {filteredStudents.length} visibles · {students.length} totales
@@ -577,12 +556,19 @@ export function StudentsClient({
                                         </TableCell>
                                         <TableCell>
                                             {s.group ? (
-                                                <Tag
-                                                    tone="outline"
-                                                    className="border-border bg-paper-warm/50 h-6 font-mono text-[11px]"
-                                                >
-                                                    {s.group.name}
-                                                </Tag>
+                                                <div className="flex flex-col gap-1">
+                                                    <Tag
+                                                        tone="outline"
+                                                        className="border-border bg-paper-warm/50 h-6 w-fit font-mono text-[11px]"
+                                                    >
+                                                        {s.group.name}
+                                                    </Tag>
+                                                    {s.group.program && (
+                                                        <span className="text-mute text-[10.5px] font-medium">
+                                                            {s.group.program.name}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             ) : (
                                                 <span className="text-mute text-[11.5px]">—</span>
                                             )}
@@ -605,7 +591,6 @@ export function StudentsClient({
                                                     <Button
                                                         variant="ghost"
                                                         size="icon-sm"
-                                                        className="opacity-0 transition-opacity group-hover:opacity-100"
                                                     >
                                                         <MoreHorizontal
                                                             size={16}
@@ -752,26 +737,13 @@ export function StudentsClient({
                         </div>
                         <div className="flex flex-col gap-1.5">
                             <span className="text-ink text-[12.5px] font-bold">Grupo</span>
-                            <Select
+                            <SearchableSelect
                                 value={form.groupId}
-                                onValueChange={(v) => setField('groupId', v)}
-                            >
-                                <SelectTrigger
-                                    className={cn(
-                                        'border-border h-11 rounded-[10px] bg-white',
-                                        errors.groupId && 'border-destructive',
-                                    )}
-                                >
-                                    <SelectValue placeholder="Seleccioná un grupo" />
-                                </SelectTrigger>
-                                <SelectContent className="border-border rounded-xl shadow-xl">
-                                    {groups.map((g) => (
-                                        <SelectItem key={g.id} value={g.id}>
-                                            {g.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                onChange={(v) => setField('groupId', v)}
+                                placeholder="Seleccioná un grupo"
+                                options={groups.map((g) => ({ value: g.id, label: g.name }))}
+                                className={errors.groupId ? 'ring-1 ring-destructive' : undefined}
+                            />
                             {errors.groupId && (
                                 <p className="text-destructive text-xs font-medium">
                                     {errors.groupId}

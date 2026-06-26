@@ -1,11 +1,14 @@
-﻿/**
+/**
  * Seeder del MODO DEMO público de Aulika.
  *
  * Crea, de forma idempotente, el estado base read-only del sandbox demo:
- *   - 1 institución `aulika-demo` (isDemo=true, plan FREE)
+ *   - 1 institución `aulika-demo` (isDemo=true, plan FREE, type INSTITUTO_PROFESIONAL)
  *   - 1 profesor de acceso (demo@aulika.cl / demo_aulika)
- *   - 1 grupo (el profesor queda asignado)
- *   - 10 alumnos (login por RUT)
+ *   - 1 programa (Carrera: Técnico en Informática)
+ *   - 1 período activo (Semestre 1 2026)
+ *   - 1 grupo vinculado al programa y período
+ *   - 1 asignatura vinculada al grupo y al profesor
+ *   - 10 alumnos
  *
  * A diferencia de `bulk-demo.ts` y `local-test.ts` (solo locales), este seeder
  * SÍ corre en el build de producción: la institución demo debe existir en
@@ -14,13 +17,17 @@
  * Uso local:  pnpm db:seed:demo
  * Producción: se ejecuta dentro del script `build`.
  */
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { DEMO_EMAIL, DEMO_INSTITUTION_NAME, DEMO_PASSWORD, DEMO_SLUG } from '../../src/features/demo/lib/demo';
+import { createSeedClient } from '../lib/client';
 
-const prisma = new PrismaClient();
+const prisma = createSeedClient();
 
 const GROUP_NAME = 'Curso Demo';
+const PROGRAM_NAME = 'Técnico en Informática';
+const PERIOD_NAME = 'Semestre 1 2026';
+const COURSE_NAME = 'Fundamentos Digitales';
+
 // Base de RUT exclusiva del demo (no colisiona con local-test ni bulk-demo).
 const RUT_BODY_START = 40_000_000;
 
@@ -79,12 +86,13 @@ async function main(): Promise<void> {
     // ── Institución demo ────────────────────────────────────────────────────
     const institution = await prisma.academicInstitution.upsert({
         where: { slug: DEMO_SLUG },
-        update: { isDemo: true, plan: 'FREE' },
+        update: { isDemo: true, plan: 'FREE', type: 'INSTITUTO_PROFESIONAL' },
         create: {
             name: DEMO_INSTITUTION_NAME,
             slug: DEMO_SLUG,
             isDemo: true,
             plan: 'FREE',
+            type: 'INSTITUTO_PROFESIONAL',
             phone: '+56 2 0000 0000',
             address: 'Sin dirección',
             city: 'Santiago',
@@ -118,7 +126,45 @@ async function main(): Promise<void> {
     });
     console.log(`  Profesor: ${DEMO_EMAIL} / ${DEMO_PASSWORD}`);
 
-    // ── Grupo (profesor asignado) ───────────────────────────────────────────
+    // ── Programa (Carrera) ──────────────────────────────────────────────────
+    const program = await prisma.program.upsert({
+        where: {
+            academicInstitutionId_name: {
+                academicInstitutionId: institution.id,
+                name: PROGRAM_NAME,
+            },
+        },
+        update: {},
+        create: {
+            name: PROGRAM_NAME,
+            code: 'TINF',
+            academicInstitutionId: institution.id,
+        },
+        select: { id: true },
+    });
+    console.log(`  Programa: ${PROGRAM_NAME}`);
+
+    // ── Período académico (activo) ──────────────────────────────────────────
+    const period = await prisma.academicPeriod.upsert({
+        where: {
+            academicInstitutionId_name: {
+                academicInstitutionId: institution.id,
+                name: PERIOD_NAME,
+            },
+        },
+        update: { isActive: true },
+        create: {
+            name: PERIOD_NAME,
+            year: 2026,
+            type: 'SEMESTRE',
+            isActive: true,
+            academicInstitutionId: institution.id,
+        },
+        select: { id: true },
+    });
+    console.log(`  Período: ${PERIOD_NAME}`);
+
+    // ── Grupo (vinculado a programa y período) ──────────────────────────────
     const existingGroup = await prisma.group.findFirst({
         where: { name: GROUP_NAME, academicInstitutionId: institution.id },
         select: { id: true },
@@ -126,7 +172,11 @@ async function main(): Promise<void> {
     const group = existingGroup
         ? await prisma.group.update({
               where: { id: existingGroup.id },
-              data: { professors: { connect: { id: professor.id } } },
+              data: {
+                  professors: { connect: { id: professor.id } },
+                  programId: program.id,
+                  periodId: period.id,
+              },
               select: { id: true },
           })
         : await prisma.group.create({
@@ -134,10 +184,36 @@ async function main(): Promise<void> {
                   name: GROUP_NAME,
                   academicInstitutionId: institution.id,
                   professors: { connect: { id: professor.id } },
+                  programId: program.id,
+                  periodId: period.id,
               },
               select: { id: true },
           });
     console.log(`  Grupo: ${GROUP_NAME}`);
+
+    // ── Asignatura (materia del grupo) ──────────────────────────────────────
+    const existingCourse = await prisma.courseSection.findFirst({
+        where: {
+            programId: program.id,
+            periodId: period.id,
+            name: COURSE_NAME,
+            groupId: group.id,
+        },
+        select: { id: true },
+    });
+    if (!existingCourse) {
+        await prisma.courseSection.create({
+            data: {
+                name: COURSE_NAME,
+                code: 'FUND-001',
+                programId: program.id,
+                periodId: period.id,
+                groupId: group.id,
+                professors: { connect: { id: professor.id } },
+            },
+        });
+        console.log(`  Asignatura: ${COURSE_NAME}`);
+    }
 
     // ── 10 alumnos ──────────────────────────────────────────────────────────
     for (const [i, student] of STUDENT_NAMES.entries()) {

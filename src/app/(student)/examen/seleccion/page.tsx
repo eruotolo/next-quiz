@@ -63,6 +63,14 @@ export default async function ExamSelectionPage() {
             passingPercentage: true,
             _count: { select: { questions: true } },
             createdBy: { select: { name: true, lastname: true } },
+            courseSection: {
+                select: {
+                    name: true,
+                    program: { select: { name: true } },
+                    period: { select: { name: true } },
+                    professors: { select: { name: true, lastname: true }, take: 1 },
+                },
+            },
             results: {
                 where: { studentId: authSession.studentId },
                 select: { id: true, score: true, maxScore: true, completedAt: true },
@@ -114,6 +122,12 @@ export default async function ExamSelectionPage() {
     const groupName = student.group?.name ?? null;
     const institutionName = student.academicInstitution?.name ?? null;
     const topbarLabel = [institutionName, 'Mis exámenes'].filter(Boolean).join(' · ');
+
+    function examContextLabel(exam: ExamRow): string {
+        const cs = exam.courseSection;
+        if (cs) return [cs.name, cs.program?.name].filter(Boolean).join(' · ');
+        return [exam.subject, exam.unit].filter(Boolean).join(' · ');
+    }
 
     // Agenda lateral: disponibles + próximos ordenados por fecha de referencia.
     const agenda = [...available, ...upcoming]
@@ -177,11 +191,9 @@ export default async function ExamSelectionPage() {
                                         >
                                             <div className="min-w-0">
                                                 <div className="mb-2 flex flex-wrap items-center gap-2">
-                                                    {(exam.subject || exam.unit) && (
+                                                    {examContextLabel(exam) && (
                                                         <span className="bg-primary-wash text-primary rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold tracking-[0.08em] uppercase">
-                                                            {[exam.subject, exam.unit]
-                                                                .filter(Boolean)
-                                                                .join(' · ')}
+                                                            {examContextLabel(exam)}
                                                         </span>
                                                     )}
                                                     {exam.closesAt && (
@@ -258,11 +270,9 @@ export default async function ExamSelectionPage() {
                                         className="border-border rounded-[14px] border border-l-[3px] border-l-primary bg-white p-5"
                                     >
                                         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                            {(exam.subject || exam.unit) && (
+                                            {examContextLabel(exam) && (
                                                 <span className="text-mute font-mono text-[10px] tracking-[0.08em] uppercase">
-                                                    {[exam.subject, exam.unit]
-                                                        .filter(Boolean)
-                                                        .join(' · ')}
+                                                    {examContextLabel(exam)}
                                                 </span>
                                             )}
                                             {exam.scheduledAt && (
@@ -325,11 +335,9 @@ export default async function ExamSelectionPage() {
                                         >
                                             <div className="min-w-0">
                                                 <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                                                    {(exam.subject || exam.unit) && (
+                                                    {examContextLabel(exam) && (
                                                         <span className="text-mute font-mono text-[10px] tracking-[0.08em] uppercase">
-                                                            {[exam.subject, exam.unit]
-                                                                .filter(Boolean)
-                                                                .join(' · ')}
+                                                            {examContextLabel(exam)}
                                                         </span>
                                                     )}
                                                     <span className="text-success font-mono text-[10px] font-semibold">
@@ -428,8 +436,7 @@ export default async function ExamSelectionPage() {
                                                 {dayLabel(ref, now)}
                                             </span>
                                             <span className="text-ink-dim min-w-0 flex-1 truncate text-[12px]">
-                                                {[exam.subject, exam.unit].filter(Boolean).join(' · ') ||
-                                                    exam.title}
+                                                {examContextLabel(exam) || exam.title}
                                             </span>
                                             <span
                                                 className={cn(

@@ -84,7 +84,12 @@ parse_html.js
 .agents/
 .doc/
 .seeders/
+prisma/seeders/local-*.ts
+prisma/seeders/e2e-full.ts
 .codegraph/
 
 .env*.local
 .gstack/
+
+# ─── Databases ───────────────────────────────────────────────────────────────
+database/

@@ -1,19 +1,9 @@
-import { Skeleton } from '@/shared/components/ui/skeleton';
+import { Loader2 } from 'lucide-react';
 
-export default function ProfessorsLoading() {
+export default function Loading() {
     return (
-        <div className="space-y-6 p-8">
-            <div className="space-y-2">
-                <Skeleton className="h-8 w-44" />
-                <Skeleton className="h-4 w-56" />
-            </div>
-            <Skeleton className="h-9 w-36" />
-            <div className="space-y-2">
-                <Skeleton className="h-10 w-full" />
-                {['a', 'b', 'c', 'd', 'e', 'f'].map((id) => (
-                    <Skeleton key={id} className="h-14 w-full" />
-                ))}
-            </div>
+        <div className="flex flex-1 items-center justify-center py-24">
+            <Loader2 className="text-primary size-6 animate-spin" />
         </div>
     );
 }

@@ -1,0 +1,166 @@
+# =============================================================================
+# .claudeignore — next-quiz
+# Indica a Claude qué archivos/carpetas ignorar al leer el contexto del proyecto.
+# Sintaxis idéntica a .gitignore.
+# =============================================================================
+
+
+# ─── Dependencias ─────────────────────────────────────────────────────────────
+# Generadas automáticamente. Miles de archivos irrelevantes que consumen tokens.
+node_modules/
+.pnp
+.pnp.*
+
+
+# ─── Build / Compilación ──────────────────────────────────────────────────────
+# Archivos generados por Next.js, TypeScript y Vercel. No son código fuente.
+.next/
+out/
+build/
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+
+# ─── Variables de Entorno ─────────────────────────────────────────────────────
+# CRÍTICO: Nunca exponer secretos, claves de API o credenciales de base de datos.
+.env
+.env.local
+.env.*.local
+.env.production.remote
+# .env.example se mantiene visible (es documentación, no tiene secretos reales)
+
+
+# ─── Git ──────────────────────────────────────────────────────────────────────
+# Historial interno de git, no aporta contexto de código útil.
+.git/
+
+
+# ─── Sistema Operativo ────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+Thumbs.db
+desktop.ini
+._*
+.Spotlight-V100
+.Trashes
+
+
+# ─── Editores / IDEs ──────────────────────────────────────────────────────────
+# Configuraciones locales de editores, no son parte del código del proyecto.
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+
+# ─── Tests y Reportes ─────────────────────────────────────────────────────────
+# Resultados de ejecuciones de tests. El código de tests (tests/) sí es útil.
+test-results/
+playwright-report/
+playwright/.cache/
+coverage/
+.nyc_output/
+vitest.config.*.timestamp*
+# tests/e2e/.auth/ contiene tokens de sesión autenticada — dato sensible
+tests/e2e/.auth/
+
+
+# ─── Herramientas de Dev / Agentes de IA ─────────────────────────────────────
+# Carpetas internas de Claude, Antigravity y otros agentes de IA.
+.claude/
+.agents/
+.codegraph/
+.gstack/
+.air/
+
+
+# ─── Documentación Interna ────────────────────────────────────────────────────
+# Documentación generada o de trabajo interno. No es código fuente ejecutable.
+.doc/
+
+
+# ─── Despliegue ───────────────────────────────────────────────────────────────
+# Metadatos internos de Vercel, no son código fuente.
+.vercel/
+
+
+# ─── Lock Files ───────────────────────────────────────────────────────────────
+# El lock file de pnpm es enorme (313 KB). Claude no necesita leerlo para entender
+# el proyecto. El package.json es suficiente para conocer las dependencias.
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+
+# ─── Base de Datos ────────────────────────────────────────────────────────────
+# Archivos de base de datos SQLite locales (desarrollo). No son código.
+*.db
+*.sqlite
+*.sqlite3
+prisma/migrations/dev.db*
+database/
+
+
+# ─── Assets Pesados / Archivos de Datos ───────────────────────────────────────
+# El JSON de PAES pesa ~580 KB y no es código fuente — es data pura.
+# Si necesitas que Claude analice datos específicos, referéncialo explícitamente.
+public/paes-invierno-2026.json
+
+# Imágenes y multimedia en public/ (no son código)
+public/**/*.png
+public/**/*.jpg
+public/**/*.jpeg
+public/**/*.gif
+public/**/*.svg
+public/**/*.webp
+public/**/*.ico
+public/**/*.mp4
+public/**/*.mp3
+public/**/*.woff
+public/**/*.woff2
+
+
+# ─── Certificados y Claves ────────────────────────────────────────────────────
+*.pem
+*.key
+*.cert
+*.p12
+
+
+# ─── Diseño ───────────────────────────────────────────────────────────────────
+# Archivos de diseño/prototipo, no son código de la aplicación.
+design/
+design.html
+
+
+# =============================================================================
+# ✅ LO QUE SÍ LEERÁ CLAUDE (código fuente relevante):
+#
+#   src/                    → Todo el código fuente (app, features, shared)
+#   prisma/schema.prisma    → Esquema de base de datos (muy importante)
+#   prisma/seed.ts          → Seeds de datos
+#   prisma/migrations/      → Historial de migraciones (útil para contexto)
+#   prisma/scripts/         → Scripts de Prisma
+#   prisma/seeders/         → Seeders (excepto los locales ignorados por .gitignore)
+#   tests/                  → Suite de tests (excepto carpeta .auth/)
+#   scripts/                → Scripts de utilidad del proyecto
+#   package.json            → Dependencias y scripts del proyecto
+#   next.config.ts          → Configuración de Next.js
+#   tsconfig.json           → Configuración de TypeScript
+#   biome.json              → Configuración de linter/formatter
+#   components.json         → Configuración de shadcn/ui
+#   docker-compose.yml      → Configuración de Docker
+#   vercel.json             → Configuración de despliegue en Vercel
+#   playwright.config.ts    → Configuración de tests E2E
+#   vitest.config.ts        → Configuración de tests unitarios
+#   CLAUDE.md               → Instrucciones específicas para Claude
+#   .env.example            → Documentación de variables de entorno
+# =============================================================================

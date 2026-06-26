@@ -23,7 +23,15 @@ import {
 import { toast } from 'sonner';
 import type { Control, UseFormRegister, FieldErrors } from 'react-hook-form';
 import { Button } from '@/shared/components/ui/button';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/shared/components/ui/select';
 import { RUT_MASK, RUT_MASK_DEFINITIONS } from '@/shared/components/ui/rut-field';
+import { INSTITUTION_TYPE_OPTIONS } from '@/shared/lib/academic-labels';
 import { completeRegistration } from '@/features/subscriptions/actions/signup';
 import {
     registrationSchema,
@@ -35,9 +43,10 @@ interface FormFieldProps {
     icon: ReactNode;
     error?: string;
     children: ReactNode;
+    rightElement?: ReactNode;
 }
 
-function FormField({ label, icon, error, children }: FormFieldProps) {
+function FormField({ label, icon, error, children, rightElement }: FormFieldProps) {
     return (
         <div className="flex flex-col gap-1">
             {/* biome-ignore lint/a11y/noLabelWithoutControl: input injected via children */}
@@ -49,6 +58,7 @@ function FormField({ label, icon, error, children }: FormFieldProps) {
                     </span>
                     {children}
                 </div>
+                {rightElement && <div className="shrink-0 flex items-center justify-center">{rightElement}</div>}
             </label>
             {error && <p className="text-destructive text-[12px]">{error}</p>}
         </div>
@@ -113,6 +123,33 @@ function InstitutionSection({
     return (
         <div className="space-y-2">
             <SectionHeader title="Datos del establecimiento" />
+            <FormField
+                label="Tipo de institución"
+                icon={<Building2 size={14} />}
+            >
+                <Controller
+                    name="institutionType"
+                    control={control}
+                    render={({ field }) => (
+                        <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            disabled={disabled}
+                        >
+                            <SelectTrigger className="border-0 bg-transparent p-0 !h-auto outline-none focus:ring-0 focus:ring-offset-0 shadow-none text-ink text-[14px] data-[placeholder]:text-mute/50 w-full leading-normal">
+                                <SelectValue placeholder="Seleccioná el tipo" />
+                            </SelectTrigger>
+                            <SelectContent className="border-border rounded-xl shadow-xl">
+                                {INSTITUTION_TYPE_OPTIONS.map((opt) => (
+                                    <SelectItem key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
+                />
+            </FormField>
             <FormField
                 label="Nombre del establecimiento"
                 icon={<Building2 size={14} />}
@@ -215,6 +252,16 @@ function AdminSection({ register, control, errors, disabled }: SectionProps) {
                 label="Contraseña"
                 icon={<Lock size={14} />}
                 error={errors.adminPassword?.message}
+                rightElement={
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword((v) => !v)}
+                        className="text-mute hover:text-ink transition-colors outline-none flex items-center justify-center"
+                        tabIndex={-1}
+                    >
+                        {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                }
             >
                 <input
                     {...register('adminPassword')}
@@ -223,14 +270,6 @@ function AdminSection({ register, control, errors, disabled }: SectionProps) {
                     placeholder="••••••••"
                     className="text-ink placeholder:text-mute/50 bg-transparent text-[14px] outline-none disabled:opacity-60"
                 />
-                <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="text-mute hover:text-ink ml-auto shrink-0 transition-colors outline-none"
-                    tabIndex={-1}
-                >
-                    {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-                </button>
             </FormField>
         </div>
     );
@@ -261,6 +300,7 @@ export function RegistrationForm({
             subscriptionId,
             adminEmail: prefillEmail ?? '',
             acceptTerms: false,
+            institutionType: 'OTRO',
         },
     });
 

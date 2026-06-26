@@ -3,3 +3,4 @@
 # sandbox del modo demo en producción.
 prisma/seeders/bulk-demo.ts
 prisma/seeders/local-test.ts
+prisma/seeders/e2e-full.ts

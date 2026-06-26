@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { createSeedClient } from '../lib/client';
 
-const prisma = new PrismaClient();
+const prisma = createSeedClient();
 
 const ADMIN_PASSWORD = 'Admin2026!';
 
@@ -13,6 +13,7 @@ const INSTITUTIONS = [
         address: 'Av. Fuchslocher 1305',
         city: 'Osorno',
         country: 'Chile',
+        type: 'UNIVERSIDAD',
     },
     {
         name: 'Instituto Profesional Pacífico',
@@ -21,6 +22,29 @@ const INSTITUTIONS = [
         address: 'Av. Argentina 2520',
         city: 'Valparaíso',
         country: 'Chile',
+        type: 'INSTITUTO_PROFESIONAL',
+    },
+] as const;
+
+// Jerarquía académica de prueba: 1 programa, 1 período activo y 2 materias por
+// institución. Da datos a los tracks paralelos (Programas/Períodos/Materias) y
+// a sus e2e.
+const ACADEMIC = [
+    {
+        institution: 'universidad-de-los-lagos',
+        programName: 'Ingeniería Civil Informática',
+        programCode: 'ICI',
+        periodName: '2026 - Primer Semestre',
+        periodType: 'SEMESTRE',
+        courses: ['Cálculo I', 'Programación I'],
+    },
+    {
+        institution: 'instituto-profesional-pacifico',
+        programName: 'Técnico en Administración',
+        programCode: 'TADM',
+        periodName: '2026 - Primer Semestre',
+        periodType: 'SEMESTRE',
+        courses: ['Contabilidad', 'Gestión de Empresas'],
     },
 ] as const;
 
@@ -191,7 +215,7 @@ async function main(): Promise<void> {
     for (const inst of INSTITUTIONS) {
         const record = await prisma.academicInstitution.upsert({
             where: { slug: inst.slug },
-            update: {},
+            update: { type: inst.type },
             create: inst,
         });
         institutionMap.set(inst.slug, record.id);
@@ -236,9 +260,11 @@ async function main(): Promise<void> {
     }
 
     // ─── Profesores ───────────────────────────────────────────────────────────
+    // Primer profesor por institución → se usará como docente de las materias.
+    const firstProfessorByInstitution = new Map<string, string>();
     for (const prof of PROFESORES) {
         const institutionId = institutionMap.get(prof.institution)!;
-        await prisma.user.upsert({
+        const user = await prisma.user.upsert({
             where: { email: prof.email },
             update: {},
             create: {
@@ -251,7 +277,75 @@ async function main(): Promise<void> {
                 academicInstitutionId: institutionId,
             },
         });
+        if (!firstProfessorByInstitution.has(prof.institution)) {
+            firstProfessorByInstitution.set(prof.institution, user.id);
+        }
         console.log(`  Profesor: ${prof.name} ${prof.lastname} → ${prof.institution}`);
+    }
+
+    // ─── Jerarquía académica (programas, períodos, materias) ──────────────────
+    for (const academic of ACADEMIC) {
+        const institutionId = institutionMap.get(academic.institution)!;
+        const groupId = groupMap.get(academic.institution)!;
+        const professorId = firstProfessorByInstitution.get(academic.institution)!;
+
+        const program = await getOrCreate(
+            () =>
+                prisma.program.findFirst({
+                    where: { academicInstitutionId: institutionId, name: academic.programName },
+                }),
+            () =>
+                prisma.program.create({
+                    data: {
+                        name: academic.programName,
+                        code: academic.programCode,
+                        academicInstitutionId: institutionId,
+                    },
+                }),
+        );
+
+        const period = await getOrCreate(
+            () =>
+                prisma.academicPeriod.findFirst({
+                    where: { academicInstitutionId: institutionId, name: academic.periodName },
+                }),
+            () =>
+                prisma.academicPeriod.create({
+                    data: {
+                        name: academic.periodName,
+                        year: 2026,
+                        type: academic.periodType,
+                        isActive: true,
+                        academicInstitutionId: institutionId,
+                    },
+                }),
+        );
+
+        // Vincula el grupo existente al programa (jerarquía).
+        await prisma.group.update({
+            where: { id: groupId },
+            data: { programId: program.id },
+        });
+
+        for (const courseName of academic.courses) {
+            const existing = await prisma.courseSection.findFirst({
+                where: { periodId: period.id, name: courseName, groupId },
+            });
+            if (!existing) {
+                await prisma.courseSection.create({
+                    data: {
+                        name: courseName,
+                        programId: program.id,
+                        periodId: period.id,
+                        groupId,
+                        professors: { connect: { id: professorId } },
+                    },
+                });
+            }
+        }
+        console.log(
+            `  Académico: ${academic.programName} · ${academic.periodName} · ${academic.courses.length} materias → ${academic.institution}`,
+        );
     }
 
     // ─── Students ─────────────────────────────────────────────────────────────
@@ -282,6 +376,7 @@ async function main(): Promise<void> {
     console.log('  4 administrators (2 per institution) — password: Admin2026!');
     console.log('  4 profesores (2 per institution)    — password: Admin2026!');
     console.log('  10 students (5 per institution)     — login by RUT');
+    console.log('  2 programs · 2 active periods · 4 course sections');
 }
 
 main()

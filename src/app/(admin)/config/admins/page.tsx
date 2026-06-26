@@ -1,6 +1,8 @@
 import { getAdminUsers } from '@/features/admin-users/actions/queries';
 import { AdminUsersClient } from '@/features/admin-users/components/AdminUsersClient';
+import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { prisma } from '@/shared/lib/prisma';
+import { USER_ROLE } from '@/shared/lib/roles';
 
 interface PageProps {
     searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -12,21 +14,31 @@ export default async function AdminsPage({ searchParams }: PageProps) {
     const page = Math.max(1, Number(sp.page) || 1);
     const institutionId = typeof sp.institutionId === 'string' ? sp.institutionId : '';
 
-    const [result, institutions] = await Promise.all([
+    const [result, institutions, count] = await Promise.all([
         getAdminUsers({ page, perPage: 10, q, institutionId: institutionId || undefined }),
         prisma.academicInstitution.findMany({
             where: { active: true },
             orderBy: { name: 'asc' },
             select: { id: true, name: true },
         }),
+        prisma.user.count({
+            where: { userRole: { name: { in: [USER_ROLE.ADMIN, USER_ROLE.PROFESOR] } } },
+        }),
     ]);
 
     return (
-        <AdminUsersClient
-            result={result}
-            institutions={institutions}
-            q={q}
-            institutionId={institutionId}
-        />
+        <>
+            <AdminTopBar
+                title="Gestión de Accesos"
+                breadcrumb={['Sistema', 'Administradores']}
+                subtitle={`${count} usuarios con privilegios de gestión en la plataforma`}
+            />
+            <AdminUsersClient
+                result={result}
+                institutions={institutions}
+                q={q}
+                institutionId={institutionId}
+            />
+        </>
     );
 }

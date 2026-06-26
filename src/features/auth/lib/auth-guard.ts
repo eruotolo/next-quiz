@@ -18,6 +18,12 @@ export interface InstitutionContext {
     isProfesor: boolean;
     isDemo: boolean;
     demoSessionId: string | null;
+    /**
+     * Programas donde el usuario es Jefe de Carrera (`ProgramCoordinator`).
+     * Resuelto una sola vez por request (el JWT no lo lleva porque cambia).
+     * Vacío para roles que no necesitan scoping por programa.
+     */
+    coordinatedProgramIds: string[];
 }
 
 const INSTITUTION_ROLES: UserRoleName[] = [
@@ -51,6 +57,17 @@ export async function requireInstitutionAccess(
     const isSuperAdmin = userRole === USER_ROLE.SUPER_ADMIN;
     const isProfesor = userRole === USER_ROLE.PROFESOR;
 
+    // Solo el Profesor puede ser Jefe de Carrera; el resto no necesita scoping
+    // por programa, así que evitamos el fetch para Admin/SuperAdmin.
+    const coordinatedProgramIds = isProfesor
+        ? (
+              await prisma.programCoordinator.findMany({
+                  where: { userId: session.user.id },
+                  select: { programId: true },
+              })
+          ).map((c) => c.programId)
+        : [];
+
     const base = {
         slug: requestSlug,
         userId: session.user.id,
@@ -60,6 +77,7 @@ export async function requireInstitutionAccess(
         isProfesor,
         isDemo: session.user.isDemo,
         demoSessionId: session.user.demoSessionId,
+        coordinatedProgramIds,
     };
 
     if (isSuperAdmin) {

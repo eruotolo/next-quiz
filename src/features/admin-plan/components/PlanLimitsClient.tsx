@@ -109,7 +109,7 @@ function CustomPlanFormFields({
                     value={form.name}
                     onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                     placeholder="Ej: Cortesía Colegio X"
-                    className="h-11 rounded-[10px]"
+                    className="border-border h-11 rounded-[10px] bg-white"
                     autoFocus
                 />
             </div>
@@ -126,7 +126,7 @@ function CustomPlanFormFields({
                             value={form[field] ?? ''}
                             onChange={(e) => setLimit(field, e.target.value)}
                             placeholder="∞ (ilimitado)"
-                            className="h-11 rounded-[10px]"
+                            className="border-border h-11 rounded-[10px] bg-white"
                         />
                     </div>
                 ))}
@@ -139,7 +139,7 @@ function CustomPlanFormFields({
                     id="cp-description"
                     value={form.description}
                     onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                    className="h-11 rounded-[10px]"
+                    className="border-border h-11 rounded-[10px] bg-white"
                 />
             </div>
             <div className="flex justify-end">
@@ -297,7 +297,7 @@ export function PlanLimitsClient({ limits, customPlans }: Props) {
                                                         handleChange(l.plan, field, e.target.value)
                                                     }
                                                     placeholder="∞"
-                                                    className="border-border bg-paper text-ink placeholder:text-mute/40 focus:border-primary focus:ring-primary/20 w-20 rounded-[6px] border px-2 py-1.5 text-center text-[13px] outline-none focus:ring-2"
+                                                    className="border-border bg-white text-ink placeholder:text-mute/40 focus:border-primary focus:ring-primary/20 w-20 rounded-[8px] border px-2 py-1.5 text-center text-[13px] outline-none focus:ring-2"
                                                 />
                                             </td>
                                         ))}
@@ -424,21 +424,23 @@ export function PlanLimitsClient({ limits, customPlans }: Props) {
 
             {/* Create / Edit dialog */}
             <Dialog open={formOpen} onOpenChange={setFormOpen}>
-                <DialogContent className="border-border max-w-lg rounded-[22px] shadow-2xl">
-                    <DialogHeader>
-                        <DialogTitle className="font-display text-2xl">
+                <DialogContent className="border-border max-w-lg overflow-hidden rounded-[22px] p-0 shadow-2xl">
+                    <div className="border-border bg-paper border-b px-6 py-5">
+                        <DialogTitle className="font-display text-ink text-2xl">
                             {editing ? 'Editar plan interno' : 'Nuevo plan interno'}
                         </DialogTitle>
                         <DialogDescription className="sr-only">
                             Formulario para crear o editar un plan interno.
                         </DialogDescription>
-                    </DialogHeader>
-                    <CustomPlanFormFields
-                        key={editing?.id ?? 'new'}
-                        initial={editing ?? undefined}
-                        onSubmit={(form) => void handleSubmitCustom(form)}
-                        isPending={pending}
-                    />
+                    </div>
+                    <div className="px-6">
+                        <CustomPlanFormFields
+                            key={editing?.id ?? 'new'}
+                            initial={editing ?? undefined}
+                            onSubmit={(form) => void handleSubmitCustom(form)}
+                            isPending={pending}
+                        />
+                    </div>
                 </DialogContent>
             </Dialog>
 

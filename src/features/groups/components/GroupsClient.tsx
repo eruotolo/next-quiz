@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { createGroup, deleteGroup, updateGroup } from '@/features/groups/actions/mutations';
+import { deleteGroup } from '@/features/groups/actions/mutations';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import {
@@ -17,21 +17,12 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogFooter,
-    DialogHeader,
     DialogTitle,
 } from '@/shared/components/ui/dialog';
-import { Input } from '@/shared/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/shared/components/ui/select';
 import { Tag } from '@/shared/components/ui/badge';
 import { formatRut } from '@/shared/lib/rut';
 import { cn } from '@/shared/lib/utils';
+import { GroupForm } from '@/features/groups/components/GroupForm';
 import type { Group } from '@prisma/client';
 import { Edit2, GraduationCap, Loader2, MoreHorizontal, Plus, Trash2, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -59,10 +50,30 @@ interface TutorInfo {
     lastname: string;
 }
 
+interface ProgramInfo {
+    id: string;
+    name: string;
+}
+
+interface PeriodInfo {
+    id: string;
+    name: string;
+}
+
+interface CourseOption {
+    id: string;
+    name: string;
+    programId: string | null;
+    periodId: string;
+}
+
 interface GroupWithCount extends Group {
     _count: { users: number; exams: number };
     users: StudentInGroup[];
     tutor: TutorInfo | null;
+    program: ProgramInfo | null;
+    period: PeriodInfo | null;
+    courseSections: { id: string; name: string }[];
     avgGrade: number | null;
 }
 
@@ -76,10 +87,11 @@ interface Props {
     slug: string;
     groups: GroupWithCount[];
     professors: ProfessorOption[];
+    programs: ProgramInfo[];
+    periods: PeriodInfo[];
+    courseSections: CourseOption[];
     canMutate: boolean;
 }
-
-const NO_TUTOR = '__none__';
 
 const CARD_COLORS = ['#1F2EFF', '#7C5CFF', '#22C55E', '#FF5A4D', '#F59E0B'];
 
@@ -119,10 +131,45 @@ function InitialsAvatar({
     );
 }
 
+function GroupAcademicTags({
+    group,
+}: {
+    group: {
+        program: ProgramInfo | null;
+        period: PeriodInfo | null;
+        courseSections: { id: string; name: string }[];
+    };
+}) {
+    const { program, period, courseSections } = group;
+    if (!program && !period && courseSections.length === 0) return null;
+    return (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+            {program && (
+                <Tag tone="default" className="border-border h-5 text-[10px] font-bold">
+                    {program.name}
+                </Tag>
+            )}
+            {period && (
+                <Tag tone="outline" className="border-border h-5 text-[10px] font-bold">
+                    {period.name}
+                </Tag>
+            )}
+            {courseSections.map((cs) => (
+                <Tag key={cs.id} tone="outline" className="border-border h-5 text-[10px] font-medium">
+                    {cs.name}
+                </Tag>
+            ))}
+        </div>
+    );
+}
+
 export function GroupsClient({
     slug,
     groups,
     professors,
+    programs,
+    periods,
+    courseSections,
     canMutate,
 }: Props) {
     const router = useRouter();
@@ -131,57 +178,21 @@ export function GroupsClient({
     const [studentsGroup, setStudentsGroup] = useState<GroupWithCount | null>(null);
     const [editing, setEditing] = useState<GroupWithCount | null>(null);
     const [toDelete, setToDelete] = useState<GroupWithCount | null>(null);
-    const [name, setName] = useState('');
-    const [stream, setStream] = useState('');
-    const [tutorId, setTutorId] = useState<string>(NO_TUTOR);
-    const [error, setError] = useState<string | null>(null);
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
 
     const openCreate = (): void => {
         setEditing(null);
-        setName('');
-        setStream('');
-        setTutorId(NO_TUTOR);
-        setError(null);
         setIsOpen(true);
     };
     const openEdit = (g: GroupWithCount): void => {
         setEditing(g);
-        setName(g.name);
-        setStream(g.stream ?? '');
-        setTutorId(g.tutor?.id ?? NO_TUTOR);
-        setError(null);
         setIsOpen(true);
     };
     const openDelete = (g: GroupWithCount): void => {
         setToDelete(g);
         setDeleteError(null);
         setIsDelOpen(true);
-    };
-
-    const handleSave = (): void => {
-        if (!name.trim()) {
-            setError('El nombre es requerido.');
-            return;
-        }
-        const payload = {
-            name,
-            stream: stream.trim(),
-            tutorId: tutorId === NO_TUTOR ? null : tutorId,
-        };
-        startTransition(async () => {
-            const result = editing
-                ? await updateGroup(slug, editing.id, payload)
-                : await createGroup(slug, payload);
-            if (result.error) {
-                setError(result.error);
-                return;
-            }
-            setIsOpen(false);
-            toast.success(editing ? 'Grupo actualizado' : 'Grupo creado');
-            router.refresh();
-        });
     };
 
     const handleDelete = (): void => {
@@ -245,6 +256,7 @@ export function GroupsClient({
                                                         {g.stream}
                                                     </p>
                                                 )}
+                                                <GroupAcademicTags group={g} />
                                             </div>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
@@ -454,93 +466,17 @@ export function GroupsClient({
                 </DialogContent>
             </Dialog>
 
-            {/* Create/Edit dialog */}
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="border-border rounded-[22px] shadow-2xl">
-                    <DialogHeader>
-                        <DialogTitle className="font-display text-2xl">
-                            {editing ? 'Editar grupo' : 'Nuevo grupo'}
-                        </DialogTitle>
-                        <DialogDescription className="sr-only">
-                            Formulario para crear o editar un grupo.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="flex flex-col gap-4 py-4">
-                        <div className="flex flex-col gap-2">
-                            <label
-                                htmlFor="group-form-name"
-                                className="text-ink text-[13px] font-bold"
-                            >
-                                Nombre del grupo
-                            </label>
-                            <Input
-                                id="group-form-name"
-                                placeholder="Ej: 4to Año B"
-                                value={name}
-                                onChange={(e) => {
-                                    setName(e.target.value);
-                                    setError(null);
-                                }}
-                                className={cn(
-                                    'border-border h-11 rounded-[10px] bg-white',
-                                    error && 'border-destructive',
-                                )}
-                                autoFocus
-                            />
-                            {error && (
-                                <p className="text-destructive text-xs font-medium">{error}</p>
-                            )}
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label
-                                htmlFor="group-form-stream"
-                                className="text-ink text-[13px] font-bold"
-                            >
-                                Mención / especialidad (opcional)
-                            </label>
-                            <Input
-                                id="group-form-stream"
-                                placeholder="Ej: Científico-Humanista"
-                                value={stream}
-                                onChange={(e) => setStream(e.target.value)}
-                                className="border-border h-11 rounded-[10px] bg-white"
-                            />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <span className="text-ink text-[13px] font-bold">
-                                Profesor/a tutor/a (opcional)
-                            </span>
-                            <Select value={tutorId} onValueChange={setTutorId}>
-                                <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
-                                    <SelectValue placeholder="Sin tutor asignado" />
-                                </SelectTrigger>
-                                <SelectContent className="border-border rounded-xl shadow-xl">
-                                    <SelectItem value={NO_TUTOR}>Sin tutor asignado</SelectItem>
-                                    {professors.map((p) => (
-                                        <SelectItem key={p.id} value={p.id}>
-                                            {p.name} {p.lastname}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <DialogFooter className="gap-2">
-                        <Button
-                            variant="ghost"
-                            size="md"
-                            onClick={() => setIsOpen(false)}
-                            disabled={isPending}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button variant="ink" size="md" disabled={isPending} onClick={handleSave}>
-                            {isPending && <Loader2 className="mr-2 animate-spin" />}
-                            {editing ? 'Guardar cambios' : 'Crear grupo'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            {/* Create/Edit dialog (compartido con NewGroupButton) */}
+            <GroupForm
+                slug={slug}
+                open={isOpen}
+                onOpenChange={setIsOpen}
+                editing={editing}
+                professors={professors}
+                programs={programs}
+                periods={periods}
+                courseSections={courseSections}
+            />
 
             {/* Delete confirm */}
             <AlertDialog open={isDelOpen} onOpenChange={setIsDelOpen}>

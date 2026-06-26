@@ -22,13 +22,7 @@ import {
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/shared/components/ui/select';
+import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import {
     Table,
     TableBody,
@@ -86,23 +80,25 @@ const ROLE_LABEL: Record<string, string> = {
     [USER_ROLE.SUPER_ADMIN]: 'SuperAdministrador',
 };
 
+const ROLE_OPTIONS = [
+    { value: USER_ROLE.ADMIN, label: 'Administrador' },
+    { value: USER_ROLE.SUPER_ADMIN, label: 'SuperAdministrador' },
+];
+
 function RoleSelect({
     value,
     onChange,
 }: {
     value: string;
-    onChange: (v: typeof USER_ROLE.ADMIN | typeof USER_ROLE.SUPER_ADMIN) => void;
+    onChange: (v: string) => void;
 }) {
     return (
-        <Select value={value} onValueChange={onChange}>
-            <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
-                <SelectValue placeholder="Seleccioná un rol" />
-            </SelectTrigger>
-            <SelectContent className="border-border rounded-xl shadow-xl">
-                <SelectItem value={USER_ROLE.ADMIN}>Administrador</SelectItem>
-                <SelectItem value={USER_ROLE.SUPER_ADMIN}>SuperAdministrador</SelectItem>
-            </SelectContent>
-        </Select>
+        <SearchableSelect
+            value={value}
+            onChange={onChange}
+            options={ROLE_OPTIONS}
+            placeholder="Seleccioná un rol"
+        />
     );
 }
 
@@ -223,18 +219,12 @@ function CreateAdminForm({
                         name="academicInstitutionId"
                         control={control}
                         render={({ field }) => (
-                            <Select value={field.value ?? ''} onValueChange={field.onChange}>
-                                <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
-                                    <SelectValue placeholder="Seleccioná una institución" />
-                                </SelectTrigger>
-                                <SelectContent className="border-border rounded-xl shadow-xl">
-                                    {institutions.map((i) => (
-                                        <SelectItem key={i.id} value={i.id}>
-                                            {i.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <SearchableSelect
+                                value={field.value ?? ''}
+                                onChange={field.onChange}
+                                options={institutions.map((i) => ({ value: i.id, label: i.name }))}
+                                placeholder="Seleccioná una institución"
+                            />
                         )}
                     />
                     {errors.academicInstitutionId && (
@@ -391,18 +381,12 @@ function UpdateAdminForm({
                         name="academicInstitutionId"
                         control={control}
                         render={({ field }) => (
-                            <Select value={field.value ?? ''} onValueChange={field.onChange}>
-                                <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
-                                    <SelectValue placeholder="Seleccioná una institución" />
-                                </SelectTrigger>
-                                <SelectContent className="border-border rounded-xl shadow-xl">
-                                    {institutions.map((i) => (
-                                        <SelectItem key={i.id} value={i.id}>
-                                            {i.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <SearchableSelect
+                                value={field.value ?? ''}
+                                onChange={field.onChange}
+                                options={institutions.map((i) => ({ value: i.id, label: i.name }))}
+                                placeholder="Seleccioná una institución"
+                            />
                         )}
                     />
                     {errors.academicInstitutionId && (
@@ -543,32 +527,26 @@ export function AdminUsersClient({
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Buscar por nombre, email o RUT..."
-                        className="border-border h-[38px] bg-white pl-9"
+                        className="border-border h-9 rounded-[10px] bg-white pl-9"
                     />
                 </form>
 
                 <div className="flex items-center gap-2">
                     <Building2 size={16} className="text-mute ml-4" />
-                    <Select
+                    <SearchableSelect
+                        size="sm"
                         value={institutionFilter || '__all__'}
-                        onValueChange={(v) => {
+                        onChange={(v) => {
                             const val = v === '__all__' ? '' : v;
                             setInstitutionFilter(val);
                             pushUrl({ institutionId: val, page: 1 });
                         }}
-                    >
-                        <SelectTrigger className="border-border h-[38px] w-52 bg-white">
-                            <SelectValue placeholder="Todas las instituciones" />
-                        </SelectTrigger>
-                        <SelectContent className="border-border rounded-xl shadow-xl">
-                            <SelectItem value="__all__">Todas las instituciones</SelectItem>
-                            {institutions.map((i) => (
-                                <SelectItem key={i.id} value={i.id}>
-                                    {i.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                        options={[
+                            { value: '__all__', label: 'Todas las instituciones' },
+                            ...institutions.map((i) => ({ value: i.id, label: i.name })),
+                        ]}
+                        className="w-52"
+                    />
                 </div>
 
                 <div className="flex-1" />

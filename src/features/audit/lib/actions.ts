@@ -46,6 +46,21 @@
     PROFESSOR_CREATE: 'professor.create',
     PROFESSOR_UPDATE: 'professor.update',
     PROFESSOR_DELETE: 'professor.delete',
+
+    PROGRAM_CREATE: 'program.create',
+    PROGRAM_UPDATE: 'program.update',
+    PROGRAM_DELETE: 'program.delete',
+
+    PERIOD_CREATE: 'period.create',
+    PERIOD_UPDATE: 'period.update',
+    PERIOD_DELETE: 'period.delete',
+
+    COURSE_CREATE: 'course.create',
+    COURSE_UPDATE: 'course.update',
+    COURSE_DELETE: 'course.delete',
+
+    COORDINATOR_ASSIGN: 'coordinator.assign',
+    COORDINATOR_REMOVE: 'coordinator.remove',
 } as const;
 
 export type AuditActionKey = (typeof AUDIT_ACTION)[keyof typeof AUDIT_ACTION];
@@ -87,4 +102,15 @@ export const AUDIT_ACTION_LABEL: Record<AuditActionKey, string> = {
     'professor.create': 'Profesor creado',
     'professor.update': 'Profesor actualizado',
     'professor.delete': 'Profesor eliminado',
+    'program.create': 'Programa creado',
+    'program.update': 'Programa actualizado',
+    'program.delete': 'Programa eliminado',
+    'period.create': 'Período creado',
+    'period.update': 'Período actualizado',
+    'period.delete': 'Período eliminado',
+    'course.create': 'Materia creada',
+    'course.update': 'Materia actualizada',
+    'course.delete': 'Materia eliminada',
+    'coordinator.assign': 'Jefe de Carrera asignado',
+    'coordinator.remove': 'Jefe de Carrera removido',
 };

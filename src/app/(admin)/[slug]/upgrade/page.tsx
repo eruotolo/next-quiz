@@ -1,7 +1,9 @@
-﻿import { UpgradePlans } from '@/features/subscriptions/components/UpgradePlans';
+﻿import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { auth } from '@/features/auth/auth';
 import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
+import { UpgradePlans } from '@/features/subscriptions/components/UpgradePlans';
 import { prisma } from '@/shared/lib/prisma';
+import { Sparkles } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
 export const metadata = {
@@ -30,14 +32,22 @@ export default async function UpgradePage({
     ]);
 
     return (
-        <UpgradePlans
-            slug={slug}
-            currentPlan={inst?.plan ?? 'FREE'}
-            quoteDefaults={{
-                name: session?.user?.name ?? '',
-                email: session?.user?.email ?? '',
-                institution: inst?.name ?? '',
-            }}
-        />
+        <>
+            <AdminTopBar
+                title="Mejorá tu plan"
+                breadcrumb={[inst?.name ?? slug, 'Planes']}
+                icon={<Sparkles size={24} />}
+                subtitle="Elegí el plan que mejor se adapta a tu institución. El cambio se aplica al confirmar el pago."
+            />
+            <UpgradePlans
+                slug={slug}
+                currentPlan={inst?.plan ?? 'FREE'}
+                quoteDefaults={{
+                    name: session?.user?.name ?? '',
+                    email: session?.user?.email ?? '',
+                    institution: inst?.name ?? '',
+                }}
+            />
+        </>
     );
 }

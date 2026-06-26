@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { institutionTypeSchema } from '@/shared/lib/academic-labels';
 
 export const institutionSchema = z.object({
     name: z.string().min(2, 'Nombre requerido').max(200),
@@ -12,6 +13,7 @@ export const institutionSchema = z.object({
     city: z.string().min(2, 'Ciudad requerida').max(100),
     campus: z.string().max(100).optional(),
     country: z.string().min(2, 'País requerido').max(100).default('Chile'),
+    type: institutionTypeSchema.default('OTRO'),
     active: z.boolean().default(true),
 });
 
@@ -24,6 +26,7 @@ export const institutionSettingsSchema = z.object({
     city: z.string().min(2, 'Ciudad requerida').max(100),
     campus: z.string().max(100).optional(),
     country: z.string().min(2, 'País requerido').max(100).default('Chile'),
+    type: institutionTypeSchema,
     email: z.string().email('Email inválido').optional().or(z.literal('')),
     // SEO
     seoTitle: z.string().max(70, 'El título SEO no debe exceder los 70 caracteres').optional(),

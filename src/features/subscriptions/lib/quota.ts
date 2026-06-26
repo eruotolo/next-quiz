@@ -2,7 +2,14 @@ import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { getPlanLimits } from './plan-limits';
 
-export type QuotaResource = 'exam' | 'group' | 'admin' | 'professor' | 'student';
+export type QuotaResource =
+    | 'exam'
+    | 'group'
+    | 'admin'
+    | 'professor'
+    | 'student'
+    | 'program'
+    | 'course';
 
 interface EffectiveLimits {
     maxGroups: number | null;
@@ -10,6 +17,8 @@ interface EffectiveLimits {
     maxProfessors: number | null;
     maxStudents: number | null;
     maxExamsPerYear: number | null;
+    maxPrograms: number | null;
+    maxCourses: number | null;
 }
 
 const RESOURCE_LIMIT_KEY: Record<QuotaResource, keyof EffectiveLimits> = {
@@ -18,6 +27,8 @@ const RESOURCE_LIMIT_KEY: Record<QuotaResource, keyof EffectiveLimits> = {
     admin: 'maxAdmins',
     professor: 'maxProfessors',
     student: 'maxStudents',
+    program: 'maxPrograms',
+    course: 'maxCourses',
 };
 
 /**
@@ -39,6 +50,8 @@ async function getEffectiveLimits(
                     maxProfessors: true,
                     maxStudents: true,
                     maxExamsPerYear: true,
+                    maxPrograms: true,
+                    maxCourses: true,
                 },
             },
         },
@@ -54,6 +67,8 @@ async function getEffectiveLimits(
                 maxProfessors: c.maxProfessors,
                 maxStudents: c.maxStudents,
                 maxExamsPerYear: c.maxExamsPerYear,
+                maxPrograms: c.maxPrograms,
+                maxCourses: c.maxCourses,
             },
             label: c.name,
         };
@@ -67,6 +82,8 @@ async function getEffectiveLimits(
             maxProfessors: pl.maxProfessors,
             maxStudents: pl.maxStudents,
             maxExamsPerYear: pl.maxExamsPerYear,
+            maxPrograms: pl.maxPrograms,
+            maxCourses: pl.maxCourses,
         },
         label: institution.plan,
     };
@@ -103,6 +120,16 @@ async function countResource(
 
     if (resource === 'group') {
         return prisma.group.count({ where: { academicInstitutionId: institutionId } });
+    }
+
+    if (resource === 'program') {
+        return prisma.program.count({ where: { academicInstitutionId: institutionId } });
+    }
+
+    if (resource === 'course') {
+        return prisma.courseSection.count({
+            where: { period: { academicInstitutionId: institutionId } },
+        });
     }
 
     const roleNameMap: Partial<Record<QuotaResource, string>> = {

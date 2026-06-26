@@ -103,6 +103,8 @@ export interface ExamGroup {
     maxGrade: number;
     passingGrade: number;
     passingPercentage: number;
+    courseSection: { id: string; name: string } | null;
+    program: { id: string; name: string } | null;
     questions: ExamQuestion[];
     results: ResultRow[];
 }
@@ -146,6 +148,7 @@ async function exportResultsToXlsx(examGroups: ExamGroup[], institutionName: str
     writeFile(wb, `resultados-${institutionName}-${date}.xlsx`);
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: vista de resultados con KPIs, filtros, tablas y diálogos
 export function ResultsClient({
     examGroups,
     totalCount,
@@ -165,6 +168,8 @@ export function ResultsClient({
     const [viewTarget, setViewTarget] = useState<{ result: ResultRow; exam: ExamGroup } | null>(
         null,
     );
+    const [programFilter, setProgramFilter] = useState<string>('all');
+    const [courseFilter, setCourseFilter] = useState<string>('all');
 
     function handleExamChange(val: string): void {
         router.push(`/${slug}/results?examId=${val}`);
@@ -178,6 +183,8 @@ export function ResultsClient({
     }
 
     function handleClearFilters(): void {
+        setProgramFilter('all');
+        setCourseFilter('all');
         router.push(`/${slug}/results`);
     }
 
@@ -232,6 +239,33 @@ export function ResultsClient({
 
     const hasActiveFilters = !!(selectedExamId ?? selectedGroupId);
 
+    // Filtros cliente por programa/asignatura (jerarquía académica, Fase 4). Se
+    // derivan de los propios examGroups: solo aparecen opciones con resultados.
+    const programOptions = useMemo(() => {
+        const map = new Map<string, string>();
+        for (const eg of examGroups) if (eg.program) map.set(eg.program.id, eg.program.name);
+        return Array.from(map, ([id, name]) => ({ id, name }));
+    }, [examGroups]);
+
+    const courseOptions = useMemo(() => {
+        const map = new Map<string, string>();
+        for (const eg of examGroups)
+            if (eg.courseSection) map.set(eg.courseSection.id, eg.courseSection.name);
+        return Array.from(map, ([id, name]) => ({ id, name }));
+    }, [examGroups]);
+
+    const visibleExamGroups = useMemo(
+        () =>
+            examGroups.filter((eg) => {
+                const matchesProgram = programFilter === 'all' || eg.program?.id === programFilter;
+                const matchesCourse = courseFilter === 'all' || eg.courseSection?.id === courseFilter;
+                return matchesProgram && matchesCourse;
+            }),
+        [examGroups, programFilter, courseFilter],
+    );
+
+    const hasClientFilters = programFilter !== 'all' || courseFilter !== 'all';
+
     return (
         <>
             <main className="flex-1 space-y-8 overflow-auto p-8">
@@ -246,7 +280,7 @@ export function ResultsClient({
                             onClick={async () => {
                                 setIsExporting(true);
                                 try {
-                                    await exportResultsToXlsx(examGroups, institutionName);
+                                    await exportResultsToXlsx(visibleExamGroups, institutionName);
                                 } catch {
                                     toast.error('No se pudo exportar el reporte.');
                                 } finally {
@@ -348,7 +382,39 @@ export function ResultsClient({
                             </div>
                         )}
 
-                        {hasActiveFilters && (
+                        {programOptions.length > 0 && (
+                            <Select value={programFilter} onValueChange={setProgramFilter}>
+                                <SelectTrigger className="border-border h-9 w-[180px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
+                                    <SelectValue placeholder="Todos los programas" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Todos los programas</SelectItem>
+                                    {programOptions.map((p) => (
+                                        <SelectItem key={p.id} value={p.id}>
+                                            {p.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+
+                        {courseOptions.length > 0 && (
+                            <Select value={courseFilter} onValueChange={setCourseFilter}>
+                                <SelectTrigger className="border-border h-9 w-[180px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
+                                    <SelectValue placeholder="Todas las asignaturas" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Todas las asignaturas</SelectItem>
+                                    {courseOptions.map((c) => (
+                                        <SelectItem key={c.id} value={c.id}>
+                                            {c.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+
+                        {(hasActiveFilters || hasClientFilters) && (
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -376,9 +442,19 @@ export function ResultsClient({
                                 : 'Los resultados aparecerán aquí cuando los alumnos completen exámenes.'}
                         </p>
                     </Card>
+                ) : visibleExamGroups.length === 0 ? (
+                    <Card className="flex flex-col items-center justify-center border-dashed py-24">
+                        <BarChart3 size={48} className="text-mute/20 mb-4" />
+                        <p className="text-ink text-lg font-medium">
+                            No hay resultados para los filtros seleccionados
+                        </p>
+                        <p className="text-mute mt-1 text-sm">
+                            Probá cambiando el programa o la asignatura.
+                        </p>
+                    </Card>
                 ) : (
                     <div className="space-y-10">
-                        {examGroups.map((data) => (
+                        {visibleExamGroups.map((data) => (
                             <div key={`${data.examId}-${data.groupId}`} className="space-y-4">
                                 <div className="flex items-end justify-between px-2">
                                     <div>
@@ -621,7 +697,9 @@ function AnswersReview({
         <div className="h-full space-y-4 overflow-y-auto px-6 py-6">
             {exam.questions.map((q, idx) => {
                 const selectedIds = getSelectedIds(answerMap[q.id]);
-                const { correctOptions, correctSet } = analysisMap.get(q.id)!;
+                const analysis = analysisMap.get(q.id);
+                if (!analysis) return null;
+                const { correctOptions, correctSet } = analysis;
                 const selectedSet = new Set(selectedIds);
                 const isCorrect =
                     selectedSet.size > 0 &&
