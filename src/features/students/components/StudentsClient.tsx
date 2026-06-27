@@ -438,8 +438,8 @@ export function StudentsClient({
 
     const renderAcademicRow = (r: AcademicResultRow) => (
         <TableRow key={r.id} className="border-border h-12 border-b last:border-0">
-            <TableCell>
-                <span className="text-ink text-[13px] leading-tight font-medium">
+            <TableCell className="max-w-0 w-full">
+                <span className="text-ink block truncate text-[13px] leading-tight font-medium" title={r.exam.title}>
                     {r.exam.title}
                 </span>
             </TableCell>
@@ -1169,12 +1169,12 @@ export function StudentsClient({
 
             {/* Modal — Información Académica */}
             <Dialog open={academicOpen} onOpenChange={setAcademicOpen}>
-                <DialogContent className="border-border rounded-[22px] shadow-2xl sm:max-w-4xl">
+                <DialogContent className="border-border overflow-x-hidden rounded-[22px] shadow-2xl sm:max-w-4xl">
                     <DialogHeader>
-                        <DialogTitle className="font-display text-2xl">
+                        <DialogTitle className="font-display flex min-w-0 flex-wrap items-baseline gap-x-2 text-2xl">
                             Información Académica
                             {academicStudent && (
-                                <span className="text-mute ml-2 text-lg font-normal">
+                                <span className="text-mute min-w-0 truncate text-lg font-normal">
                                     — {academicStudent.name} {academicStudent.lastname}
                                 </span>
                             )}
@@ -1248,7 +1248,7 @@ export function StudentsClient({
                                     size="sm"
                                     value={academicYearFilter}
                                     onChange={setAcademicYearFilter}
-                                    className="w-[150px]"
+                                    className="w-full sm:w-[150px]"
                                     options={[
                                         { value: 'all', label: 'Año · Todos' },
                                         ...academicYears.map((y) => ({
@@ -1261,7 +1261,7 @@ export function StudentsClient({
                                     size="sm"
                                     value={academicMateriaFilter}
                                     onChange={setAcademicMateriaFilter}
-                                    className="w-[210px]"
+                                    className="w-full sm:w-[210px]"
                                     options={[
                                         { value: 'all', label: 'Materia · Todas' },
                                         ...academicMaterias.map((m) => ({ value: m, label: m })),
@@ -1271,7 +1271,7 @@ export function StudentsClient({
                                     size="sm"
                                     value={academicGroupFilter}
                                     onChange={setAcademicGroupFilter}
-                                    className="w-[185px]"
+                                    className="w-full sm:w-[185px]"
                                     options={[
                                         { value: 'all', label: 'Grupo · Todos' },
                                         ...academicGroups.map((g) => ({ value: g, label: g })),
@@ -1284,7 +1284,7 @@ export function StudentsClient({
                             </div>
 
                             {/* Table */}
-                            <div className="border-border overflow-hidden rounded-[14px] border">
+                            <div className="border-border overflow-x-auto rounded-[14px] border">
                                 <Table>
                                     <TableHeader className="bg-paper">
                                         <TableRow className="border-border border-b hover:bg-transparent">
