@@ -192,7 +192,7 @@ export function L3Hero() {
                 <div className="mb-8 flex justify-center">
                     <Tag tone="primary" size="sm" className="gap-2 px-3 py-1 font-bold">
                         <span className="bg-primary size-1.5 animate-pulse rounded-full" />
-                        PLATAFORMA CHILENA · v0.9 — admisión abierta
+                        PLATAFORMA CHILENA · v1.2 — Muy pronto: Aula Virtual
                     </Tag>
                 </div>
 

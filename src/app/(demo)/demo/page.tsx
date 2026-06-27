@@ -1,5 +1,6 @@
 ﻿import { auth } from '@/features/auth/auth';
 import { DemoLoginCard } from '@/features/demo/components/DemoLoginCard';
+import { AuthShell } from '@/features/auth/components/AuthShell';
 import { DEMO_SLUG } from '@/features/demo/lib/demo';
 import { redirect } from 'next/navigation';
 
@@ -12,5 +13,9 @@ export default async function DemoPage() {
     const session = await auth();
     if (session?.user?.isDemo) redirect(`/${DEMO_SLUG}`);
 
-    return <DemoLoginCard />;
+    return (
+        <AuthShell>
+            <DemoLoginCard />
+        </AuthShell>
+    );
 }

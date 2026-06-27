@@ -6,7 +6,8 @@ import { LogoMark, LogoWordmark } from '@/shared/components/branding/logo';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Flag } from 'lucide-react';
+import { Flag, X } from 'lucide-react';
+import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { DemoResultsScreen } from './DemoResultsScreen';
@@ -205,6 +206,14 @@ export function DemoExamCarousel({ exam, initialSeconds }: DemoExamCarouselProps
                         Autoguardado
                     </span>
                     <LogoWordmark size={14} color="#75716b" />
+                    <div className="bg-border h-4 w-px" />
+                    <Link
+                        href="/"
+                        className="text-mute hover:text-ink hover:bg-paper-warm flex items-center gap-1.5 rounded-[6px] px-2.5 py-1.5 font-mono text-[10px] tracking-[0.08em] uppercase transition-colors"
+                    >
+                        <X size={11} />
+                        Salir
+                    </Link>
                 </div>
             </header>
 
