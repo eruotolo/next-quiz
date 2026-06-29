@@ -13,6 +13,7 @@ import {
 import {
     notifyNewForumPostBackground,
 } from '@/features/lms/lib/forum-notifications';
+import { awardPointsForEvent } from '@/features/lms/lib/points-engine';
 import { sanitizeForumMarkdown } from '@/shared/lib/sanitize';
 import { logAudit } from '@/shared/lib/audit';
 import { prisma } from '@/shared/lib/prisma';
@@ -356,6 +357,17 @@ export async function createLmsForumPost(
         }
 
         revalidatePath(`/aula/cursos/${thread.forum.course.id}/foro/${thread.id}`);
+
+        // Gamificación (Fase 4): +2 pts por publicar en el foro (fire-and-forget).
+        void awardPointsForEvent({
+            userId: session.studentId,
+            sourceType: 'FORUM_POST',
+            amount: 2,
+            reason: 'Mensaje en foro',
+            courseId: thread.forum.course.id,
+            sourceId: post.id,
+            dedupeKey: `FORUM_POST:${post.id}`,
+        }).catch((err) => console.error('[gamification] FORUM_POST failed', err));
 
         return ok({ id: post.id });
     } catch (error) {

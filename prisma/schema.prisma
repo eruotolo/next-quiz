@@ -256,6 +256,10 @@ model User {
   forumThreads          LmsForumThread[]
   forumPosts            LmsForumPost[]
   lmsNotifications      LmsNotification[]
+  lmsStreak             LmsStreak?
+  lmsUserBadges         LmsUserBadge[]
+  lmsPointEvents        LmsPointEvent[]
+  leaderboardOptOuts    LmsLeaderboardOptOut[]
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
 
@@ -307,6 +311,18 @@ enum LmsGradebookItemType {
   TAREA
   PARTICIPACION
   MANUAL
+}
+
+// ─── Fase 4: Gamificación (Puntos, Rachas, Insignias) ────────────────────────
+
+enum LmsPointSource {
+  LESSON_COMPLETED
+  ASSIGNMENT_SUBMITTED
+  ASSIGNMENT_GRADED
+  EXAM_PASSED
+  FORUM_POST
+  MANUAL
+  STREAK_BONUS
 }
 
 // ─── Exams ───────────────────────────────────────────────────────────────────
@@ -665,6 +681,8 @@ model LmsCourse {
   enrollments           LmsEnrollment[]
   gradebookItems        LmsGradebookItem[]
   forums                LmsForum[]
+  pointEvents           LmsPointEvent[]
+  leaderboardOptOuts    LmsLeaderboardOptOut[]
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
 
@@ -928,4 +946,101 @@ model LmsNotification {
 
   @@index([userId, read])
   @@index([userId, createdAt])
+}
+
+// ─── Fase 4: Gamificación (Streak / Badge / PointEvent) ──────────────────────
+
+// Racha diaria por estudiante. Una fila por User. `lastActiveOn` se compara con
+// la fecha actual para decidir si incrementar (ayer) o resetear (>ayer). Los
+// `freezeTokens` permiten preservar la racha un día sin actividad (regalo del
+// profesor o recompensa por hito).
+model LmsStreak {
+  id            String    @id @default(uuid()) @db.Uuid
+  userId        String    @unique @db.Uuid
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentStreak Int       @default(0)
+  longestStreak Int       @default(0)
+  lastActiveOn  DateTime? @db.Date
+  freezeTokens  Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+// Catálogo global de insignias. `criteria` es un JSON con reglas declarativas
+// (ej. {type: "TOTAL_POINTS", threshold: 100}) que el motor evalúa contra las
+// estadísticas del usuario. `pointsReward` se acredita como PointEvent BONUS
+// al desbloquear.
+model LmsBadge {
+  id           String         @id @default(uuid()) @db.Uuid
+  code         String         @unique
+  name         String
+  description  String
+  icon         String
+  pointsReward Int            @default(0)
+  criteria     Json
+  active       Boolean        @default(true)
+  awardedTo    LmsUserBadge[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([code])
+  @@index([active])
+}
+
+// Relación M:N estudiante-insignia. `awardedReason` se persiste para auditoría
+// (ej. "Reached 7-day streak" o "Primer examen con 7.0"). Constraint única
+// garantiza una fila por par (user, badge).
+model LmsUserBadge {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @db.Uuid
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId       String   @db.Uuid
+  badge         LmsBadge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  awardedAt     DateTime @default(now())
+  awardedReason String?
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
+}
+
+// Log append-only de cada acreditación de puntos. El total del usuario se
+// calcula al vuelo con `SUM(amount) WHERE userId`. `dedupeKey` (opcional y
+// UNIQUE) garantiza idempotencia: si dos eventos llegan con la misma clave,
+// el segundo falla con P2002 y se ignora silenciosamente. Esto es clave para
+// la consistencia bajo reintentos o webhooks duplicados.
+model LmsPointEvent {
+  id         String         @id @default(uuid()) @db.Uuid
+  userId     String         @db.Uuid
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount     Int
+  reason     String
+  sourceType LmsPointSource
+  sourceId   String?        @db.Uuid
+  courseId   String?        @db.Uuid
+  course     LmsCourse?     @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  dedupeKey  String?        @unique
+  createdAt  DateTime       @default(now())
+
+  @@index([userId, createdAt])
+  @@index([courseId])
+  @@index([sourceType])
+}
+
+// Privacidad del ranking por curso. Una fila por (user, course) cuando el
+// estudiante opta por ocultar su nombre del leaderboard público. La UI llama
+// `toggleLeaderboardOptOut` que crea/elimina la fila. La query del leaderboard
+// hace left-join y marca `isAnonymous = true` para esos usuarios.
+model LmsLeaderboardOptOut {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @db.Uuid
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId   String   @db.Uuid
+  course     LmsCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  optedOutAt DateTime @default(now())
+
+  @@unique([userId, courseId])
+  @@index([courseId])
 }

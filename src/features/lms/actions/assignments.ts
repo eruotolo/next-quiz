@@ -9,6 +9,7 @@ import {
     lmsSubmissionSchema,
 } from '@/features/lms/schemas/lms-phase2.schemas';
 import { clipChilenGrade } from '@/features/lms/lib/gradebook';
+import { awardPointsForEvent } from '@/features/lms/lib/points-engine';
 import { logAudit } from '@/shared/lib/audit';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
@@ -212,6 +213,17 @@ export async function submitLmsAssignment(
             `/aula/cursos/${assignment.lesson.module.courseId}/leccion/${assignment.lessonId}`,
         );
 
+        // Gamificación (Fase 4): +10 pts al entregar la tarea (fire-and-forget).
+        void awardPointsForEvent({
+            userId: session.studentId,
+            sourceType: 'ASSIGNMENT_SUBMITTED',
+            amount: 10,
+            reason: 'Entrega de tarea',
+            courseId: assignment.lesson.module.courseId,
+            sourceId: submission.id,
+            dedupeKey: `ASSIGNMENT_SUBMITTED:${submission.id}`,
+        }).catch((err) => console.error('[gamification] ASSIGNMENT_SUBMITTED failed', err));
+
         return ok({ id: submission.id });
     } catch (error) {
         return fail<{ id: string }>(toActionError(error, 'No se pudo entregar la tarea'));
@@ -284,6 +296,17 @@ export async function gradeLmsSubmission(
         });
 
         revalidatePath(`/aula/cursos/${submission.assignment.lesson.module.courseId}`);
+
+        // Gamificación (Fase 4): +5 pts al recibir calificación (fire-and-forget).
+        void awardPointsForEvent({
+            userId: submission.studentId,
+            sourceType: 'ASSIGNMENT_GRADED',
+            amount: 5,
+            reason: 'Tarea calificada',
+            courseId: submission.assignment.lesson.module.courseId,
+            sourceId: updated.id,
+            dedupeKey: `ASSIGNMENT_GRADED:${updated.id}`,
+        }).catch((err) => console.error('[gamification] ASSIGNMENT_GRADED failed', err));
 
         return ok({ id: updated.id });
     } catch (error) {

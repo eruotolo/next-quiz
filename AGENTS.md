@@ -540,6 +540,26 @@ Feature en `src/features/lms/` y Route Group `src/app/(aula)/` para evolucionar 
 - Server actions: `src/features/lms/actions/forums.ts` (CRUD foro, hilo, post, pin/lock, soft-delete). Anti-IDOR en todas.
 - Migraciones: `20260629191306_lms_forums`, `20260629191923_lms_notifications`.
 
+## Aula Virtual (LMS) — Fase 4: Gamificación (Puntos, Rachas, Insignias)
+
+- Modelos: `LmsStreak` (racha diaria + freeze tokens), `LmsBadge` (catálogo global, `criteria` JSON con reglas declarativas), `LmsUserBadge` (M:N estudiante-insignia con `awardedReason`), `LmsPointEvent` (log append-only con `dedupeKey` UNIQUE para idempotencia), `LmsLeaderboardOptOut` (privacidad del ranking por curso).
+- Enum `LmsPointSource`: `LESSON_COMPLETED | ASSIGNMENT_SUBMITTED | ASSIGNMENT_GRADED | EXAM_PASSED | FORUM_POST | MANUAL | STREAK_BONUS`.
+- **Engine**: `src/features/lms/lib/points-engine.ts` con API `awardPointsForEvent({userId, sourceType, amount, reason, sourceId, courseId, dedupeKey})`. Total puntos se calcula `SUM(amount) WHERE userId` al vuelo (evita drift). Acreditación + racha + badges en **una sola transacción** con manejo de P2002 para idempotencia.
+- **Lógica pura de racha** en `src/features/lms/lib/streak.ts`: `computeStreakUpdate(state, activityAt)` testable sin DB. Reglas: día consecutivo +1, mismo día no cambia, gap 2 días con freeze token +1, gap >2 días reset a 1. Funciones puras con tests.
+- **Criterios de insignia** en `src/features/lms/lib/badges.ts` + `user-stats.ts`: switch sobre tipos declarativos (`TOTAL_POINTS`, `LESSONS_COMPLETED`, `ASSIGNMENTS_SUBMITTED`, `EXAMS_PASSED`, `FORUM_POSTS`, `LONGEST_STREAK`).
+- **Catálogo sembrado**: 8 badges iniciales en `prisma/seeders/gamification-badges.ts` (`BADGE_SEED`): primer paso, primera entrega, perfección inaugural, racha 7d, racha 30d, voz del aula, conversador, 100 puntos.
+- **Esquema de puntos** (bajo balanceado): tarea +10, tarea calificada +5, examen aprobado +15, post foro +2.
+- **Integración** (fire-and-forget con `void ... .catch(console.error)` en cada action existente):
+  - `submitLmsAssignment` → +10 ASSIGNMENT_SUBMITTED + racha.
+  - `gradeLmsSubmission` → +5 ASSIGNMENT_GRADED + racha.
+  - `recordLmsGrade` (item manual) → +5.
+  - `syncExamGrades` → +15 EXAM_PASSED solo si `score >= 4.0`.
+  - `createLmsForumPost` → +2 FORUM_POST.
+- **Server actions admin** en `src/features/lms/actions/gamification.ts`: `awardManualLmsPoints`, `createLmsBadge`/`updateLmsBadge`/`deleteLmsBadge`, `listLmsBadges`, `getMyAchievements`, `markBadgesSeen`, `getCourseLeaderboard`, `toggleLeaderboardOptOut`. Anti-IDOR con `requireInstitutionAccess` y `getStudentAuthSession`.
+- **Tipos exportados** desde `actions/gamification.ts`: `AchievementBadge`, `LeaderboardEntry`, `LeaderboardData`, `MyAchievements`, `RecentPointEvent`. `BADGE_DEFINITIONS` en `lib/gamification.ts`.
+- **Tests**: 36 nuevos tests unitarios (racha + badges + engine con Prisma mockeado). Total: **149/149 pasando**.
+- Migraciones: `20260629203535_lms_gamification`, `20260629205142_lms_leaderboard_privacy`.
+
 
 Feature en `src/features/demo/`. Institución `slug = 'aulika-demo'`, `isDemo = true`, plan FREE.
 

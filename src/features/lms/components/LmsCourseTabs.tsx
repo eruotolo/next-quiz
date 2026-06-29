@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
-import { BookOpen, ClipboardList, BarChart2, MessageSquare } from 'lucide-react';
+import { BookOpen, ClipboardList, BarChart2, MessageSquare, Trophy } from 'lucide-react';
 
 interface Props {
     slug: string;
@@ -19,6 +19,7 @@ export function LmsCourseTabs({ slug, courseId }: Props) {
         { href: `${base}/tareas`, label: 'Tareas', icon: ClipboardList },
         { href: `${base}/calificaciones`, label: 'Calificaciones', icon: BarChart2 },
         { href: `${base}/foro`, label: 'Foro', icon: MessageSquare },
+        { href: `${base}/ranking`, label: 'Ranking', icon: Trophy },
     ];
 
     return (

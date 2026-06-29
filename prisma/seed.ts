@@ -1,6 +1,7 @@
 import { type Plan } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { createSeedClient } from './lib/client';
+import { seedGamificationBadges } from './seeders/gamification-badges';
 
 const prisma = createSeedClient();
 
@@ -118,6 +119,9 @@ async function main(): Promise<void> {
             create: limits,
         });
     }
+
+    const upserted = await seedGamificationBadges(prisma);
+    console.log(`Gamification: ${upserted} badges upserted.`);
 
     console.log('Seed completed.');
 }

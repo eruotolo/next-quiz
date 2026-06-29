@@ -578,9 +578,86 @@ Funciones puras (sin acceso a BD, fáciles de testear):
 - `src/features/lms/components/LmsCourseTabs.tsx` — pestaña "Foro" agregada (ícono `MessageSquare`).
 
 ### Pendiente para Fase 4
-- Emails Brevo al crear post (MiniMax-M3).
-- Sanitización XSS del Markdown en foros (MiniMax-M3).
-- Gamificación: `Streak`, `Badge`, `PointEvent`.
+- (cubierto en LMS Fase 4 abajo)
+
+## Aula Virtual (LMS) — Fase 4: Gamificación (Puntos, Rachas, Insignias)
+
+### Modelos Prisma nuevos
+- `LmsStreak` — racha diaria por estudiante (`currentStreak`, `longestStreak`, `lastActiveOn`, `freezeTokens` para preservar racha un día sin actividad). `userId` UNIQUE.
+- `LmsBadge` — catálogo global con `code` UNIQUE, `pointsReward`, `criteria` JSON (`{type, threshold}`), `active`.
+- `LmsUserBadge` — M:N (`@@unique([userId, badgeId])`) con `awardedAt` y `awardedReason` legible.
+- `LmsPointEvent` — log append-only con `amount`, `reason`, `sourceType`, `sourceId`, `courseId`, `dedupeKey` UNIQUE (idempotencia vía P2002). Total del usuario se calcula con `SUM(amount) WHERE userId` al vuelo.
+- `LmsLeaderboardOptOut` — privacidad del ranking por curso (`@@unique([userId, courseId])`).
+- Enum `LmsPointSource`: `LESSON_COMPLETED | ASSIGNMENT_SUBMITTED | ASSIGNMENT_GRADED | EXAM_PASSED | FORUM_POST | MANUAL | STREAK_BONUS`.
+
+### Engine — `src/features/lms/lib/points-engine.ts`
+- API: `awardPointsForEvent({userId, sourceType, amount, reason, sourceId, courseId, dedupeKey})` + `getUserGamificationSummary(userId)`.
+- Transacción atómica: inserta `PointEvent` → actualiza `LmsStreak` → evalúa criterios de `LmsBadge` → acredita bonus.
+- Manejo de `P2002` en cada paso: idempotencia sin abortar la transacción.
+- Captura errores globales (no rompe el caller) — uso fire-and-forget desde server actions.
+
+### Lógica pura (testeable sin DB)
+- `src/features/lms/lib/streak.ts` — `computeStreakUpdate(state, activityAt)`:
+  - lastActiveOn null → arranca en 1.
+  - Mismo día UTC → no cambia.
+  - 1 día consecutivo → +1.
+  - 2 días (gap=1 día intermedio) con `freezeTokens > 0` → consume token y +1.
+  - Gap > 2 días → reset a 1.
+- `src/features/lms/lib/badges.ts` — `evaluateCriterion(criterion, stats)` sobre tipos `TOTAL_POINTS | LESSONS_COMPLETED | ASSIGNMENTS_SUBMITTED | EXAMS_PASSED | FORUM_POSTS | LONGEST_STREAK`.
+
+### Catálogo sembrado — `prisma/seeders/gamification-badges.ts`
+8 badges iniciales con `BADGE_SEED`: primer paso (+5), primera entrega (+10), perfección inaugural (+25), racha 7d (+50), racha 30d (+150), voz del aula (+2), conversador (+25), 100 puntos (+25). Idempotente vía `prisma.db:seed`.
+
+### Esquema de puntos (bajo balanceado)
+| Evento | Puntos |
+|---|---|
+| Tarea entregada (`ASSIGNMENT_SUBMITTED`) | +10 |
+| Tarea calificada (`ASSIGNMENT_GRADED`) | +5 |
+| Examen aprobado (`EXAM_PASSED`, score ≥ 4.0) | +15 |
+| Post en foro (`FORUM_POST`) | +2 |
+| Nota manual (`ASSIGNMENT_GRADED` en `recordLmsGrade`) | +5 |
+
+### Integración (fire-and-forget en actions existentes)
+Cada enganche usa `void awardPointsForEvent(...).catch(console.error)`:
+- `submitLmsAssignment` → `ASSIGNMENT_SUBMITTED` +10 + racha
+- `gradeLmsSubmission` → `ASSIGNMENT_GRADED` +5 + racha
+- `recordLmsGrade` (item manual) → `ASSIGNMENT_GRADED` +5
+- `syncExamGrades` → `EXAM_PASSED` +15 si aprobó
+- `createLmsForumPost` → `FORUM_POST` +2
+
+### Server actions — `src/features/lms/actions/gamification.ts`
+- Admin: `awardManualLmsPoints`, `createLmsBadge`/`updateLmsBadge`/`deleteLmsBadge`, `listLmsBadges` (todos con anti-IDOR vía `requireInstitutionAccess`).
+- Estudiante: `getMyAchievements` (resumen + 20 últimos eventos), `markBadgesSeen` (via `LmsNotification` type `BADGE_ACK`), `getCourseLeaderboard`, `toggleLeaderboardOptOut`.
+
+### Tipos exportados
+- `AchievementBadge`, `LeaderboardEntry`, `LeaderboardData`, `MyAchievements`, `RecentPointEvent` en `actions/gamification.ts`.
+- `BADGE_DEFINITIONS` en `lib/gamification.ts` (re-export de `BADGE_SEED` con tipo `BadgeDefinition`).
+
+### Tests
+36 nuevos tests unitarios (`streak.test.ts`, `badges.test.ts`, `points-engine.test.ts` con Prisma mockeado). Total suite: **149/149 pasando**.
+
+Migraciones: `20260629203535_lms_gamification`, `20260629205142_lms_leaderboard_privacy`.
+
+### UI — Fase 4 (Sonnet)
+
+**`getUnseenBadges()`** — agregado a `gamification.ts`: cruza `LmsUserBadge` contra `LmsNotification(type=BADGE_ACK)` y devuelve insignias sin ACK para el toast animado.
+
+**Componentes:**
+- `BadgeUnlockProvider.tsx` (`'use client'`) — recibe `initialUnseenBadges: AchievementBadge[]` del layout SSR. Muestra cada insignia con Framer Motion (`AnimatePresence` + slide desde abajo). Cada toast dura 5.5s con barra de progreso animada y llama `markBadgesSeen([badge.code])` al cerrar (fire-and-forget).
+- `LmsAchievementsClient.tsx` (`'use client'`) — "Mis Logros" con 4 stat cards (puntos totales, racha actual, racha máxima, total insignias), grid de todas las insignias del catálogo (ganadas en dorado, bloqueadas en gris), historial de últimos puntos.
+- `LmsLeaderboard.tsx` (`'use client'`) — top 10 por puntos, íconos de podio (Trophy/Medal), toggle de privacidad que llama `toggleLeaderboardOptOut(courseId)`, anonimiza nombre con "Estudiante anónimo" para opt-outs ajenos.
+
+**Páginas:**
+- `src/app/(aula)/aula/logros/page.tsx` — SSR llama `getMyAchievements()`, renderiza `LmsAchievementsClient`.
+- `src/app/(aula)/aula/cursos/[id]/logros/page.tsx` — SSR valida inscripción + llama `getCourseLeaderboard(courseId)`, renderiza `LmsLeaderboard`.
+
+**Actualizaciones:**
+- `src/app/(aula)/layout.tsx` — agrega `getUnseenBadges()` en paralelo a las notificaciones, envuelve con `BadgeUnlockProvider`. Filtra BADGE_ACK del contador de unread del Bell. Agrega link "Mis logros" con ícono Trophy en el nav.
+- `LmsCourseTabs.tsx` — pestaña "Ranking" con ícono `Trophy` → `/${slug}/aula/${courseId}/ranking`.
+
+**Pendiente para Fase 5:**
+- Página `/[slug]/aula/[id]/ranking` en el panel admin.
+- Seeder de badges (`gamification-badges.ts`) que corra `pnpm db:seed` para poblar `LmsBadge` en producción antes de que los badges sean funcionales.
 
 ## Aula Virtual (LMS) — Fase 3: Foros y Notificaciones
 
@@ -639,9 +716,7 @@ Validación de acceso anti-IDOR en cada acción: requiere `academicInstitutionId
 - `src/shared/lib/__tests__/sanitize.test.ts` — 23 unit tests XSS.
 - `tests/e2e/admin/lms-phase3-forums.spec.ts` — smoke test E2E.
 
-### Pendiente para Fase 4
-- Streak / Badge / PointEvent (gamificación).
-- Reconstruir `forum.ts` (de Sonnet) integrando las notifications.
+### Pendiente para Fase 5+ (Certificación y Analítica)
 - Diff side-by-side en UI de edición de post.
 
 

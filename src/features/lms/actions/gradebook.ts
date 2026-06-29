@@ -11,6 +11,7 @@ import {
     clipChilenGrade,
     syncExamGrade,
 } from '@/features/lms/lib/gradebook';
+import { awardPointsForEvent } from '@/features/lms/lib/points-engine';
 import { logAudit } from '@/shared/lib/audit';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
@@ -227,6 +228,17 @@ export async function recordLmsGrade(
             metadata: { studentId: parsed.data.studentId, score },
         });
 
+        // Gamificación (Fase 4): +5 pts por nota registrada (fire-and-forget).
+        void awardPointsForEvent({
+            userId: parsed.data.studentId,
+            sourceType: 'ASSIGNMENT_GRADED',
+            amount: 5,
+            reason: 'Nota registrada',
+            courseId: item.courseId,
+            sourceId: grade.id,
+            dedupeKey: `GRADE_RECORDED:${grade.id}`,
+        }).catch((err) => console.error('[gamification] GRADE_RECORDED failed', err));
+
         revalidatePath(`/aula/cursos/${item.courseId}`);
         return ok({ id: grade.id });
     } catch (error) {
@@ -286,6 +298,20 @@ export async function syncExamGrades(
                     score: normalizedScore,
                 },
             });
+
+            // Gamificación (Fase 4): +15 pts si aprobó (>= 4.0).
+            if (normalizedScore >= 4.0) {
+                void awardPointsForEvent({
+                    userId: r.studentId,
+                    sourceType: 'EXAM_PASSED',
+                    amount: 15,
+                    reason: 'Examen aprobado',
+                    courseId: item.courseId,
+                    sourceId: r.studentId,
+                    dedupeKey: `EXAM_PASSED:${item.examId}:${r.studentId}`,
+                }).catch((err) => console.error('[gamification] EXAM_PASSED failed', err));
+            }
+
             synced += 1;
         }
 
