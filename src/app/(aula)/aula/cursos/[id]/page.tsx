@@ -45,6 +45,7 @@ export default async function StudentAulaCoursePage({ params }: PageProps) {
                             type: true,
                             order: true,
                             contentJson: true,
+                            summaryJson: true,
                             videoAssetId: true,
                             videoUploadId: true,
                             fileUrl: true,
@@ -66,10 +67,16 @@ export default async function StudentAulaCoursePage({ params }: PageProps) {
     });
     if (!course?.academicInstitution) notFound();
 
-    const enrollment = await prisma.lmsEnrollment.findUnique({
-        where: { userId_courseId: { userId: student.id, courseId: id } },
-        select: { progressPct: true, status: true },
-    });
+    const [enrollment, certificate] = await Promise.all([
+        prisma.lmsEnrollment.findUnique({
+            where: { userId_courseId: { userId: student.id, courseId: id } },
+            select: { progressPct: true, status: true },
+        }),
+        prisma.lmsCertificate.findUnique({
+            where: { userId_courseId: { userId: student.id, courseId: id } },
+            select: { verificationCode: true, finalGrade: true, issuedAt: true, pdfUrl: true, revokedAt: true },
+        }),
+    ]);
 
     const modules = course.modules.map((m) => ({
         id: m.id,
@@ -92,11 +99,19 @@ export default async function StudentAulaCoursePage({ params }: PageProps) {
             durationSec: l.durationSec,
             examId: l.examId,
             moduleId: l.moduleId,
+            summaryJson: l.summaryJson,
             createdAt: l.createdAt,
             updatedAt: l.updatedAt,
             completed: l.progress[0]?.completed ?? false,
         })),
     }));
+
+    const activeCertificate = certificate && !certificate.revokedAt ? {
+        verificationCode: certificate.verificationCode,
+        finalGrade: certificate.finalGrade,
+        issuedAt: certificate.issuedAt,
+        pdfUrl: certificate.pdfUrl,
+    } : null;
 
     return (
         <LmsStudentView
@@ -109,6 +124,7 @@ export default async function StudentAulaCoursePage({ params }: PageProps) {
             progressPct={enrollment?.progressPct ?? 0}
             enrollmentStatus={enrollment?.status ?? null}
             isEnrolled={!!enrollment}
+            certificate={activeCertificate}
         />
     );
 }

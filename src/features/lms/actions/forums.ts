@@ -576,3 +576,92 @@ export async function editLmsForumPost(
         return fail<{ id: string }>(toActionError(error, 'No se pudo editar el post'));
     }
 }
+
+// ─── Student: Creación de hilos ────────────────────────────────────────────
+
+export async function createLmsThread(
+    data: unknown,
+): Promise<ActionResult<{ threadId: string }>> {
+    try {
+        const parsed = lmsForumThreadSchema.safeParse(data);
+        if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Datos inválidos');
+
+        const session = await import('@/features/exam-session/lib/session').then((m) =>
+            m.getStudentAuthSession(),
+        );
+        if (!session) return fail('No autenticado');
+
+        const forum = await prisma.lmsForum.findUnique({
+            where: { id: parsed.data.forumId },
+            select: {
+                archived: true,
+                courseId: true,
+                course: { select: { academicInstitutionId: true } },
+            },
+        });
+        if (!forum || forum.archived) return fail('Foro no disponible');
+
+        const student = await prisma.user.findUnique({
+            where: { id: session.studentId },
+            select: { academicInstitutionId: true },
+        });
+        if (student?.academicInstitutionId !== forum.course.academicInstitutionId) {
+            return fail('Sin acceso');
+        }
+
+        const thread = await prisma.lmsForumThread.create({
+            data: {
+                forumId: parsed.data.forumId,
+                title: parsed.data.title,
+                authorId: session.studentId,
+                lastPostAt: new Date(),
+                posts: {
+                    create: {
+                        authorId: session.studentId,
+                        body: sanitizeForumMarkdown(parsed.data.body),
+                    },
+                },
+            },
+            select: { id: true },
+        });
+
+        revalidatePath(`/aula/cursos/${forum.courseId}/foro`);
+        return ok({ threadId: thread.id });
+    } catch (err) {
+        return fail<{ threadId: string }>(toActionError(err, 'No se pudo crear el hilo'));
+    }
+}
+
+export { createLmsForumPost as createLmsPost };
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface ForumThread {
+    id: string;
+    title: string;
+    pinned: boolean;
+    locked: boolean;
+    lastPostAt: Date | null;
+    createdAt: Date;
+    authorId: string;
+    author: { name: string; lastname: string };
+    _count: { posts: number };
+}
+
+export interface ForumWithThreads {
+    id: string;
+    title: string;
+    description: string | null;
+    archived?: boolean;
+    threads: ForumThread[];
+}
+
+export interface ForumPost {
+    id: string;
+    parentPostId: string | null;
+    body: string;
+    editedAt: Date | null;
+    createdAt: Date;
+    authorId: string;
+    author: { name: string; lastname: string };
+}

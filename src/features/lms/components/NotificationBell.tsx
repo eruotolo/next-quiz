@@ -116,6 +116,7 @@ export function NotificationBell({ initialNotifications, initialUnreadCount }: P
                             </div>
                         ) : (
                             notifications.map((n) => {
+                                // biome-ignore lint/correctness/useJsxKeyInIterable: key is on the outer Link/div wrapper
                                 const inner = (
                                     <div
                                         className={cn(

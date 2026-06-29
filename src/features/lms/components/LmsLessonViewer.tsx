@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { CheckCircle2, ArrowLeft, FileText, Link2, ClipboardList, Radio, PlayCircle } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, FileText, Link2, ClipboardList, Radio, PlayCircle, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
@@ -38,6 +38,7 @@ interface Props {
         title: string;
         type: LessonType;
         contentJson: unknown | null;
+        summaryJson: unknown | null;
         videoAssetId: string | null;
         fileUrl: string | null;
         externalLink: string | null;
@@ -146,7 +147,12 @@ export function LmsLessonViewer({
                     )}
 
                     {lesson.type === 'TEXTO' && (
-                        <RichTextContent contentJson={lesson.contentJson} />
+                        <>
+                            <RichTextContent contentJson={lesson.contentJson} />
+                            {lesson.summaryJson && (
+                                <LessonAiSummary summaryJson={lesson.summaryJson} />
+                            )}
+                        </>
                     )}
 
                     {lesson.type === 'ENLACE' && lesson.externalLink && (
@@ -276,6 +282,46 @@ function extractText(node: unknown): string {
             .join(n.type === 'paragraph' ? '\n' : '');
     }
     return '';
+}
+
+interface LessonSummaryData {
+    summary: string;
+    keyPoints: string[];
+}
+
+function parseSummaryJson(raw: unknown): LessonSummaryData | null {
+    if (!raw || typeof raw !== 'object') return null;
+    const data = raw as Record<string, unknown>;
+    if (typeof data.summary !== 'string') return null;
+    const keyPoints = Array.isArray(data.keyPoints)
+        ? data.keyPoints.filter((k): k is string => typeof k === 'string')
+        : [];
+    return { summary: data.summary, keyPoints };
+}
+
+function LessonAiSummary({ summaryJson }: { summaryJson: unknown }) {
+    const data = parseSummaryJson(summaryJson);
+    if (!data) return null;
+
+    return (
+        <div className="mt-8 rounded-[12px] border border-violet-200 bg-violet-50 p-5">
+            <div className="mb-3 flex items-center gap-2">
+                <Sparkles size={15} className="text-violet-600" />
+                <p className="text-sm font-semibold text-violet-800">Resumen generado por IA</p>
+            </div>
+            <p className="text-sm leading-relaxed text-violet-900">{data.summary}</p>
+            {data.keyPoints.length > 0 && (
+                <ul className="mt-3 space-y-1.5">
+                    {data.keyPoints.map((point, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-violet-800">
+                            <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-violet-500" />
+                            {point}
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
 }
 
 function lessonTypeLabel(t: LessonType): string {

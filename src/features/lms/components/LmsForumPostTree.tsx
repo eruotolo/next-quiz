@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import type { ForumPost } from '@/features/lms/actions/forum';
-import { createLmsPost } from '@/features/lms/actions/forum';
+import type { ForumPost } from '@/features/lms/actions/forums';
+import { createLmsPost } from '@/features/lms/actions/forums';
 import { Button } from '@/shared/components/ui/button';
 import { Textarea } from '@/shared/components/ui/textarea';
 import { Loader2, CornerDownRight } from 'lucide-react';

@@ -428,3 +428,29 @@ export async function reorderLmsLessons(
         return fail(toActionError(err, 'Error al reordenar lecciones.'));
     }
 }
+
+// ─── Course settings toggles ──────────────────────────────────────────────────
+
+export async function toggleLmsCourseSetting(
+    slug: string,
+    courseId: string,
+    setting: 'certificateEnabled' | 'aiSummaryEnabled',
+    value: boolean,
+): Promise<ActionResult> {
+    try {
+        const ctx = await requireInstitutionAccess(slug, [
+            USER_ROLE.ADMIN,
+            USER_ROLE.SUPER_ADMIN,
+            USER_ROLE.PROFESOR,
+        ]);
+        const res = await prisma.lmsCourse.updateMany({
+            where: { id: courseId, academicInstitutionId: ctx.institutionId },
+            data: { [setting]: value },
+        });
+        if (res.count === 0) return fail('Curso no encontrado.');
+        revalidatePath(`/${slug}/aula/${courseId}`);
+        return ok(null);
+    } catch (err) {
+        return fail(toActionError(err, 'Error al actualizar la configuración.'));
+    }
+}

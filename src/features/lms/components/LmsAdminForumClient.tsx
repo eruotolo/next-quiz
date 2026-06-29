@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import type { ForumThread, ForumWithThreads } from '@/features/lms/actions/forum';
+import type { ForumThread, ForumWithThreads } from '@/features/lms/actions/forums';
 import {
-    pinLmsThread,
-    lockLmsThread,
+    toggleForumThreadPin,
+    toggleForumThreadLock,
     createLmsForum,
-} from '@/features/lms/actions/forum';
+} from '@/features/lms/actions/forums';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Card } from '@/shared/components/ui/card';
@@ -161,7 +161,7 @@ export function LmsAdminForumClient({ slug, courseId, forums: initialForums }: P
     const handleCreateForum = () => {
         if (!newForumTitle.trim()) return;
         startTransition(async () => {
-            const result = await createLmsForum(slug, courseId, { title: newForumTitle.trim() });
+            const result = await createLmsForum(slug, { courseId, title: newForumTitle.trim() });
             if (result.error) {
                 toast.error(result.error);
                 return;
@@ -175,7 +175,7 @@ export function LmsAdminForumClient({ slug, courseId, forums: initialForums }: P
 
     const handlePin = (threadId: string, pinned: boolean) => {
         startTransition(async () => {
-            const result = await pinLmsThread(slug, threadId, !pinned);
+            const result = await toggleForumThreadPin(slug, threadId);
             if (result.error) toast.error(result.error);
             else {
                 toast.success(pinned ? 'Hilo desanclado' : 'Hilo anclado');
@@ -186,7 +186,7 @@ export function LmsAdminForumClient({ slug, courseId, forums: initialForums }: P
 
     const handleLock = (threadId: string, locked: boolean) => {
         startTransition(async () => {
-            const result = await lockLmsThread(slug, threadId, !locked);
+            const result = await toggleForumThreadLock(slug, threadId);
             if (result.error) toast.error(result.error);
             else {
                 toast.success(locked ? 'Hilo abierto' : 'Hilo cerrado');

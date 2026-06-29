@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { BookOpen, CheckCircle2, PlayCircle, FileText, Link2, ClipboardList, Radio, Lock } from 'lucide-react';
+import { BookOpen, CheckCircle2, PlayCircle, FileText, Link2, ClipboardList, Radio, Lock, Award } from 'lucide-react';
 import { Card } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
@@ -20,6 +20,13 @@ interface Module extends LmsModule {
     lessons: Lesson[];
 }
 
+interface Certificate {
+    verificationCode: string;
+    finalGrade: number | null;
+    issuedAt: Date;
+    pdfUrl: string | null;
+}
+
 interface Props {
     institutionSlug: string;
     courseId: string;
@@ -30,6 +37,7 @@ interface Props {
     progressPct: number;
     enrollmentStatus: EnrollmentStatus | null;
     isEnrolled: boolean;
+    certificate?: Certificate | null;
 }
 
 const LESSON_ICON: Record<LessonType, React.ComponentType<{ size?: number }>> = {
@@ -52,6 +60,7 @@ export function LmsStudentView({
     progressPct,
     enrollmentStatus,
     isEnrolled,
+    certificate = null,
 }: Props) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
@@ -135,6 +144,51 @@ export function LmsStudentView({
                     )}
                 </div>
             </Card>
+
+            {certificate && (
+                <Card className="border-amber-200 bg-amber-50 p-5 shadow-sm">
+                    <div className="flex items-start gap-4">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100">
+                            <Award size={20} className="text-amber-600" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-amber-900 font-display text-base font-bold">
+                                ¡Certificado obtenido!
+                            </p>
+                            <p className="text-amber-800 mt-0.5 text-sm">
+                                {certificate.finalGrade !== null
+                                    ? `Nota final: ${certificate.finalGrade.toFixed(1)}`
+                                    : 'Curso aprobado'}
+                                {' · '}
+                                Emitido el{' '}
+                                {new Intl.DateTimeFormat('es-CL', { dateStyle: 'long' }).format(
+                                    new Date(certificate.issuedAt),
+                                )}
+                            </p>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                <a
+                                    href={`/certificado/${certificate.verificationCode}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-amber-900 border-amber-300 hover:bg-amber-100 rounded-[8px] border bg-white px-3 py-1.5 text-xs font-medium transition-colors"
+                                >
+                                    Ver certificado
+                                </a>
+                                {certificate.pdfUrl && (
+                                    <a
+                                        href={certificate.pdfUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-amber-900 border-amber-300 hover:bg-amber-100 rounded-[8px] border bg-white px-3 py-1.5 text-xs font-medium transition-colors"
+                                    >
+                                        Descargar PDF
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            )}
 
             <div className="flex flex-col gap-4">
                 {modules.length === 0 ? (

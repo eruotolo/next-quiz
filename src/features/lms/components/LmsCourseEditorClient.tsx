@@ -22,11 +22,14 @@ import {
     createLmsModule,
     deleteLmsModule,
     reorderLmsModules,
+    toggleLmsCourseSetting,
 } from '@/features/lms/actions/courses';
+import { generateLessonSummary } from '@/features/lms/actions/lesson-summary';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
-import { GripVertical, Plus, Trash2, BookOpen, FileText, Video, Link2, ClipboardList, Radio, ChevronDown, ChevronRight } from 'lucide-react';
+import { Switch } from '@/shared/components/ui/switch';
+import { GripVertical, Plus, Trash2, BookOpen, FileText, Video, Link2, ClipboardList, Radio, ChevronDown, ChevronRight, Award, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
@@ -44,6 +47,8 @@ interface Props {
     slug: string;
     courseId: string;
     modules: ModuleWithLessons[];
+    certificateEnabled: boolean;
+    aiSummaryEnabled: boolean;
 }
 
 const LESSON_TYPE_LABEL: Record<LessonType, string> = {
@@ -73,6 +78,9 @@ function SortableModuleRow({
     onAddLesson,
     onDeleteLesson,
     onDeleteModule,
+    onGenerateSummary,
+    aiSummaryEnabled,
+    generatingId,
 }: {
     module: ModuleWithLessons;
     onToggleExpand: (id: string) => void;
@@ -80,6 +88,9 @@ function SortableModuleRow({
     onAddLesson: (moduleId: string) => void;
     onDeleteLesson: (lessonId: string, title: string) => void;
     onDeleteModule: (moduleId: string, title: string) => void;
+    onGenerateSummary: (lessonId: string) => void;
+    aiSummaryEnabled: boolean;
+    generatingId: string | null;
 }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: module.id,
@@ -157,6 +168,20 @@ function SortableModuleRow({
                                     <span className="text-mute font-mono text-[10px] tracking-wider uppercase">
                                         {LESSON_TYPE_LABEL[l.type]}
                                     </span>
+                                    {aiSummaryEnabled && l.type === 'TEXTO' && (
+                                        <Button
+                                            size="icon-sm"
+                                            variant="ghost"
+                                            onClick={() => onGenerateSummary(l.id)}
+                                            disabled={generatingId === l.id}
+                                            title="Generar resumen IA"
+                                            className="text-violet-600 hover:text-violet-700"
+                                        >
+                                            {generatingId === l.id
+                                                ? <Loader2 size={12} className="animate-spin" />
+                                                : <Sparkles size={12} />}
+                                        </Button>
+                                    )}
                                     <Button
                                         size="icon-sm"
                                         variant="ghost"
@@ -176,13 +201,16 @@ function SortableModuleRow({
     );
 }
 
-export function LmsCourseEditorClient({ slug, courseId, modules }: Props) {
+export function LmsCourseEditorClient({ slug, courseId, modules, certificateEnabled, aiSummaryEnabled }: Props) {
     const router = useRouter();
     const [items, setItems] = useState<ModuleWithLessons[]>(modules);
     const [expanded, setExpanded] = useState<Set<string>>(new Set(modules.map((m) => m.id)));
     const [newTitle, setNewTitle] = useState('');
     const [showNew, setShowNew] = useState(false);
     const [isPending, startTransition] = useTransition();
+    const [certEnabled, setCertEnabled] = useState(certificateEnabled);
+    const [aiEnabled, setAiEnabled] = useState(aiSummaryEnabled);
+    const [summaryLoadingId, setSummaryLoadingId] = useState<string | null>(null);
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -273,7 +301,87 @@ export function LmsCourseEditorClient({ slug, courseId, modules }: Props) {
         });
     };
 
+    const handleToggleCert = (value: boolean) => {
+        setCertEnabled(value);
+        startTransition(async () => {
+            const result = await toggleLmsCourseSetting(slug, courseId, 'certificateEnabled', value);
+            if (result.error) {
+                toast.error(result.error);
+                setCertEnabled(!value);
+            } else {
+                toast.success(value ? 'Certificados habilitados' : 'Certificados deshabilitados');
+            }
+        });
+    };
+
+    const handleToggleAi = (value: boolean) => {
+        setAiEnabled(value);
+        startTransition(async () => {
+            const result = await toggleLmsCourseSetting(slug, courseId, 'aiSummaryEnabled', value);
+            if (result.error) {
+                toast.error(result.error);
+                setAiEnabled(!value);
+            } else {
+                toast.success(value ? 'Resúmenes IA habilitados' : 'Resúmenes IA deshabilitados');
+            }
+        });
+    };
+
+    const handleGenerateSummary = async (lessonId: string) => {
+        setSummaryLoadingId(lessonId);
+        try {
+            const result = await generateLessonSummary(slug, lessonId);
+            if (result.error) {
+                toast.error(result.error);
+            } else {
+                toast.success('Resumen generado correctamente');
+                router.refresh();
+            }
+        } finally {
+            setSummaryLoadingId(null);
+        }
+    };
+
     return (
+        <div className="flex flex-col gap-6">
+        {/* Course settings */}
+        <Card className="border-border divide-border divide-y p-0 shadow-sm">
+            <div className="flex items-center justify-between px-5 py-4">
+                <div className="flex items-center gap-3">
+                    <div className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-full">
+                        <Award size={15} />
+                    </div>
+                    <div>
+                        <p className="text-ink text-sm font-semibold">Certificados automáticos</p>
+                        <p className="text-mute text-xs">Emite PDF al estudiante cuando aprueba el examen del curso.</p>
+                    </div>
+                </div>
+                <Switch
+                    checked={certEnabled}
+                    onCheckedChange={handleToggleCert}
+                    disabled={isPending}
+                    aria-label="Habilitar certificados"
+                />
+            </div>
+            <div className="flex items-center justify-between px-5 py-4">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-100 text-violet-600">
+                        <Sparkles size={15} />
+                    </div>
+                    <div>
+                        <p className="text-ink text-sm font-semibold">Resúmenes IA (Gemini)</p>
+                        <p className="text-mute text-xs">Genera resúmenes automáticos para lecciones de texto.</p>
+                    </div>
+                </div>
+                <Switch
+                    checked={aiEnabled}
+                    onCheckedChange={handleToggleAi}
+                    disabled={isPending}
+                    aria-label="Habilitar resúmenes IA"
+                />
+            </div>
+        </Card>
+
         <Card className="border-border p-6 shadow-sm">
             <div className="mb-4 flex items-center justify-between">
                 <div>
@@ -338,6 +446,9 @@ export function LmsCourseEditorClient({ slug, courseId, modules }: Props) {
                                     onAddLesson={handleAddLesson}
                                     onDeleteLesson={handleDeleteLesson}
                                     onDeleteModule={handleDeleteModule}
+                                    onGenerateSummary={handleGenerateSummary}
+                                    aiSummaryEnabled={aiEnabled}
+                                    generatingId={summaryLoadingId}
                                 />
                             ))}
                         </div>
@@ -345,5 +456,6 @@ export function LmsCourseEditorClient({ slug, courseId, modules }: Props) {
                 </DndContext>
             )}
         </Card>
+        </div>
     );
 }

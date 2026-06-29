@@ -12,6 +12,7 @@ import {
     syncExamGrade,
 } from '@/features/lms/lib/gradebook';
 import { awardPointsForEvent } from '@/features/lms/lib/points-engine';
+import { tryIssueCertificate } from '@/features/lms/lib/certificate-issuer';
 import { logAudit } from '@/shared/lib/audit';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
@@ -310,6 +311,14 @@ export async function syncExamGrades(
                     sourceId: r.studentId,
                     dedupeKey: `EXAM_PASSED:${item.examId}:${r.studentId}`,
                 }).catch((err) => console.error('[gamification] EXAM_PASSED failed', err));
+
+                // Fase 5: emisión de certificado si el curso lo habilita.
+                void tryIssueCertificate({
+                    userId: r.studentId,
+                    courseId: item.courseId,
+                    finalGrade: normalizedScore,
+                    slug,
+                }).catch((err) => console.error('[certificates] issue failed', err));
             }
 
             synced += 1;

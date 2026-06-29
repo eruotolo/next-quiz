@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import type { ForumWithThreads } from '@/features/lms/actions/forum';
-import { createLmsThread } from '@/features/lms/actions/forum';
+import type { ForumWithThreads } from '@/features/lms/actions/forums';
+import { createLmsThread } from '@/features/lms/actions/forums';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Textarea } from '@/shared/components/ui/textarea';

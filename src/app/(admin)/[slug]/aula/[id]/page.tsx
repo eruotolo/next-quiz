@@ -13,7 +13,7 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
 
     const course = await prisma.lmsCourse.findFirst({
         where: { id, academicInstitutionId: institutionId },
-        select: { id: true, title: true, description: true, published: true },
+        select: { id: true, title: true, description: true, published: true, certificateEnabled: true, aiSummaryEnabled: true },
     });
     if (!course) notFound();
 
@@ -42,6 +42,7 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
                     durationSec: true,
                     examId: true,
                     contentJson: true,
+                    summaryJson: true,
                     moduleId: true,
                     createdAt: true,
                     updatedAt: true,
@@ -53,13 +54,27 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
 
     return (
         <main className="flex-1 overflow-auto p-8">
-            <div className="mb-6">
-                <h1 className="text-ink font-display text-3xl font-bold">{course.title}</h1>
-                {course.description && (
-                    <p className="text-mute mt-1 text-sm">{course.description}</p>
-                )}
+            <div className="mb-6 flex items-start justify-between gap-3">
+                <div>
+                    <h1 className="text-ink font-display text-3xl font-bold">{course.title}</h1>
+                    {course.description && (
+                        <p className="text-mute mt-1 text-sm">{course.description}</p>
+                    )}
+                </div>
+                <a
+                    href={`/${slug}/aula/${id}/clases` as `/${string}`}
+                    className="text-ink-dim hover:text-ink border-border bg-white hover:bg-paper rounded-md border px-3 py-1.5 text-sm font-medium"
+                >
+                    Clases en vivo
+                </a>
             </div>
-            <LmsCourseEditorClient slug={slug} courseId={id} modules={modules} />
+            <LmsCourseEditorClient
+                slug={slug}
+                courseId={id}
+                modules={modules}
+                certificateEnabled={course.certificateEnabled}
+                aiSummaryEnabled={course.aiSummaryEnabled}
+            />
         </main>
     );
 }
