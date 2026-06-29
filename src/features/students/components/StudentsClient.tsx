@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import {
     createStudent,
@@ -105,6 +105,7 @@ interface Props {
     canDelete: boolean;
     canToggleActive: boolean;
     isProfesor: boolean;
+    isDemo?: boolean;
 }
 
 interface FormState {
@@ -136,6 +137,7 @@ export function StudentsClient({
     canDelete: _canDelete,
     canToggleActive,
     isProfesor,
+    isDemo,
 }: Props) {
     const router = useRouter();
     const [page, setPage] = useState(1);
@@ -536,7 +538,7 @@ export function StudentsClient({
         <>
             {/* Filter bar + actions */}
             <div className="border-border flex items-center gap-2 border-b bg-white px-8 py-4">
-                <div className="relative max-w-sm flex-1">
+                <div data-tour="student-filters" className="relative max-w-sm flex-1">
                     <Search className="text-mute absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                     <Input
                         placeholder="Buscar por nombre, email o RUT…"
@@ -599,7 +601,7 @@ export function StudentsClient({
                             <Upload size={15} />
                             Importar Excel
                         </Button>
-                        <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
+                        <Button data-tour="student-actions" variant="ink" size="md" onClick={openCreate} className="gap-2">
                             <Plus size={16} />
                             Agregar estudiante
                         </Button>
@@ -636,7 +638,7 @@ export function StudentsClient({
                         )}
                     </Card>
                 ) : (
-                    <Card className="border-border overflow-visible p-0 shadow-sm">
+                    <Card data-tour="student-table" className="border-border overflow-visible p-0 shadow-sm">
                         <Table>
                             <TableHeader className="bg-paper">
                                 <TableRow className="border-border border-b hover:bg-transparent">
@@ -820,6 +822,7 @@ export function StudentsClient({
                                                     <DropdownMenuItem
                                                         onClick={() => openEdit(s)}
                                                         className="cursor-pointer gap-2 py-2"
+                                                        disabled={isDemo}
                                                     >
                                                         <Edit2 size={14} /> Editar
                                                     </DropdownMenuItem>
@@ -827,6 +830,7 @@ export function StudentsClient({
                                                         <DropdownMenuItem
                                                             onClick={() => handleToggleActive(s)}
                                                             className="cursor-pointer gap-2 py-2"
+                                                            disabled={isDemo}
                                                         >
                                                             <Power size={14} />{' '}
                                                             {s.active ? 'Desactivar' : 'Activar'}
@@ -835,6 +839,7 @@ export function StudentsClient({
                                                     <DropdownMenuItem
                                                         onClick={() => openDelete(s)}
                                                         className="text-destructive focus:bg-danger-wash focus:text-destructive cursor-pointer gap-2 py-2"
+                                                        disabled={isDemo}
                                                     >
                                                         <Trash2 size={14} /> Eliminar
                                                     </DropdownMenuItem>
@@ -889,6 +894,7 @@ export function StudentsClient({
                                         errors.name && 'border-destructive',
                                     )}
                                     autoFocus
+                                    disabled={isDemo}
                                 />
                                 {errors.name && (
                                     <p className="text-destructive text-xs font-medium">
@@ -911,6 +917,7 @@ export function StudentsClient({
                                         'border-border h-11 rounded-[10px] bg-white',
                                         errors.lastname && 'border-destructive',
                                     )}
+                                    disabled={isDemo}
                                 />
                                 {errors.lastname && (
                                     <p className="text-destructive text-xs font-medium">
@@ -932,6 +939,7 @@ export function StudentsClient({
                                     'border-border h-11 rounded-[10px] bg-white',
                                     errors.email && 'border-destructive',
                                 )}
+                                disabled={isDemo}
                             />
                             {errors.email && (
                                 <p className="text-destructive text-xs font-medium">
@@ -945,6 +953,7 @@ export function StudentsClient({
                                 value={form.rut}
                                 onChange={(v) => setField('rut', v)}
                                 className="border-border h-11 rounded-[10px] bg-white"
+                                disabled={isDemo}
                             />
                             {errors.rut && (
                                 <p className="text-destructive text-[12px]">{errors.rut}</p>
@@ -958,6 +967,7 @@ export function StudentsClient({
                                 placeholder="Seleccioná un grupo"
                                 options={groups.map((g) => ({ value: g.id, label: g.name }))}
                                 className={errors.groupId ? 'ring-destructive ring-1' : undefined}
+                                disabled={isDemo}
                             />
                             {errors.groupId && (
                                 <p className="text-destructive text-xs font-medium">
@@ -967,6 +977,11 @@ export function StudentsClient({
                         </div>
                     </div>
                     <DialogFooter className="gap-2 sm:justify-end">
+                        {isDemo && (
+                            <p className="text-muted-foreground mr-auto text-xs">
+                                En modo demo no podés guardar cambios.
+                            </p>
+                        )}
                         <Button
                             variant="ghost"
                             size="md"
@@ -975,7 +990,7 @@ export function StudentsClient({
                         >
                             Cancelar
                         </Button>
-                        <Button variant="ink" size="md" disabled={isPending} onClick={handleSave}>
+                        <Button variant="ink" size="md" disabled={isPending || isDemo} onClick={handleSave}>
                             {isPending && <Loader2 className="mr-2 animate-spin" />}
                             {editing ? 'Guardar cambios' : 'Crear estudiante'}
                         </Button>
@@ -1115,7 +1130,8 @@ export function StudentsClient({
                         <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
-                            className="border-border bg-paper-warm/30 hover:bg-paper-warm/50 group flex flex-col items-center gap-4 rounded-[22px] border-2 border-dashed py-12 transition-colors"
+                            disabled={isDemo}
+                            className="border-border bg-paper-warm/30 hover:bg-paper-warm/50 disabled:opacity-50 group flex flex-col items-center gap-4 rounded-[22px] border-2 border-dashed py-12 transition-colors"
                         >
                             <div className="ring-border rounded-full bg-white p-4 shadow-sm ring-1 transition-transform group-hover:scale-110">
                                 <Upload size={28} className="text-primary" />
@@ -1154,7 +1170,7 @@ export function StudentsClient({
                                     <Button
                                         variant="primary"
                                         size="md"
-                                        disabled={isPending}
+                                        disabled={isPending || isDemo}
                                         onClick={handleImport}
                                     >
                                         {isPending && <Loader2 className="mr-2 animate-spin" />}

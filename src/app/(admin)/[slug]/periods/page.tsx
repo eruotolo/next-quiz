@@ -10,7 +10,7 @@ interface Props {
 
 export default async function PeriodsPage({ params }: Props) {
     const { slug } = await params;
-    const { institutionId, institutionName, userRole } = await requireInstitutionPageAccess(slug);
+    const { institutionId, institutionName, userRole, isDemo } = await requireInstitutionPageAccess(slug);
 
     const canMutate = userRole === USER_ROLE.ADMIN || userRole === USER_ROLE.SUPER_ADMIN;
 
@@ -26,7 +26,7 @@ export default async function PeriodsPage({ params }: Props) {
                 breadcrumb={[institutionName, 'Períodos']}
                 subtitle={`${periods.length} períodos registrados`}
             />
-            <PeriodsClient slug={slug} periods={periods} canMutate={canMutate} />
+            <PeriodsClient slug={slug} periods={periods} canMutate={canMutate} isDemo={isDemo} />
         </>
     );
 }

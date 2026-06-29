@@ -357,7 +357,7 @@ export function ResultsClient({
 
                 {/* Filters */}
                 {examOptions.length > 0 && (
-                    <div className="border-border flex flex-wrap items-center gap-3 rounded-[14px] border bg-white px-4 py-3 shadow-sm">
+                    <div data-tour="results-filters" className="border-border flex flex-wrap items-center gap-3 rounded-[14px] border bg-white px-4 py-3 shadow-sm">
                         <span className="text-mute font-mono text-[10px] font-bold tracking-widest uppercase">
                             Filtrar por:
                         </span>
@@ -468,7 +468,7 @@ export function ResultsClient({
                         </p>
                     </Card>
                 ) : (
-                    <div className="space-y-10">
+                    <div data-tour="results-table" className="space-y-10">
                         {visibleExamGroups.map((data) => (
                             <div key={`${data.examId}-${data.groupId}`} className="space-y-4">
                                 <div className="flex items-end justify-between px-2">

@@ -20,9 +20,10 @@ interface Props {
     slug: string;
     /** Label dinámico singular ("Carrera" / "Nivel"…). */
     label: string;
+    isDemo?: boolean;
 }
 
-export function NewProgramButton({ slug, label }: Props) {
+export function NewProgramButton({ slug, label, isDemo }: Props) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [name, setName] = useState('');
@@ -99,6 +100,7 @@ export function NewProgramButton({ slug, label }: Props) {
                                     error && 'border-destructive',
                                 )}
                                 autoFocus
+                                disabled={isDemo}
                             />
                             {error && (
                                 <p className="text-destructive text-xs font-medium">{error}</p>
@@ -114,6 +116,7 @@ export function NewProgramButton({ slug, label }: Props) {
                                 value={code}
                                 onChange={(e) => setCode(e.target.value)}
                                 className="border-border h-11 rounded-[10px] bg-white"
+                                disabled={isDemo}
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -126,11 +129,17 @@ export function NewProgramButton({ slug, label }: Props) {
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 className="border-border rounded-[10px] bg-white"
+                                disabled={isDemo}
                             />
                         </div>
                     </div>
 
                     <DialogFooter className="border-border gap-2 border-t bg-white px-6 py-4">
+                        {isDemo && (
+                            <p className="text-muted-foreground mr-auto text-xs">
+                                En modo demo no podés guardar cambios.
+                            </p>
+                        )}
                         <Button
                             variant="ghost"
                             size="md"
@@ -139,7 +148,7 @@ export function NewProgramButton({ slug, label }: Props) {
                         >
                             Cancelar
                         </Button>
-                        <Button variant="ink" size="md" disabled={isPending} onClick={handleSave}>
+                        <Button variant="ink" size="md" disabled={isPending || isDemo} onClick={handleSave}>
                             {isPending && <Loader2 className="mr-2 animate-spin" />}
                             Crear {lower}
                         </Button>

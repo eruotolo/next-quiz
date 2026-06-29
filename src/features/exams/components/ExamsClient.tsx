@@ -278,11 +278,14 @@ export function ExamsClient({
     exams,
     groups,
     courseSections,
+    isProfesor: _isProfesor,
+    isDemo,
 }: {
     exams: ExamWithCount[];
     groups: Group[];
     courseSections: CourseOption[];
     isProfesor: boolean;
+    isDemo?: boolean;
 }) {
     const router = useRouter();
     const { slug } = useParams<{ slug: string }>();
@@ -323,6 +326,7 @@ export function ExamsClient({
     };
 
     const toggleGroup = (id: string): void => {
+        if (isDemo) return;
         setForm((f) => ({
             ...f,
             groupIds: f.groupIds.includes(id)
@@ -481,7 +485,7 @@ export function ExamsClient({
         <>
             {/* Filter + Search bar */}
             <div className="border-border flex items-center justify-between gap-4 border-b bg-white px-8 py-3">
-                <div className="flex items-center gap-1">
+                <div data-tour="exam-status-tabs" className="flex items-center gap-1">
                     <button
                         type="button"
                         onClick={() => {
@@ -621,7 +625,7 @@ export function ExamsClient({
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
+                    <Button data-tour="exam-new-btn" variant="ink" size="md" onClick={openCreate} className="gap-2">
                         <Plus size={16} />
                         Nuevo examen
                     </Button>
@@ -631,7 +635,7 @@ export function ExamsClient({
             {/* List */}
             <main className="flex-1 overflow-auto p-8">
                 {/* Stats tiles */}
-                <div className="mb-6 grid grid-cols-4 gap-3">
+                <div data-tour="exam-stats" className="mb-6 grid grid-cols-4 gap-3">
                     {(
                         [
                             {
@@ -725,7 +729,7 @@ export function ExamsClient({
                         )}
                     </Card>
                 ) : (
-                    <div className="flex flex-col gap-2">
+                    <div data-tour="exam-list" className="flex flex-col gap-2">
                         {pagedExams.map((exam) => {
                             const status = deriveExamStatus(exam);
                             const { tone, label: statusLabel } = STATUS_BADGE_CONFIG[status];
@@ -832,6 +836,7 @@ export function ExamsClient({
                                                 <DropdownMenuItem
                                                     onClick={() => setImportExamId(exam.id)}
                                                     className="cursor-pointer gap-2 py-2.5"
+                                                    disabled={isDemo}
                                                 >
                                                     <Upload size={14} />
                                                     Importar preguntas
@@ -846,6 +851,7 @@ export function ExamsClient({
                                                 <DropdownMenuItem
                                                     onClick={() => openToggle(exam)}
                                                     className="cursor-pointer gap-2 py-2.5"
+                                                    disabled={isDemo}
                                                 >
                                                     <Power size={14} />
                                                     {exam.active ? 'Despublicar' : 'Publicar'}
@@ -853,6 +859,7 @@ export function ExamsClient({
                                                 <DropdownMenuItem
                                                     onClick={() => openDelete(exam)}
                                                     className="text-destructive focus:bg-danger-wash focus:text-destructive cursor-pointer gap-2 py-2.5"
+                                                    disabled={isDemo}
                                                 >
                                                     <Trash2 size={14} />
                                                     Eliminar evaluación
@@ -913,6 +920,7 @@ export function ExamsClient({
                                     errors.title && 'border-destructive',
                                 )}
                                 autoFocus
+                                disabled={isDemo}
                             />
                             {errors.title && (
                                 <p className="text-destructive text-xs font-medium">
@@ -929,6 +937,7 @@ export function ExamsClient({
                                 courseSectionId: form.courseSectionId,
                             }}
                             onChange={(patch) => {
+                                if (isDemo) return;
                                 setForm((f) => {
                                     const next = { ...f, ...patch };
                                     // Auto-selección del grupo asociado al ramo
@@ -1010,6 +1019,7 @@ export function ExamsClient({
                                     value={form.scheduledAt}
                                     onChange={(e) => setField('scheduledAt', e.target.value)}
                                     className="border-border h-11 rounded-[10px] bg-white"
+                                    disabled={isDemo}
                                 />
                                 <p className="text-mute text-[11px] leading-snug">
                                     Antes de esta fecha el examen no se puede rendir. Dejá vacío
@@ -1032,6 +1042,7 @@ export function ExamsClient({
                                         'border-border h-11 rounded-[10px] bg-white',
                                         errors.closesAt && 'border-destructive',
                                     )}
+                                    disabled={isDemo}
                                 />
                                 {errors.closesAt ? (
                                     <p className="text-destructive text-xs font-medium">
@@ -1065,6 +1076,7 @@ export function ExamsClient({
                                         'border-border h-11 rounded-[10px] bg-white pr-12',
                                         errors.timeLimit && 'border-destructive',
                                     )}
+                                    disabled={isDemo}
                                 />
                                 <span className="text-mute absolute top-1/2 right-4 -translate-y-1/2 text-[11px] font-bold uppercase">
                                     MIN
@@ -1091,6 +1103,7 @@ export function ExamsClient({
                                             key={mode.value}
                                             type="button"
                                             onClick={() => {
+                                                if (isDemo) return;
                                                 const flags = tabModeToFlags(mode.value);
                                                 setForm((f) => ({ ...f, ...flags }));
                                             }}
@@ -1149,6 +1162,7 @@ export function ExamsClient({
                                     checked={form.randomizeQuestions}
                                     onCheckedChange={(v) => setField('randomizeQuestions', v)}
                                     className="data-[state=checked]:bg-primary shrink-0"
+                                    disabled={isDemo}
                                 />
                             </div>
                         </div>
@@ -1172,6 +1186,7 @@ export function ExamsClient({
                                         value={form.maxGrade}
                                         onChange={(e) => setField('maxGrade', e.target.value)}
                                         className="h-10 rounded-[8px] text-center font-bold"
+                                        disabled={isDemo}
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1.5">
@@ -1188,6 +1203,7 @@ export function ExamsClient({
                                         value={form.passingGrade}
                                         onChange={(e) => setField('passingGrade', e.target.value)}
                                         className="h-10 rounded-[8px] text-center font-bold"
+                                        disabled={isDemo}
                                     />
                                 </div>
                                 <div className="flex flex-col gap-1.5">
@@ -1205,31 +1221,39 @@ export function ExamsClient({
                                             setField('passingPercentage', e.target.value)
                                         }
                                         className="h-10 rounded-[8px] text-center font-bold"
+                                        disabled={isDemo}
                                     />
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="border-border flex justify-end gap-2 border-t bg-white px-6 py-4">
-                        <Button
-                            variant="ghost"
-                            size="md"
-                            onClick={() => setIsOpen(false)}
-                            disabled={isPending}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            variant="ink"
-                            size="md"
-                            disabled={isPending}
-                            onClick={handleSave}
-                            className="min-w-[140px]"
-                        >
-                            {isPending && <Loader2 className="mr-2 animate-spin" />}
-                            {editing ? 'Guardar cambios' : 'Crear examen'}
-                        </Button>
+                    <div className="border-border flex items-center gap-2 border-t bg-white px-6 py-4">
+                        {isDemo && (
+                            <p className="text-muted-foreground mr-auto text-xs">
+                                En modo demo no podés guardar cambios.
+                            </p>
+                        )}
+                        <div className="ml-auto flex gap-2">
+                            <Button
+                                variant="ghost"
+                                size="md"
+                                onClick={() => setIsOpen(false)}
+                                disabled={isPending}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                variant="ink"
+                                size="md"
+                                disabled={isPending || isDemo}
+                                onClick={handleSave}
+                                className="min-w-[140px]"
+                            >
+                                {isPending && <Loader2 className="mr-2 animate-spin" />}
+                                {editing ? 'Guardar cambios' : 'Crear examen'}
+                            </Button>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>

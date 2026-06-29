@@ -91,6 +91,7 @@ interface Props {
     periods: PeriodInfo[];
     courseSections: CourseOption[];
     canMutate: boolean;
+    isDemo?: boolean;
 }
 
 const CARD_COLORS = ['#1F2EFF', '#7C5CFF', '#22C55E', '#FF5A4D', '#F59E0B'];
@@ -175,6 +176,7 @@ export function GroupsClient({
     periods,
     courseSections,
     canMutate,
+    isDemo,
 }: Props) {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
@@ -215,7 +217,7 @@ export function GroupsClient({
 
     return (
         <>
-            <main className="flex-1 overflow-auto p-8">
+            <main data-tour="groups-header" className="flex-1 overflow-auto p-8">
                 {groups.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
                         <Users size={48} className="text-mute/20 mb-4" />
@@ -236,7 +238,7 @@ export function GroupsClient({
                         )}
                     </Card>
                 ) : (
-                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <div data-tour="groups-list" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {groups.map((g, idx) => {
                             const color = CARD_COLORS[idx % CARD_COLORS.length];
                             const visibleStudents = g.users.slice(0, 5);
@@ -480,6 +482,7 @@ export function GroupsClient({
                 programs={programs}
                 periods={periods}
                 courseSections={courseSections}
+                disabled={isDemo}
             />
 
             {/* Delete confirm */}
@@ -505,7 +508,7 @@ export function GroupsClient({
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
                         <AlertDialogAction
-                            disabled={isPending}
+                            disabled={isPending || isDemo}
                             onClick={handleDelete}
                             className="bg-destructive hover:bg-destructive/90"
                         >

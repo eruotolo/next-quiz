@@ -601,6 +601,26 @@ export function Sidebar({
                                             counts={counts}
                                         />
                                     ))}
+                                    {section === 'sistema' && !isSuper && slug && (
+                                        <li>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    localStorage.removeItem('aulika-tour-seen-v1');
+                                                    window.dispatchEvent(
+                                                        new CustomEvent('aulika:start-tour'),
+                                                    );
+                                                }}
+                                                className="group flex w-full items-center gap-2.5 rounded-[8px] px-3 py-2.5 text-[13px] font-medium text-ink-dim transition-colors hover:bg-paper-warm hover:text-ink"
+                                            >
+                                                <Sparkles
+                                                    size={18}
+                                                    className="text-mute shrink-0 group-hover:text-ink-dim"
+                                                />
+                                                <span>Tour de bienvenida</span>
+                                            </button>
+                                        </li>
+                                    )}
                                 </ul>
                             </div>
                         );
@@ -702,7 +722,7 @@ export function Sidebar({
             </button>
 
             {/* Desktop sidebar */}
-            <aside className="border-border fixed inset-y-0 left-0 z-50 hidden w-60 flex-col border-r bg-white lg:flex">
+            <aside data-tour="sidebar" className="border-border fixed inset-y-0 left-0 z-50 hidden w-60 flex-col border-r bg-white lg:flex">
                 <SidebarInner />
             </aside>
 

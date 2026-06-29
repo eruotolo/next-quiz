@@ -59,6 +59,7 @@ interface Props {
     programs: ProgramInfo[];
     periods: PeriodInfo[];
     courseSections: CourseOption[];
+    disabled?: boolean;
 }
 
 const NO_TUTOR = '__none__';
@@ -74,6 +75,7 @@ export function GroupForm({
     programs,
     periods,
     courseSections,
+    disabled,
 }: Props) {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
@@ -183,6 +185,7 @@ export function GroupForm({
                                 error && 'border-destructive',
                             )}
                             autoFocus
+                            disabled={disabled}
                         />
                     </div>
                     <div className="flex flex-col gap-2">
@@ -198,6 +201,7 @@ export function GroupForm({
                             value={stream}
                             onChange={(e) => setStream(e.target.value)}
                             className="border-border h-11 rounded-[10px] bg-white"
+                            disabled={disabled}
                         />
                     </div>
 
@@ -216,6 +220,7 @@ export function GroupForm({
                                     label: `${p.name} ${p.lastname}`,
                                 })),
                             ]}
+                            disabled={disabled}
                         />
                     </div>
 
@@ -229,6 +234,7 @@ export function GroupForm({
                                 { value: NO_PROGRAM, label: 'Sin carrera / Transversal' },
                                 ...programs.map((p) => ({ value: p.id, label: p.name })),
                             ]}
+                            disabled={disabled}
                         />
                     </div>
 
@@ -242,6 +248,7 @@ export function GroupForm({
                                 { value: NO_PERIOD, label: 'Sin semestre' },
                                 ...periods.map((p) => ({ value: p.id, label: p.name })),
                             ]}
+                            disabled={disabled}
                         />
                     </div>
 
@@ -267,7 +274,7 @@ export function GroupForm({
                                             type="checkbox"
                                             checked={courseSectionIds.includes(c.id)}
                                             onChange={() => toggleCourse(c.id)}
-                                            disabled={coursesDisabled}
+                                            disabled={coursesDisabled || !!disabled}
                                         />
                                         {c.name}
                                     </label>
@@ -281,6 +288,11 @@ export function GroupForm({
                     )}
                 </div>
                 <DialogFooter className="gap-2">
+                    {disabled && (
+                        <p className="text-muted-foreground mr-auto text-xs">
+                            En modo demo no podés guardar cambios.
+                        </p>
+                    )}
                     <Button
                         variant="ghost"
                         size="md"
@@ -289,7 +301,7 @@ export function GroupForm({
                     >
                         Cancelar
                     </Button>
-                    <Button variant="ink" size="md" disabled={isPending} onClick={handleSave}>
+                    <Button variant="ink" size="md" disabled={isPending || !!disabled} onClick={handleSave}>
                         {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
                         {editing ? 'Guardar cambios' : 'Crear grupo'}
                     </Button>

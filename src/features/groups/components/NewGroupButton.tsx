@@ -8,9 +8,10 @@ import { useState, useTransition } from 'react';
 
 interface Props {
     slug: string;
+    isDemo?: boolean;
 }
 
-export function NewGroupButton({ slug }: Props) {
+export function NewGroupButton({ slug, isDemo }: Props) {
     const [open, setOpen] = useState(false);
     const [data, setData] = useState<GroupFormData | null>(null);
     const [isPending, startTransition] = useTransition();
@@ -47,6 +48,7 @@ export function NewGroupButton({ slug }: Props) {
                     programs={data.programs}
                     periods={data.periods}
                     courseSections={data.courseSections}
+                    disabled={isDemo}
                 />
             )}
         </>

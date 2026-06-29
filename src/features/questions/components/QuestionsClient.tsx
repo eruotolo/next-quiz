@@ -331,7 +331,7 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
     return (
         <>
             {/* Filter bar */}
-            <div className="border-border border-b bg-white px-8 py-4">
+            <div data-tour="questions-filters" className="border-border border-b bg-white px-8 py-4">
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="relative min-w-[220px] flex-1">
                         <Search className="text-mute absolute top-1/2 left-3 size-4 -translate-y-1/2" />
@@ -454,7 +454,7 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
                 )}
             </div>
 
-            <main className="flex-1 overflow-auto p-8">
+            <main data-tour="questions-list" className="flex-1 overflow-auto p-8">
                 {items.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
                         <Library size={48} className="text-mute/20 mb-4" />

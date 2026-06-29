@@ -57,6 +57,7 @@ interface Props {
     groups: Group[];
     canMutate: boolean;
     courseLabel: string;
+    isDemo?: boolean;
 }
 
 export function CoursesClient({
@@ -67,6 +68,7 @@ export function CoursesClient({
     groups,
     canMutate,
     courseLabel,
+    isDemo,
 }: Props) {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
@@ -187,8 +189,8 @@ export function CoursesClient({
                         )}
                     </Card>
                 ) : (
-                    <Card className="border-border overflow-hidden bg-white shadow-sm">
-                        <div className="border-border flex items-center justify-between border-b px-6 py-4">
+                    <Card data-tour="courses-list" className="border-border overflow-hidden bg-white shadow-sm">
+                        <div data-tour="courses-header" className="border-border flex items-center justify-between border-b px-6 py-4">
                             <h2 className="text-ink font-display text-xl font-bold capitalize">
                                 {courseLabel}s
                             </h2>
@@ -335,6 +337,7 @@ export function CoursesClient({
                                     setError(null);
                                 }}
                                 className="border-border h-11 rounded-[10px] bg-white"
+                                disabled={isDemo}
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -349,6 +352,7 @@ export function CoursesClient({
                                 value={code}
                                 onChange={(e) => setCode(e.target.value)}
                                 className="border-border h-11 rounded-[10px] bg-white"
+                                disabled={isDemo}
                             />
                         </div>
 
@@ -364,6 +368,7 @@ export function CoursesClient({
                                     ...programs.map((p) => ({ value: p.id, label: p.name })),
                                 ]}
                                 placeholder="Plan Común / Transversal"
+                                disabled={isDemo}
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -375,6 +380,7 @@ export function CoursesClient({
                                 onChange={setPeriodId}
                                 options={periods.map((p) => ({ value: p.id, label: p.name }))}
                                 placeholder="Seleccioná un período"
+                                disabled={isDemo}
                             />
                         </div>
 
@@ -393,6 +399,7 @@ export function CoursesClient({
                                     ...filteredGroups.map((g) => ({ value: g.id, label: g.name })),
                                 ]}
                                 placeholder="Sin grupo / Se creará automáticamente"
+                                disabled={isDemo}
                             />
                         </div>
 
@@ -403,6 +410,11 @@ export function CoursesClient({
                         )}
                     </div>
                     <DialogFooter>
+                        {isDemo && (
+                            <p className="text-muted-foreground mr-auto text-xs">
+                                En modo demo no podés guardar cambios.
+                            </p>
+                        )}
                         <Button
                             variant="ghost"
                             onClick={() => setIsOpen(false)}
@@ -410,7 +422,7 @@ export function CoursesClient({
                         >
                             Cancelar
                         </Button>
-                        <Button variant="ink" onClick={handleSave} disabled={isPending}>
+                        <Button variant="ink" onClick={handleSave} disabled={isPending || isDemo}>
                             {isPending && <Loader2 className="mr-2 animate-spin" />} Guardar
                         </Button>
                     </DialogFooter>
@@ -432,7 +444,7 @@ export function CoursesClient({
                         <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleDelete}
-                            disabled={isPending}
+                            disabled={isPending || isDemo}
                             className="bg-destructive hover:bg-destructive/90"
                         >
                             Eliminar

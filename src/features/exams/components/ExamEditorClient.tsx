@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { deleteQuestion, updateExam, upsertQuestion } from '@/features/exams/actions/mutations';
 import { copyBankQuestionToExam } from '@/features/questions/actions/mutations';
@@ -98,9 +98,11 @@ function defaultQuestionDraft(): QuestionDraft {
 export function ExamEditorClient({
     exam,
     subjects = [],
+    isDemo,
 }: {
     exam: ExamWithAll;
     subjects?: string[];
+    isDemo?: boolean;
 }) {
     const router = useRouter();
     const { slug } = useParams<{ slug: string }>();
@@ -123,6 +125,7 @@ export function ExamEditorClient({
     const [isTogglePending, startToggleTransition] = useTransition();
 
     const handleToggleRandomize = (value: boolean): void => {
+        if (isDemo) return;
         setRandomizeQuestions(value);
         startToggleTransition(async () => {
             try {
@@ -376,6 +379,7 @@ export function ExamEditorClient({
                     size="md"
                     onClick={() => setIsAiOpen(true)}
                     className="text-primary hover:bg-primary-wash gap-2"
+                    disabled={isDemo}
                 >
                     <Sparkles size={15} />
                     Generar con IA
@@ -385,15 +389,16 @@ export function ExamEditorClient({
                     size="md"
                     onClick={() => setIsImportOpen(true)}
                     className="gap-2"
+                    disabled={isDemo}
                 >
                     <Upload size={15} />
                     Importar
                 </Button>
-                <Button variant="ghost" size="md" onClick={openBankPicker} className="gap-2">
+                <Button variant="ghost" size="md" onClick={openBankPicker} className="gap-2" disabled={isDemo}>
                     <Library size={15} />
                     Desde banco
                 </Button>
-                <Button variant="ink" size="md" onClick={openNew} className="gap-2">
+                <Button variant="ink" size="md" onClick={openNew} className="gap-2" disabled={isDemo}>
                     <Plus size={15} />
                     Agregar pregunta
                 </Button>
@@ -451,6 +456,7 @@ export function ExamEditorClient({
                             size="sm"
                             onClick={openNew}
                             className="text-primary border-primary/20 hover:bg-primary-wash/40 w-full gap-2 border border-dashed font-bold"
+                            disabled={isDemo}
                         >
                             <Plus size={14} />
                             Nueva pregunta
@@ -470,7 +476,7 @@ export function ExamEditorClient({
                                 Agrega la primera o impórtalas en masa.
                             </p>
                             <div className="mt-6 flex gap-3">
-                                <Button variant="ink" size="md" onClick={openNew} className="gap-2">
+                                <Button variant="ink" size="md" onClick={openNew} className="gap-2" disabled={isDemo}>
                                     <Plus size={16} />
                                     Agregar pregunta
                                 </Button>
@@ -479,6 +485,7 @@ export function ExamEditorClient({
                                     size="md"
                                     onClick={() => setIsAiOpen(true)}
                                     className="text-primary hover:bg-primary-wash gap-2"
+                                    disabled={isDemo}
                                 >
                                     <Sparkles size={16} />
                                     Generar con IA
@@ -488,6 +495,7 @@ export function ExamEditorClient({
                                     size="md"
                                     onClick={openBankPicker}
                                     className="gap-2"
+                                    disabled={isDemo}
                                 >
                                     <Library size={16} />
                                     Desde banco
@@ -497,6 +505,7 @@ export function ExamEditorClient({
                                     size="md"
                                     onClick={() => setIsImportOpen(true)}
                                     className="gap-2"
+                                    disabled={isDemo}
                                 >
                                     <Upload size={16} />
                                     Importar
@@ -550,6 +559,7 @@ export function ExamEditorClient({
                                                 size="icon-sm"
                                                 className="text-mute hover:text-destructive hover:bg-danger-wash"
                                                 onClick={() => confirmDelete(q.id)}
+                                                disabled={isDemo}
                                             >
                                                 <Trash2 size={14} />
                                             </Button>
@@ -694,8 +704,8 @@ export function ExamEditorClient({
                                 <Switch
                                     checked={randomizeQuestions}
                                     onCheckedChange={handleToggleRandomize}
-                                    disabled={isTogglePending}
-                                    className="data-[state=checked]:bg-primary shrink-0"
+                                    disabled={isTogglePending || isDemo}
+                                    className="data-[state=checked]:bg-primary"
                                 />
                             </div>
                         </Card>
@@ -880,6 +890,7 @@ export function ExamEditorClient({
                                     qErrors.text && 'border-destructive',
                                 )}
                                 autoFocus
+                                disabled={isDemo}
                             />
                             {qErrors.text && (
                                 <p className="text-destructive text-xs font-medium">
@@ -904,6 +915,7 @@ export function ExamEditorClient({
                                     value={String(draft?.points ?? 1)}
                                     onChange={(e) => setDraftPoints(Number(e.target.value) || 1)}
                                     className="border-border h-11 w-[100px] rounded-[10px] bg-white text-center font-bold"
+                                    disabled={isDemo}
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
@@ -913,7 +925,10 @@ export function ExamEditorClient({
                                         <button
                                             key={t}
                                             type="button"
-                                            onClick={() => setDraftType(t)}
+                                            onClick={() => {
+                                                if (isDemo) return;
+                                                setDraftType(t);
+                                            }}
                                             className={cn(
                                                 'px-5 text-[13px] font-bold transition-colors',
                                                 draft?.questionType === t
@@ -945,6 +960,7 @@ export function ExamEditorClient({
                                         variant="ghost"
                                         className="text-primary gap-1.5 font-bold"
                                         onClick={addOption}
+                                        disabled={isDemo}
                                     >
                                         <Plus size={12} />
                                         Opción
@@ -961,7 +977,10 @@ export function ExamEditorClient({
                                     <div key={opt._key} className="flex items-center gap-2.5">
                                         <button
                                             type="button"
-                                            onClick={() => handleCorrectClick(i)}
+                                            onClick={() => {
+                                                if (isDemo) return;
+                                                handleCorrectClick(i);
+                                            }}
                                             className={cn(
                                                 'flex h-7 w-7 shrink-0 items-center justify-center border-2 text-[11px] font-bold transition-all',
                                                 isMultiple ? 'rounded-[6px]' : 'rounded-full',
@@ -980,12 +999,14 @@ export function ExamEditorClient({
                                                 'border-border h-10 flex-1 rounded-[8px] bg-white',
                                                 opt.isCorrect && 'bg-success/5 border-success/20',
                                             )}
+                                            disabled={isDemo}
                                         />
                                         {(draft?.options.length ?? 0) > 2 && (
                                             <button
                                                 type="button"
                                                 onClick={() => removeOption(i)}
-                                                className="text-mute hover:bg-danger-wash hover:text-destructive flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors"
+                                                className="text-mute hover:bg-danger-wash hover:text-destructive disabled:opacity-50 flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors"
+                                                disabled={isDemo}
                                             >
                                                 <X size={14} />
                                             </button>
@@ -995,25 +1016,32 @@ export function ExamEditorClient({
                             </div>
                         </div>
                     </div>
-                    <div className="border-border flex justify-end gap-2 border-t bg-white px-6 py-4">
-                        <Button
-                            variant="ghost"
-                            size="md"
-                            onClick={() => setIsOpen(false)}
-                            disabled={isPending}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            variant="ink"
-                            size="md"
-                            disabled={isPending}
-                            onClick={handleSaveQ}
-                            className="min-w-[140px]"
-                        >
-                            {isPending && <Loader2 className="mr-2 animate-spin" />}
-                            Guardar pregunta
-                        </Button>
+                    <div className="border-border flex items-center gap-2 border-t bg-white px-6 py-4">
+                        {isDemo && (
+                            <p className="text-muted-foreground mr-auto text-xs">
+                                En modo demo no podés guardar cambios.
+                            </p>
+                        )}
+                        <div className="ml-auto flex gap-2">
+                            <Button
+                                variant="ghost"
+                                size="md"
+                                onClick={() => setIsOpen(false)}
+                                disabled={isPending}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                variant="ink"
+                                size="md"
+                                disabled={isPending || isDemo}
+                                onClick={handleSaveQ}
+                                className="min-w-[140px]"
+                            >
+                                {isPending && <Loader2 className="mr-2 animate-spin" />}
+                                Guardar pregunta
+                            </Button>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>

@@ -51,9 +51,10 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 interface Props {
     slug: string;
+    isDemo?: boolean;
 }
 
-export function NewProfessorButton({ slug }: Props) {
+export function NewProfessorButton({ slug, isDemo }: Props) {
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [groups, setGroups] = useState<Group[]>([]);
@@ -162,6 +163,7 @@ export function NewProfessorButton({ slug }: Props) {
                                         errors.name && 'border-destructive',
                                     )}
                                     autoFocus
+                                    disabled={isDemo}
                                 />
                                 {errors.name && (
                                     <p className="text-destructive text-xs font-medium">
@@ -184,6 +186,7 @@ export function NewProfessorButton({ slug }: Props) {
                                         'border-border h-11 rounded-[10px] bg-white',
                                         errors.lastname && 'border-destructive',
                                     )}
+                                    disabled={isDemo}
                                 />
                                 {errors.lastname && (
                                     <p className="text-destructive text-xs font-medium">
@@ -210,6 +213,7 @@ export function NewProfessorButton({ slug }: Props) {
                                         'border-border h-11 rounded-[10px] bg-white',
                                         errors.email && 'border-destructive',
                                     )}
+                                    disabled={isDemo}
                                 />
                                 {errors.email && (
                                     <p className="text-destructive text-xs font-medium">
@@ -226,6 +230,7 @@ export function NewProfessorButton({ slug }: Props) {
                                         'border-border h-11 rounded-[10px] bg-white',
                                         errors.rut && 'border-destructive',
                                     )}
+                                    disabled={isDemo}
                                 />
                                 {errors.rut && (
                                     <p className="text-destructive text-[12px]">{errors.rut}</p>
@@ -250,6 +255,7 @@ export function NewProfessorButton({ slug }: Props) {
                                         'border-border h-11 rounded-[10px] bg-white',
                                         errors.password && 'border-destructive',
                                     )}
+                                    disabled={isDemo}
                                 />
                                 {errors.password && (
                                     <p className="text-destructive text-xs font-medium">
@@ -271,6 +277,7 @@ export function NewProfessorButton({ slug }: Props) {
                                     onChange={(e) => setField('phone', e.target.value)}
                                     placeholder="+56 9..."
                                     className="border-border h-11 rounded-[10px] bg-white"
+                                    disabled={isDemo}
                                 />
                             </div>
                         </div>
@@ -284,6 +291,7 @@ export function NewProfessorButton({ slug }: Props) {
                                 onValueChange={(v) =>
                                     setField('roleName', v as 'Profesor' | 'Administrador')
                                 }
+                                disabled={isDemo}
                             >
                                 <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
                                     <SelectValue />
@@ -316,6 +324,7 @@ export function NewProfessorButton({ slug }: Props) {
                                                     checked={form.groupIds.includes(g.id)}
                                                     onChange={() => toggleGroup(g.id)}
                                                     className="accent-primary border-border h-4 w-4 rounded"
+                                                    disabled={isDemo}
                                                 />
                                                 <span className="text-ink text-[13.5px] font-medium">
                                                     {g.name}
@@ -328,25 +337,32 @@ export function NewProfessorButton({ slug }: Props) {
                         )}
                     </div>
 
-                    <div className="border-border flex justify-end gap-2 border-t bg-white px-6 py-4">
-                        <Button
-                            variant="ghost"
-                            size="md"
-                            onClick={() => setOpen(false)}
-                            disabled={isPending}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            variant="ink"
-                            size="md"
-                            disabled={isPending}
-                            onClick={handleSubmit}
-                            className="min-w-[140px]"
-                        >
-                            {isPending && <Loader2 className="mr-2 animate-spin" />}
-                            Crear profesor
-                        </Button>
+                    <div className="border-border flex items-center gap-2 border-t bg-white px-6 py-4">
+                        {isDemo && (
+                            <p className="text-muted-foreground mr-auto text-xs">
+                                En modo demo no podés guardar cambios.
+                            </p>
+                        )}
+                        <div className="ml-auto flex gap-2">
+                            <Button
+                                variant="ghost"
+                                size="md"
+                                onClick={() => setOpen(false)}
+                                disabled={isPending}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                variant="ink"
+                                size="md"
+                                disabled={isPending || isDemo}
+                                onClick={handleSubmit}
+                                className="min-w-[140px]"
+                            >
+                                {isPending && <Loader2 className="mr-2 animate-spin" />}
+                                Crear profesor
+                            </Button>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>

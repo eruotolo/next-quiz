@@ -92,7 +92,7 @@ export function InstitutionSettingsClient({ institution, slug }: Props) {
     }
 
     return (
-        <main className="flex-1 p-8">
+        <main data-tour="settings-form" className="flex-1 p-8">
             <div className="mx-auto max-w-2xl space-y-6">
                 {/* URL identifier — read only */}
                 <Card className="border-border bg-paper-warm/40 flex items-center gap-4 px-6 py-4 shadow-none">

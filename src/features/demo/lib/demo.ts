@@ -4,7 +4,7 @@
  * Modo demo público de Aulika.
  *
  * Una única institución sandbox compartida y de solo lectura (institución +
- * profesor + grupo + 10 alumnos). Lo que cada visitante crea (exámenes) se
+ * administrador + grupo + 10 alumnos). Lo que cada visitante crea (exámenes) se
  * aísla por `demoSessionId` (un id por login, generado en el JWT), de modo que
  * nadie ve ni pisa lo de otro. La limpieza ocurre al cerrar sesión y por un
  * cron diario de respaldo.

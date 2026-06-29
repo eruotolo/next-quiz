@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import {
     createProfessor,
@@ -54,6 +54,7 @@ interface Props {
     professors: ProfessorWithRelations[];
     groups: Group[];
     slug: string;
+    isDemo?: boolean;
 }
 
 interface FormState {
@@ -79,7 +80,7 @@ const emptyForm: FormState = {
 };
 
 // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: componente CRUD con tabla, modal de formulario y validación integrada
-export function ProfessorsClient({ professors, groups, slug }: Props) {
+export function ProfessorsClient({ professors, groups, slug, isDemo }: Props) {
     const router = useRouter();
     const [page, setPage] = useState(1);
     const PAGE_SIZE = 10;
@@ -99,6 +100,7 @@ export function ProfessorsClient({ professors, groups, slug }: Props) {
     };
 
     const toggleGroup = (groupId: string): void => {
+        if (isDemo) return;
         setForm((f) => ({
             ...f,
             groupIds: f.groupIds.includes(groupId)
@@ -191,7 +193,7 @@ export function ProfessorsClient({ professors, groups, slug }: Props) {
     return (
         <>
             {/* Filter bar */}
-            <div className="border-border flex items-center gap-2 border-b bg-white px-8 py-4">
+            <div data-tour="professors-header" className="border-border flex items-center gap-2 border-b bg-white px-8 py-4">
                 <div className="relative max-w-sm flex-1">
                     <Search className="text-mute absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                     <Input
@@ -221,7 +223,7 @@ export function ProfessorsClient({ professors, groups, slug }: Props) {
                         </Button>
                     </Card>
                 ) : (
-                    <Card className="border-border overflow-visible p-0 shadow-sm">
+                    <Card data-tour="professors-list" className="border-border overflow-visible p-0 shadow-sm">
                         <Table>
                             <TableHeader className="bg-paper">
                                 <TableRow className="border-border border-b hover:bg-transparent">
@@ -326,6 +328,7 @@ export function ProfessorsClient({ professors, groups, slug }: Props) {
                                                         <DropdownMenuItem
                                                             onClick={() => openDelete(p)}
                                                             className="text-destructive focus:bg-danger-wash focus:text-destructive cursor-pointer gap-2 py-2.5"
+                                                            disabled={isDemo}
                                                         >
                                                             <Trash2 size={14} /> Eliminar acceso
                                                         </DropdownMenuItem>
@@ -382,6 +385,7 @@ export function ProfessorsClient({ professors, groups, slug }: Props) {
                                         errors.name && 'border-destructive',
                                     )}
                                     autoFocus
+                                    disabled={isDemo}
                                 />
                                 {errors.name && (
                                     <p className="text-destructive text-xs font-medium">
@@ -404,6 +408,7 @@ export function ProfessorsClient({ professors, groups, slug }: Props) {
                                         'border-border h-11 rounded-[10px] bg-white',
                                         errors.lastname && 'border-destructive',
                                     )}
+                                    disabled={isDemo}
                                 />
                                 {errors.lastname && (
                                     <p className="text-destructive text-xs font-medium">
@@ -430,6 +435,7 @@ export function ProfessorsClient({ professors, groups, slug }: Props) {
                                         'border-border h-11 rounded-[10px] bg-white',
                                         errors.email && 'border-destructive',
                                     )}
+                                    disabled={isDemo}
                                 />
                                 {errors.email && (
                                     <p className="text-destructive text-xs font-medium">
@@ -443,6 +449,7 @@ export function ProfessorsClient({ professors, groups, slug }: Props) {
                                     value={form.rut}
                                     onChange={(v) => setField('rut', v)}
                                     className="border-border h-11 rounded-[10px] bg-white"
+                                    disabled={isDemo}
                                 />
                                 {errors.rut && (
                                     <p className="text-destructive text-[12px]">{errors.rut}</p>
@@ -468,6 +475,7 @@ export function ProfessorsClient({ professors, groups, slug }: Props) {
                                         'border-border h-11 rounded-[10px] bg-white',
                                         errors.password && 'border-destructive',
                                     )}
+                                    disabled={isDemo}
                                 />
                                 {errors.password && (
                                     <p className="text-destructive text-xs font-medium">
@@ -489,6 +497,7 @@ export function ProfessorsClient({ professors, groups, slug }: Props) {
                                     onChange={(e) => setField('phone', e.target.value)}
                                     placeholder="+56 9..."
                                     className="border-border h-11 rounded-[10px] bg-white"
+                                    disabled={isDemo}
                                 />
                             </div>
                         </div>
@@ -509,6 +518,7 @@ export function ProfessorsClient({ professors, groups, slug }: Props) {
                                         label: 'Administrador (Toda la institución)',
                                     },
                                 ]}
+                                disabled={isDemo}
                             />
                         </div>
 
@@ -551,6 +561,7 @@ export function ProfessorsClient({ professors, groups, slug }: Props) {
                                             onChange={(e) => setGroupSearch(e.target.value)}
                                             placeholder="Buscar grupo..."
                                             className="placeholder:text-mute text-ink w-full py-2 pr-3 pl-8 text-[13px] outline-none"
+                                            disabled={isDemo}
                                         />
                                     </div>
                                     <div className="max-h-[180px] overflow-y-auto py-1">
@@ -593,25 +604,32 @@ export function ProfessorsClient({ professors, groups, slug }: Props) {
                         )}
                     </div>
 
-                    <div className="border-border flex justify-end gap-2 border-t bg-white px-6 py-4">
-                        <Button
-                            variant="ghost"
-                            size="md"
-                            onClick={() => setIsOpen(false)}
-                            disabled={isPending}
-                        >
-                            Cancelar
-                        </Button>
-                        <Button
-                            variant="ink"
-                            size="md"
-                            disabled={isPending}
-                            onClick={handleSave}
-                            className="min-w-[140px]"
-                        >
-                            {isPending && <Loader2 className="mr-2 animate-spin" />}
-                            {editing ? 'Guardar cambios' : 'Crear profesor'}
-                        </Button>
+                    <div className="border-border flex items-center gap-2 border-t bg-white px-6 py-4">
+                        {isDemo && (
+                            <p className="text-muted-foreground mr-auto text-xs">
+                                En modo demo no podés guardar cambios.
+                            </p>
+                        )}
+                        <div className="ml-auto flex gap-2">
+                            <Button
+                                variant="ghost"
+                                size="md"
+                                onClick={() => setIsOpen(false)}
+                                disabled={isPending}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                variant="ink"
+                                size="md"
+                                disabled={isPending || isDemo}
+                                onClick={handleSave}
+                                className="min-w-[140px]"
+                            >
+                                {isPending && <Loader2 className="mr-2 animate-spin" />}
+                                {editing ? 'Guardar cambios' : 'Crear profesor'}
+                            </Button>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>

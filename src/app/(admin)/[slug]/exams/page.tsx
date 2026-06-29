@@ -150,6 +150,7 @@ export default async function ExamsPage({ params }: { params: Promise<{ slug: st
                 groups={groups}
                 courseSections={courseSections}
                 isProfesor={isProfesor}
+                isDemo={isDemo}
             />
         </>
     );

@@ -62,11 +62,12 @@ interface Props {
     label: string;
     /** Label dinámico plural ("Carreras" / "Niveles"…). */
     labelPlural: string;
+    isDemo?: boolean;
 }
 
 const PER_PAGE = 10;
 
-export function ProgramsClient({ slug, programs, canMutate, label, labelPlural }: Props) {
+export function ProgramsClient({ slug, programs, canMutate, label, labelPlural, isDemo }: Props) {
     const router = useRouter();
     const [page, setPage] = useState(1);
     const [isOpen, setIsOpen] = useState(false);
@@ -166,7 +167,7 @@ export function ProgramsClient({ slug, programs, canMutate, label, labelPlural }
                         )}
                     </Card>
                 ) : (
-                    <Card className="border-border overflow-hidden bg-white p-0 shadow-sm">
+                    <Card data-tour="programs-list" className="border-border overflow-hidden bg-white p-0 shadow-sm">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -282,6 +283,7 @@ export function ProgramsClient({ slug, programs, canMutate, label, labelPlural }
                                     error && 'border-destructive',
                                 )}
                                 autoFocus
+                                disabled={isDemo}
                             />
                             {error && (
                                 <p className="text-destructive text-xs font-medium">{error}</p>
@@ -297,6 +299,7 @@ export function ProgramsClient({ slug, programs, canMutate, label, labelPlural }
                                 value={code}
                                 onChange={(e) => setCode(e.target.value)}
                                 className="border-border h-11 rounded-[10px] bg-white"
+                                disabled={isDemo}
                             />
                         </div>
                         <div className="flex flex-col gap-2">
@@ -309,10 +312,16 @@ export function ProgramsClient({ slug, programs, canMutate, label, labelPlural }
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 className="border-border rounded-[10px] bg-white"
+                                disabled={isDemo}
                             />
                         </div>
                     </div>
                     <DialogFooter className="gap-2">
+                        {isDemo && (
+                            <p className="text-muted-foreground mr-auto text-xs">
+                                En modo demo no podés guardar cambios.
+                            </p>
+                        )}
                         <Button
                             variant="ghost"
                             size="md"
@@ -321,7 +330,7 @@ export function ProgramsClient({ slug, programs, canMutate, label, labelPlural }
                         >
                             Cancelar
                         </Button>
-                        <Button variant="ink" size="md" disabled={isPending} onClick={handleSave}>
+                        <Button variant="ink" size="md" disabled={isPending || isDemo} onClick={handleSave}>
                             {isPending && <Loader2 className="mr-2 animate-spin" />}
                             {editing ? 'Guardar cambios' : `Crear ${label.toLowerCase()}`}
                         </Button>
@@ -350,7 +359,7 @@ export function ProgramsClient({ slug, programs, canMutate, label, labelPlural }
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
                         <AlertDialogAction
-                            disabled={isPending}
+                            disabled={isPending || isDemo}
                             onClick={handleDelete}
                             className="bg-destructive hover:bg-destructive/90"
                         >

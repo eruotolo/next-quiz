@@ -7,7 +7,7 @@ import { groupProfessorFilter } from '@/shared/lib/scoping';
 
 export default async function StudentsPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const { institutionId, institutionName, userId, isProfesor, coordinatedProgramIds } =
+    const { institutionId, institutionName, userId, isProfesor, coordinatedProgramIds, isDemo } =
         await requireInstitutionPageAccess(slug);
 
     // Profesor: ve, edita y crea (individual + import) solo en sus grupos; no elimina.
@@ -92,6 +92,7 @@ export default async function StudentsPage({ params }: { params: Promise<{ slug:
                 canDelete={canDelete}
                 canToggleActive={canToggleActive}
                 isProfesor={isProfesor}
+                isDemo={isDemo}
             />
         </>
     );

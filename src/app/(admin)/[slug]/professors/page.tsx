@@ -7,7 +7,7 @@ import { USER_ROLE } from '@/shared/lib/roles';
 
 export default async function ProfessorsPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const { institutionId, institutionName, userRole } = await requireInstitutionPageAccess(slug);
+    const { institutionId, institutionName, userRole, isDemo } = await requireInstitutionPageAccess(slug);
 
     const [professors, groups] = await Promise.all([
         prisma.user.findMany({
@@ -36,9 +36,9 @@ export default async function ProfessorsPage({ params }: { params: Promise<{ slu
                 title="Cuerpo Docente"
                 breadcrumb={[institutionName, 'Profesores']}
                 subtitle={`${professors.length} profesionales registrados en el equipo`}
-                actions={canMutate ? <NewProfessorButton slug={slug} /> : undefined}
+                actions={canMutate ? <NewProfessorButton slug={slug} isDemo={isDemo} /> : undefined}
             />
-            <ProfessorsClient professors={professors} groups={groups} slug={slug} />
+            <ProfessorsClient professors={professors} groups={groups} slug={slug} isDemo={isDemo} />
         </>
     );
 }

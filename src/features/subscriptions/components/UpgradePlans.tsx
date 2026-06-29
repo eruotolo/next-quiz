@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { QuoteDialog } from '@/features/subscriptions/components/QuoteDialog';
 import { upgradePlan } from '@/features/subscriptions/actions/upgrade';
@@ -282,7 +282,7 @@ export function UpgradePlans({ slug, currentPlan, quoteDefaults }: UpgradePlansP
 
     return (
         <>
-            <main className="flex-1 p-8">
+            <main data-tour="upgrade-plans" className="flex-1 p-8">
                 {/* Toggle de facturación */}
                 <div className="mb-10 flex flex-col items-center gap-3">
                     <div className="bg-paper-warm/50 border-border/40 relative flex rounded-full border p-0.5">

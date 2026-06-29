@@ -28,23 +28,26 @@ export default async function InstitutionDashboardPage({ params }: Props) {
 
     let institutionId: string;
     let institutionName: string;
+    let isDemo = false;
 
     if (session.user.userRoleName === USER_ROLE.SUPER_ADMIN) {
         const inst = await prisma.academicInstitution.findUnique({
             where: { slug },
-            select: { id: true, name: true },
+            select: { id: true, name: true, isDemo: true },
         });
         if (!inst) redirect('/config');
         institutionId = inst.id;
         institutionName = inst.name;
+        isDemo = inst.isDemo;
     } else {
         if (!session.user.academicInstitutionId) redirect('/login');
         institutionId = session.user.academicInstitutionId;
         const inst = await prisma.academicInstitution.findUnique({
             where: { id: institutionId },
-            select: { name: true },
+            select: { name: true, isDemo: true },
         });
         institutionName = inst?.name ?? slug;
+        isDemo = inst?.isDemo ?? false;
     }
 
     // Scope de profesor: solo sus grupos, exámenes y resultados.
@@ -224,6 +227,7 @@ export default async function InstitutionDashboardPage({ params }: Props) {
             attendancePct={attendancePct}
             uniqueStudentsWithResults={uniqueStudentsWithResults}
             ungroupedStudents={ungroupedStudents}
+            isDemo={isDemo}
         />
     );
 }

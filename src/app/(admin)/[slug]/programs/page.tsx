@@ -8,7 +8,7 @@ import { USER_ROLE } from '@/shared/lib/roles';
 
 export default async function ProgramsPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const { institutionId, institutionName, userRole, isProfesor, coordinatedProgramIds } =
+    const { institutionId, institutionName, userRole, isProfesor, coordinatedProgramIds, isDemo } =
         await requireInstitutionPageAccess(slug);
 
     const institution = await prisma.academicInstitution.findUnique({
@@ -52,7 +52,7 @@ export default async function ProgramsPage({ params }: { params: Promise<{ slug:
                 breadcrumb={[institutionName, labels.programPlural]}
                 subtitle={`${rows.length} ${rows.length === 1 ? labels.program.toLowerCase() : labels.programPlural.toLowerCase()}`}
                 actions={
-                    canMutate ? <NewProgramButton slug={slug} label={labels.program} /> : undefined
+                    canMutate ? <NewProgramButton slug={slug} label={labels.program} isDemo={isDemo} /> : undefined
                 }
             />
             <ProgramsClient
@@ -61,6 +61,7 @@ export default async function ProgramsPage({ params }: { params: Promise<{ slug:
                 canMutate={canMutate}
                 label={labels.program}
                 labelPlural={labels.programPlural}
+                isDemo={isDemo}
             />
         </>
     );

@@ -9,7 +9,7 @@ import { groupProfessorFilter } from '@/shared/lib/scoping';
 
 export default async function GroupsPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const { institutionId, institutionName, userId, isProfesor, userRole } =
+    const { institutionId, institutionName, userId, isProfesor, userRole, isDemo } =
         await requireInstitutionPageAccess(slug);
 
     // Solo Admin/SuperAdmin mutan grupos; el Profesor solo ve los suyos.
@@ -111,7 +111,7 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
                 title="Grupos"
                 breadcrumb={[institutionName, 'Grupos']}
                 subtitle={`${groupsWithAvg.length} grupos registrados`}
-                actions={canMutate ? <NewGroupButton slug={slug} /> : undefined}
+                actions={canMutate ? <NewGroupButton slug={slug} isDemo={isDemo} /> : undefined}
             />
             <GroupsClient
                 slug={slug}
@@ -121,6 +121,7 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
                 periods={periods}
                 courseSections={courseSections}
                 canMutate={canMutate}
+                isDemo={isDemo}
             />
         </>
     );

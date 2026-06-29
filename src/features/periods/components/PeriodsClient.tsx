@@ -54,9 +54,10 @@ interface Props {
     slug: string;
     periods: AcademicPeriod[];
     canMutate: boolean;
+    isDemo?: boolean;
 }
 
-export function PeriodsClient({ slug, periods, canMutate }: Props) {
+export function PeriodsClient({ slug, periods, canMutate, isDemo }: Props) {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [isDelOpen, setIsDelOpen] = useState(false);
@@ -199,8 +200,8 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
                         )}
                     </Card>
                 ) : (
-                    <Card className="border-border overflow-hidden bg-white shadow-sm">
-                        <div className="border-border flex items-center justify-between border-b px-6 py-4">
+                    <Card data-tour="periods-list" className="border-border overflow-hidden bg-white shadow-sm">
+                        <div data-tour="periods-header" className="border-border flex items-center justify-between border-b px-6 py-4">
                             <h2 className="text-ink font-display text-xl font-bold">
                                 Períodos Académicos
                             </h2>
@@ -343,11 +344,12 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
                                     value={year}
                                     onChange={handleYearChange}
                                     className="border-border h-11 rounded-[10px] bg-white"
+                                    disabled={isDemo}
                                 />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <span className="text-ink text-[13px] font-bold">Tipo</span>
-                                <Select value={type} onValueChange={handleTypeChange}>
+                                <Select value={type} onValueChange={handleTypeChange} disabled={isDemo}>
                                     <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
                                         <SelectValue />
                                     </SelectTrigger>
@@ -379,6 +381,7 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
                                     'border-border h-11 rounded-[10px] bg-white',
                                     error && 'border-destructive',
                                 )}
+                                disabled={isDemo}
                             />
                             {error && (
                                 <p className="text-destructive text-xs font-medium">{error}</p>
@@ -398,6 +401,7 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
                                     className="border-border h-11 rounded-[10px] bg-white"
+                                    disabled={isDemo}
                                 />
                             </div>
                             <div className="flex flex-col gap-2">
@@ -413,6 +417,7 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
                                     className="border-border h-11 rounded-[10px] bg-white"
+                                    disabled={isDemo}
                                 />
                             </div>
                         </div>
@@ -423,6 +428,7 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
                                 checked={isActive}
                                 onChange={(e) => setIsActive(e.target.checked)}
                                 className="h-4 w-4 rounded border-gray-300 text-[var(--g-accent)] focus:ring-[var(--g-accent)]"
+                                disabled={isDemo}
                             />
                             <label htmlFor="is-active" className="text-ink text-[13px] font-medium">
                                 Marcar como período activo
@@ -430,6 +436,11 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
                         </div>
                     </div>
                     <DialogFooter>
+                        {isDemo && (
+                            <p className="text-muted-foreground mr-auto text-xs">
+                                En modo demo no podés guardar cambios.
+                            </p>
+                        )}
                         <Button
                             variant="ghost"
                             size="md"
@@ -438,7 +449,7 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
                         >
                             Cancelar
                         </Button>
-                        <Button variant="ink" size="md" disabled={isPending} onClick={handleSave}>
+                        <Button variant="ink" size="md" disabled={isPending || isDemo} onClick={handleSave}>
                             {isPending && <Loader2 className="mr-2 animate-spin" />}
                             {editing ? 'Guardar' : 'Crear'}
                         </Button>
@@ -464,7 +475,7 @@ export function PeriodsClient({ slug, periods, canMutate }: Props) {
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
                         <AlertDialogAction
-                            disabled={isPending}
+                            disabled={isPending || isDemo}
                             onClick={handleDelete}
                             className="bg-destructive hover:bg-destructive/90"
                         >

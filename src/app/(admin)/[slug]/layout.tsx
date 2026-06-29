@@ -1,5 +1,6 @@
 import { auth } from '@/features/auth/auth';
 import { Sidebar } from '@/features/dashboard/components/Sidebar';
+import { TourButton } from '@/features/tour/components/TourButton';
 import { demoExamFilter } from '@/features/demo/lib/demo';
 import { PlanUsageBanner } from '@/features/subscriptions/components/PlanUsageBanner';
 import { getQuotaUsage } from '@/features/subscriptions/lib/quota';
@@ -127,6 +128,7 @@ export default async function InstitutionLayout({ children, params }: Props) {
                 )}
                 {children}
             </main>
+            <TourButton slug={slug} />
         </div>
     );
 }

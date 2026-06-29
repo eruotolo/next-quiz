@@ -11,7 +11,7 @@ interface Props {
 
 export default async function CoursesPage({ params }: Props) {
     const { slug } = await params;
-    const { institutionId, institutionName, userRole, userId, isProfesor, coordinatedProgramIds } =
+    const { institutionId, institutionName, userRole, userId, isProfesor, coordinatedProgramIds, isDemo } =
         await requireInstitutionPageAccess(slug);
 
     const institution = await prisma.academicInstitution.findUnique({
@@ -103,6 +103,7 @@ export default async function CoursesPage({ params }: Props) {
                 groups={groups}
                 canMutate={canMutate}
                 courseLabel={label}
+                isDemo={isDemo}
             />
         </>
     );

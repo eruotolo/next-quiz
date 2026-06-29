@@ -61,7 +61,7 @@ export default async function ExamEditorPage({ params }: PageProps) {
                 title={exam.title}
                 subtitle={`${exam.groups.map((g) => g.name).join(' · ')} · ${exam.timeLimit} min · ${exam.questions.length} pregunta${exam.questions.length !== 1 ? 's' : ''}`}
             />
-            <ExamEditorClient exam={exam} subjects={subjectList} />
+            <ExamEditorClient exam={exam} subjects={subjectList} isDemo={isDemo} />
         </>
     );
 }

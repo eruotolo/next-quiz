@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { createExam } from '@/features/exams/actions/mutations';
 import { createGroup } from '@/features/groups/actions/mutations';
@@ -36,6 +36,8 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
+import { DEMO_SLUG } from '@/features/demo/lib/demo';
+import { DemoWelcomeModal } from '@/features/demo/components/DemoWelcomeModal';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -81,6 +83,7 @@ interface Props {
     attendancePct: number;
     uniqueStudentsWithResults: number;
     ungroupedStudents: number;
+    isDemo?: boolean;
 }
 
 type ModalType = 'grupo' | 'alumno' | 'examen' | null;
@@ -368,11 +371,13 @@ function CreateGroupDialog({
     onOpenChange,
     slug,
     onSuccess,
+    isDemo,
 }: {
     open: boolean;
     onOpenChange: (v: boolean) => void;
     slug: string;
     onSuccess: () => void;
+    isDemo?: boolean;
 }) {
     const [groupName, setGroupName] = useState('');
     const [groupError, setGroupError] = useState<string | null>(null);
@@ -421,12 +426,18 @@ function CreateGroupDialog({
                             groupError && 'border-destructive',
                         )}
                         autoFocus
+                        disabled={isDemo}
                     />
                     {groupError && (
                         <p className="text-destructive text-xs font-medium">{groupError}</p>
                     )}
                 </div>
                 <DialogFooter className="gap-2">
+                    {isDemo && (
+                        <p className="text-muted-foreground mr-auto text-xs">
+                            En modo demo no podés guardar cambios.
+                        </p>
+                    )}
                     <Button
                         variant="ghost"
                         size="md"
@@ -435,7 +446,7 @@ function CreateGroupDialog({
                     >
                         Cancelar
                     </Button>
-                    <Button variant="ink" size="md" disabled={isPending} onClick={handleCreate}>
+                    <Button variant="ink" size="md" disabled={isPending || isDemo} onClick={handleCreate}>
                         {isPending && <Loader2 className="mr-2 animate-spin" />}
                         Crear grupo
                     </Button>
@@ -451,12 +462,14 @@ function CreateStudentDialog({
     groups,
     slug,
     onSuccess,
+    isDemo,
 }: {
     open: boolean;
     onOpenChange: (v: boolean) => void;
     groups: Group[];
     slug: string;
     onSuccess: () => void;
+    isDemo?: boolean;
 }) {
     const [form, setForm] = useState({ name: '', lastname: '', email: '', rut: '', groupId: '' });
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -504,6 +517,7 @@ function CreateStudentDialog({
                                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                                 className="border-border h-11 rounded-[10px] bg-white"
                                 autoFocus
+                                disabled={isDemo}
                             />
                             {errors.name && (
                                 <p className="text-destructive text-xs">{errors.name}</p>
@@ -523,6 +537,7 @@ function CreateStudentDialog({
                                     setForm((f) => ({ ...f, lastname: e.target.value }))
                                 }
                                 className="border-border h-11 rounded-[10px] bg-white"
+                                disabled={isDemo}
                             />
                             {errors.lastname && (
                                 <p className="text-destructive text-xs">{errors.lastname}</p>
@@ -539,6 +554,7 @@ function CreateStudentDialog({
                             value={form.email}
                             onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                             className="border-border h-11 rounded-[10px] bg-white"
+                            disabled={isDemo}
                         />
                         {errors.email && <p className="text-destructive text-xs">{errors.email}</p>}
                     </div>
@@ -548,6 +564,7 @@ function CreateStudentDialog({
                             value={form.rut}
                             onChange={(v) => setForm((f) => ({ ...f, rut: v }))}
                             className="border-border h-11 rounded-[10px] bg-white"
+                            disabled={isDemo}
                         />
                         {errors.rut && <p className="text-destructive text-xs">{errors.rut}</p>}
                     </div>
@@ -558,6 +575,7 @@ function CreateStudentDialog({
                             onChange={(v) => setForm((f) => ({ ...f, groupId: v }))}
                             placeholder="Seleccioná un grupo"
                             options={groups.map((g) => ({ value: g.id, label: g.name }))}
+                            disabled={isDemo}
                         />
                         {errors.groupId && (
                             <p className="text-destructive text-xs">{errors.groupId}</p>
@@ -566,6 +584,11 @@ function CreateStudentDialog({
                     {errors.general && <p className="text-destructive text-xs">{errors.general}</p>}
                 </div>
                 <DialogFooter className="gap-2">
+                    {isDemo && (
+                        <p className="text-muted-foreground mr-auto text-xs">
+                            En modo demo no podés guardar cambios.
+                        </p>
+                    )}
                     <Button
                         variant="ghost"
                         size="md"
@@ -574,7 +597,7 @@ function CreateStudentDialog({
                     >
                         Cancelar
                     </Button>
-                    <Button variant="ink" size="md" disabled={isPending} onClick={handleCreate}>
+                    <Button variant="ink" size="md" disabled={isPending || isDemo} onClick={handleCreate}>
                         {isPending && <Loader2 className="mr-2 animate-spin" />}
                         Crear estudiante
                     </Button>
@@ -590,12 +613,14 @@ function CreateExamDialog({
     groups,
     slug,
     onSuccess,
+    isDemo,
 }: {
     open: boolean;
     onOpenChange: (v: boolean) => void;
     groups: Group[];
     slug: string;
     onSuccess: () => void;
+    isDemo?: boolean;
 }) {
     const [form, setForm] = useState({
         title: '',
@@ -610,6 +635,7 @@ function CreateExamDialog({
     const [isPending, startTransition] = useTransition();
 
     const toggleGroup = (id: string): void => {
+        if (isDemo) return;
         setForm((f) => ({
             ...f,
             groupIds: f.groupIds.includes(id)
@@ -665,6 +691,7 @@ function CreateExamDialog({
                             onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                             className="border-border h-11 rounded-[10px] bg-white"
                             autoFocus
+                            disabled={isDemo}
                         />
                         {errors.title && <p className="text-destructive text-xs">{errors.title}</p>}
                     </div>
@@ -678,6 +705,7 @@ function CreateExamDialog({
                             value={form.timeLimit}
                             onChange={(e) => setForm((f) => ({ ...f, timeLimit: e.target.value }))}
                             className="border-border h-11 rounded-[10px] bg-white"
+                            disabled={isDemo}
                         />
                         {errors.timeLimit && (
                             <p className="text-destructive text-xs">{errors.timeLimit}</p>
@@ -691,13 +719,17 @@ function CreateExamDialog({
                             {groups.map((g) => (
                                 <label
                                     key={g.id}
-                                    className="flex cursor-pointer items-center gap-3 rounded-[8px] px-3 py-2 transition-colors hover:bg-white"
+                                    className={cn(
+                                        'flex items-center gap-3 rounded-[8px] px-3 py-2 transition-colors hover:bg-white',
+                                        !isDemo && 'cursor-pointer'
+                                    )}
                                 >
                                     <input
                                         type="checkbox"
                                         checked={form.groupIds.includes(g.id)}
                                         onChange={() => toggleGroup(g.id)}
                                         className="accent-primary h-4 w-4"
+                                        disabled={isDemo}
                                     />
                                     <span className="text-sm font-medium text-[#0b0b11]">
                                         {g.name}
@@ -712,6 +744,11 @@ function CreateExamDialog({
                     {errors.general && <p className="text-destructive text-xs">{errors.general}</p>}
                 </div>
                 <DialogFooter className="gap-2">
+                    {isDemo && (
+                        <p className="text-muted-foreground mr-auto text-xs">
+                            En modo demo no podés guardar cambios.
+                        </p>
+                    )}
                     <Button
                         variant="ghost"
                         size="md"
@@ -720,7 +757,7 @@ function CreateExamDialog({
                     >
                         Cancelar
                     </Button>
-                    <Button variant="ink" size="md" disabled={isPending} onClick={handleCreate}>
+                    <Button variant="ink" size="md" disabled={isPending || isDemo} onClick={handleCreate}>
                         {isPending && <Loader2 className="mr-2 animate-spin" />}
                         Crear examen
                     </Button>
@@ -745,6 +782,7 @@ export function DashboardClient({
     attendancePct,
     uniqueStudentsWithResults,
     ungroupedStudents,
+    isDemo,
 }: Props) {
     const router = useRouter();
     const menuRef = useRef<HTMLDivElement>(null);
@@ -802,7 +840,7 @@ export function DashboardClient({
                             {currentMonthLabel()}
                         </span>
                     </div>
-                    <div ref={menuRef} className="relative">
+                    <div ref={menuRef} data-tour="new-exam-btn" className="relative">
                         <Button
                             variant="ink"
                             size="md"
@@ -853,7 +891,7 @@ export function DashboardClient({
 
             <main className="space-y-6 p-8">
                 {/* ── Stat cards ── */}
-                <div className="grid grid-cols-4 gap-4">
+                <div data-tour="stat-tiles" className="grid grid-cols-4 gap-4">
                     <Card className="border-[#e5e2dc] bg-white p-6 shadow-sm">
                         <div className="flex items-start justify-between">
                             <p className="font-mono text-[10px] font-bold tracking-[0.1em] text-[#75716b] uppercase">
@@ -914,7 +952,7 @@ export function DashboardClient({
 
                 {/* ── Middle row ── */}
                 <div className="grid grid-cols-[1fr_340px] gap-4">
-                    <Card className="border-[#e5e2dc] bg-white shadow-sm">
+                    <Card data-tour="active-exams" className="border-[#e5e2dc] bg-white shadow-sm">
                         <div className="flex items-center justify-between border-b border-[#e5e2dc] px-6 py-4">
                             <div>
                                 <h2 className="text-[16px] font-bold text-[#0b0b11]">
@@ -1026,7 +1064,7 @@ export function DashboardClient({
                         </div>
                     </Card>
 
-                    <Card className="border-[#e5e2dc] bg-white shadow-sm">
+                    <Card data-tour="recent-results" className="border-[#e5e2dc] bg-white shadow-sm">
                         <div className="flex items-center justify-between border-b border-[#e5e2dc] px-6 py-4">
                             <h2 className="text-[16px] font-bold text-[#0b0b11]">
                                 Últimos resultados
@@ -1066,6 +1104,7 @@ export function DashboardClient({
                 onOpenChange={setGrupoOpen}
                 slug={slug}
                 onSuccess={() => router.refresh()}
+                isDemo={isDemo}
             />
             <CreateStudentDialog
                 open={alumnoOpen}
@@ -1073,6 +1112,7 @@ export function DashboardClient({
                 groups={groups}
                 slug={slug}
                 onSuccess={() => router.refresh()}
+                isDemo={isDemo}
             />
             <CreateExamDialog
                 open={examenOpen}
@@ -1080,7 +1120,9 @@ export function DashboardClient({
                 groups={groups}
                 slug={slug}
                 onSuccess={() => router.refresh()}
+                isDemo={isDemo}
             />
+            {slug === DEMO_SLUG && <DemoWelcomeModal />}
         </div>
     );
 }

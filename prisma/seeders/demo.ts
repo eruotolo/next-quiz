@@ -3,7 +3,7 @@
  *
  * Crea, de forma idempotente, el estado base read-only del sandbox demo:
  *   - 1 institución `aulika-demo` (isDemo=true, plan FREE, type INSTITUTO_PROFESIONAL)
- *   - 1 profesor de acceso (demo@aulika.cl / demo_aulika)
+ *   - 1 administrador de acceso (demo@aulika.cl / demo_aulika)
  *   - 1 programa (Carrera: Técnico en Informática)
  *   - 1 período activo (Semestre 1 2026)
  *   - 1 grupo vinculado al programa y período
@@ -113,11 +113,13 @@ async function main(): Promise<void> {
     });
     if (purged.count > 0) console.log(`  Exámenes demo purgados: ${purged.count}`);
 
-    // ── Profesor de acceso ──────────────────────────────────────────────────
+    // ── Administrador de acceso ─────────────────────────────────────────────
     const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, 10);
-    const professor = await prisma.user.upsert({
+    const demoUser = await prisma.user.upsert({
         where: { email: DEMO_EMAIL },
         update: {
+            name: 'Administrador',
+            lastname: 'Demo',
             password: hashedPassword,
             academicInstitutionId: institution.id,
             userRoleId: adminRole.id,
@@ -133,7 +135,7 @@ async function main(): Promise<void> {
         },
         select: { id: true },
     });
-    console.log(`  Profesor: ${DEMO_EMAIL} / ${DEMO_PASSWORD}`);
+    console.log(`  Administrador: ${DEMO_EMAIL} / ${DEMO_PASSWORD}`);
 
     // ── Programa (Carrera) ──────────────────────────────────────────────────
     const program = await prisma.program.upsert({
@@ -182,7 +184,7 @@ async function main(): Promise<void> {
         ? await prisma.group.update({
               where: { id: existingGroup.id },
               data: {
-                  professors: { connect: { id: professor.id } },
+                  professors: { connect: { id: demoUser.id } },
                   programId: program.id,
                   periodId: period.id,
               },
@@ -192,7 +194,7 @@ async function main(): Promise<void> {
               data: {
                   name: GROUP_NAME,
                   academicInstitutionId: institution.id,
-                  professors: { connect: { id: professor.id } },
+                  professors: { connect: { id: demoUser.id } },
                   programId: program.id,
                   periodId: period.id,
               },
@@ -218,7 +220,7 @@ async function main(): Promise<void> {
                 programId: program.id,
                 periodId: period.id,
                 groupId: group.id,
-                professors: { connect: { id: professor.id } },
+                professors: { connect: { id: demoUser.id } },
             },
         });
         console.log(`  Asignatura: ${COURSE_NAME}`);

@@ -42,6 +42,22 @@ Versión: {X.Y.Z}
 
 No commitear ni pushear sin pedido explícito del usuario.
 
+## 🤖 PIPELINE ASÍNCRONO DE AGENTES (.spool)
+
+Para maximizar el ahorro de tokens y evitar la inflación del historial en el chat, el contexto estratégico se transfiere mediante archivos en disco usando el patrón SPOOL (Simultaneous Peripheral Operations On-Line).
+
+### Jerarquía Estricta de Estados
+- `.spool/01_raw/` → Exclusivo para los planos iniciales crudos generados por Opus 4.8 y GLM 5.2.
+- `.spool/02_inbox/` → Exclusivo para el "Plan Maestro Consolidado" en Markdown generado por Gemini.
+- `.spool/03_work/` → Zona activa de ejecución. El archivo del plan se mueve aquí durante el proceso de codificación.
+- `.spool/04_archive/` → Historial inmutable de ejecución. Los planes finalizados se mueven aquí tras el commit y el QA exitoso.
+
+### Reglas Operativas para Sonnet y GLM-4.5 (EJECUCIÓN)
+1. **Lectura Obligatoria:** Al iniciar cualquier feature o refactorización, verificar la carpeta `.spool/02_inbox/`. Si está vacía, detener la ejecución de inmediato y reportar "Bandeja de entrada vacía".
+2. **Movimiento de Estado:** Antes de modificar cualquier archivo de código de la arquitectura DDD (`src/features/` o `src/shared/`), mover el archivo de plan consolidado de `02_inbox/` a `03_work/` para marcar la tarea en proceso.
+3. **Focalización Extrema:** Está PROHIBIDO leer archivos en `01_raw/`. El único contrato de ejecución válido es el archivo consolidado dentro de `03_work/`.
+4. **Ciclo de Cierre (Commit + Ship):** Una vez que la fase de código termine, pase `pnpm lint`, `pnpm type-check` y el QA sea aprobado, se debe realizar el commit con el formato obligatorio y mover el archivo del plan desde `03_work/` hacia `.spool/04_archive/` renombrándolo con el prefijo de la fecha actual: `YYYY-MM-DD_{nombre-del-plan}.md`. Nunca usar `rm` para destruir los planes terminados; el archivo es mandatorio.
+
 ## Project Overview
 
 **Aulika** — Sistema de evaluación en línea para colegios y universidades.
@@ -406,7 +422,7 @@ Plan en `AcademicInstitution.plan` (`Plan`: FREE · DOCENTE · COLEGIO · INSTIT
 
 Feature en `src/features/demo/`. Institución `slug = 'aulika-demo'`, `isDemo = true`, plan FREE.
 
-- **Acceso** — `/demo` → `DemoLoginCard` (credenciales visibles: `demo@aulika.cl` / `demo_aulika`) → panel `/aulika-demo` como Profesor.
+- **Acceso** — `/demo` → `DemoLoginCard` (credenciales visibles: `demo@aulika.cl` / `demo_aulika`) → panel `/aulika-demo` como Administrador.
 - **Aislamiento** — `demoSessionId` generado en callback `jwt` de `auth.ts`, viaja en JWT y se guarda en `Exam.demoSessionId`. `demoExamFilter(user)` en `src/features/demo/lib/demo.ts` centraliza el filtro.
 - **Limpieza** (tres mecanismos): (1) `signOut` borra exámenes del `demoSessionId`; (2) cada deploy ejecuta `prisma/seeders/demo.ts` que purga todos los exámenes de la institución demo; (3) cron diario `GET /api/cron/demo-reset` (`0 6 * * *` UTC, protegido con `CRON_SECRET`).
 - **Producción** — seed corre en el build (`prisma migrate deploy && tsx prisma/seeders/demo.ts && next build`). `demo.ts` **no** está en `.vercelignore`.
@@ -485,6 +501,43 @@ CRON_SECRET            # Secret para los cron de Vercel
     - Columna info: "Sin publicar" (borrador), "Abre en Xd Yh" (programado), fecha relativa (en-curso), "Prom. X.X · YY% apr." en verde (corregido).
 - **Data server**: `page.tsx` incluye `results: { score, maxScore }` en la query de exámenes y hace una query adicional para contar alumnos por grupo. Computa `avgGrade`, `passRate` y `totalStudents` en el servidor antes de pasar al cliente.
 - **Helpers extraídos**: `formatCountdown`, `getParticipantsText`, `getInfoText` como funciones módulo-nivel para reducir complejidad cognitiva.
+
+## Tour guiado (Driver.js)
+
+Feature en `src/features/tour/`:
+
+- **`lib/tour-steps.ts`** — define `DASHBOARD_TOUR_STEPS: DriveStep[]` con 5 pasos apuntando a atributos `data-tour` en el dashboard.
+- **`components/TourButton.tsx`** — client component con lógica de auto-inicio y navegación cross-page.
+
+**Pasos del tour (targets `data-tour`):**
+
+| # | Atributo | Descripción |
+|---|----------|-------------|
+| 1 | `sidebar` | Sidebar desktop (`<aside>`) en `Sidebar.tsx` |
+| 2 | `stat-tiles` | Grid de 4 tiles de métricas en `DashboardClient.tsx` |
+| 3 | `new-exam-btn` | Botón dropdown "Nuevo examen" en `DashboardClient.tsx` |
+| 4 | `active-exams` | Card "Exámenes en curso" en `DashboardClient.tsx` |
+| 5 | `recent-results` | Card "Últimos resultados" en `DashboardClient.tsx` |
+
+**Lógica de TourButton:**
+
+- Se renderiza en `src/app/(admin)/[slug]/layout.tsx` → aparece en las 11 subpáginas del panel.
+- `localStorage` keys: `aulika-tour-seen-v1` (flag de "ya visto") y `aulika-tour-pending` (trigger cross-page).
+- Primera visita al dashboard → auto-inicia con 1500ms delay.
+- Click en `?` desde otro subpage → pone `aulika-tour-pending` y navega al dashboard; el tour se auto-inicia con 800ms delay.
+- Click en `?` estando en el dashboard → inicia el tour inmediatamente.
+- `onDestroyStarted` → guarda `aulika-tour-seen-v1` en localStorage.
+
+**Botón en Sidebar:**
+
+- "Tour de bienvenida" (icono `Sparkles`) en la sección SISTEMA, solo para no-SuperAdmin.
+- Al hacer click: borra `aulika-tour-seen-v1` y navega al dashboard → el tour se re-inicia.
+
+**CSS:**
+
+- Overrides en `src/app/globals.css` con selector `.driver-popover.aulika-tour-popover` (doble especificidad + `!important` en border-radius y botones).
+- `border-radius: 16px`, fondo blanco, botón principal `#1f2eff`, botón secundario outline.
+- Config: `popoverClass: 'aulika-tour-popover'` en el objeto `driver({...})`.
 
 ## Google Analytics (GA4)
 
