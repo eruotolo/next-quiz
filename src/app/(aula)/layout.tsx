@@ -4,10 +4,24 @@ import { LogoLockup } from '@/shared/components/branding/logo';
 import { GraduationCap } from 'lucide-react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { prisma } from '@/shared/lib/prisma';
+import { NotificationBell } from '@/features/lms/components/NotificationBell';
 
 export default async function AulaRootLayout({ children }: { children: ReactNode }) {
     const session = await getStudentAuthSession();
     if (!session) redirect('/examen/login');
+
+    const [notifications, unreadCount] = await prisma.$transaction([
+        prisma.lmsNotification.findMany({
+            where: { userId: session.studentId },
+            orderBy: { createdAt: 'desc' },
+            take: 20,
+            select: { id: true, type: true, message: true, link: true, read: true, createdAt: true },
+        }),
+        prisma.lmsNotification.count({
+            where: { userId: session.studentId, read: false },
+        }),
+    ]);
 
     return (
         <div className="bg-paper min-h-screen">
@@ -32,6 +46,10 @@ export default async function AulaRootLayout({ children }: { children: ReactNode
                         >
                             Ir a exámenes
                         </Link>
+                        <NotificationBell
+                            initialNotifications={notifications}
+                            initialUnreadCount={unreadCount}
+                        />
                     </nav>
                 </div>
             </header>

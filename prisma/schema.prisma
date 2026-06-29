@@ -253,6 +253,9 @@ model User {
   lmsLessonProgress     LmsLessonProgress[]
   lmsSubmissions        LmsSubmission[]
   lmsGrades             LmsGrade[]
+  forumThreads          LmsForumThread[]
+  forumPosts            LmsForumPost[]
+  lmsNotifications      LmsNotification[]
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
 
@@ -661,6 +664,7 @@ model LmsCourse {
   modules               LmsModule[]
   enrollments           LmsEnrollment[]
   gradebookItems        LmsGradebookItem[]
+  forums                LmsForum[]
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
 
@@ -672,15 +676,15 @@ model LmsCourse {
 
 // Módulo del curso. Agrupa lecciones bajo un título y orden pedagógico.
 model LmsModule {
-  id          String     @id @default(uuid()) @db.Uuid
+  id          String      @id @default(uuid()) @db.Uuid
   title       String
   description String?
-  order       Int        @default(0)
-  courseId    String     @db.Uuid
-  course      LmsCourse  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  order       Int         @default(0)
+  courseId    String      @db.Uuid
+  course      LmsCourse   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessons     LmsLesson[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   @@index([courseId])
 }
@@ -689,27 +693,27 @@ model LmsModule {
 // documento (Vercel Blob / PDF), texto enriquecido (Tiptap JSON), enlace,
 // examen Aulika embebido (FK a Exam) o tarea (binding con Assignment en Fase 2).
 model LmsLesson {
-  id            String           @id @default(uuid()) @db.Uuid
+  id            String              @id @default(uuid()) @db.Uuid
   title         String
-  type          LessonType       @default(TEXTO)
-  order         Int              @default(0)
+  type          LessonType          @default(TEXTO)
+  order         Int                 @default(0)
   // Contenido de la lección
-  contentJson   Json?            // Texto enriquecido (Tiptap)
-  videoAssetId  String?          // ID de Mux (playback id)
-  videoUploadId String?          // ID de upload de Mux (polling)
-  fileUrl       String?          // URL del documento (Vercel Blob)
-  externalLink  String?          // Enlace externo
-  durationSec   Int?             // Duración estimada (videos/lecturas)
+  contentJson   Json? // Texto enriquecido (Tiptap)
+  videoAssetId  String? // ID de Mux (playback id)
+  videoUploadId String? // ID de upload de Mux (polling)
+  fileUrl       String? // URL del documento (Vercel Blob)
+  externalLink  String? // Enlace externo
+  durationSec   Int? // Duración estimada (videos/lecturas)
   // Integración con Aulika: la lección embebe un examen por FK. Setear type=EXAMEN
   // implica examId obligatorio (validado en Server Actions).
-  examId        String?          @db.Uuid
-  exam          Exam?            @relation(fields: [examId], references: [id], onDelete: SetNull)
-  moduleId      String           @db.Uuid
-  module        LmsModule        @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  examId        String?             @db.Uuid
+  exam          Exam?               @relation(fields: [examId], references: [id], onDelete: SetNull)
+  moduleId      String              @db.Uuid
+  module        LmsModule           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   progress      LmsLessonProgress[]
   assignment    LmsAssignment?
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
 
   @@index([moduleId])
   @@index([examId])
@@ -757,15 +761,15 @@ model LmsLessonProgress {
 // de los estudiantes se registran en LmsSubmission con el archivo (Vercel Blob)
 // o texto entregado, fecha y estado del flujo (PENDIENTE → ENTREGADO → CALIFICADO).
 model LmsAssignment {
-  id           String           @id @default(uuid()) @db.Uuid
-  lessonId     String           @unique @db.Uuid
-  lesson       LmsLesson        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  id           String          @id @default(uuid()) @db.Uuid
+  lessonId     String          @unique @db.Uuid
+  lesson       LmsLesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   instructions String?
   dueAt        DateTime?
-  maxScore     Int              @default(100)
+  maxScore     Int             @default(100)
   submissions  LmsSubmission[]
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 
   @@index([lessonId])
 }
@@ -822,16 +826,106 @@ model LmsGradebookItem {
 // final del curso se calcula con `calculateFinalGrade()` en
 // `src/features/lms/lib/gradebook.ts` filtrando por score no nulo.
 model LmsGrade {
-  id              String          @id @default(uuid()) @db.Uuid
-  gradebookItemId String          @db.Uuid
+  id              String           @id @default(uuid()) @db.Uuid
+  gradebookItemId String           @db.Uuid
   gradebookItem   LmsGradebookItem @relation(fields: [gradebookItemId], references: [id], onDelete: Cascade)
-  studentId       String          @db.Uuid
-  student         User            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId       String           @db.Uuid
+  student         User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
   score           Float
   feedback        String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   @@unique([gradebookItemId, studentId])
   @@index([studentId])
+}
+
+// ─── Fase 3: Foros de Comunicación y Comunidad ────────────────────────────────
+// Cada curso tiene uno o varios foros (tableros temáticos). Dentro de un foro
+// hay hilos (ForumThread, uno por pregunta o anuncio) y posts (ForumPost, las
+// respuestas). Los posts admiten anidamiento vía parent_post_id para renders
+// recursivos estilo Reddit/GitHub. El body es markdown→HTML sanitizado
+// server-side en `src/shared/lib/sanitize.ts` antes de persistir: nunca se
+// guarda HTML crudo del usuario.
+model LmsForum {
+  id          String           @id @default(uuid()) @db.Uuid
+  courseId    String           @db.Uuid
+  course      LmsCourse        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  // Orden interno del foro en la página del curso.
+  order       Int              @default(0)
+  // Si está bloqueado, ningún usuario puede crear nuevos hilos ni responder.
+  archived    Boolean          @default(false)
+  threads     LmsForumThread[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([courseId])
+}
+
+// Hilo de conversación dentro de un foro. `pinned` lo sube en la lista,
+// `locked` impide nuevas respuestas (suele usarse para anuncios resueltos).
+model LmsForumThread {
+  id         String         @id @default(uuid()) @db.Uuid
+  forumId    String         @db.Uuid
+  forum      LmsForum       @relation(fields: [forumId], references: [id], onDelete: Cascade)
+  title      String
+  authorId   String         @db.Uuid
+  author     User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  posts      LmsForumPost[]
+  pinned     Boolean        @default(false)
+  locked     Boolean        @default(false)
+  // Set automáticamente cuando llega la primera respuesta: optimiza orden por actividad.
+  lastPostAt DateTime?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@index([forumId])
+  @@index([authorId])
+  @@index([pinned, lastPostAt])
+}
+
+// Post individual. `parentPostId` permite respuestas anidadas. El body se
+// almacena como Markdown crudo (no HTML). El render en UI siempre pasa por
+// `sanitizeForumMarkdown()` que lo convierte a HTML seguro antes de inyectarlo.
+// `editedAt` se setea cuando el autor modifica el post original (no aplica a
+// ediciones de admin).
+model LmsForumPost {
+  id           String         @id @default(uuid()) @db.Uuid
+  threadId     String         @db.Uuid
+  thread       LmsForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  parentPostId String?        @db.Uuid
+  parentPost   LmsForumPost?  @relation("ForumPostAnswers", fields: [parentPostId], references: [id], onDelete: Cascade)
+  answers      LmsForumPost[] @relation("ForumPostAnswers")
+  authorId     String         @db.Uuid
+  author       User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  // Markdown crudo (≤ 16 KB visible). Se sanitiza al renderizar.
+  body         String         @db.Text
+  editedAt     DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@index([threadId])
+  @@index([parentPostId])
+  @@index([authorId])
+  @@index([createdAt])
+}
+
+// ─── Fase 3: Notificaciones in-app (LmsNotification) ────────────────────────
+// La barra de navegación usa este modelo para mostrar el Bell Icon. Las
+// fuentes principales hoy son las respuestas en foros (NEW_POST), pero el
+// schema es extensible vía `type`. El render en UI lo maneja Sonnet.
+model LmsNotification {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String // NEW_POST | GRADE_POSTED | ANNOUNCEMENT | ...
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
 }

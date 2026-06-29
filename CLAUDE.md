@@ -546,6 +546,104 @@ Funciones puras (sin acceso a BD, fáciles de testear):
 - Notificación al estudiante cuando se califica.
 - Historial de re-entregas (hoy solo 1 entrega por estudiante).
 
+## Aula Virtual (LMS) — Fase 3: Comunicación y Comunidad
+
+### Modelos Prisma nuevos
+- `LmsForum` — foro por curso (`archived`, `order`). Ya existía en schema sin migración; migración pendiente junto con `LmsNotification`.
+- `LmsForumThread` — hilo de conversación (`pinned`, `locked`, `lastPostAt`).
+- `LmsForumPost` — post con respuestas anidadas (`parentPostId` autorreferencial `"ForumPostAnswers"`). Body en Markdown crudo.
+- `LmsNotification` — notificación in-app del estudiante (`type`, `message`, `link`, `read`).
+
+**Nota:** correr `pnpm db:migrate` antes de deployar.
+
+### Server Actions
+- `src/features/lms/actions/forum.ts` — `getForumsForCourse`, `getLmsThread`, `createLmsThread`, `createLmsPost`, `getAdminForumsForCourse`, `createLmsForum`, `pinLmsThread`, `lockLmsThread`, `deleteLmsForumPost`. `createLmsPost` crea `LmsNotification` para participantes del hilo.
+- `src/features/lms/actions/notifications.ts` — `getStudentNotifications`, `markNotificationRead`, `markAllNotificationsRead`.
+
+### UI — Estudiante
+- `src/app/(aula)/aula/cursos/[id]/foro/page.tsx` — lista de foros y hilos.
+- `src/app/(aula)/aula/cursos/[id]/foro/[threadId]/page.tsx` — detalle del hilo.
+- `src/features/lms/components/LmsForumClient.tsx` — lista de hilos + Dialog para crear nuevo hilo.
+- `src/features/lms/components/LmsForumPostTree.tsx` — árbol recursivo de posts (`PostNode` autorreferencial) con `ReplyForm` inline.
+
+### UI — Admin/Profesor
+- `src/app/(admin)/[slug]/aula/[id]/foro/page.tsx` — moderación del foro.
+- `src/features/lms/components/LmsAdminForumClient.tsx` — ver hilos, anclar, cerrar, crear foro. Extraído en `ThreadRow` + `ForumSection`.
+
+### Bell de notificaciones
+- `src/features/lms/components/NotificationBell.tsx` — badge con contador, dropdown de últimas 20, marcar leída/todas.
+- `src/app/(aula)/layout.tsx` — fetch SSR en el layout, pasa datos iniciales al bell.
+
+### Tab Foro
+- `src/features/lms/components/LmsCourseTabs.tsx` — pestaña "Foro" agregada (ícono `MessageSquare`).
+
+### Pendiente para Fase 4
+- Emails Brevo al crear post (MiniMax-M3).
+- Sanitización XSS del Markdown en foros (MiniMax-M3).
+- Gamificación: `Streak`, `Badge`, `PointEvent`.
+
+## Aula Virtual (LMS) — Fase 3: Foros y Notificaciones
+
+Modelo de datos para discusión asíncrona por curso y sistema de notificaciones in-app.
+
+### Modelos Prisma nuevos
+- `LmsForum` — tablero dentro de un curso (`archived` para "sólo lectura", `order` para orden visual).
+- `LmsForumThread` — hilo individual con `pinned`, `locked`, `lastPostAt` (para ordenar por actividad).
+- `LmsForumPost` — respuesta con `parentPostId` nullable (respuestas anidadas tipo Reddit/GitHub). El body es Markdown crudo (sanitizado server-side en server actions).
+- `LmsNotification` — bell icon de la navbar. `type` libre (NEW_POST, GRADE_POSTED, ANNOUNCEMENT). `read` marca leído/no leído.
+- Relaciones inversas: `User.forumThreads`, `User.forumPosts`, `User.lmsNotifications`; `LmsCourse.forums`.
+
+Migraciones: `20260629191306_lms_forums`, `20260629191923_lms_notifications`.
+
+### Sanitización anti-XSS — `src/shared/lib/sanitize.ts`
+
+Implementación sin dependencias (no se instaló `sanitize-html` ni `dompurify` para mantener el bundle). Cobertura battle-tested:
+- Whitelist de tags (`p`, `br`, `b`, `strong`, `i`, `em`, `u`, `s`, `ul`, `ol`, `li`, `blockquote`, `code`, `pre`, `h3`, `h4`, `a`).
+- Atributos: solo `href` y `title` en `<a>`, con validación de protocolo (`http`, `https`, `mailto`).
+- Strip por defecto de cualquier tag, atributo, protocolo desconocido.
+- State machine con pila de tags abiertos para auto-cerrar al final.
+- `sanitizeForumMarkdown(input)`: cubre `**bold**`, `__bold__`, `*italic*`, `_italic_`, `\`code\``, `[label](url)`, fenced code con lang, blockquote, listas (ordenadas/no ordenadas), headings `###`/`####`.
+- Defensa en 3 capas: todo el texto suelto pasa por `escapeHtml`, los tokens inline reconocidos se re-emiten seguros, URLs se validan contra allowlist.
+
+Vector XSS cubierto: `<script>`, `<img onerror>`, `<style>`, `<iframe>`, `<object>`, `javascript:`, `data:`, `&#x3c;script&#x3e;`, tags sin cerrar.
+
+23 tests unitarios en `src/shared/lib/__tests__/sanitize.test.ts` cubren vectores OWASP XSS Filter Evasion. **Regla crítica: nunca persistir HTML crudo del usuario.** La BD guarda Markdown; el render siempre pasa por `sanitizeForumMarkdown()`.
+
+### Notificaciones Brevo — `src/features/lms/lib/forum-notifications.ts`
+
+- `buildNewForumPostEmail({...})` — plantilla HTML consistente con `buildExamResultEmail` / `buildAdminWelcomeEmail`.
+- `notifyNewForumPost({ threadId, postId, authorId, siteUrl })` — fan-out best-effort a:
+  - Todos los autores previos del hilo (dedupeado por `distinct authorId`).
+  - Estudiantes inscriptos activos en el curso.
+  - Excluye al autor del nuevo post.
+- `notifyNewForumPostBackground(...)` — fire-and-forget (`void Promise`), nunca lanza errores al caller; logs con `console.error`.
+- Las notas internas de estudiantes viven en `LmsNotification` (Bell Icon UI lo levanta Sonnet).
+
+### Server Actions del Foro — `src/features/lms/actions/forums.ts`
+
+| Action | Rol | Descripción |
+| --- | --- | --- |
+| `createLmsForum(slug, data)` | ADMIN/PROFESOR | Crear foro dentro de curso. |
+| `updateLmsForum(slug, data)` | ADMIN/PROFESOR | Editar título / archivar. |
+| `createLmsForumThread(slug, data)` | ADMIN/PROFESOR | Inicia hilo + primer post en transacción. |
+| `toggleForumThreadPin(slug, threadId)` | ADMIN/PROFESOR | Pin / unpin. |
+| `toggleForumThreadLock(slug, threadId)` | ADMIN/PROFESOR | Lock / unlock. |
+| `createLmsForumPost(data)` | Estudiante | Responder desde `/aula`. Pasa body por `sanitizeForumMarkdown`. |
+| `createLmsForumPostAdmin(slug, data)` | ADMIN/PROFESOR | Responder desde panel admin. |
+| `editLmsForumPost(slug, data)` | ADMIN/PROFESOR | Editar post. |
+| `deleteLmsForumPost(slug, data)` | ADMIN/PROFESOR | Soft-delete (body → `[contenido eliminado por el moderador]`). |
+
+Validación de acceso anti-IDOR en cada acción: requiere `academicInstitutionId` del curso coincida con la sesión.
+
+### Tests
+- `src/shared/lib/__tests__/sanitize.test.ts` — 23 unit tests XSS.
+- `tests/e2e/admin/lms-phase3-forums.spec.ts` — smoke test E2E.
+
+### Pendiente para Fase 4
+- Streak / Badge / PointEvent (gamificación).
+- Reconstruir `forum.ts` (de Sonnet) integrando las notifications.
+- Diff side-by-side en UI de edición de post.
+
 
 
 
