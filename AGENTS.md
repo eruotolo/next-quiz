@@ -532,6 +532,13 @@ Feature en `src/features/lms/` y Route Group `src/app/(aula)/` para evolucionar 
 - `syncExamGrades` lee `Result` del examen vinculado y hace upsert de `LmsGrade` (idempotente, notas normalizadas).
 - Migración: `prisma/migrations/20260629185111_lms_assignments_gradebook/`.
 
+## Aula Virtual (LMS) — Fase 3: Foros y Notificaciones
+
+- Modelos: `LmsForum`, `LmsForumThread`, `LmsForumPost` (con `parentPostId` para respuestas anidadas) y `LmsNotification` (Bell Icon in-app).
+- Sanitización HTML/Markdown sin dependencias externas en `src/shared/lib/sanitize.ts` (whitelist de tags, validación de protocolos de URL, state machine para auto-cierre de tags). 23 tests XSS en `__tests__/sanitize.test.ts`.
+- Notificaciones Brevo best-effort en `src/features/lms/lib/forum-notifications.ts`: fan-out a participantes + estudiantes inscriptos, fire-and-forget.
+- Server actions: `src/features/lms/actions/forums.ts` (CRUD foro, hilo, post, pin/lock, soft-delete). Anti-IDOR en todas.
+- Migraciones: `20260629191306_lms_forums`, `20260629191923_lms_notifications`.
 
 
 Feature en `src/features/demo/`. Institución `slug = 'aulika-demo'`, `isDemo = true`, plan FREE.

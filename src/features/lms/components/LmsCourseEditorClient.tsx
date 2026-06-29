@@ -68,7 +68,6 @@ const LESSON_TYPE_ICON: Record<LessonType, React.ComponentType<{ size?: number }
 
 function SortableModuleRow({
     module,
-    slug,
     onToggleExpand,
     expanded,
     onAddLesson,
@@ -76,7 +75,6 @@ function SortableModuleRow({
     onDeleteModule,
 }: {
     module: ModuleWithLessons;
-    slug: string;
     onToggleExpand: (id: string) => void;
     expanded: boolean;
     onAddLesson: (moduleId: string) => void;
@@ -328,7 +326,6 @@ export function LmsCourseEditorClient({ slug, courseId, modules }: Props) {
                                 <SortableModuleRow
                                     key={m.id}
                                     module={m}
-                                    slug={slug}
                                     expanded={expanded.has(m.id)}
                                     onToggleExpand={(id) =>
                                         setExpanded((prev) => {
