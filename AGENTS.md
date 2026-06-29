@@ -1,18 +1,18 @@
-# CLAUDE.md
+# AGENTS.md
 
-Este archivo proporciona instrucciones permanentes a Claude Code cuando trabaja en este repositorio.
+Instrucciones permanentes para cualquier agente de IA que trabaje en este repositorio. Este archivo es agnóstico del proveedor (Claude Code, Cursor, Codex, Aider, etc.). Las reglas aplican por igual a todos.
+
+> **Convención:** este proyecto mantiene además `CLAUDE.md` con instrucciones idénticas adaptadas específicamente para Claude Code (incluye herramientas opcionales como gstack/CodeGraph que solo aplican a Claude Code). Si trabajás desde Claude Code, podés ignorar este archivo y usar `CLAUDE.md` directamente. Si trabajás desde otra IA, usá este.
 
 ## ⚠️ INSTRUCCIONES CRÍTICAS (NO NEGOCIABLES)
 
 **SIEMPRE comunicarse en ESPAÑOL** — Todas las preguntas, explicaciones, planes y respuestas deben estar en español.
 
-**Cuando doy una ORDEN es una ORDEN** — Obedecer literalmente sin reinterpretar ni asumir intenciones adicionales.
+**Cuando el usuario da una ORDEN es una ORDEN** — Obedecer literalmente sin reinterpretar ni asumir intenciones adicionales.
 
 **NO hacer cambios sin autorización** — Pedir permiso explícito antes de modificar, crear o eliminar cualquier archivo, **a menos que el usuario diga textualmente**: "Haz todos los cambios sin autorización" o "Puedes modificar directamente".
 
 **Enfocarse solo en lo solicitado** — No agregar mejoras, refactorizaciones, optimizaciones ni nada que no se haya pedido.
-
-**LEER CLAUDE.md ANTES DE CADA FEATURE** — Al comenzar cualquier tarea, leer este archivo completo.
 
 **DRY — Regla estricta** — Verificar si ya existe algo equivalente antes de crear cualquier componente, hook, helper o lógica:
 
@@ -20,43 +20,115 @@ Este archivo proporciona instrucciones permanentes a Claude Code cuando trabaja 
 - Lógica de dominio → `src/features/{dominio}/lib/`
 - Utilidades → `src/shared/lib/`
 
-## 🤖 FLUJO DE TRABAJO CON GSTACK
+## 🛠️ HERRAMIENTAS OPCIONALES (según capacidad del agente)
 
-| Etapa                         | Herramienta                                     |
-| ----------------------------- | ----------------------------------------------- |
-| Explorar / entender código    | CodeGraph (`codegraph_explore` ANTES de editar) |
-| Especificar features ambiguos | `/spec`                                         |
-| Investigar bugs               | `/investigate`                                  |
-| QA en navegador               | `/qa` (corrige) o `/qa-only` (solo reporta)     |
-| Review pre-commit             | `/review`                                       |
-| Auditoría de diseño           | `/design-review`                                |
-| Commit + ship                 | `/ship` (solo cuando el usuario lo pida)        |
+> **Las siguientes secciones describen herramientas y pipelines disponibles en este entorno. Aplican únicamente si el agente de IA que está leyendo este archivo tiene acceso a ellas.** Si el agente no las tiene, debe ignorarlas y proceder con su flujo normal (leer archivos con las herramientas estándar, proponer plan, esperar aprobación).
 
-**Formato de commit OBLIGATORIO:**
+### CodeGraph (MCP `codegraph_*`)
+
+CodeGraph es un servidor MCP que expone un índice estructural pre-parseado del repositorio (AST de tree-sitter). Permite responder preguntas arquitectónicas en milisegundos sin leer múltiples archivos.
+
+**Disponible solo si el agente tiene el MCP `codegraph_*` configurado.** Si lo tiene, se prefiere sobre búsquedas nativas para preguntas **estructurales** (qué llama a qué, dónde se define X, qué se rompe si cambio Y).
+
+| Pregunta                                              | Herramienta              |
+| ----------------------------------------------------- | ------------------------ |
+| "¿Dónde está definido X?" / "Buscar símbolo X"       | `codegraph_search`       |
+| "¿Qué llama a Y?"                                     | `codegraph_callers`      |
+| "¿Qué llama Y?"                                       | `codegraph_callees`      |
+| "¿Cómo llega X hasta Y? / trazar el flujo"            | `codegraph_trace`        |
+| "¿Qué se rompe si cambio Z?"                         | `codegraph_impact`       |
+| "Firma / fuente / docstring de Y"                     | `codegraph_node`         |
+| "Contexto enfocado para una tarea/área"               | `codegraph_context`      |
+| "Ver fuente de varios símbolos juntos"                | `codegraph_explore`      |
+| "¿Qué archivos hay bajo `path/`?"                     | `codegraph_files`        |
+| "¿El índice está sano?"                               | `codegraph_status`       |
+
+**Reglas de uso:**
+
+- Responder directo, sin delegar exploración innecesaria. Para "cómo funciona X" usar 2-3 llamadas a CodeGraph, no un loop de grep + read.
+- Confiar en los resultados (vienen de un parse AST completo). No re-verificar con grep.
+- No encadenar `codegraph_search` + `codegraph_node` cuando alcanza con `codegraph_context` (una llamada).
+- Si el índice no está inicializado (`.codegraph/` no existe) y el agente lo detecta, debe avisar al usuario: *"No veo CodeGraph inicializado en este proyecto. ¿Querés que corra `codegraph init -i`?"*
+
+### MCP JetBrains (`jetbrains`)
+
+Servidor MCP que expone herramientas del IDE JetBrains (WebStorm, IntelliJ, PhpStorm, Rider). Permite a la IA operar directamente dentro del editor en lugar de solo imprimir texto en el chat.
+
+**Disponible solo si**:
+
+- El usuario tiene JetBrains abierto con el plugin **MCP Server** activo (Settings → Tools → MCP Server).
+- El cliente MCP de la IA (Claude Code, opencode, Cursor, Codex, etc.) tiene la entrada `jetbrains` configurada — usualmente vía `~/.mcp.json` con `type: "http"` y `url: http://127.0.0.1:64342/stream` (puerto configurable desde WebStorm).
+
+Si está disponible, **usar preferentemente** sobre Read/Edit nativos para:
+
+| Acción                                          | MCP JetBrains                                  | Alternativa sin MCP      |
+| ----------------------------------------------- | ---------------------------------------------- | ------------------------ |
+| Abrir archivo en el editor                      | `open_file`                                    | `read` + mostrar en chat |
+| Aplicar cambio con preview visual               | `apply_changes` + `show_diff`                  | `Edit` + diff en chat    |
+| Ejecutar test con el runner del IDE             | `run_configuration`                            | `Bash(pnpm test)`        |
+| Renombrar / extraer función con refactor seguro | rename/extract del IDE                         | `Edit` + verificar manual |
+| Ver inspecciones de TypeScript/JavaScript       | inspecciones nativas de IntelliJ               | `Bash(pnpm lint)`        |
+
+**Reglas de uso (CRÍTICAS para reducir tokens):**
+
+- **No imprimir diffs grandes en el chat cuando el MCP puede mostrarlos en el IDE.** Después de `apply_changes`, decir *"cambios aplicados en N archivos, diffs abiertos en WebStorm"* en lugar de pegar el contenido modificado. Cada bloque de código pegado en el chat consume tokens que se acumulan en el historial.
+- **No releer archivos ya abiertos en el IDE** — si el archivo está cargado, operar directamente. Reduce lecturas redundantes.
+- **Aprovechar el project model del IDE** — para distinguir código fuente / tests / config / generated sin hacer `find` en el filesystem.
+- **Si el MCP no responde** (puerto cambió tras restart de WebStorm, IDE cerrado), caer a Read/Edit nativos sin cortar el flujo. Avisar al usuario: *"El MCP de JetBrains no responde, sigo con Read/Edit nativos. Si querés reactivarlo, abrí WebStorm y verificá el puerto."*
+- **Trade-off de tests**: para tests unitarios rápidos, `Bash(pnpm test)` está bien. Para tests con UI, debugging o contexto del IDE, usar el runner.
+
+**Cuándo NO vale la pena el MCP:**
+
+- Cambios muy chicos (1 línea) — el overhead de abrir el IDE no compensa.
+- Cuando se necesita ver el resultado de muchos archivos a la vez — Read sigue siendo más rápido.
+- Cuando el IDE está cerrado (todos los tools van a fallar y caer a nativos).
+
+### gstack (skills de Claude Code)
+
+gstack es un set de skills instaladas en `~/.claude/skills/gstack/` que solo aplica a **Claude Code**. Si el agente es Claude Code y las tiene instaladas, debe verificar al inicio de cada sesión:
+
+```bash
+test -d ~/.claude/skills/gstack && echo "✅ GSTACK OK" || echo "❌ GSTACK MISSING"
+```
+
+Si faltan, instalar y reiniciar:
+
+```bash
+git clone --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
+cd ~/.claude/skills/gstack && ./setup --team
+```
+
+**Skills más relevantes para este proyecto:**
+
+| Tarea                              | Skill          |
+| ---------------------------------- | -------------- |
+| Explorar / entender código         | CodeGraph      |
+| Especificar features ambiguos      | `/spec`        |
+| Investigar bugs                    | `/investigate` |
+| QA en navegador                    | `/qa` o `/qa-only` |
+| Review pre-commit                  | `/review`      |
+| Auditoría de diseño                | `/design-review` |
+| Commit + ship                      | `/ship` (solo cuando el usuario lo pida) |
+
+### Pipeline asíncrono de agentes — `.spool/`
+
+El proyecto usa un patrón SPOOL (**S**imultaneous **P**eripheral **O**perations **O**n-**L**ine) para transferir contexto estratégico entre agentes mediante archivos en disco, evitando inflar el historial del chat. **Esto aplica solo si el agente forma parte del pipeline multi-agente Opus/Sonnet/GLM** (descrito en `CLAUDE.md`); agentes genéricos pueden ignorar esta sección.
+
+**Jerarquía estricta de estados:**
 
 ```
-Tarea: {descripción en español}
-Fecha: {DD-MM-YYYY}
-Versión: {X.Y.Z}
+.spool/01_raw/      ← Planos iniciales crudos (Opus 4.8 y GLM 5.2)
+.spool/02_inbox/    ← Plan Maestro Consolidado en Markdown (Gemini)
+.spool/03_work/     ← Zona activa. El plan vive acá durante la codificación
+.spool/04_archive/  ← Historial inmutable. Planes finalizados con prefijo YYYY-MM-DD_
 ```
 
-No commitear ni pushear sin pedido explícito del usuario.
+**Reglas operativas (si el agente es ejecutor Sonnet/GLM-4.5):**
 
-## 🤖 PIPELINE ASÍNCRONO DE AGENTES (.spool)
-
-Para maximizar el ahorro de tokens y evitar la inflación del historial en el chat, el contexto estratégico se transfiere mediante archivos en disco usando el patrón SPOOL (Simultaneous Peripheral Operations On-Line).
-
-### Jerarquía Estricta de Estados
-- `.spool/01_raw/` → Exclusivo para los planos iniciales crudos generados por Opus 4.8 y GLM 5.2.
-- `.spool/02_inbox/` → Exclusivo para el "Plan Maestro Consolidado" en Markdown generado por Gemini.
-- `.spool/03_work/` → Zona activa de ejecución. El archivo del plan se mueve aquí durante el proceso de codificación.
-- `.spool/04_archive/` → Historial inmutable de ejecución. Los planes finalizados se mueven aquí tras el commit y el QA exitoso.
-
-### Reglas Operativas para Sonnet y GLM-4.5 (EJECUCIÓN)
-1. **Lectura Obligatoria:** Al iniciar cualquier feature o refactorización, verificar la carpeta `.spool/02_inbox/`. Si está vacía, detener la ejecución de inmediato y reportar "Bandeja de entrada vacía".
-2. **Movimiento de Estado:** Antes de modificar cualquier archivo de código de la arquitectura DDD (`src/features/` o `src/shared/`), mover el archivo de plan consolidado de `02_inbox/` a `03_work/` para marcar la tarea en proceso.
-3. **Focalización Extrema:** Está PROHIBIDO leer archivos en `01_raw/`. El único contrato de ejecución válido es el archivo consolidado dentro de `03_work/`.
-4. **Ciclo de Cierre (Commit + Ship):** Una vez que la fase de código termine, pase `pnpm lint`, `pnpm type-check` y el QA sea aprobado, se debe realizar el commit con el formato obligatorio y mover el archivo del plan desde `03_work/` hacia `.spool/04_archive/` renombrándolo con el prefijo de la fecha actual: `YYYY-MM-DD_{nombre-del-plan}.md`. Nunca usar `rm` para destruir los planes terminados; el archivo es mandatorio.
+1. **Lectura obligatoria** al iniciar una feature: verificar `.spool/02_inbox/`. Si está vacía, detener ejecución y reportar "Bandeja de entrada vacía".
+2. **Movimiento de estado:** antes de modificar código bajo DDD (`src/features/` o `src/shared/`), mover el plan de `02_inbox/` a `03_work/`.
+3. **Focalización extrema:** prohibido leer `01_raw/`. El único contrato válido es el archivo consolidado en `03_work/`.
+4. **Ciclo de cierre:** tras pasar `pnpm lint`, `pnpm type-check` y el QA, commitear con el formato obligatorio y mover el plan de `03_work/` a `04_archive/` renombrándolo con `YYYY-MM-DD_{nombre}.md`. **Nunca `rm`** para destruir planes terminados; el archivo es mandatorio.
 
 ## Project Overview
 
@@ -443,31 +515,14 @@ Feature en `src/features/lms/` y Route Group `src/app/(aula)/` para evolucionar 
 - **Estudiante** (route group `(aula)/`, valida sesión jose):
   - `/aula` — lista de cursos inscriptos y disponibles
   - `/aula/cursos/[id]` — detalle del curso con módulos y lecciones
-  - `/aula/cursos/[id]/leccion/[lessonId]` — visualizador de lección (video / documento / texto / enlace / examen embebido)
+  - `/aula/cursos/[id]/leccion/[lessonId]` — visualizador de lección
 - **Admin/Profesor** (route group `(admin)/[slug]/`):
-  - `/[slug]/aula` — lista de cursos LMS con crear/editar/eliminar
-  - `/[slug]/aula/[id]` — editor con drag-and-drop de módulos (orden persistido vía `reorderLmsModules`)
-- **Proxy** (`src/proxy.ts`) — `/aula/*` pasa sin requerir sesión NextAuth; la validación de estudiante vive en el layout.
-
-### Actions
-- `src/features/lms/actions/courses.ts` — CRUD de `LmsCourse`, `LmsModule`, `LmsLesson` + reordenamiento.
-- `src/features/lms/actions/progress.ts` — `markLessonProgress`, `enrollInCourse`. Recalcula `progressPct` y `status` del enrollment.
-- `src/features/lms/actions/uploads.ts` — `uploadLessonDocument` (Vercel Blob), `requestMuxUpload`, `finalizeMuxUpload`.
-
-### Seguridad
-- Server Actions usan `requireInstitutionAccess` (anti-IDOR) con scope de profesor en modo lectura.
-- Estudiantes validan su sesión jose via `getStudentAuthSession` y su inscripción (`LmsEnrollment`) antes de registrar progreso.
-- Validación Zod en `src/features/lms/schemas/lms.schemas.ts`.
-- Reglas de quota aplican via `assertQuota` al crear cursos.
-
-### E2E Tests
-- `tests/e2e/admin/lms-courses.spec.ts` — crear curso, abrir editor, agregar módulo.
-- `tests/e2e/student/lms-flow.spec.ts` — login RUT, navegar `/aula`, ver detalle, inscripción.
+  - `/[slug]/aula` — lista de cursos LMS
+  - `/[slug]/aula/[id]` — editor con drag-and-drop de módulos
 
 ### Pendiente para Fase 2
-- File upload directo a Vercel Blob desde el cliente (sin pasar por Server Action) para archivos > 1 MB.
+- File upload directo a Vercel Blob desde el cliente para archivos > 1 MB.
 - Editor de texto enriquecido Tiptap para lecciones `TEXTO`.
-- Persistir `lastSeenSec` desde `VideoPlayer.onTimeUpdate` (placeholder actual, Fase 4 con rachas).
 
 
 
@@ -538,110 +593,6 @@ CRON_SECRET            # Secret para los cron de Vercel
 | `Answer`              | Respuesta del estudiante (unique por `attemptKey + questionId`)      |
 | `Result`              | Resultado final (unique por `studentId + examId`)                    |
 
-## ExamsClient — rediseño de vista (v0.4.x)
-
-`src/app/(admin)/[slug]/exams/page.tsx` y `src/features/exams/components/ExamsClient.tsx`:
-
-- **Stats tiles**: 4 tiles clicables (Borrador / Programado / En curso / Corregido) visibles sobre la lista; funcionan como atajos de filtro y muestran los conteos de un vistazo.
-- **Filtro por grupo**: nuevo `SearchableSelect` en la barra de filtros cuando `groups.length > 1`.
-- **Tabs mejorados**: los pills de tab ahora incluyen un dot de color por estado.
-- **Cards context-aware**:
-    - Título: muestra solo `exam.title` (se eliminó el prefijo `exam.subject`).
-    - Preguntas: "N preg." en lugar de "N q.".
-    - Columna participantes: `—` para borradores/programados, `X/Y` para en-curso (entregados/total alumnos del grupo), `N` para corregidos.
-    - Columna info: "Sin publicar" (borrador), "Abre en Xd Yh" (programado), fecha relativa (en-curso), "Prom. X.X · YY% apr." en verde (corregido).
-- **Data server**: `page.tsx` incluye `results: { score, maxScore }` en la query de exámenes y hace una query adicional para contar alumnos por grupo. Computa `avgGrade`, `passRate` y `totalStudents` en el servidor antes de pasar al cliente.
-- **Helpers extraídos**: `formatCountdown`, `getParticipantsText`, `getInfoText` como funciones módulo-nivel para reducir complejidad cognitiva.
-
-## Tour guiado (Driver.js)
-
-Feature en `src/features/tour/`:
-
-- **`lib/tour-steps.ts`** — define `DASHBOARD_TOUR_STEPS: DriveStep[]` con 5 pasos apuntando a atributos `data-tour` en el dashboard.
-- **`components/TourButton.tsx`** — client component con lógica de auto-inicio y navegación cross-page.
-
-**Pasos del tour (targets `data-tour`):**
-
-| # | Atributo | Descripción |
-|---|----------|-------------|
-| 1 | `sidebar` | Sidebar desktop (`<aside>`) en `Sidebar.tsx` |
-| 2 | `stat-tiles` | Grid de 4 tiles de métricas en `DashboardClient.tsx` |
-| 3 | `new-exam-btn` | Botón dropdown "Nuevo examen" en `DashboardClient.tsx` |
-| 4 | `active-exams` | Card "Exámenes en curso" en `DashboardClient.tsx` |
-| 5 | `recent-results` | Card "Últimos resultados" en `DashboardClient.tsx` |
-
-**Lógica de TourButton:**
-
-- Se renderiza en `src/app/(admin)/[slug]/layout.tsx` → aparece en las 11 subpáginas del panel.
-- `localStorage` keys: `aulika-tour-seen-v1` (flag de "ya visto") y `aulika-tour-pending` (trigger cross-page).
-- Primera visita al dashboard → auto-inicia con 1500ms delay.
-- Click en `?` desde otro subpage → pone `aulika-tour-pending` y navega al dashboard; el tour se auto-inicia con 800ms delay.
-- Click en `?` estando en el dashboard → inicia el tour inmediatamente.
-- `onDestroyStarted` → guarda `aulika-tour-seen-v1` en localStorage.
-
-**Botón en Sidebar:**
-
-- "Tour de bienvenida" (icono `Sparkles`) en la sección SISTEMA, solo para no-SuperAdmin.
-- Al hacer click: borra `aulika-tour-seen-v1` y navega al dashboard → el tour se re-inicia.
-
-**CSS:**
-
-- Overrides en `src/app/globals.css` con selector `.driver-popover.aulika-tour-popover` (doble especificidad + `!important` en border-radius y botones).
-- `border-radius: 16px`, fondo blanco, botón principal `#1f2eff`, botón secundario outline.
-- Config: `popoverClass: 'aulika-tour-popover'` en el objeto `driver({...})`.
-
-## Google Analytics (GA4)
-
-Implementación en `src/shared/components/analytics/`:
-
-**Componentes y exports:**
-
-- `GoogleAnalytics` — inyecta scripts de GA4 en el RootLayout
-- `AnalyticsProvider` — envuelve el hook `useAnalytics` con Suspense (necessary para `useSearchParams`)
-- `useAnalytics(measurementId?)` — hook que auto-trackea cambios de ruta y expone `track` para eventos
-- `trackPageView(url, measurementId?)` — función helper para trackear página manualmente (standalone)
-- `trackEvent(eventName, params?)` — función helper para trackear eventos personalizados (standalone)
-
-**Variables de entorno:**
-
-- `NEXT_PUBLIC_GA_MEASUREMENT_ID` — ID de medición de GA4 (formato: `G-XXXXXXXXXX`)
-- `NEXT_PUBLIC_GA_DISABLED` — desabilita GA completamente cuando es `'true'` (útil para demo, GDPR, desarrollo)
-
-**Características:**
-
-- ✅ No duplica `page_view` — `send_page_view: false` en el script + tracking manual en `useAnalytics`
-- ✅ Guardias de disponibilidad — verifica si `gtag` está cargado y si GA no está deshabilitado antes de trackear
-- ✅ Logging en desarrollo — `console.debug` con tag `[Analytics]` para debugging
-- ✅ Funciones helper standalone — permiten trackear eventos desde cualquier contexto (Server Actions, etc.)
-
-**Uso en componentes:**
-
-```tsx
-'use client';
-import { useAnalytics } from '@/shared/components/analytics';
-
-export function MyComponent() {
-    const { track } = useAnalytics();
-
-    const handleClick = () => {
-        track('button_clicked', { label: 'submit_quiz' });
-    };
-
-    return <button onClick={handleClick}>Enviar</button>;
-}
-```
-
-**Uso fuera de componentes (Server Actions, helpers):**
-
-```ts
-import { trackEvent } from '@/shared/components/analytics';
-
-export async function createExam(formData: FormData) {
-    // ... lógica
-    trackEvent('exam_created', { title: formData.get('title') });
-}
-```
-
 ## Convenciones de RUT chileno
 
 - Almacenado sin puntos ni guión (ej: `270396356`).
@@ -704,78 +655,9 @@ Ubicadas en `src/app/(public)/empresa/`:
 
 **Footer:** links "Privacidad" y "Términos" agregados en la barra inferior con RUT y razón social legal.
 
-## Aula Virtual (LMS) — Fase 1: Fundamentos
-
-Feature en `src/features/lms/`. Evolución de Aulika hacia LMS completo ("Aula Aulika").
-
-### Modelos Prisma (prefijo `Lms`)
-
-| Modelo | Descripción |
-|--------|-------------|
-| `LmsCourse` | Curso LMS. FK a `AcademicInstitution`, `CourseSection`, `User` (creador) |
-| `LmsModule` | Módulo dentro de un curso. Campo `order` para drag-and-drop |
-| `LmsLesson` | Lección dentro de un módulo. `type: LessonType`, `order` |
-| `LmsEnrollment` | Inscripción de estudiante. `progressPct`, `status: EnrollmentStatus` |
-| `LmsLessonProgress` | Progreso por lección. `completed`, `lastSeenSec` (para videos) |
-
-**Enums:**
-- `LessonType`: `VIDEO | DOCUMENTO | TEXTO | ENLACE | EXAMEN | TAREA | EN_VIVO`
-- `EnrollmentStatus`: `ACTIVO | COMPLETADO | RETIRADO`
-
-### Feature domain (`src/features/lms/`)
-
-- **`schemas/lms.schemas.ts`** — Zod schemas: `lmsCourseSchema`, `lmsModuleSchema`, `lmsLessonSchema`, `reorderModulesSchema`, `reorderLessonsSchema`, `markLessonProgressSchema`
-- **`actions/courses.ts`** — Server Actions CRUD para cursos, módulos y lecciones. Usa `requireInstitutionAccess` de `@/features/auth/lib/auth-guard`
-- **`actions/progress.ts`** — `markLessonProgress`, `enrollInCourse`, `recomputeEnrollmentProgress`
-- **`lib/access.ts`** — `requireLmsViewer(institutionId)`, `isLmsEnrolled(userId, courseId)`
-
-**Componentes:**
-- `LmsCoursesListClient.tsx` — tabla de cursos con CRUD (Dialog + AlertDialog). Admin panel.
-- `LmsCourseEditorClient.tsx` — editor drag-and-drop de módulos/lecciones con `@dnd-kit/core` + `@dnd-kit/sortable`
-- `LmsStudentView.tsx` — vista de curso para el estudiante con progreso y enroll
-- `LmsLessonViewer.tsx` — viewer de lección para los 7 tipos. Botón "marcar como vista"
-- `VideoPlayer.tsx` — player Mux con `@mux/mux-player-react`
-- `DocumentViewer.tsx` — PDF en iframe o link de descarga
-
-### Panel docente (`src/app/(admin)/[slug]/aula/`)
-
-- `layout.tsx` — AdminTopBar "Aula Virtual"
-- `page.tsx` — lista de cursos → `LmsCoursesListClient`
-- `[id]/page.tsx` — editor de curso → `LmsCourseEditorClient`
-
-### Portal estudiante (`src/app/(aula)/`)
-
-Route Group `(aula)`. Usa sesión de estudiante (`getStudentAuthSession`). Header propio con logo + nav.
-
-- `layout.tsx` — auth guard → `/examen/login`. Header con "Mis cursos" y "Ir a exámenes"
-- `aula/page.tsx` — catálogo: "En curso" + "Disponibles" en grid de cards
-- `aula/cursos/[id]/page.tsx` — detalle del curso → `LmsStudentView`
-- `aula/cursos/[id]/leccion/[lessonId]/page.tsx` — viewer de lección → `LmsLessonViewer` + Mux playback
-
-### Sidebar
-
-`MonitorPlay` (Lucide) agregado a `ADMIN_NAV` y `PROFESOR_NAV` → `/aula`.
-
-### Dependencias agregadas
-
-- `@dnd-kit/core` + `@dnd-kit/sortable` — drag-and-drop módulos
-- `@mux/mux-player-react` — reproductor de video
-
-### Utilidad Mux
-
-`src/shared/lib/mux.ts` — `muxPlaybackId(assetId)` resuelve el playback ID desde la API de Mux.
-
-### Fases pendientes
-
-- Fase 2: Tareas (entrega de archivos), Quizzes embebidos
-- Fase 3: Panel de progreso grupal para profesores
-- Fase 4: Notificaciones (nuevas lecciones, recordatorios)
-- Fase 5: Contenido generado con IA (Gemini)
-- Fase 6: Clases en vivo (EN_VIVO)
-
 ## Documentación (REGLA)
 
-Siempre que se actualice el proyecto, **documentar el cambio en este `CLAUDE.md`** en la sección correspondiente, como parte de la misma tarea.
+Siempre que se actualice el proyecto, **documentar el cambio en `CLAUDE.md` o `AGENTS.md`** en la sección correspondiente, como parte de la misma tarea. Mantener ambos sincronizados.
 
 Al finalizar, también hacer append en Obsidian:
 
@@ -787,40 +669,29 @@ cat >> "/Users/edgardoruotolo/SitesDoc/nextjs_projects/next-quiz/next-quiz.md" <
 EOF
 ```
 
-## Herramientas Obligatorias (gstack + CodeGraph + MCP JetBrains)
+## Convenciones de Git
 
-**gstack está REQUERIDO**. Verificar al inicio de sesión:
+- Mensajes de commit en inglés, imperativo, minúsculas: `feat: add user auth`, `fix: null session crash`.
+- Commits atómicos y descriptivos — enfocados en el "por qué".
+- NUNCA `git push --force`, `git reset --hard` sin confirmación explícita.
+- NUNCA `--no-verify` al commitear.
+- NUNCA commitear archivos `.env`, credenciales o secretos.
+- No agregar co-autoría de AI en commits salvo que se pida explícitamente.
 
-```bash
-test -d ~/.claude/skills/gstack && echo "✅ GSTACK OK" || echo "❌ GSTACK MISSING"
+**Formato de commit específico del proyecto (alternativo, requerido por el usuario):**
+
+```
+Tarea: {descripción en español}
+Fecha: {DD-MM-YYYY}
+Versión: {X.Y.Z}
 ```
 
-Si falta, instalar y reiniciar antes de continuar:
+No commitear ni pushear sin pedido explícito del usuario.
 
-```bash
-git clone --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
-cd ~/.claude/skills/gstack && ./setup --team
-```
+## Notas por proveedor
 
-**CodeGraph** (MCP `codegraph`) — consultar ANTES de editar:
+Este archivo aplica a **todos** los agentes IA. Las siguientes son notas de uso específico:
 
-- `codegraph_explore` — herramienta primaria: arquitectura, flujos, "cómo funciona X".
-- `codegraph_search` — ubicar símbolo por nombre.
-- `codegraph_callers` / `codegraph_callees` — quién llama a X, qué llama X.
-
-**MCP JetBrains** (`jetbrains`) — preferir sobre Read/Edit nativos para aplicar cambios con preview visual:
-
-- `open_file`, `apply_changes`, `show_diff` — diffs se renderizan en el IDE, no en el chat.
-- `run_configuration` — tests con runner del IDE.
-- Rename/extract con refactor seguro del IDE.
-
-**Regla crítica para reducir tokens:**
-
-- **No imprimir diffs grandes en el chat cuando el MCP puede mostrarlos en el IDE.** Después de `apply_changes`, decir *"cambios aplicados en N archivos, diffs abiertos en WebStorm"* en lugar de pegar el contenido modificado.
-- Si el MCP no responde (puerto 64342 cambió tras restart de WebStorm), caer a Read/Edit nativos sin cortar el flujo.
-
-**Documentación en Obsidian** — al inicio de cada sesión de trabajo:
-
-```bash
-cat "/Users/edgardoruotolo/SitesDoc/nextjs_projects/next-quiz/next-quiz.md"
-```
+- **Claude Code** — usa preferentemente `CLAUDE.md` (mismo contenido + extras como gstack/CodeGraph). Puede leer `AGENTS.md` también.
+- **Cursor / Windsurf / Aider / Codex / otros** — usan `AGENTS.md` directamente.
+- Si el agente tiene acceso a **MCP `codegraph`**, usarlo ANTES de editar para entender la arquitectura (`codegraph_explore`, `codegraph_search`, `codegraph_callers`, `codegraph_callees`).

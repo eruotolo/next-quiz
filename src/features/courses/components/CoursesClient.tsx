@@ -248,8 +248,8 @@ export function CoursesClient({
                                             </td>
                                             <td className="text-mute px-6 py-4 text-xs">
                                                 {(c.group?.professors?.length ?? 0) > 0
-                                                    ? c
-                                                          .group!.professors.map(
+                                                    ? c.group?.professors
+                                                          .map(
                                                               (p) => `${p.name} ${p.lastname}`,
                                                           )
                                                           .join(', ')

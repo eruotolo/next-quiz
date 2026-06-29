@@ -107,6 +107,7 @@ model AcademicInstitution {
   subscriptions       Subscription[]
   auditLogs           AuditLog[]
   bankQuestions       BankQuestion[]
+  lmsCourses          LmsCourse[]
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
 
@@ -169,6 +170,7 @@ model CourseSection {
   groupId    String?        @db.Uuid
   group      Group?         @relation(fields: [groupId], references: [id], onDelete: SetNull)
   exams      Exam[]
+  lmsCourses LmsCourse[]
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
 
@@ -246,6 +248,9 @@ model User {
   createdExams          Exam[]               @relation("ExamCreatedBy")
   auditLogs             AuditLog[]
   createdBankQuestions  BankQuestion[]       @relation("BankQuestionCreatedBy")
+  createdLmsCourses     LmsCourse[]          @relation("LmsCourseCreatedBy")
+  lmsEnrollments        LmsEnrollment[]
+  lmsLessonProgress     LmsLessonProgress[]
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
 
@@ -263,6 +268,24 @@ enum QuestionDifficulty {
   FACIL
   MEDIA
   DIFICIL
+}
+
+// ─── Enums del LMS (Aula Virtual) ────────────────────────────────────────────
+
+enum LessonType {
+  VIDEO
+  DOCUMENTO
+  TEXTO
+  ENLACE
+  EXAMEN
+  TAREA
+  EN_VIVO
+}
+
+enum EnrollmentStatus {
+  ACTIVO
+  COMPLETADO
+  RETIRADO
 }
 
 // ─── Exams ───────────────────────────────────────────────────────────────────
@@ -300,6 +323,7 @@ model Exam {
   results               Result[]
   answers               Answer[]
   attempts              ExamAttempt[]
+  lmsLessons            LmsLesson[]
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
 
@@ -588,4 +612,121 @@ model WebhookEvent {
 
   @@index([topic, externalId])
   @@index([receivedAt])
+}
+
+// ─── LMS (Aula Virtual) ──────────────────────────────────────────────────────
+// Cubre Fase 1: cursos, módulos, lecciones, inscripciones y progreso. Los
+// modelos usan el prefijo `Lms` para no colisionar con `CourseSection` (materias
+// del motor de exámenes) ni con `Course` (palabra reservada conceptual del LMS).
+// El plan maestro del Aula Aulika define Course, Module, Lesson, LessonProgress
+// y Enrollment como núcleo; aquí se materializan con FK a Exam para que una
+// lección pueda embeber un examen Aulika (LessonType.EXAMEN).
+
+// Curso del Aula Virtual. Unidad de negocio de mayor jerarquía: agrupa módulos
+// y lecciones. Independiente del motor de exámenes pero vinculable a una materia
+// existente (CourseSection) para mantener coherencia con la jerarquía académica.
+model LmsCourse {
+  id                    String               @id @default(uuid()) @db.Uuid
+  title                 String
+  description           String?
+  coverImageUrl         String?
+  published             Boolean              @default(false)
+  academicInstitutionId String?              @db.Uuid
+  academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: Cascade)
+  // Vínculo opcional a la materia del motor de exámenes. Si se setea, los
+  // grupos que ya están asignados a esa materia quedan auto-inscriptos al LMS.
+  courseSectionId       String?              @db.Uuid
+  courseSection         CourseSection?       @relation(fields: [courseSectionId], references: [id], onDelete: SetNull)
+  createdById           String?              @db.Uuid
+  createdBy             User?                @relation("LmsCourseCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  modules               LmsModule[]
+  enrollments           LmsEnrollment[]
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  @@index([academicInstitutionId])
+  @@index([courseSectionId])
+  @@index([published])
+  @@index([createdById])
+}
+
+// Módulo del curso. Agrupa lecciones bajo un título y orden pedagógico.
+model LmsModule {
+  id          String     @id @default(uuid()) @db.Uuid
+  title       String
+  description String?
+  order       Int        @default(0)
+  courseId    String     @db.Uuid
+  course      LmsCourse  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     LmsLesson[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([courseId])
+}
+
+// Lección. Unidad pedagógica mínima. Soporta múltiples tipos: video (Mux),
+// documento (Vercel Blob / PDF), texto enriquecido (Tiptap JSON), enlace,
+// examen Aulika embebido (FK a Exam) o tarea (binding con Assignment en Fase 2).
+model LmsLesson {
+  id            String           @id @default(uuid()) @db.Uuid
+  title         String
+  type          LessonType       @default(TEXTO)
+  order         Int              @default(0)
+  // Contenido de la lección
+  contentJson   Json?            // Texto enriquecido (Tiptap)
+  videoAssetId  String?          // ID de Mux (playback id)
+  videoUploadId String?          // ID de upload de Mux (polling)
+  fileUrl       String?          // URL del documento (Vercel Blob)
+  externalLink  String?          // Enlace externo
+  durationSec   Int?             // Duración estimada (videos/lecturas)
+  // Integración con Aulika: la lección embebe un examen por FK. Setear type=EXAMEN
+  // implica examId obligatorio (validado en Server Actions).
+  examId        String?          @db.Uuid
+  exam          Exam?            @relation(fields: [examId], references: [id], onDelete: SetNull)
+  moduleId      String           @db.Uuid
+  module        LmsModule        @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress      LmsLessonProgress[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([moduleId])
+  @@index([examId])
+}
+
+// Inscripción de un estudiante a un curso del LMS. Una sola inscripción activa
+// por usuario/curso (constraint @@unique). El progreso global se calcula a
+// partir de LmsLessonProgress.
+model LmsEnrollment {
+  id          String           @id @default(uuid()) @db.Uuid
+  userId      String           @db.Uuid
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId    String           @db.Uuid
+  course      LmsCourse        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  status      EnrollmentStatus @default(ACTIVO)
+  progressPct Int              @default(0)
+  enrolledAt  DateTime         @default(now())
+  completedAt DateTime?
+
+  @@unique([userId, courseId])
+  @@index([courseId])
+  @@index([userId])
+}
+
+// Progreso individual por lección. Una fila por (user, lesson). `lastSeenSec`
+// guarda el segundo de reproducción para videos (sección Fase 1, base para
+// reanudar en Fase 4+).
+model LmsLessonProgress {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @db.Uuid
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId    String    @db.Uuid
+  lesson      LmsLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  completed   Boolean   @default(false)
+  lastSeenSec Int?
+  completedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([userId, lessonId])
+  @@index([lessonId])
 }

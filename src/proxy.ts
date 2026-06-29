@@ -39,6 +39,13 @@ export default auth((req: NextAuthRequest) => {
         return protectedResponse;
     }
 
+    // El Aula Virtual del estudiante se sirve bajo /aula/* y valida la sesión
+    // de estudiante (cookie jose) en su propio layout. No debe ser bloqueada
+    // por el chequeo de NextAuth que sigue a continuación.
+    if (pathname.startsWith('/aula')) {
+        return protectedResponse;
+    }
+
     if (!session) return NextResponse.redirect(new URL('/login', req.url));
 
     if (session.user.userRoleName === USER_ROLE.STUDENT) {

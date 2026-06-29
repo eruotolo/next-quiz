@@ -1,0 +1,41 @@
+import { getStudentAuthSession } from '@/features/exam-session/lib/session';
+import { redirect } from 'next/navigation';
+import { LogoLockup } from '@/shared/components/branding/logo';
+import { GraduationCap } from 'lucide-react';
+import Link from 'next/link';
+import type { ReactNode } from 'react';
+
+export default async function AulaRootLayout({ children }: { children: ReactNode }) {
+    const session = await getStudentAuthSession();
+    if (!session) redirect('/examen/login');
+
+    return (
+        <div className="bg-paper min-h-screen">
+            <header className="border-border bg-white">
+                <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+                    <Link href="/aula" className="flex items-center gap-2">
+                        <LogoLockup size={28} />
+                        <span className="text-mute font-mono text-xs tracking-wider uppercase">
+                            Aula Virtual
+                        </span>
+                    </Link>
+                    <nav className="flex items-center gap-4 text-sm">
+                        <Link
+                            href="/aula"
+                            className="text-ink-dim hover:text-ink flex items-center gap-1.5"
+                        >
+                            <GraduationCap size={16} /> Mis cursos
+                        </Link>
+                        <Link
+                            href="/examen/seleccion"
+                            className="text-mute hover:text-ink-dim text-xs"
+                        >
+                            Ir a exámenes
+                        </Link>
+                    </nav>
+                </div>
+            </header>
+            <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+        </div>
+    );
+}

@@ -51,7 +51,7 @@ export function TourButton({ slug }: Props) {
     useEffect(() => {
         if (pageKey !== 'dashboard') return;
         if (localStorage.getItem(DASHBOARD_TOUR_KEY)) return;
-        const dashSteps = PAGE_TOUR_STEPS['dashboard'];
+        const dashSteps = PAGE_TOUR_STEPS.dashboard;
         if (!dashSteps) return;
         const t = setTimeout(() => startTour(dashSteps), 1500);
         return () => clearTimeout(t);
