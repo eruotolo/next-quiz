@@ -524,6 +524,14 @@ Feature en `src/features/lms/` y Route Group `src/app/(aula)/` para evolucionar 
 - File upload directo a Vercel Blob desde el cliente para archivos > 1 MB.
 - Editor de texto enriquecido Tiptap para lecciones `TEXTO`.
 
+## Aula Virtual (LMS) — Fase 2: Tareas y Libro de Calificaciones
+
+- Modelos: `LmsAssignment` (1:1 con lección TAREA), `LmsSubmission` (`@@unique([assignmentId, studentId])`), `LmsGradebookItem` (peso, tipo, vínculos a Exam o Assignment), `LmsGrade` (`@@unique([gradebookItemId, studentId])`). Enums `LmsSubmissionStatus`, `LmsGradebookItemType`.
+- Cálculo en `src/features/lms/lib/gradebook.ts`: funciones puras de promedio ponderado escala chilena 1.0–7.0 con clipping, redondeo a 2 decimales y validación de suma de pesos. Tests unitarios en `__tests__/gradebook.test.ts` (28 tests).
+- Actions: `assignments.ts` (CRUD asignación + submit + grade + list) y `gradebook.ts` (CRUD item + record grade + sync exam + lectura del gradebook del curso).
+- `syncExamGrades` lee `Result` del examen vinculado y hace upsert de `LmsGrade` (idempotente, notas normalizadas).
+- Migración: `prisma/migrations/20260629185111_lms_assignments_gradebook/`.
+
 
 
 Feature en `src/features/demo/`. Institución `slug = 'aulika-demo'`, `isDemo = true`, plan FREE.

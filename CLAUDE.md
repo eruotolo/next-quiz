@@ -469,6 +469,84 @@ Feature en `src/features/lms/` y Route Group `src/app/(aula)/` para evolucionar 
 - Editor de texto enriquecido Tiptap para lecciones `TEXTO`.
 - Persistir `lastSeenSec` desde `VideoPlayer.onTimeUpdate` (placeholder actual, Fase 4 con rachas).
 
+## Aula Virtual (LMS) — Fase 2: Tareas y Libro de Calificaciones
+
+Modelos y lógica para entregas de estudiantes (archivo o texto), calificación del docente y cálculo del promedio final ponderado en escala chilena 1.0–7.0.
+
+### Modelos Prisma nuevos
+- `LmsAssignment` — 1:1 con una lección de tipo TAREA. `instructions`, `dueAt`, `maxScore`.
+- `LmsSubmission` — entrega por estudiante (`@@unique([assignmentId, studentId])`). Estados: `PENDIENTE · ENTREGADO · CALIFICADO · ATRASADO`.
+- `LmsGradebookItem` — unidad evaluable del curso con `weight` (0..1) y tipo (`EXAMEN · TAREA · PARTICIPACION · MANUAL`). Puede vincularse a `Exam` (sincronización automática) o a `Assignment`.
+- `LmsGrade` — nota individual de un estudiante en una unidad (`@@unique([gradebookItemId, studentId])`).
+- Enums: `LmsSubmissionStatus`, `LmsGradebookItemType`.
+
+Migración: `prisma/migrations/20260629185111_lms_assignments_gradebook/migration.sql`.
+
+### Cálculo del promedio ponderado — `src/features/lms/lib/gradebook.ts`
+
+Funciones puras (sin acceso a BD, fáciles de testear):
+- `calculateFinalGrade(entries)` — promedio ponderado con clipping a [1.0, 7.0] y redondeo a 2 decimales.
+- `calculateCourseFinalGrade(studentId, items)` — wrapper con metadata (items completados, estado de aprobación).
+- `clipChilenGrade(score)` — defensa contra inputs fuera de rango.
+- `isPassing(average)` — umbral 4.0 según reglamento chileno.
+- `syncExamGrade(resultScore)` — normaliza el `score` de `Result` (escala 1.0–7.0 ya) al gradebook.
+- `validateGradebookWeights(items)` — la suma de pesos positivos de items evaluados no debe exceder 1.0 (tolerancia 0.001).
+
+**Reglas del cálculo:**
+- Items sin nota (`score === null`) no entran al promedio.
+- Items con peso `<= 0` se ignoran en el divisor.
+- Cada nota se clippea a [1.0, 7.0] antes de promediar (defensa).
+- Resultado redondeado a 2 decimales (formato X,XX).
+- Si no hay items válidos → retorna `null` (no `1.0` ni `0.0`).
+- Aprobación: `average >= 4.0`.
+
+### Tests unitarios — `src/features/lms/lib/__tests__/gradebook.test.ts`
+
+28 tests cubren: clip, isPassing, cálculo básico, cálculo ponderado, redondeo, items nulos, items con peso 0, items fuera de rango, sincronización con Exam, validación de suma de pesos.
+
+### Server Actions
+- `src/features/lms/actions/assignments.ts` — `upsertLmsAssignment`, `getLmsAssignmentByLesson`, `submitLmsAssignment`, `gradeLmsSubmission`, `listSubmissionsForAssignment`, `getMySubmission`.
+- `src/features/lms/actions/gradebook.ts` — `createLmsGradebookItem`, `updateLmsGradebookItem`, `deleteLmsGradebookItem`, `recordLmsGrade`, `syncExamGrades`, `getLmsGradebookForCourse`.
+- `src/features/lms/schemas/lms-phase2.schemas.ts` — Zod schemas para los forms.
+
+### Sincronización con Exam de Aulika
+`syncExamGrades(slug, gradebookItemId)` recorre todos los `Result` del examen vinculado al `GradebookItem` y hace upsert de `LmsGrade` con la nota clippeada a [1.0, 7.0]. Idempotente: re-ejecutar actualiza sin duplicar.
+
+### Seguridad
+- Anti-IDOR: cada action valida que el recurso pertenezca a la institución del `ctx`.
+- Estudiantes usan `session.studentId` (no `userId`) y se valida inscripción al curso.
+- Auto-marca de entrega `ATRASADO` si `dueAt < now` al momento de entregar.
+- Items tipo `EXAMEN` no aceptan notas manuales (deben venir de `syncExamGrades`).
+
+### E2E
+- `tests/e2e/admin/lms-phase2.spec.ts` — smoke tests de navegación en `/[slug]/aula/[id]` y `/aula`.
+
+### UI (Sonnet — Fase 2)
+
+**Componentes:**
+- `src/features/lms/components/LmsTaskSubmissionForm.tsx` — formulario cliente del estudiante para entregar texto y/o archivo. Muestra instrucciones, fecha límite, estado de la entrega y nota/feedback cuando está calificada.
+- `src/features/lms/components/LmsSubmissionsClient.tsx` — tabla de entregas para el docente con filtros por estado (Todas / Por calificar / Atrasadas / Calificadas). Cada fila es expandible y muestra el formulario de calificación inline (nota 1.0–7.0 + feedback).
+- `src/features/lms/components/LmsGradebookClient.tsx` — planilla de calificaciones estilo spreadsheet. Columnas = GradebookItems (con peso%), filas = alumnos inscriptos, promedio final ponderado con badge Aprueba/Reprueba. Celdas de tipo PARTICIPACION/MANUAL son editables inline.
+- `src/features/lms/components/LmsCourseTabs.tsx` — tab strip client-side con 3 pestañas (Contenido / Tareas / Calificaciones) activado por `pathname`.
+
+**Rutas admin:**
+- `src/app/(admin)/[slug]/aula/[id]/layout.tsx` — layout de curso: valida acceso, muestra `LmsCourseTabs`.
+- `src/app/(admin)/[slug]/aula/[id]/tareas/page.tsx` — lista de lecciones tipo TAREA con conteos de entregas por estado.
+- `src/app/(admin)/[slug]/aula/[id]/tareas/[lessonId]/page.tsx` — detalle de entregas de una tarea → `LmsSubmissionsClient`.
+- `src/app/(admin)/[slug]/aula/[id]/calificaciones/page.tsx` — gradebook completo → `LmsGradebookClient`.
+
+**Rutas estudiante (extensiones a Fase 1):**
+- `src/app/(aula)/aula/cursos/[id]/leccion/[lessonId]/page.tsx` — ahora fetch assignment + my submission cuando `lesson.type === 'TAREA'`.
+- `src/features/lms/components/LmsLessonViewer.tsx` — reemplazado el placeholder de TAREA por `LmsTaskSubmissionForm` con props `assignment` y `mySubmission`.
+
+**Upload de archivos del estudiante:**
+- `src/features/lms/actions/student-uploads.ts` — `uploadStudentSubmissionFile(formData)` valida sesión Jose, límite 25 MB, tipos permitidos (PDF, Word, imágenes).
+
+### Pendiente para Fase 3
+- Notificación al estudiante cuando se califica.
+- Historial de re-entregas (hoy solo 1 entrega por estudiante).
+
+
 
 
 Feature en `src/features/demo/`. Institución `slug = 'aulika-demo'`, `isDemo = true`, plan FREE.

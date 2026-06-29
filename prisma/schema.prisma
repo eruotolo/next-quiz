@@ -251,6 +251,8 @@ model User {
   createdLmsCourses     LmsCourse[]          @relation("LmsCourseCreatedBy")
   lmsEnrollments        LmsEnrollment[]
   lmsLessonProgress     LmsLessonProgress[]
+  lmsSubmissions        LmsSubmission[]
+  lmsGrades             LmsGrade[]
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
 
@@ -286,6 +288,22 @@ enum EnrollmentStatus {
   ACTIVO
   COMPLETADO
   RETIRADO
+}
+
+// ─── Fase 2 (Fase actual): Tareas y Libro de Calificaciones ──────────────────
+
+enum LmsSubmissionStatus {
+  PENDIENTE
+  ENTREGADO
+  CALIFICADO
+  ATRASADO
+}
+
+enum LmsGradebookItemType {
+  EXAMEN
+  TAREA
+  PARTICIPACION
+  MANUAL
 }
 
 // ─── Exams ───────────────────────────────────────────────────────────────────
@@ -324,6 +342,7 @@ model Exam {
   answers               Answer[]
   attempts              ExamAttempt[]
   lmsLessons            LmsLesson[]
+  lmsGradebookItems     LmsGradebookItem[]
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
 
@@ -641,6 +660,7 @@ model LmsCourse {
   createdBy             User?                @relation("LmsCourseCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
   modules               LmsModule[]
   enrollments           LmsEnrollment[]
+  gradebookItems        LmsGradebookItem[]
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
 
@@ -687,6 +707,7 @@ model LmsLesson {
   moduleId      String           @db.Uuid
   module        LmsModule        @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   progress      LmsLessonProgress[]
+  assignment    LmsAssignment?
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
 
@@ -729,4 +750,88 @@ model LmsLessonProgress {
 
   @@unique([userId, lessonId])
   @@index([lessonId])
+}
+
+// ─── Fase 2: Tareas (Assignment/Submission) ──────────────────────────────────
+// Una tarea está atada 1:1 a una lección de tipo TAREA (LmsLesson). Las entregas
+// de los estudiantes se registran en LmsSubmission con el archivo (Vercel Blob)
+// o texto entregado, fecha y estado del flujo (PENDIENTE → ENTREGADO → CALIFICADO).
+model LmsAssignment {
+  id           String           @id @default(uuid()) @db.Uuid
+  lessonId     String           @unique @db.Uuid
+  lesson       LmsLesson        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  instructions String?
+  dueAt        DateTime?
+  maxScore     Int              @default(100)
+  submissions  LmsSubmission[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([lessonId])
+}
+
+// Entrega de una tarea por un estudiante. Constraint @@unique([assignmentId, studentId])
+// garantiza una sola entrega por (tarea, estudiante). `fileUrl` se sube vía Vercel Blob
+// (server action `uploadLmsFile`); `textContent` permite entregas en línea.
+// El ciclo de estado lo maneja `gradeSubmission()` en server action.
+model LmsSubmission {
+  id           String              @id @default(uuid()) @db.Uuid
+  assignmentId String              @db.Uuid
+  assignment   LmsAssignment       @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  studentId    String              @db.Uuid
+  student      User                @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  fileUrl      String?
+  textContent  String?
+  status       LmsSubmissionStatus @default(PENDIENTE)
+  score        Float?
+  feedback     String?
+  submittedAt  DateTime?
+  gradedAt     DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  @@unique([assignmentId, studentId])
+  @@index([studentId])
+  @@index([assignmentId])
+  @@index([status])
+}
+
+// ─── Fase 2: Libro de Calificaciones (Gradebook) ────────────────────────────
+// Unidad evaluable del curso. `weight` es el porcentaje (1.0 = 100%, 0.2 = 20%)
+// del promedio final. Se vincula opcionalmente a un LmsAssignment (tarea) o a
+// un Exam de Aulika (examen embedido). Cada LmsGrade es la nota individual.
+model LmsGradebookItem {
+  id           String               @id @default(uuid()) @db.Uuid
+  courseId     String               @db.Uuid
+  course       LmsCourse            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title        String
+  type         LmsGradebookItemType
+  weight       Float                @default(1)
+  assignmentId String?              @db.Uuid
+  examId       String?              @db.Uuid
+  exam         Exam?                @relation(fields: [examId], references: [id], onDelete: SetNull)
+  grades       LmsGrade[]
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@index([courseId])
+  @@index([examId])
+}
+
+// Nota individual de un estudiante en una unidad del Gradebook. El promedio
+// final del curso se calcula con `calculateFinalGrade()` en
+// `src/features/lms/lib/gradebook.ts` filtrando por score no nulo.
+model LmsGrade {
+  id              String          @id @default(uuid()) @db.Uuid
+  gradebookItemId String          @db.Uuid
+  gradebookItem   LmsGradebookItem @relation(fields: [gradebookItemId], references: [id], onDelete: Cascade)
+  studentId       String          @db.Uuid
+  student         User            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  score           Float
+  feedback        String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@unique([gradebookItemId, studentId])
+  @@index([studentId])
 }

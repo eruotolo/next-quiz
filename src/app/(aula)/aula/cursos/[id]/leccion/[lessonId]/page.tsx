@@ -83,6 +83,33 @@ export default async function StudentAulaLessonPage({ params }: PageProps) {
         }
     }
 
+    let assignment: { id: string; instructions: string | null; dueAt: Date | null; maxScore: number } | null = null;
+    let mySubmission: { id: string; textContent: string | null; fileUrl: string | null; status: string; score: number | null; feedback: string | null; submittedAt: Date | null } | null = null;
+
+    if (lesson.type === 'TAREA') {
+        const asg = await prisma.lmsAssignment.findUnique({
+            where: { lessonId },
+            select: { id: true, instructions: true, dueAt: true, maxScore: true },
+        });
+        assignment = asg ?? null;
+
+        if (asg) {
+            const sub = await prisma.lmsSubmission.findUnique({
+                where: { assignmentId_studentId: { assignmentId: asg.id, studentId: student.id } },
+                select: {
+                    id: true,
+                    textContent: true,
+                    fileUrl: true,
+                    status: true,
+                    score: true,
+                    feedback: true,
+                    submittedAt: true,
+                },
+            });
+            mySubmission = sub ?? null;
+        }
+    }
+
     return (
         <LmsLessonViewer
             institutionSlug={institutionSlug}
@@ -103,6 +130,8 @@ export default async function StudentAulaLessonPage({ params }: PageProps) {
             initialLastSeenSec={lesson.progress[0]?.lastSeenSec ?? null}
             nextLessonId={nextLessonId}
             prevLessonId={prevLessonId}
+            assignment={assignment}
+            mySubmission={mySubmission}
         />
     );
 }

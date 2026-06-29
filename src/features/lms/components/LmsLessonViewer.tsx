@@ -8,9 +8,27 @@ import { Button } from '@/shared/components/ui/button';
 import { VideoPlayer } from '@/features/lms/components/VideoPlayer';
 import { DocumentViewer } from '@/features/lms/components/DocumentViewer';
 import { markLessonProgress } from '@/features/lms/actions/progress';
+import { LmsTaskSubmissionForm } from '@/features/lms/components/LmsTaskSubmissionForm';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { LessonType } from '@prisma/client';
+
+interface Assignment {
+    id: string;
+    instructions: string | null;
+    dueAt: Date | null;
+    maxScore: number;
+}
+
+interface Submission {
+    id: string;
+    textContent: string | null;
+    fileUrl: string | null;
+    status: string;
+    score: number | null;
+    feedback: string | null;
+    submittedAt: Date | null;
+}
 
 interface Props {
     institutionSlug: string | null;
@@ -31,6 +49,8 @@ interface Props {
     initialLastSeenSec: number | null;
     nextLessonId: string | null;
     prevLessonId: string | null;
+    assignment?: Assignment | null;
+    mySubmission?: Submission | null;
 }
 
 export function LmsLessonViewer({
@@ -42,6 +62,8 @@ export function LmsLessonViewer({
     initialLastSeenSec,
     nextLessonId,
     prevLessonId,
+    assignment = null,
+    mySubmission = null,
 }: Props) {
     const router = useRouter();
     const [completed, setCompleted] = useState(initialCompleted);
@@ -163,14 +185,25 @@ export function LmsLessonViewer({
                         </Card>
                     )}
 
-                    {lesson.type === 'TAREA' && (
+                    {lesson.type === 'TAREA' && assignment && (
+                        <LmsTaskSubmissionForm
+                            assignmentId={assignment.id}
+                            courseId={courseId}
+                            instructions={assignment.instructions}
+                            dueAt={assignment.dueAt}
+                            maxScore={assignment.maxScore}
+                            existingSubmission={mySubmission}
+                        />
+                    )}
+
+                    {lesson.type === 'TAREA' && !assignment && (
                         <Card className="border-border flex flex-col items-center gap-3 bg-white p-8 text-center">
                             <FileText size={28} className="text-primary" />
                             <p className="text-ink font-display text-lg font-bold">
-                                Tarea (entrega en Fase 2)
+                                Tarea no configurada
                             </p>
                             <p className="text-mute text-sm">
-                                La entrega y calificación de tareas se habilitará en la Fase 2.
+                                El docente aún no ha configurado esta tarea.
                             </p>
                         </Card>
                     )}
