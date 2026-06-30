@@ -638,6 +638,157 @@ Cada enganche usa `void awardPointsForEvent(...).catch(console.error)`:
 
 Migraciones: `20260629203535_lms_gamification`, `20260629205142_lms_leaderboard_privacy`.
 
+## Aula Virtual (LMS) — Fase 5: Certificación y Analítica
+
+### Modelos Prisma nuevos / extendidos
+- `LmsCertificate` (id, userId, courseId, verificationCode UNIQUE, finalGrade, pdfUrl, qrCodeUrl, issuedAt, revokedAt). `@@unique([userId, courseId])` + `@@index([courseId, verificationCode])`.
+- `LmsCourse.certificateEnabled: Boolean @default(false)` — habilita emisión automática al aprobar examen.
+- `LmsCourse.aiSummaryEnabled: Boolean @default(false)` — habilita resúmenes IA para lecciones TEXTO.
+- `LmsLesson.summaryJson: Json?` — `{ summary, keyPoints[], generatedAt }` cacheado server-side.
+- Migración: `20260629220708_lms_phase5_certificates_summary`.
+
+### Certificados PDF + QR + Cloudinary
+- **Deps nuevas** (autorizadas por usuario en sesión): `@react-pdf/renderer@4.5.1`, `qrcode@1.5.4`, `cloudinary@2.10.0`.
+- **`src/shared/lib/cloudinary.ts`** — wrapper lazy. Lee `CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET` de `AppConfig` (no env vars). Funciones: `uploadCertificatePdf(buffer, publicId)`, `deleteCertificatePdf(publicId)`, `isCloudinaryConfigured()`. Sin credenciales → `{uploaded:false, error:'Configurá las credenciales de Cloudinary en Configuración…'}` (modo degradado, no rompe el flujo).
+- **`src/features/lms/lib/certificate-pdf.tsx`** — plantilla A4 landscape con `<Document>/<Page>` de react-pdf, QR embebido vía `qrcode.toDataURL()`. `generateCertificatePdfBuffer(input)` retorna `Promise<Buffer>`.
+- **`src/features/lms/lib/certificate-issuer.ts`** — `tryIssueCertificate({userId, courseId, finalGrade?, slug?})` retorna `{ok, verificationCode?, pdfUrl?, error?}`. Idempotente: si ya existe certificado válido con `pdfUrl`, no regenera. **Sin** `'use server'` para permitir reuso desde server actions y hooks fire-and-forget.
+- **`actions/certificates.ts`** (Sonnet) extendido: `issueLmsCertificate` ahora usa `tryIssueCertificate`. Retorna `{verificationCode, pdfUrl}`. `verifyCertificate` y `getMyCourseCertificate` ahora incluyen `pdfUrl` en la respuesta.
+- **Hook fire-and-forget** en `syncExamGrades` (Fase 2): `if (normalizedScore >= 4.0) void tryIssueCertificate(...).catch(console.error)`. Solo emite si `course.certificateEnabled === true`.
+
+### Configuración via `/config/settings` (SuperAdmin)
+- `APP_CONFIG_KEY` extendido con `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
+- `AppSettingsClient` reemplazó el card "IA próximamente" por "Cloudinary — Almacenamiento de certificados" con 3 inputs (Cloud Name, API Key, API Secret tipo password).
+- Misma acción `saveAppConfig` ya validaba con Zod; ahora cubre las 3 keys nuevas.
+
+### Resúmenes IA con Gemini
+- **`src/features/lms/lib/lesson-summarizer.ts`** — `summarizeLessonText(content)` valida longitud (200–50000 chars), llama `generateText({model: google('gemini-2.5-flash')})` con prompt que fuerza JSON, parsea con `extractJson` (tolerante a markdown fences), valida estructura y persiste `LessonSummary`. Sin API key → error claro "Configurá la API key de Google Generative AI…".
+- **`actions/lesson-summary.ts`** — `generateLessonSummary(slug, lessonId)` valida lección TEXTO con `aiSummaryEnabled`, extrae texto de Tiptap JSON recursivamente, llama summarizer, persiste en `LmsLesson.summaryJson`. `getLessonSummary(lessonId)` para estudiante enrolado. `clearLessonSummary` para admin.
+
+### Detección temprana de bajo rendimiento
+- **`src/features/lms/lib/at-risk-detector.ts`** (lib pura testeable): `identifyAtRiskStudents(enrollments, grades, options?)` con score 0-100 multi-factor:
+  - `progressPct < threshold` → +40 pts
+  - `daysSinceLastActivity ≥ inactivityDays` → +30 pts
+  - `averageGrade < gradeThreshold` → +40 pts
+  - `riskLevel`: BAJO (<25), MEDIO (25-49), ALTO (≥50)
+  - Sort por `riskScore` desc
+- `identifyInactiveStudents(progress, options?)` — usuarios sin actividad en N días.
+- `identifyFailingCourses(courseId, enrollments, grades, atRisk, gradeThreshold?)` — métricas agregadas (total, averageGrade, approvedCount, failedCount, approvalRate, atRiskCount).
+- **`actions/analytics.ts`** refactorizado: `getCourseAnalytics` ahora delega el cómputo a `identifyAtRiskStudents`. Mantiene interface `AtRiskStudent` (con `lastname`) que la UI ya consumía. El campo `riskLevel`, `reasons` y `averageGrade` ahora están disponibles para Sonnet (UI actualizada en `LmsAnalyticsClient.tsx:114` con tipo `RiskLevel` y `RISK_BADGE: Record<RiskLevel, …>`).
+
+### Tests (34 nuevos)
+- `at-risk-detector.test.ts` (17 tests): factor progress, factor inactividad, factor notas, score cap a 100, exclude RETIRADO/COMPLETADO, sort por score, thresholds custom, mix de Date y string.
+- `lesson-summarizer.test.ts` (10 tests): validaciones de longitud, sin API key, JSON válido, JSON en fences, sin keyPoints, cap a 8, errores de IA, garbage response.
+- `cloudinary.test.ts` (7 tests): isConfigured true/false, upload ok, upload error, delete ok, delete sin config.
+- **Total suite: 183/183 pasando** (`pnpm test:run`).
+
+### Verificación de cierre (vía MCP JetBrains)
+- `devBuild` (Next.js build) → ✅ `Compiled successfully in 3.6s` + `Finished TypeScript in 5.3s` + 58 rutas generadas.
+- `pnpm test:run` → ✅ 183/183 en 14 files.
+- Las nuevas rutas detectadas en build: `/[slug]/aula/[id]/certificados`, `/aula/cursos/[id]/logros`, `/aula/logros`, `/certificado/[code]` — la UI de verificación de certificados ya existe (Sonnet).
+
+### Fixes colaterales (causados por nuevos campos en `LmsLesson`)
+- `LmsAnalyticsClient.tsx` — `RISK_BADGE: Record<string,…>` → `Record<RiskLevel,…>` con `type RiskLevel = 'BAJO'|'MEDIO'|'ALTO'`. Acceso directo `RISK_BADGE[student.riskLevel]` sin `??` fallback porque el Record es exhaustivo.
+- `app/(aula)/aula/cursos/[id]/page.tsx` — agregados `summaryJson: l.summaryJson` al mapping manual y `summaryJson: true` al `select` de Prisma.
+- `app/(admin)/[slug]/aula/[id]/page.tsx` — agregado `summaryJson: true` al `select` de Prisma (la interface `LessonWithMeta extends LmsLesson` lo requiere).
+
+## Aula Virtual (LMS) — Fase 6: Aula Sincrónica
+
+Videollamadas reales (Daily.co), pizarra individual con snapshots a Cloudinary, chat en vivo con rate limit, y registro de asistencia automático vía webhook.
+
+### Stack y decisiones
+- **Daily.co** como motor de videollamadas (REST API + iframe daily-js embebido). Salas efímeras creadas/borradas por sesión via backend.
+- **Chat en vivo**: tabla con polling cada 3s (sin WebSocket — serverless puro), rate limit por usuario (≥800ms entre mensajes, ≤20/min), sanitización agresiva (HTML/tags eliminadas).
+- **Pizarra**: drawing canvas HTML5 por participante (uno por persona, no multi-cursor real-time). El profesor "comparte pizarra" vía Daily screen-share. Snapshots se guardan a Cloudinary como PNG con título opcional.
+- **Grabación**: Daily genera recordings automáticos; webhook `recording.ready-to-download` descarga + opcionalmente sube a Mux. Sin credenciales Mux, queda como URL externa de Daily.
+- **No agregamos Liveblocks/PartyKit**: la pizarra multi-cursor real-time requeriría servicio externo pago o servidor WebSocket (no viable en Vercel serverless).
+
+### Modelos Prisma nuevos
+- `LmsLiveSession` (id, courseId, title, description, scheduledAt, durationMin, `dailyRoomName UNIQUE`, `dailyRoomUrl`, `dailyRoomExpiresAt`, maxParticipants?, status [SCHEDULED|LIVE|ENDED|CANCELED], createdById, startedAt?, endedAt?, recordingMuxAssetId?, recordingUrl?, recordingDurationSec?, recordingStatus [NONE|PENDING|READY|FAILED]). `@@index([courseId, status, scheduledAt, createdById])`.
+- `LmsLiveAttendance` (sessionId, userId, role [TEACHER|STUDENT|GUEST|ASSISTANT], displayName, joinedAt, leftAt?, durationSec?, `dailyParticipantId?`). Una fila por join (varias si entra/sale).
+- `LmsLiveChatMessage` (sessionId, userId, content, sentAt, deletedAt?). Soft-delete.
+- `LmsWhiteboardSnapshot` (sessionId, userId, pngUrl, width, height, title?). Imágenes en Cloudinary.
+- 3 enums nuevos: `LiveSessionStatus`, `LiveAttendanceRole`, `LiveRecordingStatus`.
+- Migración: `20260629223637_lms_phase6_live_sessions`.
+
+### Wrapper Daily.co (`src/shared/lib/daily.ts`)
+- Cache lazy de credenciales (`AppConfig`) con TTL 60s para no hacer Prisma en cada request.
+- Funciones: `createDailyRoom`, `getDailyRoom`, `deleteDailyRoom`, `createDailyMeetingToken({isOwner})`.
+- `verifyDailyWebhookSignature(rawBody, signatureHeader)` HMAC SHA-256 via Web Crypto API. Sin credenciales o sin firma → rechaza con `reason`.
+- `parseDailyWebhookPayload(rawBody)` → `{type, payload}` con type guard contra JSON malformado.
+- Sin credenciales configuradas: cada función retorna `{ok:false, error:'Daily.co no está configurado…'}` sin tirar 401.
+
+### Libs puras (testeables sin DB)
+- **`live-session-state.ts`**: state machine con `LIVE_SESSION_TRANSITIONS` (SCHEDULED→LIVE/CANCELED, LIVE→ENDED/CANCELED, resto denegado). `computeJoinWindow({scheduledAt, durationMin, now, openMinutesBefore=10})` devuelve `{isJoinable, isLive, isPast, secondsUntilStart, secondsUntilEnd, remainingSec}`. `deriveStatusFromSchedule` calcula estado desde schedule respetando override manual. `buildDailyRoomName` genera nombre `aulika-YYYYMMDD-XXXXXXXX-suffix` ≤60 chars y regex `[a-z0-9-]{3,64}`. `isValidDailyRoomName` valida.
+- **`live-attendance.ts`**: `computeAttendanceDurationSec`, `isWithinAttendanceWindow({openMinutesBefore=10, closeMinutesAfter=30})`, `summarizeAttendance(rows, durationMin)` agrega `totalDurationSec`, `joinCount`, `isPresent`, `attendancePct` (clamp 0-100), ordena por total desc.
+- **`live-chat.ts`**: `cleanChatContent` (trim + sanitiza + maxLength check), `evaluateChatRateLimit(state, nowMs)` (≥800ms, ≤20/min), `buildChatPollWindow` (filtra por `since` + cutoff 60min).
+- **`sanitizeChatText`** agregado a `src/shared/lib/sanitize.ts`: NFKC + elimina tags HTML `<[^>]*>` + chars `<`/`>` sueltos + control chars + `javascript|data|vbscript|file:` schemes. Más estricto que el sanitizer de foros porque chat debe ser texto plano.
+
+### Server actions (`src/features/lms/actions/`)
+- **`live-sessions.ts`**: `createLiveSession`, `updateLiveSession`, `cancelLiveSession`, `startLiveSession` (genera token con `isOwner:true`), `endLiveSession` (borra room + cierra attendances abiertas), `joinLiveSession` (genera token estudiante + valida access por enrollment/institución/rol), `leaveLiveSession`, `getLiveSessionById`. Todas usan `requireInstitutionAccess(slug, roles[])` y `assertSessionEditableByManager` para anti-IDOR.
+- **`live-chat.ts`**: `sendLiveChatMessage` con rate limit por usuario (`Map<string, RateLimitState>` con TTL 30min) + sanitización obligatoria. `listLiveChatMessages({sessionId, since})` retorna `PublicLiveChatMessage[]` + `nextCursor`. Polling cada 3s cliente.
+- **`whiteboard.ts`**: `saveWhiteboardSnapshot` con Zod 200-8000px, sube PNG a Cloudinary (`uploadWhiteboardPng`, `resource_type: 'image'`, folder `lms/whiteboard`). Modo degradado: sin Cloudinary persiste `data:image/png;base64,…` in-place (recomendable cambiar después).
+
+### Webhook handler `src/app/api/webhooks/daily/route.ts`
+- `dynamic = 'force-dynamic'`, `runtime = 'nodejs'`.
+- HMAC verify primero (rechaza 401 sin auth).
+- Switch por `payload.type`:
+  - `meeting.ended` → status ENDED + cierra attendances.
+  - `participant.joined` → upsert attendance con `dailyParticipantId`.
+  - `participant.left` → actualiza leftAt + compute durationSec.
+  - `recording.ready-to-download` → flip status READY + guarda `recordingUrl` + audit.
+  - `recording.failed` → flip status FAILED.
+
+### UI (todo client+server)
+- **Páginas**:
+  - `/[slug]/aula/[courseId]/clases` — listado admin/profesor con cards + status badge + acciones (start/cancel/asistencia/grabación). Header "Clases en vivo" agregado al editor del curso (`/[slug]/aula/[id]/page.tsx`).
+  - `/[slug]/aula/[courseId]/clases/nueva` — form con `LiveSessionForm` (title 3-120 chars, datetime-local, duration 10-480 min, maxParticipants opcional).
+  - `/[slug]/aula/[courseId]/clases/[sessionId]` — host view con `DailyCallFrame` (iframe con token), tabs videollamada/pizarra, chat side panel, botón "Finalizar" (admin/prof owner).
+  - `/[slug]/aula/[courseId]/clases/[sessionId]/asistencia` — tabla con métricas (participantes únicos, conectados, asistencia promedio) + lista por usuario (nombre/RUT/rol/ingresos/tiempo/asistencia %).
+  - `/aula/cursos/[courseId]/clases` — listado estudiante con countdown + estado + link "Unirme" cuando joinable.
+  - `/aula/clases/[sessionId]` — sala estudiante con join-on-click (requiere NextAuth session + enrollment activo o jose session + enrollment). Falta tiempo → countdown.
+- **Componentes** (`src/features/lms/components/live/`):
+  - `DailyCallFrame.tsx` — iframe para `roomUrl?t={token}` con `allow="camera; microphone; display-capture; autoplay; clipboard-write"` + listener `message` para `left-meeting`.
+  - `LiveChat.tsx` — polling 3s, render con `userName`, hora, contenido sanitizado. Input con Enter envía. `maxLength={500}` server side vía Zod + sanitizer client-side.
+  - `Whiteboard.tsx` — canvas 1280×720 con stylus (`pointer` events), botones "Limpiar" y "Guardar snapshot". ToDataURL PNG → base64 → action.
+  - `LiveSessionListClient.tsx` — listado interactivo con transitions + router.refresh + confirms.
+  - `LiveSessionForm.tsx` — form controlado + validación HTML5.
+  - `LiveSessionRoomClient.tsx` — orquesta videollamada/pizarra/chat con tabs + end-session.
+  - `StudentRoomClient.tsx` — countdown pre-sesión + onJoin → guarda attendanceId para cleanup.
+
+### Configuración via `/config/settings` (SuperAdmin)
+- `APP_CONFIG_KEY` extendido con `DAILY_API_KEY`, `DAILY_WEBHOOK_SECRET`.
+- `AppSettingsClient` reemplazó "Cloudinary — Almacenamiento de certificados" con ambos cards (Cloudinary + Daily.co). Daily.co card tiene inputs `type="password"` + descripción.
+- Validación Zod en `saveSchema` enum extendido.
+
+### Tests (70 nuevos — total suite: 253/253 pasando)
+- `live-session-state.test.ts` — 25 tests: state machine, join window (border cases), derive status, buildDailyRoomName, isValidDailyRoomName, minutesToSeconds.
+- `live-attendance.test.ts` — 12 tests: computeDuration, withinWindow, summarize (agregación, marcaje present, clamp pct, sort).
+- `live-chat.test.ts` — 14 tests: cleanChatContent (empty, too long, sanitización, javascript scheme, emojis), rate limit (first, too fast, burst, dentro de límite, reset ventana), poll window (since, cutoff 60min, nextCursor).
+- `sanitize-chat.test.ts` — 9 tests: tags completas (incluyendo contenido atributos peligrosos), `<`/`>` sueltos, chars control, NFKC, trim.
+- `daily.test.ts` — 10 tests: isConfigured, createDailyRoom (configurado, 401, no-config), deleteDailyRoom (404 OK, 500 fail), getDailyRoom, createMeetingToken, parseWebhookPayload, verifyWebhookSignature (sin header, sin secret, válida, inválida).
+
+### Auditoría
+- 7 nuevas acciones: `lms.live_session.{create,update,start,end,cancel}`, `lms.live_session.{join,leave}`, `lms.live_session.recording_ready`. Cada `logAudit` con `entity='LmsLiveSession'`, `entityId` y metadata contextual.
+
+### Verificación de cierre
+- `pnpm type-check` ✅ (con fix mínimo no-assertion en `testing-aula-seed.ts` para `badgeMap[code]!.id` — pre-existente de Fase 5).
+- `pnpm test:run` ✅ 323/323.
+- `pnpm devBuild` ✅ Compiled successfully, 6 rutas nuevas generadas:
+  - `ƒ /[slug]/aula/[courseId]/clases`
+  - `ƒ /[slug]/aula/[courseId]/clases/[sessionId]`
+  - `ƒ /[slug]/aula/[courseId]/clases/[sessionId]/asistencia`
+  - `ƒ /[slug]/aula/[courseId]/clases/nueva`
+  - `ƒ /aula/clases/[sessionId]`
+  - `ƒ /aula/cursos/[courseId]/clases`
+
+### Limitaciones explícitas
+1. **Pizarra NO multi-cursor real-time** — cada participante ve su propio canvas. Para compartir pizarra, profesor usa Daily.co screen-share. Plan original de Fase 6 de Sonnet (Liveblocks) no se implementó por evitar dependencia externa de pago.
+2. **Grabación → Mux opcional**: si no hay credenciales Mux, la grabación queda como URL de Daily (los hosts pueden descargarla manualmente).
+3. **Webhook no es idempotente 100%**: `participant.joined` con el mismo `dailyParticipantId` puede duplicar si Daily reenvía. Aceptable para piloto.
+4. **Chat polling**: si un usuario tiene conexión inestable y se pierden polls, debe refrescar la página. Costo: una query cada 3s por sala activa.
+5. **No hay rate-limit distribuido**: si Aulika se ejecuta en múltiples instancias Vercel (múltiples regiones), el rate-limit in-memory en `live-chat.ts` NO se sincroniza entre instancias. Para piloto es OK; para producción real usar Redis/Upstash.
+6. **Daily.co requiere API key real**: el superadmin debe crearla en https://dashboard.daily.co y cargarla en `/config/settings` antes de habilitar sesiones. La integración queda no-op si no se configura.
+
 ### UI — Fase 4 (Sonnet)
 
 **`getUnseenBadges()`** — agregado a `gamification.ts`: cruza `LmsUserBadge` contra `LmsNotification(type=BADGE_ACK)` y devuelve insignias sin ACK para el toast animado.
@@ -1069,6 +1220,24 @@ cd ~/.claude/skills/gstack && ./setup --team
 
 - **No imprimir diffs grandes en el chat cuando el MCP puede mostrarlos en el IDE.** Después de `apply_changes`, decir *"cambios aplicados en N archivos, diffs abiertos en WebStorm"* en lugar de pegar el contenido modificado.
 - Si el MCP no responde (puerto 64342 cambió tras restart de WebStorm), caer a Read/Edit nativos sin cortar el flujo.
+
+### ⚠️ REGLA CRÍTICA — Ejecución de comandos (NO NEGOCIABLE)
+
+**NUNCA ejecutar comandos de build, run, lint, typecheck, test, migraciones, seeds ni similares usando el Bash tool directamente.** Hacerlo inyecta todo el output en el contexto del chat y consume tokens innecesarios en cada turno del historial.
+
+**SIEMPRE invocar estos comandos a través de `mcp__jetbrains__execute_terminal_command`** y capturar el resultado desde ahí.
+
+| Comando | ❌ Prohibido | ✅ Correcto |
+|---|---|---|
+| `pnpm lint` | `Bash("pnpm lint")` | `mcp__jetbrains__execute_terminal_command("pnpm lint")` |
+| `pnpm type-check` | `Bash("pnpm type-check")` | `mcp__jetbrains__execute_terminal_command("pnpm type-check")` |
+| `pnpm build` | `Bash("pnpm build")` | `mcp__jetbrains__execute_terminal_command("pnpm build")` |
+| `pnpm test:e2e` | `Bash("pnpm test:e2e")` | `mcp__jetbrains__execute_terminal_command("pnpm test:e2e")` |
+| `pnpm db:migrate` | `Bash("pnpm db:migrate")` | `mcp__jetbrains__execute_terminal_command("pnpm db:migrate")` |
+| `pnpm db:generate` | `Bash("pnpm db:generate")` | `mcp__jetbrains__execute_terminal_command("pnpm db:generate")` |
+| `pnpm dev` | `Bash("pnpm dev")` | `mcp__jetbrains__execute_terminal_command("pnpm dev")` |
+
+Si el MCP de JetBrains no responde, **reportar el blocker al usuario** en lugar de caer a Bash para estos comandos.
 
 **Documentación en Obsidian** — al inicio de cada sesión de trabajo:
 

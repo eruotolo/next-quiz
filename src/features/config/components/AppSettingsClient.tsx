@@ -137,17 +137,57 @@ export function AppSettingsClient({ config }: Props) {
                     </CardContent>
                 </Card>
 
-                <Card className="opacity-60">
+                <Card>
                     <CardHeader>
                         <CardTitle className="text-base">
-                            Inteligencia Artificial (próximamente)
+                            Cloudinary — Almacenamiento de certificados
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <p className="text-muted-foreground text-sm">
-                            Aquí se configurará la API key del proveedor de IA para funciones
-                            futuras de la plataforma.
-                        </p>
+                    <CardContent className="flex flex-col gap-6">
+                        <SettingField
+                            label="Cloud Name"
+                            description="Nombre de la nube de Cloudinary (Dashboard → Account Details)."
+                            configKey={APP_CONFIG_KEY.CLOUDINARY_CLOUD_NAME}
+                            value={config[APP_CONFIG_KEY.CLOUDINARY_CLOUD_NAME]}
+                        />
+                        <SettingField
+                            label="API Key"
+                            description="Clave pública de la API de Cloudinary."
+                            configKey={APP_CONFIG_KEY.CLOUDINARY_API_KEY}
+                            value={config[APP_CONFIG_KEY.CLOUDINARY_API_KEY]}
+                            type="password"
+                        />
+                        <SettingField
+                            label="API Secret"
+                            description="Secreto de la API de Cloudinary. Se usa para firmar uploads de PDFs."
+                            configKey={APP_CONFIG_KEY.CLOUDINARY_API_SECRET}
+                            value={config[APP_CONFIG_KEY.CLOUDINARY_API_SECRET]}
+                            type="password"
+                        />
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-base">
+                            Daily.co — Aulas sincrónicas
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-6">
+                        <SettingField
+                            label="API Key"
+                            description="Clave de Daily.co (Dashboard → Developers → API keys)."
+                            configKey={APP_CONFIG_KEY.DAILY_API_KEY}
+                            value={config[APP_CONFIG_KEY.DAILY_API_KEY]}
+                            type="password"
+                        />
+                        <SettingField
+                            label="Webhook Signing Secret"
+                            description="Secreto para validar la firma HMAC de webhooks (Dashboard → Webhooks)."
+                            configKey={APP_CONFIG_KEY.DAILY_WEBHOOK_SECRET}
+                            value={config[APP_CONFIG_KEY.DAILY_WEBHOOK_SECRET]}
+                            type="password"
+                        />
                     </CardContent>
                 </Card>
             </div>

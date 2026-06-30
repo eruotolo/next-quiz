@@ -24,6 +24,7 @@ import {
     LogOut,
     Menu,
     MonitorPlay,
+    Radio,
     Receipt,
     ScrollText,
     Search,
@@ -79,6 +80,7 @@ const ADMIN_NAV: NavItem[] = [
     { path: '/results', label: 'Resultados', icon: BarChart3 },
     { path: '/liveresults', label: 'En vivo', icon: Activity, live: true },
     { path: '/aula', label: 'Aula Virtual', icon: MonitorPlay },
+    { path: '/aula/clases', label: 'Clases en vivo', icon: Radio },
     { path: '/programs', label: 'Programas', icon: Layers, section: 'academic' },
     { path: '/periods', label: 'Períodos', icon: CalendarRange, section: 'academic' },
     { path: '/courses', label: 'Materias', icon: BookMarked, section: 'academic' },
@@ -94,6 +96,7 @@ const PROFESOR_NAV: NavItem[] = [
     { path: '/results', label: 'Resultados', icon: BarChart3 },
     { path: '/liveresults', label: 'En vivo', icon: Activity, live: true },
     { path: '/aula', label: 'Aula Virtual', icon: MonitorPlay },
+    { path: '/aula/clases', label: 'Clases en vivo', icon: Radio },
     { path: '/ayuda', label: 'Ayuda', icon: HelpCircle, section: 'sistema' },
 ];
 

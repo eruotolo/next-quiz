@@ -1,35 +1,26 @@
 /**
- * Seeder de demostración a escala.
+ * Testing seed — bulk/scale demo.
  *
- * Genera, de forma idempotente:
- *   - 3 instituciones
- *   - por institución: 1 administrador + 2 profesores (password: Guns@026772)
- *   - por institución: 3 grupos (los 2 profesores quedan asignados a los 3)
- *   - por grupo: 10 alumnos (login por RUT)
- *   - por grupo: 1 examen activo con 20 preguntas (4 opciones, 1 correcta)
+ * Generates data at scale for load testing and performance demos:
+ *   - 3 institutions
+ *   - 1 admin + 2 professors per institution (password: Guns@026772)
+ *   - 3 groups per institution (both professors assigned to each group)
+ *   - 10 students per group (login by RUT)
+ *   - 1 active exam with 20 questions per group
  *
- * Totales: 3 instituciones · 3 admins · 6 profesores · 9 grupos · 90 alumnos ·
- *          9 exámenes activos · 180 preguntas · 720 opciones.
+ * Totals: 3 institutions · 3 admins · 6 professors · 9 groups · 90 students ·
+ *         9 active exams · 180 questions · 720 options.
  *
- * Requiere los roles base: ejecutar `pnpm db:seed` primero.
- *
- * Uso:
- *   pnpm db:seed:bulk
+ * Idempotent: uses upsert / findFirst throughout.
  */
-import { type Prisma } from '@prisma/client';
+import type { PrismaClient, Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { createSeedClient } from '../lib/client';
-
-const prisma = createSeedClient();
 
 const STAFF_PASSWORD = 'Guns@026772';
 const GROUPS_PER_INSTITUTION = 3;
 const STUDENTS_PER_GROUP = 10;
 const QUESTIONS_PER_EXAM = 20;
 const EXAM_TIME_LIMIT_MIN = 60;
-
-// Base del cuerpo del RUT (8 dígitos). Por encima de los datos de seed
-// existentes para evitar colisiones de unicidad.
 const RUT_BODY_START = 30_000_000;
 
 interface InstitutionSeed {
@@ -90,52 +81,19 @@ const INSTITUTIONS: InstitutionSeed[] = [
 ];
 
 const STUDENT_FIRST_NAMES = [
-    'Benjamín',
-    'Martina',
-    'Vicente',
-    'Florencia',
-    'Agustín',
-    'Antonia',
-    'Maximiliano',
-    'Josefa',
-    'Tomás',
-    'Emilia',
-    'Joaquín',
-    'Catalina',
-    'Lucas',
-    'Isidora',
-    'Matías',
-    'Trinidad',
-    'Cristóbal',
-    'Amanda',
-    'Gabriel',
-    'Constanza',
+    'Benjamín', 'Martina', 'Vicente', 'Florencia', 'Agustín',
+    'Antonia', 'Maximiliano', 'Josefa', 'Tomás', 'Emilia',
+    'Joaquín', 'Catalina', 'Lucas', 'Isidora', 'Matías',
+    'Trinidad', 'Cristóbal', 'Amanda', 'Gabriel', 'Constanza',
 ];
 
 const STUDENT_LAST_NAMES = [
-    'González',
-    'Muñoz',
-    'Rojas',
-    'Díaz',
-    'Pérez',
-    'Soto',
-    'Contreras',
-    'Silva',
-    'Martínez',
-    'Sepúlveda',
-    'Morales',
-    'Rodríguez',
-    'López',
-    'Fuentes',
-    'Hernández',
-    'Torres',
-    'Araya',
-    'Flores',
-    'Espinoza',
-    'Castillo',
+    'González', 'Muñoz', 'Rojas', 'Díaz', 'Pérez',
+    'Soto', 'Contreras', 'Silva', 'Martínez', 'Sepúlveda',
+    'Morales', 'Rodríguez', 'López', 'Fuentes', 'Hernández',
+    'Torres', 'Araya', 'Flores', 'Espinoza', 'Castillo',
 ];
 
-/** Dígito verificador chileno (módulo 11) para un cuerpo numérico. */
 function computeVerifier(body: number): string {
     let sum = 0;
     let multiplier = 2;
@@ -153,31 +111,26 @@ function computeVerifier(body: number): string {
 
 let rutCounter = RUT_BODY_START;
 
-/** Genera el siguiente RUT válido en formato de almacenamiento (cuerpo+DV, sin separadores). */
 function nextRut(): string {
     const body = rutCounter++;
     return `${body}${computeVerifier(body)}`;
 }
 
-/** Normaliza un texto a parte local de email (sin acentos ni espacios). */
 function emailLocal(value: string): string {
     return value
         .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[̀-ͯ]/g, '')
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '.')
         .replace(/^\.+|\.+$/g, '');
 }
 
-/** 20 preguntas aritméticas deterministas con 4 opciones (1 correcta). */
 function buildQuestions(): Prisma.QuestionCreateWithoutExamInput[] {
     return Array.from({ length: QUESTIONS_PER_EXAM }, (_, i) => {
         const a = i + 3;
         const b = (i + 1) * 2;
         const correct = a + b;
-        // Distractores deterministas alrededor de la respuesta correcta.
         const values = [correct, correct + 1, correct - 1, correct + 2];
-        // Rotación determinista de la posición correcta según el índice.
         const rotation = i % 4;
         const rotated = [...values.slice(rotation), ...values.slice(0, rotation)];
         return {
@@ -192,7 +145,7 @@ function buildQuestions(): Prisma.QuestionCreateWithoutExamInput[] {
     });
 }
 
-async function main(): Promise<void> {
+export async function seedBulk(prisma: PrismaClient): Promise<void> {
     console.log('Seeding bulk demo data...\n');
 
     const [adminRole, profesorRole, studentRole] = await Promise.all([
@@ -202,7 +155,7 @@ async function main(): Promise<void> {
     ]);
 
     if (!adminRole || !profesorRole || !studentRole) {
-        throw new Error('Roles no encontrados. Ejecutá `pnpm db:seed` primero.');
+        throw new Error('Roles not found. Run `pnpm db:seed` first.');
     }
 
     const hashedPassword = await bcrypt.hash(STAFF_PASSWORD, 10);
@@ -226,7 +179,6 @@ async function main(): Promise<void> {
         });
         console.log(`Institución: ${inst.name}`);
 
-        // ── Administrador ──────────────────────────────────────────────────
         await prisma.user.upsert({
             where: { email: `admin@${inst.domain}` },
             update: {},
@@ -240,9 +192,8 @@ async function main(): Promise<void> {
                 academicInstitutionId: institution.id,
             },
         });
-        console.log(`  Admin: ${inst.admin.name} ${inst.admin.lastname} (admin@${inst.domain})`);
+        console.log(`  Admin: ${inst.admin.name} ${inst.admin.lastname}`);
 
-        // ── Profesores ─────────────────────────────────────────────────────
         const professorIds: string[] = [];
         for (const prof of inst.professors) {
             const email = `${emailLocal(`${prof.name}.${prof.lastname}`)}@${inst.domain}`;
@@ -261,10 +212,9 @@ async function main(): Promise<void> {
                 select: { id: true },
             });
             professorIds.push(professor.id);
-            console.log(`  Profesor: ${prof.name} ${prof.lastname} (${email})`);
+            console.log(`  Profesor: ${prof.name} ${prof.lastname}`);
         }
 
-        // ── Grupos + alumnos + examen ──────────────────────────────────────
         for (let g = 0; g < GROUPS_PER_INSTITUTION; g++) {
             const groupName = `Grupo ${groupLetters[g]} — ${inst.name}`;
 
@@ -277,20 +227,16 @@ async function main(): Promise<void> {
                     data: {
                         name: groupName,
                         academicInstitutionId: institution.id,
-                        // Los 2 profesores de la institución quedan a cargo del grupo.
                         professors: { connect: professorIds.map((id) => ({ id })) },
                     },
                     select: { id: true },
                 });
             }
 
-            // Alumnos del grupo
             for (let s = 0; s < STUDENTS_PER_GROUP; s++) {
                 const idx = g * STUDENTS_PER_GROUP + s;
                 const firstName = STUDENT_FIRST_NAMES[idx % STUDENT_FIRST_NAMES.length] as string;
-                const lastName = STUDENT_LAST_NAMES[
-                    (idx + g) % STUDENT_LAST_NAMES.length
-                ] as string;
+                const lastName = STUDENT_LAST_NAMES[(idx + g) % STUDENT_LAST_NAMES.length] as string;
                 const uniqueN = g * STUDENTS_PER_GROUP + s + 1;
                 const email = `${emailLocal(`${firstName}.${lastName}`)}.${uniqueN}@alumnos.${inst.domain}`;
                 await prisma.user.upsert({
@@ -309,14 +255,9 @@ async function main(): Promise<void> {
                 totalStudents++;
             }
 
-            // Examen activo con 20 preguntas (solo si el grupo no tiene uno ya)
             const examTitle = `Evaluación Diagnóstica — Grupo ${groupLetters[g]}`;
             const existingExam = await prisma.exam.findFirst({
-                where: {
-                    title: examTitle,
-                    academicInstitutionId: institution.id,
-                    groups: { some: { id: group.id } },
-                },
+                where: { title: examTitle, academicInstitutionId: institution.id, groups: { some: { id: group.id } } },
                 select: { id: true },
             });
             if (!existingExam) {
@@ -333,29 +274,13 @@ async function main(): Promise<void> {
                 totalExams++;
             }
 
-            console.log(
-                `  ${groupName}: ${STUDENTS_PER_GROUP} alumnos · examen activo (${QUESTIONS_PER_EXAM} preguntas)`,
-            );
+            console.log(`  ${groupName}: ${STUDENTS_PER_GROUP} alumnos · examen activo`);
         }
-
         console.log('');
     }
 
-    console.log('Seed bulk completado:');
-    console.log(`  ${INSTITUTIONS.length} instituciones`);
-    console.log(
-        `  ${INSTITUTIONS.length} administradores · ${INSTITUTIONS.length * 2} profesores  — password: ${STAFF_PASSWORD}`,
-    );
-    console.log(`  ${INSTITUTIONS.length * GROUPS_PER_INSTITUTION} grupos`);
-    console.log(`  ${totalStudents} alumnos creados (login por RUT)`);
-    console.log(`  ${totalExams} exámenes activos con ${QUESTIONS_PER_EXAM} preguntas c/u`);
+    console.log('Bulk seed completed:');
+    console.log(`  ${INSTITUTIONS.length} institutions · ${INSTITUTIONS.length * 2} professors · ${INSTITUTIONS.length * GROUPS_PER_INSTITUTION} groups`);
+    console.log(`  ${totalStudents} students (login by RUT) · ${totalExams} active exams (${QUESTIONS_PER_EXAM} questions each)`);
+    console.log(`  Staff password: ${STAFF_PASSWORD}`);
 }
-
-main()
-    .catch((e) => {
-        console.error(e);
-        process.exit(1);
-    })
-    .finally(async () => {
-        await prisma.$disconnect();
-    });

@@ -17,6 +17,7 @@ const PUBLIC_PREFIXES = [
     '/empresa',
     '/recursos',
     '/registro',
+    '/certificado',
 ];
 
 export default auth((req: NextAuthRequest) => {

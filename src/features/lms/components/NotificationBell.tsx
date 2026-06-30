@@ -115,8 +115,8 @@ export function NotificationBell({ initialNotifications, initialUnreadCount }: P
                                 <p className="text-mute text-sm">Sin notificaciones</p>
                             </div>
                         ) : (
+                            // biome-ignore-start lint/correctness/useJsxKeyInIterable: key is on the outer Link/div wrapper
                             notifications.map((n) => {
-                                // biome-ignore lint/correctness/useJsxKeyInIterable: key is on the outer Link/div wrapper
                                 const inner = (
                                     <div
                                         className={cn(
@@ -163,6 +163,7 @@ export function NotificationBell({ initialNotifications, initialUnreadCount }: P
                                     </div>
                                 );
                             })
+                            // biome-ignore-end lint/correctness/useJsxKeyInIterable: key is on the outer Link/div wrapper
                         )}
                     </div>
                 </div>

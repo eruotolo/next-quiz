@@ -260,6 +260,11 @@ model User {
   lmsUserBadges         LmsUserBadge[]
   lmsPointEvents        LmsPointEvent[]
   leaderboardOptOuts    LmsLeaderboardOptOut[]
+  lmsCertificates       LmsCertificate[]
+  liveSessionsCreated   LmsLiveSession[]      @relation("LmsLiveSessionCreatedBy")
+  liveAttendances       LmsLiveAttendance[]
+  liveChatMessages      LmsLiveChatMessage[]
+  whiteboardSnapshots   LmsWhiteboardSnapshot[]
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
 
@@ -669,6 +674,10 @@ model LmsCourse {
   description           String?
   coverImageUrl         String?
   published             Boolean              @default(false)
+  // Fase 5: Emite certificado automáticamente cuando el estudiante completa el curso.
+  certificateEnabled    Boolean              @default(false)
+  // Fase 5: Habilita resúmenes automáticos con IA para lecciones TEXTO.
+  aiSummaryEnabled      Boolean              @default(false)
   academicInstitutionId String?              @db.Uuid
   academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: Cascade)
   // Vínculo opcional a la materia del motor de exámenes. Si se setea, los
@@ -683,6 +692,8 @@ model LmsCourse {
   forums                LmsForum[]
   pointEvents           LmsPointEvent[]
   leaderboardOptOuts    LmsLeaderboardOptOut[]
+  certificates          LmsCertificate[]
+  liveSessions          LmsLiveSession[]
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
 
@@ -722,6 +733,8 @@ model LmsLesson {
   fileUrl       String? // URL del documento (Vercel Blob)
   externalLink  String? // Enlace externo
   durationSec   Int? // Duración estimada (videos/lecturas)
+  // Fase 5: Resumen generado por IA para lecciones TEXTO. Cacheado; se regenera on demand.
+  summaryJson   Json? // { summary: string, keyPoints: string[], generatedAt: string }
   // Integración con Aulika: la lección embebe un examen por FK. Setear type=EXAMEN
   // implica examId obligatorio (validado en Server Actions).
   examId        String?             @db.Uuid
@@ -1043,4 +1056,146 @@ model LmsLeaderboardOptOut {
 
   @@unique([userId, courseId])
   @@index([courseId])
+}
+
+// ─── Fase 5: Certificados ─────────────────────────────────────────────────────
+// Certificado de finalización emitido por el docente/admin cuando un estudiante
+// completa un curso. `verificationCode` es el token público para la URL de
+// verificación. `revokedAt` permite invalidar un certificado sin borrarlo.
+
+model LmsCertificate {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @db.Uuid
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId         String    @db.Uuid
+  course           LmsCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  verificationCode String    @unique @default(cuid())
+  finalGrade       Decimal?  @db.Decimal(3, 1)
+  // Fase 5: URLs de los assets subidos a Cloudinary.
+  pdfUrl           String?
+  qrCodeUrl        String?
+  issuedAt         DateTime  @default(now())
+  revokedAt        DateTime?
+
+  @@unique([userId, courseId])
+  @@index([courseId])
+  @@index([verificationCode])
+}
+
+// ─── Aula Sincrónica (Fase 6) ─────────────────────────────────────────────────
+
+enum LiveSessionStatus {
+  SCHEDULED
+  LIVE
+  ENDED
+  CANCELED
+}
+
+enum LiveAttendanceRole {
+  TEACHER
+  STUDENT
+  GUEST
+  ASSISTANT
+}
+
+enum LiveRecordingStatus {
+  NONE
+  PENDING
+  READY
+  FAILED
+}
+
+// Sesión sincrónica de clase en vivo. Cada sesión crea una "room" en Daily.co
+// y persiste join/leave events para construir el registro de asistencia. La
+// grabación se descarga vía webhook `recording.ready-to-download`.
+model LmsLiveSession {
+  id                   String               @id @default(uuid()) @db.Uuid
+  courseId             String               @db.Uuid
+  course               LmsCourse            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title                String
+  description          String?
+  scheduledAt          DateTime
+  durationMin          Int                  @default(60)
+  // Datos de la room en Daily.co. dailyRoomName es único por plataforma y la
+  // URL es lo que los clientes usan para unirse. Se borra la room cuando la
+  // sesión termina o se cancela.
+  dailyRoomName        String               @unique
+  dailyRoomUrl         String
+  dailyRoomExpiresAt   DateTime
+  maxParticipants      Int?
+  status               LiveSessionStatus    @default(SCHEDULED)
+  createdById          String               @db.Uuid
+  createdBy            User                 @relation("LmsLiveSessionCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  startedAt            DateTime?
+  endedAt              DateTime?
+  // Grabación subida post-sesión (auto-fetch vía Daily webhook).
+  recordingMuxAssetId  String?
+  recordingUrl         String?
+  recordingDurationSec Int?
+  recordingStatus      LiveRecordingStatus  @default(NONE)
+  attendances          LmsLiveAttendance[]
+  chatMessages         LmsLiveChatMessage[]
+  whiteboardSnapshots  LmsWhiteboardSnapshot[]
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  @@index([courseId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([createdById])
+}
+
+// Registro de asistencia por participante. Una fila por join (varias si la
+// persona entra/sale varias veces durante la misma sesión).
+model LmsLiveAttendance {
+  id                 String             @id @default(uuid()) @db.Uuid
+  sessionId          String             @db.Uuid
+  session            LmsLiveSession     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userId             String             @db.Uuid
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role               LiveAttendanceRole @default(STUDENT)
+  displayName        String
+  joinedAt           DateTime
+  leftAt             DateTime?
+  durationSec        Int?
+  // dailyParticipantId: id que Daily devuelve para matching en webhooks.
+  dailyParticipantId String?
+
+  @@index([sessionId])
+  @@index([userId])
+  @@index([sessionId, userId])
+}
+
+// Mensaje de chat en vivo durante la sesión. Soft-delete vía deletedAt.
+model LmsLiveChatMessage {
+  id        String         @id @default(uuid()) @db.Uuid
+  sessionId String         @db.Uuid
+  session   LmsLiveSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userId    String         @db.Uuid
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  sentAt    DateTime       @default(now())
+  deletedAt DateTime?
+
+  @@index([sessionId, sentAt])
+  @@index([userId])
+}
+
+// Snapshot de pizarra tldraw (PNG en Cloudinary). El profesor o estudiante
+// puede capturar la pizarra en cualquier momento; queda como material
+// descargable de la sesión.
+model LmsWhiteboardSnapshot {
+  id        String         @id @default(uuid()) @db.Uuid
+  sessionId String         @db.Uuid
+  session   LmsLiveSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  userId    String         @db.Uuid
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pngUrl    String
+  width     Int
+  height    Int
+  title     String?
+  createdAt DateTime       @default(now())
+
+  @@index([sessionId, createdAt])
+  @@index([userId])
 }

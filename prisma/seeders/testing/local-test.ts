@@ -1,7 +1,17 @@
+/**
+ * Testing seed — local development.
+ *
+ * Creates minimal data for day-to-day local development:
+ *   - 2 institutions (Universidad de Los Lagos · IP Pacífico)
+ *   - 4 admins + 4 professors (password: Admin2026!)
+ *   - 1 group per institution
+ *   - 1 program + 1 active period + 2 course sections per institution
+ *   - 10 students (5 per institution, login by RUT)
+ *
+ * Idempotent: uses upsert / findOrCreate throughout.
+ */
 import bcrypt from 'bcryptjs';
-import { createSeedClient } from '../lib/client';
-
-const prisma = createSeedClient();
+import type { PrismaClient } from '@prisma/client';
 
 const ADMIN_PASSWORD = 'Admin2026!';
 
@@ -26,9 +36,6 @@ const INSTITUTIONS = [
     },
 ] as const;
 
-// Jerarquía académica de prueba: 1 programa, 1 período activo y 2 materias por
-// institución. Da datos a los tracks paralelos (Programas/Períodos/Materias) y
-// a sus e2e.
 const ACADEMIC = [
     {
         institution: 'universidad-de-los-lagos',
@@ -49,7 +56,6 @@ const ACADEMIC = [
 ] as const;
 
 const ADMINS = [
-    // ULagos
     {
         name: 'María',
         lastname: 'García',
@@ -64,7 +70,6 @@ const ADMINS = [
         rut: '222222222',
         institution: 'universidad-de-los-lagos',
     },
-    // IP Pacífico
     {
         name: 'Ana',
         lastname: 'Martínez',
@@ -82,7 +87,6 @@ const ADMINS = [
 ] as const;
 
 const PROFESORES = [
-    // ULagos
     {
         name: 'Laura',
         lastname: 'Jiménez',
@@ -97,7 +101,6 @@ const PROFESORES = [
         rut: '190123456',
         institution: 'universidad-de-los-lagos',
     },
-    // IP Pacífico
     {
         name: 'Andrea',
         lastname: 'Castillo',
@@ -115,7 +118,6 @@ const PROFESORES = [
 ] as const;
 
 const STUDENTS = [
-    // ULagos
     {
         name: 'Juan',
         lastname: 'Pérez',
@@ -151,7 +153,6 @@ const STUDENTS = [
         rut: '999999999',
         institution: 'universidad-de-los-lagos',
     },
-    // IP Pacífico
     {
         name: 'Camila',
         lastname: 'Rojas',
@@ -196,7 +197,7 @@ async function getOrCreate<T extends { id: string }>(
     return (await find()) ?? (await create());
 }
 
-async function main(): Promise<void> {
+export async function seedLocal(prisma: PrismaClient): Promise<void> {
     console.log('Seeding local test data...');
 
     const adminRole = await prisma.userRole.findUnique({ where: { name: 'Administrador' } });
@@ -209,9 +210,7 @@ async function main(): Promise<void> {
 
     const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 10);
 
-    // ─── Institutions ─────────────────────────────────────────────────────────
     const institutionMap = new Map<string, string>();
-
     for (const inst of INSTITUTIONS) {
         const record = await prisma.academicInstitution.upsert({
             where: { slug: inst.slug },
@@ -221,26 +220,18 @@ async function main(): Promise<void> {
         institutionMap.set(inst.slug, record.id);
     }
 
-    // ─── Groups (one per institution) ─────────────────────────────────────────
     const groupMap = new Map<string, string>();
-
     for (const inst of INSTITUTIONS) {
         const groupName = `Grupo A — ${inst.name}`;
         const institutionId = institutionMap.get(inst.slug)!;
-
         const group = await getOrCreate(
             () => prisma.group.findFirst({ where: { name: groupName } }),
-            () =>
-                prisma.group.create({
-                    data: { name: groupName, academicInstitutionId: institutionId },
-                }),
+            () => prisma.group.create({ data: { name: groupName, academicInstitutionId: institutionId } }),
         );
-
         groupMap.set(inst.slug, group.id);
-        console.log(`  Group: ${groupName} → institution ${institutionId}`);
+        console.log(`  Group: ${groupName}`);
     }
 
-    // ─── Administrators ───────────────────────────────────────────────────────
     for (const admin of ADMINS) {
         const institutionId = institutionMap.get(admin.institution)!;
         await prisma.user.upsert({
@@ -259,8 +250,6 @@ async function main(): Promise<void> {
         console.log(`  Admin: ${admin.name} ${admin.lastname} → ${admin.institution}`);
     }
 
-    // ─── Profesores ───────────────────────────────────────────────────────────
-    // Primer profesor por institución → se usará como docente de las materias.
     const firstProfessorByInstitution = new Map<string, string>();
     for (const prof of PROFESORES) {
         const institutionId = institutionMap.get(prof.institution)!;
@@ -283,72 +272,36 @@ async function main(): Promise<void> {
         console.log(`  Profesor: ${prof.name} ${prof.lastname} → ${prof.institution}`);
     }
 
-    // ─── Jerarquía académica (programas, períodos, materias) ──────────────────
     for (const academic of ACADEMIC) {
         const institutionId = institutionMap.get(academic.institution)!;
         const groupId = groupMap.get(academic.institution)!;
         const professorId = firstProfessorByInstitution.get(academic.institution)!;
 
         const program = await getOrCreate(
-            () =>
-                prisma.program.findFirst({
-                    where: { academicInstitutionId: institutionId, name: academic.programName },
-                }),
-            () =>
-                prisma.program.create({
-                    data: {
-                        name: academic.programName,
-                        code: academic.programCode,
-                        academicInstitutionId: institutionId,
-                    },
-                }),
+            () => prisma.program.findFirst({ where: { academicInstitutionId: institutionId, name: academic.programName } }),
+            () => prisma.program.create({ data: { name: academic.programName, code: academic.programCode, academicInstitutionId: institutionId } }),
         );
 
         const period = await getOrCreate(
-            () =>
-                prisma.academicPeriod.findFirst({
-                    where: { academicInstitutionId: institutionId, name: academic.periodName },
-                }),
-            () =>
-                prisma.academicPeriod.create({
-                    data: {
-                        name: academic.periodName,
-                        year: 2026,
-                        type: academic.periodType,
-                        isActive: true,
-                        academicInstitutionId: institutionId,
-                    },
-                }),
+            () => prisma.academicPeriod.findFirst({ where: { academicInstitutionId: institutionId, name: academic.periodName } }),
+            () => prisma.academicPeriod.create({
+                data: { name: academic.periodName, year: 2026, type: academic.periodType, isActive: true, academicInstitutionId: institutionId },
+            }),
         );
 
-        // Vincula el grupo existente al programa (jerarquía).
-        await prisma.group.update({
-            where: { id: groupId },
-            data: { programId: program.id },
-        });
+        await prisma.group.update({ where: { id: groupId }, data: { programId: program.id } });
 
         for (const courseName of academic.courses) {
-            const existing = await prisma.courseSection.findFirst({
-                where: { periodId: period.id, name: courseName, groupId },
-            });
+            const existing = await prisma.courseSection.findFirst({ where: { periodId: period.id, name: courseName, groupId } });
             if (!existing) {
                 await prisma.courseSection.create({
-                    data: {
-                        name: courseName,
-                        programId: program.id,
-                        periodId: period.id,
-                        groupId,
-                        professors: { connect: { id: professorId } },
-                    },
+                    data: { name: courseName, programId: program.id, periodId: period.id, groupId, professors: { connect: { id: professorId } } },
                 });
             }
         }
-        console.log(
-            `  Académico: ${academic.programName} · ${academic.periodName} · ${academic.courses.length} materias → ${academic.institution}`,
-        );
+        console.log(`  Académico: ${academic.programName} · ${academic.courses.length} materias → ${academic.institution}`);
     }
 
-    // ─── Students ─────────────────────────────────────────────────────────────
     for (const student of STUDENTS) {
         const institutionId = institutionMap.get(student.institution)!;
         const groupId = groupMap.get(student.institution)!;
@@ -365,25 +318,11 @@ async function main(): Promise<void> {
                 groupId,
             },
         });
-        console.log(
-            `  Student: ${student.name} ${student.lastname} (RUT: ${student.rut}) → ${student.institution}`,
-        );
+        console.log(`  Student: ${student.name} ${student.lastname} (RUT: ${student.rut})`);
     }
 
     console.log('\nLocal test seed completed:');
-    console.log('  2 institutions');
-    console.log('  2 groups (1 per institution)');
-    console.log('  4 administrators (2 per institution) — password: Admin2026!');
-    console.log('  4 profesores (2 per institution)    — password: Admin2026!');
-    console.log('  10 students (5 per institution)     — login by RUT');
+    console.log('  2 institutions · 2 groups · 4 admins · 4 professors · 10 students');
     console.log('  2 programs · 2 active periods · 4 course sections');
+    console.log('  Credentials: Admin2026! / login by RUT for students');
 }
-
-main()
-    .catch((e) => {
-        console.error(e);
-        process.exit(1);
-    })
-    .finally(async () => {
-        await prisma.$disconnect();
-    });

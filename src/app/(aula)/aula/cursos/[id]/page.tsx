@@ -108,7 +108,7 @@ export default async function StudentAulaCoursePage({ params }: PageProps) {
 
     const activeCertificate = certificate && !certificate.revokedAt ? {
         verificationCode: certificate.verificationCode,
-        finalGrade: certificate.finalGrade,
+        finalGrade: certificate.finalGrade?.toNumber() ?? null,
         issuedAt: certificate.issuedAt,
         pdfUrl: certificate.pdfUrl,
     } : null;
