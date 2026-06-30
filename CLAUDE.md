@@ -459,6 +459,18 @@ Plan en `AcademicInstitution.plan` (`Plan`: FREE · DOCENTE · COLEGIO · INSTIT
 - **Institucional** — abre `QuoteDialog`, envía email de cotización al SuperAdmin vía Brevo (`sendEmail`).
 - **Precios** — fuente de verdad: `subscriptions/lib/mercadopago.ts` (`PLAN_PRICES`, `getAutoRecurring`).
 
+## Aulika Online — Vitrina B2C PAES (Storefront `/cursos`)
+
+Institución de administración central **"Aulika Institution Online"** (slug `aulika-online`) que sirve de vitrina propia de la plataforma para vender cursos PAES por asignatura o como Pack Completo, sin pasar por la venta institucional. Constantes compartidas (UUIDs estáticos, precios) en `src/features/lms/lib/aulika-online-bundle.ts` — único punto de verdad reutilizado por seeder, webhook y frontend.
+
+- **Seeder** — `prisma/seeders/aulika-online.ts` (+ `aulika-online-cli.ts`, corre en `pnpm build` y en `pnpm db:seed:online`). Idempotente vía UUIDs fijos: institución (`lmsEnabled: true`, plan `INSTITUCIONAL`), profesor de soporte, curso bundle "Pack Completo PAES" ($450.000) y 7 cursos individuales ($99.990 c/u: Comp. Matemática M1/M2, Comp. Lectora, Ciencias Biología/Química/Física, Historia y CC. Sociales) con módulos y lecciones reales del DEMRE.
+- **Protección de backfill** — `prisma/seeders/plan-codes.ts` solo hace `updateMany` sobre instituciones con `lmsPlanCode: null`, para no pisar los toggles manuales de Aula Virtual que haga el SuperAdmin después del primer deploy.
+- **Toggle SuperAdmin** — `institutionSchema` (`src/features/institutions/schemas/institution.schemas.ts`) incluye `lmsEnabled`. `InstitutionsClient.tsx` expone un `<Switch>` "Aula Virtual" en el formulario de alta/edición, con aviso de que el cambio requiere cerrar sesión y volver a entrar para refrescar el JWT.
+- **Comercialización por curso** — `toggleLmsCourseSetting` (en `src/features/lms/actions/courses.ts`) acepta `'isPublic'` además de `'certificateEnabled' | 'aiSummaryEnabled'`. Nueva action `updateLmsCoursePrice(slug, courseId, price)`. UI en `LmsCourseEditorClient.tsx`: switch "Curso Público (B2C)" + input de precio CLP con botón guardar.
+- **Storefront global `/cursos`** (`src/app/(public)/cursos/page.tsx`) — vitrina premium 100% comercial: hero, banner del Pack Completo (CTA directo a `/aulika-online/checkout/{packId}`) y grid de las 7 asignaturas via `PublicCourseCard` (reuso del componente de Fase 4 B2C) enlazando al detalle existente `/aulika-online/cursos/{id}` (que ya trae módulos + botón de compra). Si la institución `aulika-online` aún no fue sembrada, muestra un estado vacío en vez de 404. JSON-LD `ItemList` de `Course`. Agregada a `src/app/sitemap.ts`.
+- **Sección en Home** — `src/features/landing/components/L3PreuPDV.tsx`, insertada en `src/app/(public)/page.tsx` entre `<L3Stats />` y `<L3Pricing />`. CTA "Ver catálogo de cursos" → `/cursos`.
+- **Autoinscripción del Pack Completo** — `fulfillB2cOrder` en `src/app/api/webhooks/mercadopago-b2c/route.ts`: si `order.courseId === AULIKA_ONLINE_BUNDLE_COURSE_ID`, dentro de la misma transacción inscribe (`LmsEnrollment.upsert`, status `ACTIVO`) al alumno en todos los cursos públicos publicados de `aulika-online` además del bundle.
+
 ## InstitutionType y jerarquía académica
 
 `AcademicInstitution.type` (`InstitutionType`: COLEGIO · LICEO_TECNICO · PREUNIVERSITARIO · UNIVERSIDAD · INSTITUTO_PROFESIONAL · CFT · OTRO) define las etiquetas de cara al usuario para `Program`, `CourseSection` y `AcademicPeriod`. Default `OTRO` para datos previos (no requiere backfill).
