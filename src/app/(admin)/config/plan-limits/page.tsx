@@ -10,7 +10,10 @@ export const metadata: Metadata = {
 
 export default async function PlanLimitsPage() {
     const [limits, customPlans] = await Promise.all([
-        prisma.planLimits.findMany({ orderBy: { plan: 'asc' } }),
+        // Trae todas las filas (legacy sin planCode + los 6 packs por producto).
+        // El orden estable garantiza que las filas heredadas aparezcan primero
+        // dentro de cada plan comercial.
+        prisma.planLimits.findMany({ orderBy: [{ plan: 'asc' }, { planCode: 'asc' }] }),
         prisma.customPlan.findMany({ orderBy: { name: 'asc' } }),
     ]);
 

@@ -88,6 +88,16 @@ model AcademicInstitution {
   plan                Plan             @default(FREE)
   activatedAt         DateTime?
   planExpiresAt       DateTime?
+  // Flags de habilitación y plan por producto. Permiten comercializar Exámenes
+  // (Aulika) y Aula Virtual (LMS) de forma independiente. `examsEnabled` parte
+  // en true (producto core); `lmsEnabled` parte en false y se activa al comprar
+  // un pack LMS. Los `*PlanCode` referencian la fila de PlanLimits por producto.
+  examsEnabled        Boolean          @default(true)
+  examsPlanCode       String?          @default("exams_free")
+  examsPlanExpiresAt  DateTime?
+  lmsEnabled          Boolean          @default(false)
+  lmsPlanCode         String?          @default("lms_free")
+  lmsPlanExpiresAt    DateTime?
   mpSubscriptionId    String?
   mpCustomerId        String?
   allowedEmailDomains String[]         @default([])
@@ -224,31 +234,37 @@ model Group {
 }
 
 model User {
-  id                    String               @id @default(uuid()) @db.Uuid
+  id                    String                  @id @default(uuid()) @db.Uuid
   name                  String
   lastname              String
-  email                 String               @unique
-  rut                   String               @unique
+  email                 String                  @unique
+  rut                   String                  @unique
   phone                 String?
   password              String?
-  userRoleId            String?              @db.Uuid
-  userRole              UserRole?            @relation(fields: [userRoleId], references: [id], onDelete: SetNull)
-  academicInstitutionId String?              @db.Uuid
-  academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
-  groupId               String?              @db.Uuid
-  group                 Group?               @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  professorGroups       Group[]              @relation("ProfessorGroups")
-  tutorOfGroups         Group[]              @relation("GroupTutor")
-  taughtSections        CourseSection[]      @relation("CourseSectionTeachers")
+  // B2C: token de activación de cuenta (flujo de primer ingreso). El estudiante
+  // compra un curso, se crea este usuario inactivo, y se le envía por email un
+  // enlace `/examen/activar?token=...` para que defina su contraseña. La fecha
+  // de expiración (`activationTokenExp`) vence a las 24h de emitido el token.
+  activationToken       String?                 @unique
+  activationTokenExp    DateTime?
+  userRoleId            String?                 @db.Uuid
+  userRole              UserRole?               @relation(fields: [userRoleId], references: [id], onDelete: SetNull)
+  academicInstitutionId String?                 @db.Uuid
+  academicInstitution   AcademicInstitution?    @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
+  groupId               String?                 @db.Uuid
+  group                 Group?                  @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  professorGroups       Group[]                 @relation("ProfessorGroups")
+  tutorOfGroups         Group[]                 @relation("GroupTutor")
+  taughtSections        CourseSection[]         @relation("CourseSectionTeachers")
   coordinatedPrograms   ProgramCoordinator[]
-  active                Boolean              @default(true)
+  active                Boolean                 @default(true)
   results               Result[]
   answers               Answer[]
   examAttempts          ExamAttempt[]
-  createdExams          Exam[]               @relation("ExamCreatedBy")
+  createdExams          Exam[]                  @relation("ExamCreatedBy")
   auditLogs             AuditLog[]
-  createdBankQuestions  BankQuestion[]       @relation("BankQuestionCreatedBy")
-  createdLmsCourses     LmsCourse[]          @relation("LmsCourseCreatedBy")
+  createdBankQuestions  BankQuestion[]          @relation("BankQuestionCreatedBy")
+  createdLmsCourses     LmsCourse[]             @relation("LmsCourseCreatedBy")
   lmsEnrollments        LmsEnrollment[]
   lmsLessonProgress     LmsLessonProgress[]
   lmsSubmissions        LmsSubmission[]
@@ -261,12 +277,12 @@ model User {
   lmsPointEvents        LmsPointEvent[]
   leaderboardOptOuts    LmsLeaderboardOptOut[]
   lmsCertificates       LmsCertificate[]
-  liveSessionsCreated   LmsLiveSession[]      @relation("LmsLiveSessionCreatedBy")
+  liveSessionsCreated   LmsLiveSession[]        @relation("LmsLiveSessionCreatedBy")
   liveAttendances       LmsLiveAttendance[]
   liveChatMessages      LmsLiveChatMessage[]
   whiteboardSnapshots   LmsWhiteboardSnapshot[]
-  createdAt             DateTime             @default(now())
-  updatedAt             DateTime             @updatedAt
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
 
   @@index([userRoleId])
   @@index([academicInstitutionId])
@@ -300,6 +316,13 @@ enum EnrollmentStatus {
   ACTIVO
   COMPLETADO
   RETIRADO
+}
+
+// Estado de una orden de compra B2C (pago único de un curso público).
+enum OrderStatus {
+  PENDIENTE
+  APROBADO
+  RECHAZADO
 }
 
 // ─── Fase 2 (Fase actual): Tareas y Libro de Calificaciones ──────────────────
@@ -566,9 +589,15 @@ model AppConfig {
 
 // ─── Plans & Subscriptions ────────────────────────────────────────────────────
 
+// Límites por plan comercial. Estrategia híbrida retrocompatible: la columna
+// `plan` (enum) se mantiene sin `@unique`, y se agrega `planCode` para identificar
+// packs flexibles por producto. Los planes heredados conviven con `planCode`
+// nulo; los nuevos packs por producto (exámenes / LMS) se identifican por el
+// `planCode`. La unicidad real la garantiza `@@unique([plan, planCode])`.
 model PlanLimits {
   id              String   @id @default(uuid()) @db.Uuid
-  plan            Plan     @unique
+  plan            Plan
+  planCode        String?
   maxGroups       Int?
   maxAdmins       Int?
   maxProfessors   Int?
@@ -579,6 +608,9 @@ model PlanLimits {
   description     String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@unique([plan, planCode])
+  @@index([planCode])
 }
 
 // Planes internos creados por el SuperAdmin (no comerciales, no visibles para
@@ -669,23 +701,27 @@ model WebhookEvent {
 // y lecciones. Independiente del motor de exámenes pero vinculable a una materia
 // existente (CourseSection) para mantener coherencia con la jerarquía académica.
 model LmsCourse {
-  id                    String               @id @default(uuid()) @db.Uuid
+  id                    String                 @id @default(uuid()) @db.Uuid
   title                 String
   description           String?
   coverImageUrl         String?
-  published             Boolean              @default(false)
+  published             Boolean                @default(false)
   // Fase 5: Emite certificado automáticamente cuando el estudiante completa el curso.
-  certificateEnabled    Boolean              @default(false)
+  certificateEnabled    Boolean                @default(false)
   // Fase 5: Habilita resúmenes automáticos con IA para lecciones TEXTO.
-  aiSummaryEnabled      Boolean              @default(false)
-  academicInstitutionId String?              @db.Uuid
-  academicInstitution   AcademicInstitution? @relation(fields: [academicInstitutionId], references: [id], onDelete: Cascade)
+  aiSummaryEnabled      Boolean                @default(false)
+  // B2C: visibilidad en el catálogo público y precio de venta (CLP).
+  // Null/0 = gratis. `isPublic` habilita el curso para checkout externo.
+  isPublic              Boolean                @default(false)
+  price                 Float?
+  academicInstitutionId String?                @db.Uuid
+  academicInstitution   AcademicInstitution?   @relation(fields: [academicInstitutionId], references: [id], onDelete: Cascade)
   // Vínculo opcional a la materia del motor de exámenes. Si se setea, los
   // grupos que ya están asignados a esa materia quedan auto-inscriptos al LMS.
-  courseSectionId       String?              @db.Uuid
-  courseSection         CourseSection?       @relation(fields: [courseSectionId], references: [id], onDelete: SetNull)
-  createdById           String?              @db.Uuid
-  createdBy             User?                @relation("LmsCourseCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  courseSectionId       String?                @db.Uuid
+  courseSection         CourseSection?         @relation(fields: [courseSectionId], references: [id], onDelete: SetNull)
+  createdById           String?                @db.Uuid
+  createdBy             User?                  @relation("LmsCourseCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
   modules               LmsModule[]
   enrollments           LmsEnrollment[]
   gradebookItems        LmsGradebookItem[]
@@ -694,8 +730,9 @@ model LmsCourse {
   leaderboardOptOuts    LmsLeaderboardOptOut[]
   certificates          LmsCertificate[]
   liveSessions          LmsLiveSession[]
-  createdAt             DateTime             @default(now())
-  updatedAt             DateTime             @updatedAt
+  lmsOrders             LmsOrder[]
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
 
   @@index([academicInstitutionId])
   @@index([courseSectionId])
@@ -785,6 +822,34 @@ model LmsLessonProgress {
 
   @@unique([userId, lessonId])
   @@index([lessonId])
+}
+
+// ─── B2C: Órdenes de compra de cursos públicos ───────────────────────────────
+// Registro y trazabilidad de la compra de un curso LMS por un estudiante
+// externo (pago único vía MercadoPago). La orden nace PENDIENTE al generar la
+// preferencia de pago y pasa a APROBADO al recibir el webhook de MercadoPago
+// (`/api/webhooks/mercadopago-b2c`), que dispara la matriculación atómica.
+model LmsOrder {
+  id              String      @id @default(uuid()) @db.Uuid
+  studentRut      String
+  studentName     String
+  studentLastname String
+  studentEmail    String
+  courseId        String      @db.Uuid
+  course          LmsCourse   @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  amount          Float
+  status          OrderStatus @default(PENDIENTE)
+  mpPreferenceId  String?
+  mpPaymentId     String?     @unique
+  enrolledUserId  String?     @db.Uuid
+  enrollmentId    String?     @db.Uuid
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([courseId])
+  @@index([studentRut])
+  @@index([status])
+  @@index([createdAt])
 }
 
 // ─── Fase 2: Tareas (Assignment/Submission) ──────────────────────────────────
@@ -1047,12 +1112,12 @@ model LmsPointEvent {
 // `toggleLeaderboardOptOut` que crea/elimina la fila. La query del leaderboard
 // hace left-join y marca `isAnonymous = true` para esos usuarios.
 model LmsLeaderboardOptOut {
-  id         String   @id @default(uuid()) @db.Uuid
-  userId     String   @db.Uuid
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  courseId   String   @db.Uuid
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId   String    @db.Uuid
   course     LmsCourse @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  optedOutAt DateTime @default(now())
+  optedOutAt DateTime  @default(now())
 
   @@unique([userId, courseId])
   @@index([courseId])
@@ -1109,23 +1174,23 @@ enum LiveRecordingStatus {
 // y persiste join/leave events para construir el registro de asistencia. La
 // grabación se descarga vía webhook `recording.ready-to-download`.
 model LmsLiveSession {
-  id                   String               @id @default(uuid()) @db.Uuid
-  courseId             String               @db.Uuid
-  course               LmsCourse            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id                   String                  @id @default(uuid()) @db.Uuid
+  courseId             String                  @db.Uuid
+  course               LmsCourse               @relation(fields: [courseId], references: [id], onDelete: Cascade)
   title                String
   description          String?
   scheduledAt          DateTime
-  durationMin          Int                  @default(60)
+  durationMin          Int                     @default(60)
   // Datos de la room en Daily.co. dailyRoomName es único por plataforma y la
   // URL es lo que los clientes usan para unirse. Se borra la room cuando la
   // sesión termina o se cancela.
-  dailyRoomName        String               @unique
+  dailyRoomName        String                  @unique
   dailyRoomUrl         String
   dailyRoomExpiresAt   DateTime
   maxParticipants      Int?
-  status               LiveSessionStatus    @default(SCHEDULED)
-  createdById          String               @db.Uuid
-  createdBy            User                 @relation("LmsLiveSessionCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  status               LiveSessionStatus       @default(SCHEDULED)
+  createdById          String                  @db.Uuid
+  createdBy            User                    @relation("LmsLiveSessionCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
   startedAt            DateTime?
   endedAt              DateTime?
   // Marca temporal del recordatorio 1h antes enviado vía Brevo. Permite
@@ -1135,12 +1200,12 @@ model LmsLiveSession {
   recordingMuxAssetId  String?
   recordingUrl         String?
   recordingDurationSec Int?
-  recordingStatus      LiveRecordingStatus  @default(NONE)
+  recordingStatus      LiveRecordingStatus     @default(NONE)
   attendances          LmsLiveAttendance[]
   chatMessages         LmsLiveChatMessage[]
   whiteboardSnapshots  LmsWhiteboardSnapshot[]
-  createdAt            DateTime             @default(now())
-  updatedAt            DateTime             @updatedAt
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
 
   @@index([courseId])
   @@index([status])

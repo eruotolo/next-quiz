@@ -20,14 +20,29 @@ import {
     deleteCustomPlan,
     updateCustomPlan,
 } from '@/features/admin-plan/actions/custom-plans';
-import type { CustomPlan, PlanLimits } from '@prisma/client';
+import type { CustomPlan, Plan, PlanLimits } from '@prisma/client';
 
-const PLAN_LABELS: Record<string, string> = {
+const PLAN_LABELS: Record<Plan, string> = {
     FREE: 'Free',
     DOCENTE: 'Docente',
     COLEGIO: 'Colegio',
     INSTITUCIONAL: 'Institución',
 };
+
+// Etiquetas legibles para cada planCode. El fallback usa el código crudo.
+const PLAN_CODE_LABELS: Record<string, string> = {
+    exams_free: 'Exámenes · Free',
+    exams_docente: 'Exámenes · Docente',
+    exams_colegio: 'Exámenes · Colegio',
+    lms_free: 'Aula Virtual · Free',
+    lms_colegio: 'Aula Virtual · Colegio',
+    pack_completo: 'Pack completo (Exámenes + LMS)',
+};
+
+function planCodeLabel(code: string | null): string {
+    if (!code) return 'Plan heredado';
+    return PLAN_CODE_LABELS[code] ?? code;
+}
 
 const FIELD_LABELS: Record<string, string> = {
     maxGroups: 'Aulas',
@@ -49,10 +64,14 @@ type LimitField = (typeof FIELDS)[number];
 type EditableLimits = Record<LimitField, number | null>;
 type RowState = Record<string, EditableLimits>;
 
+function rowKey(plan: Plan, planCode: string | null): string {
+    return `${plan}-${planCode ?? '__legacy__'}`;
+}
+
 function initState(limits: PlanLimits[]): RowState {
     return Object.fromEntries(
         limits.map((l) => [
-            l.plan,
+            rowKey(l.plan, l.planCode),
             {
                 maxGroups: l.maxGroups,
                 maxAdmins: l.maxAdmins,
@@ -157,6 +176,20 @@ function CustomPlanFormFields({
     );
 }
 
+/**
+ * Agrupa las filas por plan comercial para la tabla. Cada grupo mantiene el
+ * orden de aparición en la DB (la seed los inserta en el orden deseado).
+ */
+function groupByPlan(limits: PlanLimits[]): Map<Plan, PlanLimits[]> {
+    const map = new Map<Plan, PlanLimits[]>();
+    for (const l of limits) {
+        const list = map.get(l.plan) ?? [];
+        list.push(l);
+        map.set(l.plan, list);
+    }
+    return map;
+}
+
 export function PlanLimitsClient({ limits, customPlans }: Props) {
     const router = useRouter();
     const [rows, setRows] = useState<RowState>(initState(limits));
@@ -166,20 +199,21 @@ export function PlanLimitsClient({ limits, customPlans }: Props) {
     const [deleting, setDeleting] = useState<CustomPlan | null>(null);
     const [pending, setPending] = useState(false);
 
-    function handleChange(plan: string, field: LimitField, value: string): void {
+    function handleChange(key: string, field: LimitField, value: string): void {
         const num = value === '' ? null : Number.parseInt(value, 10);
         setRows((prev) => ({
             ...prev,
-            [plan]: { ...(prev[plan] as EditableLimits), [field]: Number.isNaN(num) ? null : num },
+            [key]: { ...(prev[key] as EditableLimits), [field]: Number.isNaN(num) ? null : num },
         }));
     }
 
-    async function handleSave(plan: string): Promise<void> {
-        setSaving(plan);
+    async function handleSave(plan: Plan, planCode: string | null): Promise<void> {
+        const key = rowKey(plan, planCode);
+        setSaving(key);
         try {
-            const result = await updatePlanLimits({ plan, ...rows[plan] });
+            const result = await updatePlanLimits({ plan, planCode, ...rows[key] });
             if (result.error) toast.error(result.error);
-            else toast.success(`Límites del plan ${PLAN_LABELS[plan]} actualizados`);
+            else toast.success(`Límites actualizados`);
         } catch {
             toast.error('Error al guardar');
         } finally {
@@ -241,21 +275,35 @@ export function PlanLimitsClient({ limits, customPlans }: Props) {
         }
     }
 
-    function fmtLimit(v: number | null): string {
-        return v === null ? '∞' : String(v);
-    }
+    const grouped = groupByPlan(limits);
+    const allRows = rows;
 
     return (
         <div className="flex flex-col gap-8">
-            {/* Planes comerciales (fijos, edición inline) */}
+            {/* Planes por producto (Exámenes / Aula Virtual) + legacy */}
             <section className="flex flex-col gap-3">
-                <h2 className="font-display text-ink text-lg font-bold">Planes comerciales</h2>
+                <div className="flex items-end justify-between gap-3">
+                    <h2 className="font-display text-ink text-lg font-bold">
+                        Límites por pack de producto
+                    </h2>
+                    <span className="text-mute font-mono text-[10px] tracking-[0.1em] uppercase">
+                        {limits.length} {limits.length === 1 ? 'fila' : 'filas'}
+                    </span>
+                </div>
+                <p className="text-mute -mt-1 text-[12.5px]">
+                    Cada plan comercial puede tener varios packs por producto
+                    (Exámenes / LMS). Las filas con <code>planCode</code> nulo son los
+                    planes heredados y se mantienen por compatibilidad.
+                </p>
                 <div className="border-border overflow-x-auto rounded-[16px] border bg-white">
                     <table className="w-full text-[13px]">
                         <thead>
                             <tr className="border-border bg-paper border-b">
                                 <th className="text-mute px-5 py-3 text-left font-mono text-[10px] tracking-[0.1em] uppercase">
-                                    Plan
+                                    Plan comercial
+                                </th>
+                                <th className="text-mute px-4 py-3 text-left font-mono text-[10px] tracking-[0.1em] uppercase">
+                                    Pack (planCode)
                                 </th>
                                 {FIELDS.map((f) => (
                                     <th
@@ -269,60 +317,79 @@ export function PlanLimitsClient({ limits, customPlans }: Props) {
                             </tr>
                         </thead>
                         <tbody>
-                            {limits.map((l) => {
-                                const row = rows[l.plan];
-                                if (!row) return null;
-                                return (
-                                    <tr
-                                        key={l.plan}
-                                        className="border-border hover:bg-paper/50 border-b transition-colors last:border-0"
-                                    >
-                                        <td className="px-5 py-4">
-                                            <span className="text-ink font-semibold">
-                                                {PLAN_LABELS[l.plan]}
-                                            </span>
-                                            {l.description && (
-                                                <p className="text-mute mt-0.5 text-[11px]">
-                                                    {l.description}
-                                                </p>
-                                            )}
-                                        </td>
-                                        {FIELDS.map((field) => (
-                                            <td key={field} className="px-4 py-4 text-center">
-                                                <input
-                                                    type="number"
-                                                    min={1}
-                                                    value={row[field] ?? ''}
-                                                    onChange={(e) =>
-                                                        handleChange(l.plan, field, e.target.value)
-                                                    }
-                                                    placeholder="∞"
-                                                    className="border-border text-ink placeholder:text-mute/40 focus:border-primary focus:ring-primary/20 w-20 rounded-[8px] border bg-white px-2 py-1.5 text-center text-[13px] outline-none focus:ring-2"
-                                                />
-                                            </td>
-                                        ))}
-                                        <td className="px-5 py-4">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => void handleSave(l.plan)}
-                                                disabled={saving === l.plan}
-                                            >
-                                                {saving === l.plan ? (
-                                                    <Loader2 className="size-3.5 animate-spin" />
+                            {Array.from(grouped.entries()).flatMap(([plan, rows]) =>
+                                rows.map((l, idx) => {
+                                    const key = rowKey(l.plan, l.planCode);
+                                    const row = allRows[key];
+                                    if (!row) return null;
+                                    return (
+                                        <tr
+                                            key={key}
+                                            className="border-border hover:bg-paper/50 border-b transition-colors last:border-0"
+                                        >
+                                            <td className="px-5 py-4 align-top">
+                                                {idx === 0 ? (
+                                                    <span className="text-ink font-semibold">
+                                                        {PLAN_LABELS[plan]}
+                                                    </span>
                                                 ) : (
-                                                    <Save className="size-3.5" />
+                                                    <span className="text-mute text-[12px]">↳</span>
                                                 )}
-                                                Guardar
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                                            </td>
+                                            <td className="px-4 py-4 align-top">
+                                                <span className="text-ink-dim font-mono text-[11.5px]">
+                                                    {planCodeLabel(l.planCode)}
+                                                </span>
+                                                {l.description && (
+                                                    <p className="text-mute mt-0.5 text-[10.5px]">
+                                                        {l.description}
+                                                    </p>
+                                                )}
+                                            </td>
+                                            {FIELDS.map((field) => (
+                                                <td key={field} className="px-4 py-4 text-center">
+                                                    <input
+                                                        type="number"
+                                                        min={1}
+                                                        value={row[field] ?? ''}
+                                                        onChange={(e) =>
+                                                            handleChange(
+                                                                key,
+                                                                field,
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                        placeholder="∞"
+                                                        className="border-border text-ink placeholder:text-mute/40 focus:border-primary focus:ring-primary/20 w-20 rounded-[8px] border bg-white px-2 py-1.5 text-center text-[13px] outline-none focus:ring-2"
+                                                    />
+                                                </td>
+                                            ))}
+                                            <td className="px-5 py-4">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        void handleSave(l.plan, l.planCode)
+                                                    }
+                                                    disabled={saving === key}
+                                                >
+                                                    {saving === key ? (
+                                                        <Loader2 className="size-3.5 animate-spin" />
+                                                    ) : (
+                                                        <Save className="size-3.5" />
+                                                    )}
+                                                    Guardar
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    );
+                                }),
+                            )}
                         </tbody>
                     </table>
                     <p className="text-mute px-5 py-3 text-[12px]">
-                        Dejar en blanco = ilimitado. Los cambios aplican de inmediato.
+                        Dejar en blanco = ilimitado. Los cambios aplican de inmediato a todas las
+                        instituciones con ese pack.
                     </p>
                 </div>
             </section>
@@ -374,9 +441,7 @@ export function PlanLimitsClient({ limits, customPlans }: Props) {
                                         className="border-border hover:bg-paper/50 border-b transition-colors last:border-0"
                                     >
                                         <td className="px-5 py-4">
-                                            <span className="text-ink font-semibold">
-                                                {cp.name}
-                                            </span>
+                                            <span className="text-ink font-semibold">{cp.name}</span>
                                             {cp.description && (
                                                 <p className="text-mute mt-0.5 text-[11px]">
                                                     {cp.description}
@@ -388,7 +453,7 @@ export function PlanLimitsClient({ limits, customPlans }: Props) {
                                                 key={field}
                                                 className="text-ink-dim px-4 py-4 text-center font-mono"
                                             >
-                                                {fmtLimit(cp[field])}
+                                                {cp[field] === null ? '∞' : String(cp[field])}
                                             </td>
                                         ))}
                                         <td className="px-5 py-4">
@@ -452,7 +517,7 @@ export function PlanLimitsClient({ limits, customPlans }: Props) {
                             Eliminar plan interno
                         </DialogTitle>
                         <DialogDescription className="sr-only">
-                            Confirmación para eliminar el plan interno.
+                            Confirmación para eliminar un plan interno.
                         </DialogDescription>
                     </DialogHeader>
                     <p className="text-ink-dim py-2 text-[14px] leading-relaxed">

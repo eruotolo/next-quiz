@@ -354,8 +354,36 @@ export async function seedLocal(prisma: PrismaClient): Promise<void> {
         console.log(`  Student: ${student.name} ${student.lastname} (RUT: ${student.rut})`);
     }
 
+    // Cursos LMS públicos (catálogo B2C). Sin `published` no aparecen; sin
+    // `isPublic` tampoco. Necesarios para que el E2E `catalog.spec.ts` verifique
+    // el grid con cards (no solo el empty state).
+    const universidadId = institutionMap.get('universidad-de-los-lagos')!;
+    const firstAdmin = await prisma.user.findFirst({
+        where: { academicInstitutionId: universidadId, userRole: { name: 'Administrador' } },
+        select: { id: true },
+    });
+    if (firstAdmin) {
+        await prisma.lmsCourse.upsert({
+            where: { id: 'a1b2c3d4-1111-4111-8111-000000000001' },
+            update: { isPublic: true, published: true, price: 19990 },
+            create: {
+                id: 'a1b2c3d4-1111-4111-8111-000000000001',
+                title: 'Curso Público de Prueba',
+                description:
+                    'Curso sembrado por el seeder local-test para que el E2E del catálogo público tenga cards reales.',
+                published: true,
+                isPublic: true,
+                price: 19990,
+                academicInstitutionId: universidadId,
+                createdById: firstAdmin.id,
+            },
+        });
+        console.log('  Public course: Curso Público de Prueba → universidad-de-los-lagos');
+    }
+
     console.log('\nLocal test seed completed:');
     console.log('  2 institutions · 2 groups · 4 admins · 4 professors · 10 students');
     console.log('  2 programs · 2 active periods · 4 course sections');
+    console.log('  1 LMS public course (catálogo B2C)');
     console.log('  Credentials: Admin2026! / login by RUT for students');
 }

@@ -11,6 +11,7 @@ import { getUnseenBadges } from '@/features/lms/actions/gamification';
 import { getStudentAuthSession } from '@/features/exam-session/lib/session';
 import { prisma } from '@/shared/lib/prisma';
 import { getNotificationsFeed } from '@/features/students/lib/dashboard-queries';
+import { getInstitutionFlags } from '@/features/auth/lib/institution-flags';
 
 export default async function StudentLayout({ children }: { children: ReactNode }) {
     const headersList = await headers();
@@ -34,7 +35,7 @@ export default async function StudentLayout({ children }: { children: ReactNode 
             select: {
                 name: true,
                 lastname: true,
-                academicInstitution: { select: { name: true, plan: true } },
+                academicInstitution: { select: { id: true, name: true, plan: true } },
                 group: { select: { name: true } },
             },
         }),
@@ -44,7 +45,16 @@ export default async function StudentLayout({ children }: { children: ReactNode 
 
     if (!student) redirect('/students/examen/login');
 
-    const hasLms = student.academicInstitution?.plan !== 'FREE';
+    // Gating LMS (Fase 3.4): lee el flag real de la institución con fallback
+    // al heurístico por plan. Si LMS está deshabilitado, el sidebar no muestra
+    // "Mis cursos" y la ruta /students/aula queda inaccesible desde el menú.
+    const flags = student.academicInstitution?.id
+        ? await getInstitutionFlags(
+              student.academicInstitution.id,
+              student.academicInstitution.plan,
+          )
+        : { examsEnabled: true, lmsEnabled: false, examsPlanCode: null, lmsPlanCode: null };
+    const hasLms = flags.lmsEnabled;
     const fullName = `${student.name ?? ''} ${student.lastname ?? ''}`.trim() || 'Estudiante';
 
     return (

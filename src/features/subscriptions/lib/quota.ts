@@ -193,3 +193,88 @@ export async function getQuotaUsage(institutionId: string): Promise<QuotaUsage[]
         }),
     );
 }
+
+// ─── Cuotas segmentadas por producto (Exámenes / Aula Virtual) ───────────────
+// Permite consultar si un módulo está habilitado en la institución y cuáles son
+// sus límites, resolviéndolos desde el `PlanLimits` del producto (vía `planCode`).
+// Útil para gating de UI (ocultar "Aula" si LMS no está activo) y para validar
+// cuotas al crear recursos de un producto concreto.
+
+export type Product = 'exams' | 'lms';
+
+export interface ProductLimit {
+    product: Product;
+    enabled: boolean;
+    planCode: string | null;
+    label: string;
+    limits: EffectiveLimits | null;
+}
+
+export interface ProductLimits {
+    exams: ProductLimit;
+    lms: ProductLimit;
+}
+
+function toLimits(pl: {
+    maxGroups: number | null;
+    maxAdmins: number | null;
+    maxProfessors: number | null;
+    maxStudents: number | null;
+    maxExamsPerYear: number | null;
+    maxPrograms: number | null;
+    maxCourses: number | null;
+}): EffectiveLimits {
+    return {
+        maxGroups: pl.maxGroups,
+        maxAdmins: pl.maxAdmins,
+        maxProfessors: pl.maxProfessors,
+        maxStudents: pl.maxStudents,
+        maxExamsPerYear: pl.maxExamsPerYear,
+        maxPrograms: pl.maxPrograms,
+        maxCourses: pl.maxCourses,
+    };
+}
+
+/**
+ * Resuelve las cuotas y el estado de habilitación de cada producto (Exámenes y
+ * Aula Virtual) para una institución. Si un producto está deshabilitado o no
+ * tiene `planCode` asignado, `limits` viene en null.
+ */
+export async function getProductLimits(institutionId: string): Promise<ProductLimits | null> {
+    const institution = await prisma.academicInstitution.findUnique({
+        where: { id: institutionId },
+        select: {
+            plan: true,
+            examsEnabled: true,
+            examsPlanCode: true,
+            lmsEnabled: true,
+            lmsPlanCode: true,
+        },
+    });
+    if (!institution) return null;
+
+    const inst = institution;
+
+    async function resolveProduct(
+        product: Product,
+        enabled: boolean,
+        planCode: string | null,
+    ): Promise<ProductLimit> {
+        if (!enabled || !planCode) {
+            return { product, enabled, planCode, label: '—', limits: null };
+        }
+        const pl = await getPlanLimits(inst.plan, planCode);
+        return {
+            product,
+            enabled,
+            planCode,
+            label: `${inst.plan} · ${planCode}`,
+            limits: toLimits(pl),
+        };
+    }
+
+    const exams = await resolveProduct('exams', inst.examsEnabled, inst.examsPlanCode);
+    const lms = await resolveProduct('lms', inst.lmsEnabled, inst.lmsPlanCode);
+
+    return { exams, lms };
+}

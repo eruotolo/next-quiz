@@ -3,6 +3,7 @@ import { prisma } from '@/shared/lib/prisma';
 import { ADMIN_ROLES } from '@/shared/lib/roles';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
 import { deleteDemoSessionExams } from '@/features/demo/lib/cleanup';
+import { getInstitutionFlags } from '@/features/auth/lib/institution-flags';
 import { randomUUID } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import NextAuth, { type Account, type Session, type User } from 'next-auth';
@@ -35,7 +36,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                         email: true,
                         password: true,
                         userRole: { select: { name: true } },
-                        academicInstitution: { select: { id: true, slug: true, isDemo: true } },
+                        academicInstitution: {
+                            select: { id: true, slug: true, isDemo: true, plan: true },
+                        },
                     },
                 });
 
@@ -83,6 +86,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     status: 'success',
                 });
 
+                const flags = await getInstitutionFlags(
+                    user.academicInstitution?.id ?? null,
+                    user.academicInstitution?.plan ?? 'FREE',
+                );
+
                 return {
                     id: user.id,
                     name: `${user.name} ${user.lastname}`,
@@ -91,6 +99,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     academicInstitutionId: user.academicInstitution?.id ?? null,
                     institutionSlug: user.academicInstitution?.slug ?? null,
                     isDemo: user.academicInstitution?.isDemo ?? false,
+                    examsEnabled: flags.examsEnabled,
+                    lmsEnabled: flags.lmsEnabled,
                 };
             },
         }),
@@ -128,6 +138,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 token.academicInstitutionId = user.academicInstitutionId;
                 token.institutionSlug = user.institutionSlug;
                 token.isDemo = user.isDemo;
+                token.examsEnabled = user.examsEnabled ?? true;
+                token.lmsEnabled = user.lmsEnabled ?? false;
                 // Un id por login del demo: aísla lo creado por cada visitante.
                 token.demoSessionId = user.isDemo ? randomUUID() : null;
             }
@@ -140,7 +152,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                         name: true,
                         lastname: true,
                         userRole: { select: { name: true } },
-                        academicInstitution: { select: { id: true, slug: true } },
+                        academicInstitution: {
+                            select: { id: true, slug: true, plan: true },
+                        },
                     },
                 });
                 if (dbUser) {
@@ -151,6 +165,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     token.institutionSlug = dbUser.academicInstitution?.slug ?? null;
                     token.isDemo = false;
                     token.demoSessionId = null;
+
+                    const flags = await getInstitutionFlags(
+                        dbUser.academicInstitution?.id ?? null,
+                        dbUser.academicInstitution?.plan ?? 'FREE',
+                    );
+                    token.examsEnabled = flags.examsEnabled;
+                    token.lmsEnabled = flags.lmsEnabled;
 
                     await logAudit({
                         action: AUDIT_ACTION.AUTH_LOGIN_SUCCESS,
@@ -174,6 +195,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 session.user.institutionSlug = token.institutionSlug;
                 session.user.isDemo = token.isDemo ?? false;
                 session.user.demoSessionId = token.demoSessionId ?? null;
+                session.user.examsEnabled = token.examsEnabled ?? true;
+                session.user.lmsEnabled = token.lmsEnabled ?? false;
             }
             return session;
         },

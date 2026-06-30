@@ -390,6 +390,55 @@ Los 16 componentes de shadcn usan `React.ComponentProps<typeof Primitive.X>` con
 | `React.ComponentType<T>` | `ComponentType<T>`        |
 | `React.JSX.Element`      | _(eliminar — TS infiere)_ |
 
+## Planes Flexibles e Inscripciones B2C (Fase 3, 4 y 6)
+
+Feature para que cada institución venda cursos del Aula Virtual a estudiantes externos vía MercadoPago Checkout Pro (pago único). El estudiante compra, se matricula, define su contraseña y entra al aula.
+
+### Modelos Prisma nuevos / extendidos (Fase 1 ya aplicada vía `20260630130000_planes_b2c_y_matriculacion`)
+
+- `AcademicInstitution`: `examsEnabled`, `examsPlanCode`, `examsPlanExpiresAt`, `lmsEnabled`, `lmsPlanCode`, `lmsPlanExpiresAt`. Backfill: `examsEnabled=true`, `lmsEnabled=false`.
+- `LmsCourse`: `isPublic: Boolean @default(false)`, `price: Float?` (CLP; `null`/`0` = gratis).
+- `PlanLimits`: drop `@@unique([plan])` → `@@unique([plan, planCode])`. Planes heredados usan `planCode: null`.
+- `User`: `activationToken: String? @unique`, `activationTokenExp: DateTime?` (TTL 24h).
+- `LmsOrder`: orden B2C con `studentRut`, `studentName`, `studentLastname`, `studentEmail`, `courseId`, `amount`, `status: OrderStatus`, `mpPreferenceId`, `mpPaymentId @unique`, `enrolledUserId`, `enrollmentId`.
+- `enum OrderStatus { PENDIENTE, APROBADO, RECHAZADO }`.
+
+### Gating de producto por flag (Fase 3)
+
+- **Helper**: `src/features/auth/lib/institution-flags.ts` — `getInstitutionFlags(institutionId, plan)` lee `examsEnabled`/`lmsEnabled` con fallback al heurístico `plan !== 'FREE'` (defensa si la migración no corrió).
+- **JWT/sesión**: `next-auth.d.ts` y `auth.ts` (callbacks `jwt` y `session`) propagan los flags. Carga via `getInstitutionFlags` en el `authorize` y en el callback `jwt` (rama google).
+- **Proxy** (`src/proxy.ts`): gating rápido en Edge runtime — si `/{slug}/aula/*` y `lmsEnabled=false` (excepto SuperAdmin) → redirect a `/{slug}/settings?notice=lms_disabled`. Rutas públicas por slug: `/{slug}/cursos/*` y `/{slug}/checkout/*` se identifican via `isPublicBySlugPath`. `/examen/activar` se agrega como excepción pública (token en query).
+- **Sidebar** (`src/features/dashboard/components/Sidebar.tsx`): items con `requiresLms: true` (`/aula`, `/aula/clases`) se filtran si `lmsEnabled=false`. SuperAdmin ve todo siempre.
+- **Layout estudiante** (`src/app/(students)/students/layout.tsx`): `hasLms` ahora lee `flags.lmsEnabled` en lugar del heurístico por `plan`.
+
+### Catálogo y checkout B2C (Fase 4)
+
+- **Catálogo público** `/{slug}/cursos`: server component. Lista cursos con `isPublic=true && published=true`. `src/features/lms/components/PublicCourseCard.tsx` para el grid; `src/shared/components/seo/schemas.ts` agrega `courseSchema()` (schema.org/Course) y se inyecta como JSON-LD ItemList en la grilla y como Course individual en el detalle. `generateMetadata` con SEO institucional.
+- **Detalle curso** `/{slug}/cursos/[courseId]`: preview de módulos/lecciones, precio, CTA → checkout. JSON-LD Course.
+- **Layout público** `src/app/(public)/[slug]/layout.tsx`: header minimal con logo Aulika + nombre institución + link a cursos. `notFound()` si la institución está inactiva o no existe.
+- **Checkout** `/{slug}/checkout/[courseId]`: `CheckoutForm.tsx` (cliente, RHF + Zod) con `RutField` + nombre + apellido + email + acceptTerms. Llama a `createLmsCheckoutPreference(slug, data)` que valida Zod, anti-IDOR (RUT/email no en otra institución), crea `LmsOrder` en PENDIENTE y llama a `createPreference` (Checkout Pro). Redirige a `init_point` de MercadoPago.
+- **Éxito** `/{slug}/checkout/[courseId]/exito`: `OrderStatusPoller` (cliente) consulta `getLmsOrderStatus(orderId)` cada 3s, máx 20 intentos. Cuando la orden pasa a APROBADO y el webhook ya creó el `User`, expone el `activationToken` y muestra CTA directo a `/examen/activar?token=...`. Si el polling expira, muestra fallback "Ya recibí el email".
+- **Activación** `/examen/activar`: server component que valida `token` (presencia + `activationTokenExp > now`) + render de `ActivationForm` (RHF + Zod, password min 8 + mayusc + num + confirm). Action `activateB2cAccount` hashea password con bcrypt, actualiza `User` (limpia tokens), vincula `LmsOrder.enrolledUserId` huérfanos, abre sesión jose (`createStudentAuthSession`) y redirige a `/students/dashboard`.
+
+### Schemas y actions nuevos
+
+- `src/features/subscriptions/schemas/b2c-checkout.schemas.ts` — `b2cCheckoutSchema` y `b2cActivatePasswordSchema`.
+- `src/features/lms/actions/b2c-orders.ts` — `createLmsCheckoutPreference(slug, data)` + `getLmsOrderStatus(orderId)`.
+- `src/features/lms/actions/b2c-activation.ts` — `activateB2cAccount(data)`.
+- `src/features/lms/lib/activation-token.ts` — helper `generateActivationToken()` (random 32 bytes hex + TTL 24h), reutilizable por el webhook B2C.
+- `src/features/subscriptions/lib/mercadopago.ts` — agregada `createPreference()` para pago único (Checkout Pro B2C) con la firma completa `item/payerName/payerSurname/backUrls/notificationUrl`. NO TOCAR `createPreapproval` (Fase 2 B2B).
+
+### Tests (Fase 6)
+
+- `src/features/auth/lib/__tests__/institution-flags.test.ts` (5 tests) — flag real + fallback por plan + fallback si Prisma falla.
+- `src/features/subscriptions/schemas/__tests__/b2c-checkout-schemas.test.ts` (12 tests) — RUT K, email, terms, password rules.
+- Total suite: 270/270 pasando.
+
+### Pendiente (Fase 5 — GLM-5.2)
+
+- Webhook `/api/webhooks/mercadopago-b2c` que recibe `payment` o `merchant_order`, valida con `MP_WEBHOOK_SECRET` (o webhook signature de pago único), en `$transaction` crea/actualiza `User` inactivo, genera `activationToken` (helper ya existe), crea `LmsEnrollment` (status `ACTIVO`), actualiza `LmsOrder` a APROBADO + `enrolledUserId` + `enrollmentId`, y dispara email Brevo con el link `/examen/activar?token=...`.
+- Seeders de `PlanLimits` por producto (`exams_free`, `exams_docente`, `exams_colegio`, `lms_free`, `lms_colegio`, `pack_completo`).
+
 ## Centro de ayuda (`/[slug]/ayuda`)
 
 Feature en `src/features/help/`:

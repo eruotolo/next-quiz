@@ -19,6 +19,21 @@ const PUBLIC_PREFIXES = [
     '/certificado',
 ];
 
+/**
+ * Paths públicos por slug de institución:
+ * - /[slug]/cursos      → catálogo B2C (Fase 4A)
+ * - /[slug]/checkout    → checkout B2C (Fase 4B)
+ *
+ * /[slug]/aula es la sección admin del Aula Virtual y requiere lmsEnabled=true.
+ */
+const PUBLIC_SLUG_SEGMENTS = new Set(['cursos', 'checkout']);
+
+/** Matchea paths públicos del tipo `/[slug]/<segment>` o `/[slug]/<segment>/...`. */
+function isPublicBySlugPath(pathname: string): boolean {
+    const parts = pathname.split('/').filter(Boolean);
+    return parts.length >= 2 && PUBLIC_SLUG_SEGMENTS.has(parts[1] ?? '');
+}
+
 export default auth((req: NextAuthRequest) => {
     const { pathname } = req.nextUrl;
     const session = req.auth;
@@ -35,6 +50,16 @@ export default auth((req: NextAuthRequest) => {
     }
 
     if (pathname === '/' || PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) {
+        return next();
+    }
+
+    // Activación de cuenta B2C sin sesión previa (token en query).
+    if (pathname === '/examen/activar' || pathname.startsWith('/examen/activar/')) {
+        return next();
+    }
+
+    // Catálogo y checkout B2C por slug: público.
+    if (isPublicBySlugPath(pathname)) {
         return next();
     }
 
@@ -74,6 +99,17 @@ export default auth((req: NextAuthRequest) => {
     if (!session.user.institutionSlug || session.user.institutionSlug !== slug) {
         const target = session.user.institutionSlug ? `/${session.user.institutionSlug}` : '/login';
         return redirect(target);
+    }
+
+    // Gating LMS (Fase 3.2): el Aula Virtual admin requiere lmsEnabled=true.
+    // El SuperAdmin ya pasó arriba. El resto queda bloqueado con aviso.
+    if (
+        pathname === `/${slug}/aula` ||
+        pathname.startsWith(`/${slug}/aula/`)
+    ) {
+        if (session.user.lmsEnabled !== true) {
+            return redirect(`/${slug}/settings?notice=lms_disabled`);
+        }
     }
 
     return protectedResponse;

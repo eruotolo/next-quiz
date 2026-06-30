@@ -6,6 +6,8 @@ declare module 'next-auth' {
         academicInstitutionId: string | null;
         institutionSlug: string | null;
         isDemo: boolean;
+        examsEnabled: boolean;
+        lmsEnabled: boolean;
     }
     interface Session {
         user: {
@@ -18,6 +20,8 @@ declare module 'next-auth' {
             institutionSlug: string | null;
             isDemo: boolean;
             demoSessionId: string | null;
+            examsEnabled: boolean;
+            lmsEnabled: boolean;
         };
     }
 }
@@ -30,5 +34,7 @@ declare module 'next-auth/jwt' {
         institutionSlug: string | null;
         isDemo: boolean;
         demoSessionId: string | null;
+        examsEnabled: boolean;
+        lmsEnabled: boolean;
     }
 }

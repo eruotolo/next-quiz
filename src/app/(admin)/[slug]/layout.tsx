@@ -9,6 +9,7 @@ import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { getInstitutionSeo } from '@/shared/lib/seo';
 import { groupProfessorFilter } from '@/shared/lib/scoping';
+import { getInstitutionFlags } from '@/features/auth/lib/institution-flags';
 import type { Metadata } from 'next';
 import { cache } from 'react';
 import { redirect } from 'next/navigation';
@@ -95,6 +96,13 @@ export default async function InstitutionLayout({ children, params }: Props) {
     const institutionPlan = isAdmin ? (institutionData?.plan ?? null) : null;
     const showPlanPromo = institutionPlan === 'FREE' || institutionPlan === 'DOCENTE';
 
+    // Gating LMS (Fase 3.3): el flag se lee con fallback por plan si la DB aún
+    // no tiene las columnas. El SuperAdmin ve todos los items siempre.
+    const flags = institutionId
+        ? await getInstitutionFlags(institutionId, institutionData?.plan ?? 'FREE')
+        : { examsEnabled: true, lmsEnabled: false, examsPlanCode: null, lmsPlanCode: null };
+    const lmsEnabled = isSuperAdmin ? true : flags.lmsEnabled;
+
     // Programas que coordina el usuario (Jefe de Carrera) — solo para Profesores.
     // Habilita el indicador de coordinación en el Sidebar (Fase 5). El JWT no lo
     // lleva porque cambia, así que se resuelve por request como en auth-guard.
@@ -115,6 +123,7 @@ export default async function InstitutionLayout({ children, params }: Props) {
                 userRole={session.user?.userRoleName}
                 coordinatedProgramIds={coordinatedProgramIds}
                 institutionType={institutionData?.type ?? undefined}
+                lmsEnabled={lmsEnabled}
                 counts={{
                     students: students ?? undefined,
                     groups: groups ?? undefined,

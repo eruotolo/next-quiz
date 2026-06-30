@@ -59,6 +59,8 @@ interface NavItem {
     countKey?: keyof SidebarCounts;
     /** Sección de agrupación visual. Por defecto 'principal' (sin heading). */
     section?: NavSection;
+    /** Si true, el item solo se muestra cuando la institución tiene lmsEnabled. */
+    requiresLms?: boolean;
 }
 
 /** Etiquetas legibles de cada sección del menú. */
@@ -79,8 +81,8 @@ const ADMIN_NAV: NavItem[] = [
     { path: '/questions', label: 'Banco', icon: Library },
     { path: '/results', label: 'Resultados', icon: BarChart3 },
     { path: '/liveresults', label: 'En vivo', icon: Activity, live: true },
-    { path: '/aula', label: 'Aula Virtual', icon: MonitorPlay },
-    { path: '/aula/clases', label: 'Clases en vivo', icon: Radio },
+    { path: '/aula', label: 'Aula Virtual', icon: MonitorPlay, requiresLms: true },
+    { path: '/aula/clases', label: 'Clases en vivo', icon: Radio, requiresLms: true },
     { path: '/programs', label: 'Programas', icon: Layers, section: 'academic' },
     { path: '/periods', label: 'Períodos', icon: CalendarRange, section: 'academic' },
     { path: '/courses', label: 'Materias', icon: BookMarked, section: 'academic' },
@@ -95,8 +97,8 @@ const PROFESOR_NAV: NavItem[] = [
     { path: '/exams', label: 'Exámenes', icon: BookOpen },
     { path: '/results', label: 'Resultados', icon: BarChart3 },
     { path: '/liveresults', label: 'En vivo', icon: Activity, live: true },
-    { path: '/aula', label: 'Aula Virtual', icon: MonitorPlay },
-    { path: '/aula/clases', label: 'Clases en vivo', icon: Radio },
+    { path: '/aula', label: 'Aula Virtual', icon: MonitorPlay, requiresLms: true },
+    { path: '/aula/clases', label: 'Clases en vivo', icon: Radio, requiresLms: true },
     { path: '/ayuda', label: 'Ayuda', icon: HelpCircle, section: 'sistema' },
 ];
 
@@ -297,6 +299,8 @@ interface SidebarProps {
     /** Tipo de institución: determina las etiquetas de la sección Académico
      *  (Programas → Carreras/Niveles/Especialidades; Materias → Ramos/Asignaturas). */
     institutionType?: InstitutionType;
+    /** Habilitación de LMS (Aula Virtual) para la institución del usuario. */
+    lmsEnabled?: boolean;
 }
 
 // Fila de navegación: estado activo, badge de contador y punto "en vivo".
@@ -365,6 +369,7 @@ export function Sidebar({
     showPlanPromo = false,
     coordinatedProgramIds,
     institutionType,
+    lmsEnabled = false,
 }: SidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
@@ -420,7 +425,12 @@ export function Sidebar({
     const profesorNav: NavItem[] = isCoordinator
         ? [{ path: '/programs', label: `Mi ${labels.program}`, icon: Layers }, ...profesorBaseNav]
         : profesorBaseNav;
-    const navItems = isSuper ? SUPER_NAV : isProfesor ? profesorNav : adminNav;
+    // SuperAdmin ve todos los items siempre. Admin/Profesor: filtrar los
+    // marcados con `requiresLms` cuando la institución no tiene LMS activo.
+    const visibleLmsFilter = (item: NavItem) =>
+        isSuper || !item.requiresLms || lmsEnabled;
+    const baseNav = isSuper ? SUPER_NAV : isProfesor ? profesorNav : adminNav;
+    const navItems = baseNav.filter(visibleLmsFilter);
     const orgLabel = isSuper
         ? 'Aulika · Plataforma'
         : (slug ?? '').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());

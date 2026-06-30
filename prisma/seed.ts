@@ -2,6 +2,7 @@ import { type Plan } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { createSeedClient } from './lib/client';
 import { seedGamificationBadges } from './seeders/gamification-badges';
+import { seedPlanCodes } from './seeders/plan-codes';
 
 const prisma = createSeedClient();
 
@@ -104,24 +105,38 @@ async function main(): Promise<void> {
     });
 
     for (const limits of PLAN_LIMITS) {
-        await prisma.planLimits.upsert({
-            where: { plan: limits.plan },
-            update: {
-                maxGroups: limits.maxGroups,
-                maxAdmins: limits.maxAdmins,
-                maxProfessors: limits.maxProfessors,
-                maxStudents: limits.maxStudents,
-                maxExamsPerYear: limits.maxExamsPerYear,
-                maxPrograms: limits.maxPrograms,
-                maxCourses: limits.maxCourses,
-                description: limits.description,
-            },
-            create: limits,
+        // Planes heredados: planCode nulo. Prisma no permite buscar por compound
+        // unique cuando un componente es null, así que resolvemos con findFirst.
+        const existing = await prisma.planLimits.findFirst({
+            where: { plan: limits.plan, planCode: null },
+            select: { id: true },
         });
+        if (existing) {
+            await prisma.planLimits.update({
+                where: { id: existing.id },
+                data: {
+                    maxGroups: limits.maxGroups,
+                    maxAdmins: limits.maxAdmins,
+                    maxProfessors: limits.maxProfessors,
+                    maxStudents: limits.maxStudents,
+                    maxExamsPerYear: limits.maxExamsPerYear,
+                    maxPrograms: limits.maxPrograms,
+                    maxCourses: limits.maxCourses,
+                    description: limits.description,
+                },
+            });
+        } else {
+            await prisma.planLimits.create({ data: limits });
+        }
     }
 
     const upserted = await seedGamificationBadges(prisma);
     console.log(`Gamification: ${upserted} badges upserted.`);
+
+    const planResult = await seedPlanCodes(prisma);
+    console.log(
+        `PlanCodes: ${planResult.upserted} packs upserted, ${planResult.backfilled} institutions backfilled.`,
+    );
 
     console.log('Seed completed.');
 }
