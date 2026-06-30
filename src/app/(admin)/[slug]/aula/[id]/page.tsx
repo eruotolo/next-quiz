@@ -13,7 +13,14 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
 
     const course = await prisma.lmsCourse.findFirst({
         where: { id, academicInstitutionId: institutionId },
-        select: { id: true, title: true, description: true, published: true, certificateEnabled: true, aiSummaryEnabled: true },
+        select: {
+            id: true,
+            title: true,
+            description: true,
+            published: true,
+            certificateEnabled: true,
+            aiSummaryEnabled: true,
+        },
     });
     if (!course) notFound();
 
@@ -63,7 +70,7 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
                 </div>
                 <a
                     href={`/${slug}/aula/${id}/clases` as `/${string}`}
-                    className="text-ink-dim hover:text-ink border-border bg-white hover:bg-paper rounded-md border px-3 py-1.5 text-sm font-medium"
+                    className="text-ink-dim hover:text-ink border-border hover:bg-paper rounded-md border bg-white px-3 py-1.5 text-sm font-medium"
                 >
                     Clases en vivo
                 </a>

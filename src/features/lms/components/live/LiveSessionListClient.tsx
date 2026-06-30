@@ -5,10 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { toast } from 'sonner';
-import {
-    cancelLiveSession,
-    startLiveSession,
-} from '@/features/lms/actions/live-sessions';
+import { cancelLiveSession, startLiveSession } from '@/features/lms/actions/live-sessions';
 
 interface SessionRow {
     id: string;
@@ -63,9 +60,7 @@ export function LiveSessionListClient({
                 toast.error(result.error);
             } else {
                 toast.success('Sesión iniciada');
-                router.push(
-                    `/${slug}/aula/${courseId}/clases/${sessionId}` as `/${string}`,
-                );
+                router.push(`/${slug}/aula/${courseId}/clases/${sessionId}` as `/${string}`);
                 router.refresh();
             }
             setBusyId(null);
@@ -99,7 +94,7 @@ export function LiveSessionListClient({
                 </div>
             ) : null}
             {sessions.length === 0 ? (
-                <Card className="p-8 text-center text-sm text-muted-foreground">
+                <Card className="text-muted-foreground p-8 text-center text-sm">
                     Aún no hay sesiones en vivo para este curso.
                 </Card>
             ) : (
@@ -111,16 +106,17 @@ export function LiveSessionListClient({
                                     <div>
                                         <h3 className="text-base font-medium">{s.title}</h3>
                                         {s.description ? (
-                                            <p className="mt-1 text-sm text-muted-foreground">
+                                            <p className="text-muted-foreground mt-1 text-sm">
                                                 {s.description}
                                             </p>
                                         ) : null}
-                                        <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-                                            <span>
-                                                {new Date(s.scheduledAt).toLocaleString()}
-                                            </span>
+                                        <div className="text-muted-foreground mt-2 flex items-center gap-3 text-xs">
+                                            <span>{new Date(s.scheduledAt).toLocaleString()}</span>
                                             <span>· {s.durationMin} min</span>
-                                            <span>· {s.attendeeCount} asistente{s.attendeeCount === 1 ? '' : 's'}</span>
+                                            <span>
+                                                · {s.attendeeCount} asistente
+                                                {s.attendeeCount === 1 ? '' : 's'}
+                                            </span>
                                         </div>
                                     </div>
                                     <span
@@ -150,7 +146,8 @@ export function LiveSessionListClient({
                                             Iniciar ahora
                                         </Button>
                                     ) : null}
-                                    {canStart && (s.status === 'SCHEDULED' || s.status === 'LIVE') ? (
+                                    {canStart &&
+                                    (s.status === 'SCHEDULED' || s.status === 'LIVE') ? (
                                         <Button
                                             size="sm"
                                             variant="outline"
@@ -171,9 +168,15 @@ export function LiveSessionListClient({
                                             </a>
                                         </Button>
                                     ) : null}
-                                    {s.status === 'ENDED' && s.recordingStatus === 'READY' && s.recordingUrl ? (
+                                    {s.status === 'ENDED' &&
+                                    s.recordingStatus === 'READY' &&
+                                    s.recordingUrl ? (
                                         <Button asChild size="sm" variant="outline">
-                                            <a href={s.recordingUrl} target="_blank" rel="noopener noreferrer">
+                                            <a
+                                                href={s.recordingUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
                                                 Ver grabación
                                             </a>
                                         </Button>

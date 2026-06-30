@@ -81,17 +81,49 @@ const INSTITUTIONS: InstitutionSeed[] = [
 ];
 
 const STUDENT_FIRST_NAMES = [
-    'Benjamín', 'Martina', 'Vicente', 'Florencia', 'Agustín',
-    'Antonia', 'Maximiliano', 'Josefa', 'Tomás', 'Emilia',
-    'Joaquín', 'Catalina', 'Lucas', 'Isidora', 'Matías',
-    'Trinidad', 'Cristóbal', 'Amanda', 'Gabriel', 'Constanza',
+    'Benjamín',
+    'Martina',
+    'Vicente',
+    'Florencia',
+    'Agustín',
+    'Antonia',
+    'Maximiliano',
+    'Josefa',
+    'Tomás',
+    'Emilia',
+    'Joaquín',
+    'Catalina',
+    'Lucas',
+    'Isidora',
+    'Matías',
+    'Trinidad',
+    'Cristóbal',
+    'Amanda',
+    'Gabriel',
+    'Constanza',
 ];
 
 const STUDENT_LAST_NAMES = [
-    'González', 'Muñoz', 'Rojas', 'Díaz', 'Pérez',
-    'Soto', 'Contreras', 'Silva', 'Martínez', 'Sepúlveda',
-    'Morales', 'Rodríguez', 'López', 'Fuentes', 'Hernández',
-    'Torres', 'Araya', 'Flores', 'Espinoza', 'Castillo',
+    'González',
+    'Muñoz',
+    'Rojas',
+    'Díaz',
+    'Pérez',
+    'Soto',
+    'Contreras',
+    'Silva',
+    'Martínez',
+    'Sepúlveda',
+    'Morales',
+    'Rodríguez',
+    'López',
+    'Fuentes',
+    'Hernández',
+    'Torres',
+    'Araya',
+    'Flores',
+    'Espinoza',
+    'Castillo',
 ];
 
 function computeVerifier(body: number): string {
@@ -236,7 +268,9 @@ export async function seedBulk(prisma: PrismaClient): Promise<void> {
             for (let s = 0; s < STUDENTS_PER_GROUP; s++) {
                 const idx = g * STUDENTS_PER_GROUP + s;
                 const firstName = STUDENT_FIRST_NAMES[idx % STUDENT_FIRST_NAMES.length] as string;
-                const lastName = STUDENT_LAST_NAMES[(idx + g) % STUDENT_LAST_NAMES.length] as string;
+                const lastName = STUDENT_LAST_NAMES[
+                    (idx + g) % STUDENT_LAST_NAMES.length
+                ] as string;
                 const uniqueN = g * STUDENTS_PER_GROUP + s + 1;
                 const email = `${emailLocal(`${firstName}.${lastName}`)}.${uniqueN}@alumnos.${inst.domain}`;
                 await prisma.user.upsert({
@@ -257,7 +291,11 @@ export async function seedBulk(prisma: PrismaClient): Promise<void> {
 
             const examTitle = `Evaluación Diagnóstica — Grupo ${groupLetters[g]}`;
             const existingExam = await prisma.exam.findFirst({
-                where: { title: examTitle, academicInstitutionId: institution.id, groups: { some: { id: group.id } } },
+                where: {
+                    title: examTitle,
+                    academicInstitutionId: institution.id,
+                    groups: { some: { id: group.id } },
+                },
                 select: { id: true },
             });
             if (!existingExam) {
@@ -280,7 +318,11 @@ export async function seedBulk(prisma: PrismaClient): Promise<void> {
     }
 
     console.log('Bulk seed completed:');
-    console.log(`  ${INSTITUTIONS.length} institutions · ${INSTITUTIONS.length * 2} professors · ${INSTITUTIONS.length * GROUPS_PER_INSTITUTION} groups`);
-    console.log(`  ${totalStudents} students (login by RUT) · ${totalExams} active exams (${QUESTIONS_PER_EXAM} questions each)`);
+    console.log(
+        `  ${INSTITUTIONS.length} institutions · ${INSTITUTIONS.length * 2} professors · ${INSTITUTIONS.length * GROUPS_PER_INSTITUTION} groups`,
+    );
+    console.log(
+        `  ${totalStudents} students (login by RUT) · ${totalExams} active exams (${QUESTIONS_PER_EXAM} questions each)`,
+    );
     console.log(`  Staff password: ${STAFF_PASSWORD}`);
 }

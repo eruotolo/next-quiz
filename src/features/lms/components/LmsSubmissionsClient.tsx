@@ -141,14 +141,14 @@ function SubmissionRow({
             </button>
 
             {expanded && (
-                <div className="border-border bg-paper border-t px-6 pb-5 pt-4">
+                <div className="border-border bg-paper border-t px-6 pt-4 pb-5">
                     {/* Student content */}
                     {sub.textContent && (
                         <div className="mb-4">
-                            <p className="text-mute mb-1 text-xs font-bold uppercase tracking-wider">
+                            <p className="text-mute mb-1 text-xs font-bold tracking-wider uppercase">
                                 Respuesta escrita
                             </p>
-                            <p className="text-ink bg-white border-border rounded-[10px] border p-3 text-sm leading-relaxed whitespace-pre-wrap">
+                            <p className="text-ink border-border rounded-[10px] border bg-white p-3 text-sm leading-relaxed whitespace-pre-wrap">
                                 {sub.textContent}
                             </p>
                         </div>
@@ -156,7 +156,7 @@ function SubmissionRow({
 
                     {sub.fileUrl && (
                         <div className="mb-4">
-                            <p className="text-mute mb-1 text-xs font-bold uppercase tracking-wider">
+                            <p className="text-mute mb-1 text-xs font-bold tracking-wider uppercase">
                                 Archivo adjunto
                             </p>
                             <a
@@ -178,7 +178,7 @@ function SubmissionRow({
                     {/* Grade form */}
                     {canGrade && (
                         <div className="border-border mt-2 border-t pt-4">
-                            <p className="text-mute mb-3 text-xs font-bold uppercase tracking-wider">
+                            <p className="text-mute mb-3 text-xs font-bold tracking-wider uppercase">
                                 Calificación (1.0 – 7.0)
                             </p>
                             <div className="flex items-start gap-3">
@@ -231,9 +231,7 @@ export function LmsSubmissionsClient({ slug, assignmentId, submissions }: Props)
     const [filter, setFilter] = useState<SubmissionStatus | 'TODAS'>('TODAS');
 
     const filtered =
-        filter === 'TODAS'
-            ? submissions
-            : submissions.filter((s) => s.status === filter);
+        filter === 'TODAS' ? submissions : submissions.filter((s) => s.status === filter);
 
     const counts: Record<string, number> = {};
     for (const s of submissions) {

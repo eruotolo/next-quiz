@@ -7,7 +7,14 @@ import {
     summarizeAttendance,
 } from '@/features/lms/lib/live-attendance';
 import { Card } from '@/shared/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/shared/components/ui/table';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/shared/components/ui/table';
 
 interface PageProps {
     params: Promise<{ slug: string; id: string; sessionId: string }>;
@@ -76,11 +83,13 @@ export default async function AttendancePage({ params }: PageProps) {
                   previousJoinedAt: a.joinedAt,
                   leftAt: a.leftAt,
               })
-            : a.durationSec ?? 0;
+            : (a.durationSec ?? 0);
         return {
             ...a,
             computedDurationSec: computed,
-            userName: user ? `${user.name ?? ''} ${user.lastname ?? ''}`.trim() || user.email : a.displayName,
+            userName: user
+                ? `${user.name ?? ''} ${user.lastname ?? ''}`.trim() || user.email
+                : a.displayName,
             userRut: user?.rut ?? null,
         };
     });
@@ -91,25 +100,25 @@ export default async function AttendancePage({ params }: PageProps) {
         <div className="flex flex-col gap-6 p-6">
             <header>
                 <h1 className="text-2xl font-semibold">Asistencia: {live.title}</h1>
-                <p className="text-sm text-muted-foreground">
-                    {live.course.title} ·{' '}
-                    {new Date(live.scheduledAt).toLocaleString()} · {live.durationMin} min
+                <p className="text-muted-foreground text-sm">
+                    {live.course.title} · {new Date(live.scheduledAt).toLocaleString()} ·{' '}
+                    {live.durationMin} min
                 </p>
             </header>
 
             <div className="grid grid-cols-3 gap-3">
                 <Card className="p-4">
-                    <p className="text-xs uppercase text-muted-foreground">Participantes únicos</p>
+                    <p className="text-muted-foreground text-xs uppercase">Participantes únicos</p>
                     <p className="mt-1 text-2xl font-semibold">{summary.length}</p>
                 </Card>
                 <Card className="p-4">
-                    <p className="text-xs uppercase text-muted-foreground">Aún conectados</p>
+                    <p className="text-muted-foreground text-xs uppercase">Aún conectados</p>
                     <p className="mt-1 text-2xl font-semibold">
                         {summary.filter((s) => s.isPresent).length}
                     </p>
                 </Card>
                 <Card className="p-4">
-                    <p className="text-xs uppercase text-muted-foreground">Asistencia promedio</p>
+                    <p className="text-muted-foreground text-xs uppercase">Asistencia promedio</p>
                     <p className="mt-1 text-2xl font-semibold">
                         {summary.length === 0
                             ? '—'
@@ -150,7 +159,8 @@ export default async function AttendancePage({ params }: PageProps) {
                                     </TableCell>
                                     <TableCell>{row.joinCount}</TableCell>
                                     <TableCell>
-                                        {Math.floor(row.totalDurationSec / 60)}m {row.totalDurationSec % 60}s
+                                        {Math.floor(row.totalDurationSec / 60)}m{' '}
+                                        {row.totalDurationSec % 60}s
                                     </TableCell>
                                     <TableCell>{row.attendancePct}%</TableCell>
                                 </TableRow>

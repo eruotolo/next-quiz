@@ -77,7 +77,10 @@ describe('cloudinary wrapper', () => {
 
         cloudinaryUploadStreamMock.mockImplementationOnce(
             (_opts: unknown, cb: (err: unknown, result: unknown) => void) => {
-                cb(null, { secure_url: 'https://res.cloudinary.com/demo/raw/upload/cert_abc.pdf', public_id: 'lms/certificates/cert_abc' });
+                cb(null, {
+                    secure_url: 'https://res.cloudinary.com/demo/raw/upload/cert_abc.pdf',
+                    public_id: 'lms/certificates/cert_abc',
+                });
                 return { end: (): void => undefined };
             },
         );
@@ -86,7 +89,11 @@ describe('cloudinary wrapper', () => {
         expect(result.uploaded).toBe(true);
         expect(result.url).toContain('cloudinary.com');
         expect(cloudinaryConfigMock).toHaveBeenCalledWith(
-            expect.objectContaining({ cloud_name: 'mycloud', api_key: '123', api_secret: 'secret' }),
+            expect.objectContaining({
+                cloud_name: 'mycloud',
+                api_key: '123',
+                api_secret: 'secret',
+            }),
         );
     });
 

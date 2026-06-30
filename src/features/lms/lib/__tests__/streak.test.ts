@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-    computeStreakUpdate,
-    daysBetween,
-    toUtcDay,
-    type StreakState,
-} from '../streak';
+import { computeStreakUpdate, daysBetween, toUtcDay, type StreakState } from '../streak';
 
 const UTC_MIDDAY = (y: number, m: number, d: number) =>
     new Date(Date.UTC(y, m - 1, d, 12, 0, 0, 0));

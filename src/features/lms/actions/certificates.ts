@@ -78,7 +78,10 @@ export async function issueLmsCertificate(
         }
 
         revalidatePath(`/${slug}/aula/${courseId}/certificados`);
-        return ok({ verificationCode: result.verificationCode ?? '', pdfUrl: result.pdfUrl ?? null });
+        return ok({
+            verificationCode: result.verificationCode ?? '',
+            pdfUrl: result.pdfUrl ?? null,
+        });
     } catch {
         return fail('Error al emitir el certificado.');
     }
@@ -135,19 +138,19 @@ export async function listCourseCertificates(
                         name: true,
                         lastname: true,
                         email: true,
-                            lmsCertificates: {
-                                where: { courseId },
-                                select: {
-                                    id: true,
-                                    verificationCode: true,
-                                    finalGrade: true,
-                                    issuedAt: true,
-                                    revokedAt: true,
-                                    pdfUrl: true,
-                                    qrCodeUrl: true,
-                                },
-                                take: 1,
+                        lmsCertificates: {
+                            where: { courseId },
+                            select: {
+                                id: true,
+                                verificationCode: true,
+                                finalGrade: true,
+                                issuedAt: true,
+                                revokedAt: true,
+                                pdfUrl: true,
+                                qrCodeUrl: true,
                             },
+                            take: 1,
+                        },
                     },
                 },
             },
@@ -183,9 +186,7 @@ export async function listCourseCertificates(
     }
 }
 
-export async function verifyCertificate(
-    code: string,
-): Promise<ActionResult<PublicCertificate>> {
+export async function verifyCertificate(code: string): Promise<ActionResult<PublicCertificate>> {
     try {
         const cert = await prisma.lmsCertificate.findUnique({
             where: { verificationCode: code },

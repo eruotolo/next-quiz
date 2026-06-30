@@ -217,7 +217,23 @@ export function GroupsClient({
 
     return (
         <>
-            <main data-tour="groups-header" className="flex-1 overflow-auto p-8">
+            {/* ── Subheader ── */}
+            <div
+                data-tour="groups-header"
+                className="border-border flex items-center gap-3 border-b bg-white px-8 py-4"
+            >
+                <span className="text-mute font-mono text-[11px] font-bold tracking-wider uppercase">
+                    {groups.length} grupo{groups.length !== 1 ? 's' : ''}
+                </span>
+                <div className="flex-1" />
+                {canMutate && (
+                    <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
+                        <Plus size={16} />
+                        Crear grupo
+                    </Button>
+                )}
+            </div>
+            <main className="flex-1 overflow-auto p-8">
                 {groups.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
                         <Users size={48} className="text-mute/20 mb-4" />
@@ -225,20 +241,12 @@ export function GroupsClient({
                         <p className="text-mute mt-1 text-sm">
                             Crea el primero para empezar a organizar alumnos.
                         </p>
-                        {canMutate && (
-                            <Button
-                                variant="primary"
-                                size="md"
-                                onClick={openCreate}
-                                className="mt-6"
-                            >
-                                <Plus size={16} />
-                                Crear grupo
-                            </Button>
-                        )}
                     </Card>
                 ) : (
-                    <div data-tour="groups-list" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    <div
+                        data-tour="groups-list"
+                        className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                    >
                         {groups.map((g, idx) => {
                             const color = CARD_COLORS[idx % CARD_COLORS.length];
                             const visibleStudents = g.users.slice(0, 5);

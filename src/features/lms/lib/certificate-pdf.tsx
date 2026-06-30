@@ -228,7 +228,9 @@ function CertificatePdfDocument({
 
                         <Text style={styles.label}>Por la presente se certifica que</Text>
                         <Text style={styles.studentName}>{studentFullName}</Text>
-                        {studentRut ? <Text style={styles.studentRut}>RUT {studentRut}</Text> : null}
+                        {studentRut ? (
+                            <Text style={styles.studentRut}>RUT {studentRut}</Text>
+                        ) : null}
 
                         <Text style={styles.courseLabel}>ha completado el curso</Text>
                         <Text style={styles.courseTitle}>{courseTitle}</Text>
@@ -259,8 +261,7 @@ function CertificatePdfDocument({
 
                         <View style={styles.meta}>
                             <Text>
-                                Emitido el{' '}
-                                <Text style={styles.metaBold}>{formattedDate}</Text>
+                                Emitido el <Text style={styles.metaBold}>{formattedDate}</Text>
                             </Text>
                             <Text>
                                 Código de verificación:{' '}
@@ -289,7 +290,5 @@ export async function generateCertificatePdfBuffer(input: CertificatePdfInput): 
         margin: 1,
         width: 240,
     });
-    return renderToBuffer(
-        <CertificatePdfDocument {...input} qrDataUrl={qrDataUrl} />,
-    );
+    return renderToBuffer(<CertificatePdfDocument {...input} qrDataUrl={qrDataUrl} />);
 }

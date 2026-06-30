@@ -110,9 +110,7 @@ export interface CreateDailyRoomInput {
     startAudioOff?: boolean;
 }
 
-export type CreateDailyRoomResult =
-    | { ok: true; room: DailyRoom }
-    | { ok: false; error: string };
+export type CreateDailyRoomResult = { ok: true; room: DailyRoom } | { ok: false; error: string };
 
 export async function createDailyRoom(input: CreateDailyRoomInput): Promise<CreateDailyRoomResult> {
     const apiKey = await getDailyApiKey();
@@ -316,13 +314,9 @@ export interface DailyRecording {
     download_link?: string;
 }
 
-export type StartRecordingResult =
-    | { ok: true; recordingId: string }
-    | { ok: false; error: string };
+export type StartRecordingResult = { ok: true; recordingId: string } | { ok: false; error: string };
 
-export type StopRecordingResult =
-    | { ok: true }
-    | { ok: false; error: string };
+export type StopRecordingResult = { ok: true } | { ok: false; error: string };
 
 export async function startDailyRecording(roomName: string): Promise<StartRecordingResult> {
     const apiKey = await getDailyApiKey();

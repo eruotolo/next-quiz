@@ -1,4 +1,3 @@
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import {
     LiveResultsClient,
@@ -195,19 +194,12 @@ export default async function LiveResultsPage({ params, searchParams }: PageProp
     }
 
     return (
-        <>
-            <AdminTopBar
-                title="Monitoreo en Tiempo Real"
-                breadcrumb={[institutionName, 'En Vivo']}
-                subtitle="Seguimiento en tiempo real de exámenes activos"
-            />
-            <LiveResultsClient
-                allExams={examOptions}
-                selectedExamId={examId ?? null}
-                examData={examData}
-                groupOptions={groupOptions}
-                selectedGroupId={validGroupId ?? null}
-            />
-        </>
+        <LiveResultsClient
+            allExams={examOptions}
+            selectedExamId={examId ?? null}
+            examData={examData}
+            groupOptions={groupOptions}
+            selectedGroupId={validGroupId ?? null}
+        />
     );
 }

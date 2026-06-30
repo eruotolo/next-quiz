@@ -446,7 +446,12 @@ function CreateGroupDialog({
                     >
                         Cancelar
                     </Button>
-                    <Button variant="ink" size="md" disabled={isPending || isDemo} onClick={handleCreate}>
+                    <Button
+                        variant="ink"
+                        size="md"
+                        disabled={isPending || isDemo}
+                        onClick={handleCreate}
+                    >
                         {isPending && <Loader2 className="mr-2 animate-spin" />}
                         Crear grupo
                     </Button>
@@ -597,7 +602,12 @@ function CreateStudentDialog({
                     >
                         Cancelar
                     </Button>
-                    <Button variant="ink" size="md" disabled={isPending || isDemo} onClick={handleCreate}>
+                    <Button
+                        variant="ink"
+                        size="md"
+                        disabled={isPending || isDemo}
+                        onClick={handleCreate}
+                    >
                         {isPending && <Loader2 className="mr-2 animate-spin" />}
                         Crear estudiante
                     </Button>
@@ -721,7 +731,7 @@ function CreateExamDialog({
                                     key={g.id}
                                     className={cn(
                                         'flex items-center gap-3 rounded-[8px] px-3 py-2 transition-colors hover:bg-white',
-                                        !isDemo && 'cursor-pointer'
+                                        !isDemo && 'cursor-pointer',
                                     )}
                                 >
                                     <input
@@ -757,7 +767,12 @@ function CreateExamDialog({
                     >
                         Cancelar
                     </Button>
-                    <Button variant="ink" size="md" disabled={isPending || isDemo} onClick={handleCreate}>
+                    <Button
+                        variant="ink"
+                        size="md"
+                        disabled={isPending || isDemo}
+                        onClick={handleCreate}
+                    >
                         {isPending && <Loader2 className="mr-2 animate-spin" />}
                         Crear examen
                     </Button>
@@ -822,18 +837,28 @@ export function DashboardClient({
     return (
         <div className="min-h-screen bg-[#fafaf7]">
             {/* ── Header ── */}
-            <header className="flex items-start justify-between gap-6 border-b border-[#e5e2dc] bg-white px-8 py-6">
-                <div>
-                    <p className="mb-1 font-mono text-[10.5px] font-bold tracking-[0.1em] text-[#75716b] uppercase">
-                        {institutionName}
-                    </p>
-                    <h1 className="font-display text-[36px] leading-none font-bold tracking-[-0.03em] text-[#0b0b11]">
-                        {greeting}, {firstName} 👋
-                    </h1>
-                    <p className="mt-2 text-[13.5px] text-[#3c3d45]">{subtitle}</p>
+            <header className="flex items-center justify-between gap-6 border-b border-[#e5e2dc] bg-white px-8 py-4">
+                <div className="flex items-center gap-3">
+                    <div className="bg-primary/10 text-primary flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[15px] font-bold">
+                        {firstName[0]?.toUpperCase()}
+                    </div>
+                    <div>
+                        <p className="text-[11.5px] font-medium text-[#75716b]">{greeting},</p>
+                        <p className="text-[18px] leading-tight font-semibold text-[#0b0b11]">
+                            {firstName} 👋
+                        </p>
+                    </div>
+                    {stats.activeExams > 0 && (
+                        <div className="ml-1 flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-2.5 py-1">
+                            <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                            <span className="text-[11px] font-medium text-green-700">
+                                {stats.activeExams} activo{stats.activeExams !== 1 ? 's' : ''}
+                            </span>
+                        </div>
+                    )}
                 </div>
 
-                <div className="flex shrink-0 items-center gap-3 pt-1">
+                <div className="flex shrink-0 items-center gap-3">
                     <div className="flex items-center gap-2 rounded-[10px] border border-[#e5e2dc] bg-[#fafaf7] px-3.5 py-2">
                         <Calendar size={13} className="text-[#75716b]" />
                         <span className="text-[12.5px] font-medium text-[#3c3d45] capitalize">
@@ -1064,7 +1089,10 @@ export function DashboardClient({
                         </div>
                     </Card>
 
-                    <Card data-tour="recent-results" className="border-[#e5e2dc] bg-white shadow-sm">
+                    <Card
+                        data-tour="recent-results"
+                        className="border-[#e5e2dc] bg-white shadow-sm"
+                    >
                         <div className="flex items-center justify-between border-b border-[#e5e2dc] px-6 py-4">
                             <h2 className="text-[16px] font-bold text-[#0b0b11]">
                                 Últimos resultados

@@ -94,12 +94,14 @@ function PostNode({ post, allPosts, threadId, locked, depth, currentStudentId }:
     const isOwn = currentStudentId === post.authorId;
 
     return (
-        <div className={cn('flex gap-3', depth > 0 && 'ml-8 border-l-2 border-border pl-4')}>
+        <div className={cn('flex gap-3', depth > 0 && 'border-border ml-8 border-l-2 pl-4')}>
             {/* Avatar */}
-            <div className={cn(
-                'flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-mono text-xs font-bold',
-                isOwn ? 'bg-primary/10 text-primary' : 'bg-paper text-ink-dim',
-            )}>
+            <div
+                className={cn(
+                    'flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-mono text-xs font-bold',
+                    isOwn ? 'bg-primary/10 text-primary' : 'bg-paper text-ink-dim',
+                )}
+            >
                 {authorInitials(post.author.name, post.author.lastname)}
             </div>
 

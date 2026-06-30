@@ -98,13 +98,22 @@ ${content}
 export async function summarizeLessonText(content: string): Promise<SummarizeResult> {
     const trimmed = content.trim();
     if (trimmed.length < MIN_CONTENT_CHARS) {
-        return { ok: false, error: `El contenido debe tener al menos ${MIN_CONTENT_CHARS} caracteres.` };
+        return {
+            ok: false,
+            error: `El contenido debe tener al menos ${MIN_CONTENT_CHARS} caracteres.`,
+        };
     }
     if (trimmed.length > MAX_CONTENT_CHARS) {
-        return { ok: false, error: `El contenido no puede superar los ${MAX_CONTENT_CHARS} caracteres.` };
+        return {
+            ok: false,
+            error: `El contenido no puede superar los ${MAX_CONTENT_CHARS} caracteres.`,
+        };
     }
     if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-        return { ok: false, error: 'Configurá la API key de Google Generative AI para usar resúmenes IA.' };
+        return {
+            ok: false,
+            error: 'Configurá la API key de Google Generative AI para usar resúmenes IA.',
+        };
     }
 
     try {

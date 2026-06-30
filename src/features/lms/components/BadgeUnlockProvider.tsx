@@ -32,7 +32,7 @@ function BadgeToast({ badge, onDismiss }: BadgeToastProps) {
 
             {/* Text */}
             <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-600">
+                <p className="text-[11px] font-semibold tracking-wider text-amber-600 uppercase">
                     ¡Insignia desbloqueada!
                 </p>
                 <p className="text-ink mt-0.5 font-bold">{badge.name}</p>
@@ -88,9 +88,7 @@ export function BadgeUnlockProvider({ children, initialUnseenBadges }: Props) {
             {children}
             <div className="pointer-events-none fixed right-4 bottom-6 z-50 flex flex-col items-end gap-2">
                 <AnimatePresence mode="wait">
-                    {current && (
-                        <BadgeToast key={current.id} badge={current} onDismiss={dismiss} />
-                    )}
+                    {current && <BadgeToast key={current.id} badge={current} onDismiss={dismiss} />}
                 </AnimatePresence>
             </div>
         </>

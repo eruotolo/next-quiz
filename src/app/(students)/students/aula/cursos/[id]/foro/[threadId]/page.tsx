@@ -78,15 +78,13 @@ export default async function StudentAulaThreadPage({ params }: PageProps) {
                     <MessageSquare size={13} /> Foro
                 </Link>
                 <span>/</span>
-                <span className="text-ink truncate max-w-[200px]">{thread.title}</span>
+                <span className="text-ink max-w-[200px] truncate">{thread.title}</span>
             </nav>
 
             {/* Thread header */}
             <div className="mb-6">
                 <div className="flex flex-wrap items-center gap-2">
-                    {thread.pinned && (
-                        <Pin size={14} className="text-amber-500" />
-                    )}
+                    {thread.pinned && <Pin size={14} className="text-amber-500" />}
                     <h1 className="text-ink font-display text-2xl font-bold">{thread.title}</h1>
                     {thread.locked && (
                         <Badge variant="outline" className="flex items-center gap-1">

@@ -69,18 +69,19 @@ export default function PrivacidadPage() {
                         </p>
                         <ul className="mt-4 list-disc space-y-2 pl-6">
                             <li>
-                                <strong className="text-ink">Ley Nº 19.628</strong> sobre
-                                Protección de la Vida Privada (vigente).
+                                <strong className="text-ink">Ley Nº 19.628</strong> sobre Protección
+                                de la Vida Privada (vigente).
                             </li>
                             <li>
-                                <strong className="text-ink">Ley Nº 21.719</strong> de Protección
-                                de Datos Personales (publicada el 13 de diciembre de 2024; las
+                                <strong className="text-ink">Ley Nº 21.719</strong> de Protección de
+                                Datos Personales (publicada el 13 de diciembre de 2024; las
                                 disposiciones específicas rigen conforme a sus plazos de entrada en
                                 vigor).
                             </li>
                             <li>
                                 <strong className="text-ink">Ley Nº 21.096</strong> que
-                                constitucionaliza el derecho a la protección de los datos personales.
+                                constitucionaliza el derecho a la protección de los datos
+                                personales.
                             </li>
                             <li>
                                 <strong className="text-ink">
@@ -93,8 +94,8 @@ export default function PrivacidadPage() {
                                 informáticos.
                             </li>
                             <li>
-                                <strong className="text-ink">Boletín Nº 16821-19</strong> —
-                                Proyecto de Ley Marco sobre Inteligencia Artificial (en tramitación
+                                <strong className="text-ink">Boletín Nº 16821-19</strong> — Proyecto
+                                de Ley Marco sobre Inteligencia Artificial (en tramitación
                                 legislativa).
                             </li>
                         </ul>
@@ -106,8 +107,8 @@ export default function PrivacidadPage() {
                             Artículo 2 — Roles en el Tratamiento de Datos
                         </h2>
                         <p>
-                            En el marco de la prestación del servicio Aulika se distinguen dos
-                            roles jurídicamente diferenciados:
+                            En el marco de la prestación del servicio Aulika se distinguen dos roles
+                            jurídicamente diferenciados:
                         </p>
                         <div className="mt-6 space-y-4">
                             <div className="border-primary/20 bg-primary/5 rounded-lg border-l-4 p-4">
@@ -118,15 +119,15 @@ export default function PrivacidadPage() {
                                     La <strong>institución educativa</strong> (colegio, liceo,
                                     universidad, instituto u otro establecimiento) que contrata el
                                     servicio. Determina los fines y medios del tratamiento de datos
-                                    de sus estudiantes y personal. Es la única obligada a obtener
-                                    el consentimiento de los titulares y de sus representantes
-                                    legales cuando corresponda.
+                                    de sus estudiantes y personal. Es la única obligada a obtener el
+                                    consentimiento de los titulares y de sus representantes legales
+                                    cuando corresponda.
                                 </p>
                             </div>
                             <div className="border-border rounded-lg border-l-4 p-4">
                                 <h3 className="text-ink mb-1 font-bold">
                                     Encargado del Tratamiento{' '}
-                                    <span className="text-ink-dim font-normal text-xs">
+                                    <span className="text-ink-dim text-xs font-normal">
                                         (Mandatario del Tratamiento — art. 16 Ley 21.719)
                                     </span>
                                 </h3>
@@ -134,10 +135,10 @@ export default function PrivacidadPage() {
                                     <strong>Crow Advance E.I.R.L. (Aulika)</strong>, quien trata los
                                     datos únicamente por instrucción y en nombre del Responsable,
                                     sin utilizarlos para fines propios. Actúa en calidad de
-                                    Mandatario del Tratamiento conforme al artículo 16 de la Ley
-                                    Nº 21.719, sin tomar decisiones sobre los fines del tratamiento.
-                                    La relación entre ambas partes constituye el Acuerdo de
-                                    Tratamiento de Datos (ATD) exigido por la normativa vigente.
+                                    Mandatario del Tratamiento conforme al artículo 16 de la Ley Nº
+                                    21.719, sin tomar decisiones sobre los fines del tratamiento. La
+                                    relación entre ambas partes constituye el Acuerdo de Tratamiento
+                                    de Datos (ATD) exigido por la normativa vigente.
                                 </p>
                             </div>
                         </div>
@@ -149,8 +150,8 @@ export default function PrivacidadPage() {
                             Artículo 3 — Categorías de Datos Personales Tratados
                         </h2>
                         <p>
-                            Aulika trata, por instrucción del Responsable, las siguientes
-                            categorías de datos:
+                            Aulika trata, por instrucción del Responsable, las siguientes categorías
+                            de datos:
                         </p>
                         <div className="mt-6 space-y-6">
                             <div>
@@ -191,8 +192,8 @@ export default function PrivacidadPage() {
                         </div>
                         <p className="mt-4 text-sm">
                             Aulika <strong>no trata datos sensibles</strong> tales como origen
-                            racial o étnico, opiniones políticas, convicciones religiosas, datos
-                            de salud ni datos biométricos.
+                            racial o étnico, opiniones políticas, convicciones religiosas, datos de
+                            salud ni datos biométricos.
                         </p>
                     </section>
 
@@ -208,11 +209,13 @@ export default function PrivacidadPage() {
                         <div className="border-destructive/20 bg-destructive/5 mt-4 rounded-lg border-l-4 p-4 text-sm">
                             <p className="text-ink font-semibold">Declaración fundamental</p>
                             <p className="mt-1">
-                                <strong>Aulika no solicita ni recolecta datos personales de
-                                menores de edad de forma directa.</strong> Toda la información
-                                relativa a estudiantes menores de edad es ingresada, gestionada y
-                                controlada exclusivamente por la Institución Educativa en su calidad
-                                de Responsable del Tratamiento.
+                                <strong>
+                                    Aulika no solicita ni recolecta datos personales de menores de
+                                    edad de forma directa.
+                                </strong>{' '}
+                                Toda la información relativa a estudiantes menores de edad es
+                                ingresada, gestionada y controlada exclusivamente por la Institución
+                                Educativa en su calidad de Responsable del Tratamiento.
                             </p>
                         </div>
                         <ol className="mt-4 list-[lower-alpha] space-y-3 pl-6">
@@ -221,8 +224,8 @@ export default function PrivacidadPage() {
                                     Responsabilidad contractual de la institución.
                                 </strong>{' '}
                                 Corresponde exclusiva e indelegablemente al Responsable del
-                                Tratamiento obtener el consentimiento previo, expreso e informado
-                                de los padres, tutores legales o representantes de los estudiantes
+                                Tratamiento obtener el consentimiento previo, expreso e informado de
+                                los padres, tutores legales o representantes de los estudiantes
                                 menores de edad antes de ingresarlos al sistema. Aulika no puede
                                 verificar el cumplimiento de esta obligación y queda exenta de
                                 responsabilidad ante su incumplimiento.
@@ -267,20 +270,16 @@ export default function PrivacidadPage() {
                         <p>Los datos personales son tratados única y exclusivamente para:</p>
                         <ol className="mt-4 list-decimal space-y-2 pl-6">
                             <li>Prestación del servicio de evaluación en línea contratado.</li>
+                            <li>Autenticación e identificación de usuarios en la plataforma.</li>
                             <li>
-                                Autenticación e identificación de usuarios en la plataforma.
+                                Registro, calificación y presentación de resultados de evaluaciones
+                                académicas (funciones técnicas y pedagógicas).
                             </li>
                             <li>
-                                Registro, calificación y presentación de resultados de
-                                evaluaciones académicas (funciones técnicas y pedagógicas).
+                                Comunicación interna entre la plataforma y los usuarios autorizados
+                                de la institución (notificaciones operacionales).
                             </li>
-                            <li>
-                                Comunicación interna entre la plataforma y los usuarios
-                                autorizados de la institución (notificaciones operacionales).
-                            </li>
-                            <li>
-                                Generación de reportes y estadísticas institucionales.
-                            </li>
+                            <li>Generación de reportes y estadísticas institucionales.</li>
                             <li>Soporte técnico y atención al cliente.</li>
                             <li>Cumplimiento de obligaciones legales.</li>
                             <li>
@@ -288,14 +287,14 @@ export default function PrivacidadPage() {
                             </li>
                         </ol>
                         <p className="mt-4">
-                            Aulika <strong className="text-ink">no tratará</strong> los datos
-                            para: publicidad, marketing directo, perfilamiento comercial,{' '}
+                            Aulika <strong className="text-ink">no tratará</strong> los datos para:
+                            publicidad, marketing directo, perfilamiento comercial,{' '}
                             <strong className="text-ink">
                                 envío de correos masivos (mailing) no solicitados
                             </strong>
-                            , ni para venta, cesión o transferencia a terceros con fines
-                            ajenos al servicio contratado. Esta prohibición es taxativa e
-                            irrenunciable por parte del Encargado.
+                            , ni para venta, cesión o transferencia a terceros con fines ajenos al
+                            servicio contratado. Esta prohibición es taxativa e irrenunciable por
+                            parte del Encargado.
                         </p>
                     </section>
 
@@ -315,7 +314,8 @@ export default function PrivacidadPage() {
                                 Responsable del Tratamiento.
                             </li>
                             <li>
-                                El interés legítimo en la prestación y mejora del servicio educativo.
+                                El interés legítimo en la prestación y mejora del servicio
+                                educativo.
                             </li>
                             <li>Las obligaciones legales aplicables a Crow Advance E.I.R.L..</li>
                         </ul>
@@ -343,10 +343,10 @@ export default function PrivacidadPage() {
                             <div className="border-border rounded-lg border p-4 text-sm">
                                 <p className="text-ink font-semibold">Neon Inc.</p>
                                 <p>
-                                    Base de datos PostgreSQL — AWS us-east-1, Virginia, EE.UU.
-                                    Datos en reposo protegidos con{' '}
-                                    <strong className="text-ink">cifrado AES-256</strong>; datos
-                                    en tránsito con <strong className="text-ink">SSL/TLS</strong>.
+                                    Base de datos PostgreSQL — AWS us-east-1, Virginia, EE.UU. Datos
+                                    en reposo protegidos con{' '}
+                                    <strong className="text-ink">cifrado AES-256</strong>; datos en
+                                    tránsito con <strong className="text-ink">SSL/TLS</strong>.
                                 </p>
                             </div>
                         </div>
@@ -357,10 +357,10 @@ export default function PrivacidadPage() {
                                 todos los datos viajan y se almacenan bajo cifrado SSL/TLS en
                                 tránsito y AES-256 en reposo
                             </strong>
-                            , conforme a los estándares exigidos por la Ley Nº 21.719. Al
-                            contratar el servicio, el Responsable del Tratamiento toma
-                            conocimiento y acepta esta cadena de sub-encargados. Aulika notificará
-                            al Responsable con antelación ante cualquier cambio significativo.
+                            , conforme a los estándares exigidos por la Ley Nº 21.719. Al contratar
+                            el servicio, el Responsable del Tratamiento toma conocimiento y acepta
+                            esta cadena de sub-encargados. Aulika notificará al Responsable con
+                            antelación ante cualquier cambio significativo.
                         </p>
                     </section>
 
@@ -370,8 +370,8 @@ export default function PrivacidadPage() {
                             Artículo 8 — Derechos ARCO
                         </h2>
                         <p>
-                            Los titulares de los datos y sus representantes legales pueden
-                            ejercer los siguientes derechos:
+                            Los titulares de los datos y sus representantes legales pueden ejercer
+                            los siguientes derechos:
                         </p>
                         <div className="mt-4 grid gap-3 sm:grid-cols-2">
                             {[
@@ -400,8 +400,9 @@ export default function PrivacidadPage() {
                         </div>
                         <p className="mt-4 text-sm">
                             Los derechos ARCO deben ejercerse preferentemente a través del
-                            Responsable del Tratamiento (la institución educativa). Subsidiariamente,
-                            los titulares pueden contactar directamente a Aulika en{' '}
+                            Responsable del Tratamiento (la institución educativa).
+                            Subsidiariamente, los titulares pueden contactar directamente a Aulika
+                            en{' '}
                             <a
                                 href="mailto:edgardoruotolo@crowadvance.com"
                                 className="text-primary hover:underline"
@@ -424,14 +425,14 @@ export default function PrivacidadPage() {
                                 los fines del tratamiento.
                             </li>
                             <li>
-                                Al término del contrato, el Responsable tiene derecho a solicitar
-                                la exportación de sus datos en formato estándar (CSV/JSON) dentro
-                                de los <strong className="text-ink">30 días corridos</strong>{' '}
+                                Al término del contrato, el Responsable tiene derecho a solicitar la
+                                exportación de sus datos en formato estándar (CSV/JSON) dentro de
+                                los <strong className="text-ink">30 días corridos</strong>{' '}
                                 siguientes al término.
                             </li>
                             <li>
-                                Transcurridos 30 días sin solicitud de exportación, Aulika
-                                procederá al{' '}
+                                Transcurridos 30 días sin solicitud de exportación, Aulika procederá
+                                al{' '}
                                 <strong className="text-ink">
                                     borrado lógico y físico irreversible de todos los registros y
                                     respaldos
@@ -447,8 +448,8 @@ export default function PrivacidadPage() {
                                 vencimiento del plazo de exportación.
                             </li>
                             <li>
-                                Los datos de auditoría y logs de seguridad pueden conservarse por
-                                un período adicional de hasta{' '}
+                                Los datos de auditoría y logs de seguridad pueden conservarse por un
+                                período adicional de hasta{' '}
                                 <strong className="text-ink">12 meses</strong> para el cumplimiento
                                 de obligaciones legales, tras lo cual serán igualmente destruidos.
                             </li>
@@ -469,9 +470,7 @@ export default function PrivacidadPage() {
                                 Cifrado SSL/TLS en todas las comunicaciones (datos en tránsito).
                             </li>
                             <li>Cifrado AES-256 para datos en reposo en la base de datos.</li>
-                            <li>
-                                Contraseñas almacenadas con hash bcrypt; nunca en texto plano.
-                            </li>
+                            <li>Contraseñas almacenadas con hash bcrypt; nunca en texto plano.</li>
                             <li>Control de acceso basado en roles (RBAC).</li>
                             <li>Tokens de sesión seguros con expiración automática.</li>
                             <li>Registros de auditoría de todas las acciones críticas.</li>
@@ -486,9 +485,9 @@ export default function PrivacidadPage() {
                         </h2>
                         <p>
                             Aulika utiliza herramientas de Inteligencia Artificial exclusivamente
-                            para <strong className="text-ink">asistir a los docentes</strong> en
-                            la generación y formulación de preguntas de evaluación (mediante
-                            protocolos MCP — Model Context Protocol). Se declara expresamente:
+                            para <strong className="text-ink">asistir a los docentes</strong> en la
+                            generación y formulación de preguntas de evaluación (mediante protocolos
+                            MCP — Model Context Protocol). Se declara expresamente:
                         </p>
                         <ol className="mt-4 list-[lower-alpha] space-y-3 pl-6">
                             <li>
@@ -514,15 +513,17 @@ export default function PrivacidadPage() {
                                 significativos sobre los estudiantes.
                             </li>
                             <li>
-                                <strong className="text-ink">Trazabilidad y no discriminación.</strong>{' '}
+                                <strong className="text-ink">
+                                    Trazabilidad y no discriminación.
+                                </strong>{' '}
                                 Los modelos de IA utilizados no perpetúan sesgos discriminatorios.
                                 Los registros de uso de IA son auditables y disponibles al
                                 Responsable mediante solicitud formal.
                             </li>
                         </ol>
                         <p className="mt-4 text-sm">
-                            Esta declaración aplica en conformidad con el Boletín Nº 16821-19 y
-                            las directrices internacionales sobre sistemas de IA en contextos
+                            Esta declaración aplica en conformidad con el Boletín Nº 16821-19 y las
+                            directrices internacionales sobre sistemas de IA en contextos
                             educativos.
                         </p>
                     </section>
@@ -533,15 +534,12 @@ export default function PrivacidadPage() {
                             Artículo 12 — Modificaciones a Esta Política
                         </h2>
                         <p>
-                            Aulika podrá modificar esta Política en cualquier momento. Los
-                            cambios se notificarán al Responsable del Tratamiento con al menos{' '}
+                            Aulika podrá modificar esta Política en cualquier momento. Los cambios
+                            se notificarán al Responsable del Tratamiento con al menos{' '}
                             <strong className="text-ink">15 días hábiles de anticipación</strong>{' '}
                             mediante correo electrónico al contacto registrado. La versión vigente
                             siempre estará disponible en{' '}
-                            <a
-                                href="/empresa/privacidad"
-                                className="text-primary hover:underline"
-                            >
+                            <a href="/empresa/privacidad" className="text-primary hover:underline">
                                 www.aulika.cl/empresa/privacidad
                             </a>
                             .
@@ -550,16 +548,10 @@ export default function PrivacidadPage() {
 
                     {/* Art. 13 */}
                     <section>
-                        <h2 className="text-ink mb-4 text-2xl font-bold">
-                            Artículo 13 — Contacto
-                        </h2>
+                        <h2 className="text-ink mb-4 text-2xl font-bold">Artículo 13 — Contacto</h2>
                         <div className="border-border bg-paper rounded-xl border p-6 text-sm">
-                            <p className="text-ink font-semibold">
-                                Crow Advance E.I.R.L. — Aulika
-                            </p>
-                            <p className="mt-2">
-                                Responsable: Edgardo Ruotolo Cardozo
-                            </p>
+                            <p className="text-ink font-semibold">Crow Advance E.I.R.L. — Aulika</p>
+                            <p className="mt-2">Responsable: Edgardo Ruotolo Cardozo</p>
                             <p>
                                 Domicilio: Centenario 493, Chonchi, Chiloé, Región de Los Lagos,
                                 Chile

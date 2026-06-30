@@ -147,24 +147,24 @@ src/features/students/components/StudentSidebar.tsx
 
 ### Ítems de navegación — Con LMS (`plan !== 'FREE'`):
 
-| Ícono (Lucide) | Label | URL |
-|---|---|---|
-| `LayoutDashboard` | Dashboard | `/dashboard` |
-| `GraduationCap` | Mis Cursos | `/aula` |
-| `BookOpen` | Mis Materias | `/mis-materias` |
-| `CalendarDays` | Calendario | `/calendario` |
-| `ClipboardList` | Exámenes | `/examen/seleccion` |
-| `Settings` | Configuración | `/configuracion` |
+| Ícono (Lucide)    | Label         | URL                 |
+| ----------------- | ------------- | ------------------- |
+| `LayoutDashboard` | Dashboard     | `/dashboard`        |
+| `GraduationCap`   | Mis Cursos    | `/aula`             |
+| `BookOpen`        | Mis Materias  | `/mis-materias`     |
+| `CalendarDays`    | Calendario    | `/calendario`       |
+| `ClipboardList`   | Exámenes      | `/examen/seleccion` |
+| `Settings`        | Configuración | `/configuracion`    |
 
 ### Ítems de navegación — Solo exámenes (`plan === 'FREE'`):
 
-| Ícono (Lucide) | Label | URL |
-|---|---|---|
-| `LayoutDashboard` | Dashboard | `/dashboard` |
-| `BookOpen` | Mis Materias | `/mis-materias` |
-| `CalendarDays` | Calendario | `/calendario` |
-| `ClipboardList` | Exámenes | `/examen/seleccion` |
-| `Settings` | Configuración | `/configuracion` |
+| Ícono (Lucide)    | Label         | URL                 |
+| ----------------- | ------------- | ------------------- |
+| `LayoutDashboard` | Dashboard     | `/dashboard`        |
+| `BookOpen`        | Mis Materias  | `/mis-materias`     |
+| `CalendarDays`    | Calendario    | `/calendario`       |
+| `ClipboardList`   | Exámenes      | `/examen/seleccion` |
+| `Settings`        | Configuración | `/configuracion`    |
 
 ### Sección inferior del sidebar:
 
@@ -258,12 +258,12 @@ const [
 
 ### Stat Tiles:
 
-| Tile | Condición | Fuente |
-|---|---|---|
-| Promedio general | Siempre | `avg(score/maxScore * 7)` de todos los `Result` |
-| Progreso LMS | Solo `plan != FREE` | Promedio de `progressPct` de enrollments ACTIVOS |
-| Racha activa | Solo `plan != FREE` | `LmsStreak.currentStreak` días |
-| Puntos XP | Solo `plan != FREE` | `SUM(LmsPointEvent.amount)` |
+| Tile             | Condición           | Fuente                                           |
+| ---------------- | ------------------- | ------------------------------------------------ |
+| Promedio general | Siempre             | `avg(score/maxScore * 7)` de todos los `Result`  |
+| Progreso LMS     | Solo `plan != FREE` | Promedio de `progressPct` de enrollments ACTIVOS |
+| Racha activa     | Solo `plan != FREE` | `LmsStreak.currentStreak` días                   |
+| Puntos XP        | Solo `plan != FREE` | `SUM(LmsPointEvent.amount)`                      |
 
 Para plan FREE: mostrar 2 tiles (Promedio + Exámenes rendidos).
 
@@ -362,7 +362,7 @@ Reemplazar todo el contenido con:
 ```typescript
 import { redirect } from 'next/navigation';
 export default function PostLoginPage() {
-  redirect('/dashboard');
+    redirect('/dashboard');
 }
 ```
 
@@ -415,16 +415,16 @@ export default function PostLoginPage() {
 
 Leer **antes** de escribir cualquier código:
 
-| Archivo | Por qué leerlo |
-|---|---|
+| Archivo                                         | Por qué leerlo                         |
+| ----------------------------------------------- | -------------------------------------- |
 | `src/features/dashboard/components/Sidebar.tsx` | Patrón de sidebar del admin a replicar |
-| `src/app/(aula)/layout.tsx` | Layout a reemplazar |
-| `src/app/(student)/post-login/page.tsx` | Queries existentes a reutilizar |
-| `src/features/exam-session/lib/session.ts` | API de sesión de estudiante |
-| `src/shared/components/ui/stat-tile.tsx` | Componente a reutilizar |
-| `src/features/lms/lib/gradebook.ts` | Cálculo de promedios ponderados |
-| `src/shared/lib/grade.ts` | `calcGrade()` para exámenes |
-| `src/proxy.ts` | Verificar routing de nuevas rutas |
+| `src/app/(aula)/layout.tsx`                     | Layout a reemplazar                    |
+| `src/app/(student)/post-login/page.tsx`         | Queries existentes a reutilizar        |
+| `src/features/exam-session/lib/session.ts`      | API de sesión de estudiante            |
+| `src/shared/components/ui/stat-tile.tsx`        | Componente a reutilizar                |
+| `src/features/lms/lib/gradebook.ts`             | Cálculo de promedios ponderados        |
+| `src/shared/lib/grade.ts`                       | `calcGrade()` para exámenes            |
+| `src/proxy.ts`                                  | Verificar routing de nuevas rutas      |
 
 ---
 

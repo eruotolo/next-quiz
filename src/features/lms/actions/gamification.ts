@@ -6,10 +6,7 @@ import {
     awardManualPointsSchema,
     lmsBadgeSchema,
 } from '@/features/lms/schemas/lms-phase4-gamification.schemas';
-import {
-    awardPointsForEvent,
-    getUserGamificationSummary,
-} from '@/features/lms/lib/points-engine';
+import { awardPointsForEvent, getUserGamificationSummary } from '@/features/lms/lib/points-engine';
 import { BADGE_DEFINITIONS } from '@/features/lms/lib/gamification';
 import { logAudit } from '@/shared/lib/audit';
 import { prisma } from '@/shared/lib/prisma';
@@ -27,10 +24,7 @@ export async function awardManualLmsPoints(
         const parsed = awardManualPointsSchema.safeParse(data);
         if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Datos inválidos');
 
-        const ctx = await requireInstitutionAccess(slug, [
-            USER_ROLE.ADMIN,
-            USER_ROLE.SUPER_ADMIN,
-        ]);
+        const ctx = await requireInstitutionAccess(slug, [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN]);
 
         // Verifica que el estudiante existe y pertenece a la institución.
         const student = await prisma.user.findUnique({
@@ -87,10 +81,7 @@ export async function createLmsBadge(
         const parsed = lmsBadgeSchema.safeParse(data);
         if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Datos inválidos');
 
-        const ctx = await requireInstitutionAccess(slug, [
-            USER_ROLE.ADMIN,
-            USER_ROLE.SUPER_ADMIN,
-        ]);
+        const ctx = await requireInstitutionAccess(slug, [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN]);
 
         const badge = await prisma.lmsBadge.create({
             data: {
@@ -133,10 +124,7 @@ export async function updateLmsBadge(
     }>,
 ): Promise<ActionResult<{ id: string }>> {
     try {
-        const ctx = await requireInstitutionAccess(slug, [
-            USER_ROLE.ADMIN,
-            USER_ROLE.SUPER_ADMIN,
-        ]);
+        const ctx = await requireInstitutionAccess(slug, [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN]);
 
         const existing = await prisma.lmsBadge.findUnique({ where: { id: badgeId } });
         if (!existing) return fail('Insignia no encontrada');
@@ -168,10 +156,7 @@ export async function deleteLmsBadge(
     badgeId: string,
 ): Promise<ActionResult<{ id: string }>> {
     try {
-        const ctx = await requireInstitutionAccess(slug, [
-            USER_ROLE.ADMIN,
-            USER_ROLE.SUPER_ADMIN,
-        ]);
+        const ctx = await requireInstitutionAccess(slug, [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN]);
 
         await prisma.lmsBadge.delete({ where: { id: badgeId } });
 
@@ -193,9 +178,7 @@ export async function deleteLmsBadge(
 
 // ─── Listado del catálogo ────────────────────────────────────────────────────
 
-export async function listLmsBadges(
-    slug: string,
-): Promise<
+export async function listLmsBadges(slug: string): Promise<
     ActionResult<
         Array<{
             id: string;
@@ -308,16 +291,13 @@ export async function getMyAchievements(): Promise<ActionResult<MyAchievements>>
                 name: b.name,
                 description: b.description,
                 icon: b.icon,
-                pointsReward:
-                    BADGE_DEFINITIONS.find((d) => d.code === b.code)?.pointsReward ?? 0,
+                pointsReward: BADGE_DEFINITIONS.find((d) => d.code === b.code)?.pointsReward ?? 0,
                 awardedAt: b.awardedAt,
             })),
             recentEvents,
         });
     } catch (error) {
-        return fail<MyAchievements>(
-            toActionError(error, 'No se pudo leer tu progreso'),
-        );
+        return fail<MyAchievements>(toActionError(error, 'No se pudo leer tu progreso'));
     }
 }
 
@@ -325,8 +305,20 @@ export async function getMyAchievements(): Promise<ActionResult<MyAchievements>>
 export async function getMyGamificationSummary(): Promise<
     ActionResult<{
         totalPoints: number;
-        streak: { current: number; longest: number; lastActiveOn: Date | null; freezeTokens: number };
-        badges: Array<{ id: string; code: string; name: string; description: string; icon: string; awardedAt: Date }>;
+        streak: {
+            current: number;
+            longest: number;
+            lastActiveOn: Date | null;
+            freezeTokens: number;
+        };
+        badges: Array<{
+            id: string;
+            code: string;
+            name: string;
+            description: string;
+            icon: string;
+            awardedAt: Date;
+        }>;
         pointsBySource: Array<{ sourceType: string; total: number }>;
     }>
 > {
@@ -340,8 +332,20 @@ export async function getMyGamificationSummary(): Promise<
     } catch (error) {
         return fail<{
             totalPoints: number;
-            streak: { current: number; longest: number; lastActiveOn: Date | null; freezeTokens: number };
-            badges: Array<{ id: string; code: string; name: string; description: string; icon: string; awardedAt: Date }>;
+            streak: {
+                current: number;
+                longest: number;
+                lastActiveOn: Date | null;
+                freezeTokens: number;
+            };
+            badges: Array<{
+                id: string;
+                code: string;
+                name: string;
+                description: string;
+                icon: string;
+                awardedAt: Date;
+            }>;
             pointsBySource: Array<{ sourceType: string; total: number }>;
         }>(toActionError(error, 'No se pudo leer tu progreso'));
     }
@@ -379,7 +383,8 @@ export async function getUnseenBadges(): Promise<AchievementBadge[]> {
                 description: ub.badge.description,
                 icon: ub.badge.icon,
                 pointsReward:
-                    badgeDefs.find((d) => d.code === ub.badge.code)?.pointsReward ?? ub.badge.pointsReward,
+                    badgeDefs.find((d) => d.code === ub.badge.code)?.pointsReward ??
+                    ub.badge.pointsReward,
                 awardedAt: ub.awardedAt,
             }));
     } catch {
@@ -509,9 +514,7 @@ export async function getCourseLeaderboard(
             currentUserOptedOut,
         });
     } catch (error) {
-        return fail<LeaderboardData>(
-            toActionError(error, 'No se pudo cargar el ranking'),
-        );
+        return fail<LeaderboardData>(toActionError(error, 'No se pudo cargar el ranking'));
     }
 }
 

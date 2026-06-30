@@ -23,7 +23,11 @@ export async function markLessonProgress(
         if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Datos inválidos');
 
         const ctx = await requireStudentContext();
-        if (ctx.role !== USER_ROLE.STUDENT && ctx.role !== USER_ROLE.ADMIN && ctx.role !== USER_ROLE.PROFESOR) {
+        if (
+            ctx.role !== USER_ROLE.STUDENT &&
+            ctx.role !== USER_ROLE.ADMIN &&
+            ctx.role !== USER_ROLE.PROFESOR
+        ) {
             return fail('No autorizado');
         }
 
@@ -116,4 +120,3 @@ export async function enrollInCourse(
         return fail(toActionError(err, 'Error al inscribirse.'));
     }
 }
-

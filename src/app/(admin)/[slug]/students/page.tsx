@@ -1,4 +1,3 @@
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { StudentsClient } from '@/features/students/components/StudentsClient';
 import { prisma } from '@/shared/lib/prisma';
@@ -77,23 +76,16 @@ export default async function StudentsPage({ params }: { params: Promise<{ slug:
     ]);
 
     return (
-        <>
-            <AdminTopBar
-                title="Estudiantes"
-                breadcrumb={[institutionName, 'Estudiantes']}
-                subtitle={`${students.length} registrados`}
-            />
-            <StudentsClient
-                slug={slug}
-                students={students}
-                groups={groups}
-                canCreate={canCreate}
-                canEdit={canEdit}
-                canDelete={canDelete}
-                canToggleActive={canToggleActive}
-                isProfesor={isProfesor}
-                isDemo={isDemo}
-            />
-        </>
+        <StudentsClient
+            slug={slug}
+            students={students}
+            groups={groups}
+            canCreate={canCreate}
+            canEdit={canEdit}
+            canDelete={canDelete}
+            canToggleActive={canToggleActive}
+            isProfesor={isProfesor}
+            isDemo={isDemo}
+        />
     );
 }

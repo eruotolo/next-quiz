@@ -36,10 +36,7 @@ function ThreadRow({ thread, isLast, isPending, onPin, onLock }: ThreadRowProps)
     return (
         <div
             id={`thread-${thread.id}`}
-            className={cn(
-                'flex items-center gap-4 px-5 py-4',
-                !isLast && 'border-border border-b',
-            )}
+            className={cn('flex items-center gap-4 px-5 py-4', !isLast && 'border-border border-b')}
         >
             <div
                 className={cn(
@@ -207,7 +204,9 @@ export function LmsAdminForumClient({ slug, courseId, forums: initialForums }: P
                 <Card className="flex flex-col items-center justify-center border-dashed py-24">
                     <MessageSquare size={40} className="text-mute/30 mb-4" />
                     <p className="text-ink text-lg font-medium">Sin foros</p>
-                    <p className="text-mute mt-1 text-sm">Crea el primer foro para los estudiantes.</p>
+                    <p className="text-mute mt-1 text-sm">
+                        Crea el primer foro para los estudiantes.
+                    </p>
                 </Card>
             ) : (
                 forums.map((forum) => (

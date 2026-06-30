@@ -30,7 +30,9 @@ function StatCard({ icon: Icon, label, value, sub }: StatCardProps) {
         <Card className="p-4">
             <div className="flex items-start justify-between">
                 <div>
-                    <p className="text-mute text-xs font-medium uppercase tracking-wider">{label}</p>
+                    <p className="text-mute text-xs font-medium tracking-wider uppercase">
+                        {label}
+                    </p>
                     <p className="text-ink mt-1 text-2xl font-bold">{value}</p>
                     {sub && <p className="text-mute mt-0.5 text-xs">{sub}</p>}
                 </div>
@@ -62,11 +64,7 @@ const RISK_BADGE: Record<RiskLevel, { label: string; className: string }> = {
     BAJO: { label: 'Bajo', className: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
 };
 
-function RiskRow({
-    student,
-}: {
-    student: CourseAnalytics['atRisk'][number];
-}) {
+function RiskRow({ student }: { student: CourseAnalytics['atRisk'][number] }) {
     const badge: { label: string; className: string } = RISK_BADGE[student.riskLevel];
     return (
         <TableRow>
@@ -187,14 +185,14 @@ export function LmsAnalyticsClient({ analytics }: Props) {
                                 </div>
                                 <div className="flex gap-4">
                                     <div>
-                                        <span className="text-green-600 text-2xl font-bold">
+                                        <span className="text-2xl font-bold text-green-600">
                                             {grades.passing}
                                         </span>
                                         <p className="text-mute text-xs">aprueban (≥4.0)</p>
                                     </div>
-                                    <div className="border-border border-l mx-2" />
+                                    <div className="border-border mx-2 border-l" />
                                     <div>
-                                        <span className="text-red-500 text-2xl font-bold">
+                                        <span className="text-2xl font-bold text-red-500">
                                             {grades.failing}
                                         </span>
                                         <p className="text-mute text-xs">reprueban (&lt;4.0)</p>
@@ -216,7 +214,7 @@ export function LmsAnalyticsClient({ analytics }: Props) {
                         <Users size={15} className="text-amber-500" />
                         Alumnos en riesgo
                         {atRisk.length > 0 && (
-                            <Badge className="bg-amber-100 text-amber-700 border-amber-200 ml-1 text-xs">
+                            <Badge className="ml-1 border-amber-200 bg-amber-100 text-xs text-amber-700">
                                 {atRisk.length}
                             </Badge>
                         )}

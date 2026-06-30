@@ -144,6 +144,19 @@ export function ProgramsClient({ slug, programs, canMutate, label, labelPlural, 
 
     return (
         <>
+            {/* ── Subheader ── */}
+            <div className="border-border flex items-center gap-3 border-b bg-white px-8 py-4">
+                <span className="text-mute font-mono text-[11px] font-bold tracking-wider uppercase">
+                    {programs.length} {labelPlural.toLowerCase()}
+                </span>
+                <div className="flex-1" />
+                {canMutate && (
+                    <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
+                        <Plus size={16} />
+                        Crear {label.toLowerCase()}
+                    </Button>
+                )}
+            </div>
             <main className="flex-1 overflow-auto p-8">
                 {programs.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
@@ -154,20 +167,12 @@ export function ProgramsClient({ slug, programs, canMutate, label, labelPlural, 
                         <p className="text-mute mt-1 text-sm">
                             Crea la primera para organizar la jerarquía académica.
                         </p>
-                        {canMutate && (
-                            <Button
-                                variant="primary"
-                                size="md"
-                                onClick={openCreate}
-                                className="mt-6"
-                            >
-                                <Plus size={16} />
-                                Crear {label.toLowerCase()}
-                            </Button>
-                        )}
                     </Card>
                 ) : (
-                    <Card data-tour="programs-list" className="border-border overflow-hidden bg-white p-0 shadow-sm">
+                    <Card
+                        data-tour="programs-list"
+                        className="border-border overflow-hidden bg-white p-0 shadow-sm"
+                    >
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -330,7 +335,12 @@ export function ProgramsClient({ slug, programs, canMutate, label, labelPlural, 
                         >
                             Cancelar
                         </Button>
-                        <Button variant="ink" size="md" disabled={isPending || isDemo} onClick={handleSave}>
+                        <Button
+                            variant="ink"
+                            size="md"
+                            disabled={isPending || isDemo}
+                            onClick={handleSave}
+                        >
                             {isPending && <Loader2 className="mr-2 animate-spin" />}
                             {editing ? 'Guardar cambios' : `Crear ${label.toLowerCase()}`}
                         </Button>

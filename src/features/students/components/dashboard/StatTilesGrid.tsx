@@ -1,9 +1,4 @@
-import {
-    Flame,
-    GraduationCap,
-    Sparkles,
-    TrendingUp,
-} from 'lucide-react';
+import { Flame, GraduationCap, Sparkles, TrendingUp } from 'lucide-react';
 import { StatTile } from '@/shared/components/ui/stat-tile';
 import {
     getGradeAverage,

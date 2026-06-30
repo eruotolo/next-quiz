@@ -469,7 +469,7 @@ export function Sidebar({
                 )}
 
                 {/* Org switcher */}
-                <div className="border-border border-b p-4">
+                <div className="border-border border-b p-4 lg:flex lg:h-31.25 lg:flex-col lg:justify-center">
                     <div ref={switcherRef} className="relative">
                         <div className="border-border bg-paper-warm flex items-center gap-2.5 rounded-[10px] border p-2 shadow-sm">
                             <Link href="/" className="shrink-0 transition-opacity hover:opacity-70">
@@ -617,11 +617,11 @@ export function Sidebar({
                                                         new CustomEvent('aulika:start-tour'),
                                                     );
                                                 }}
-                                                className="group flex w-full items-center gap-2.5 rounded-[8px] px-3 py-2.5 text-[13px] font-medium text-ink-dim transition-colors hover:bg-paper-warm hover:text-ink"
+                                                className="group text-ink-dim hover:bg-paper-warm hover:text-ink flex w-full items-center gap-2.5 rounded-[8px] px-3 py-2.5 text-[13px] font-medium transition-colors"
                                             >
                                                 <Sparkles
                                                     size={18}
-                                                    className="text-mute shrink-0 group-hover:text-ink-dim"
+                                                    className="text-mute group-hover:text-ink-dim shrink-0"
                                                 />
                                                 <span>Tour de bienvenida</span>
                                             </button>
@@ -728,7 +728,10 @@ export function Sidebar({
             </button>
 
             {/* Desktop sidebar */}
-            <aside data-tour="sidebar" className="border-border fixed inset-y-0 left-0 z-50 hidden w-60 flex-col border-r bg-white lg:flex">
+            <aside
+                data-tour="sidebar"
+                className="border-border fixed inset-y-0 left-0 z-50 hidden w-60 flex-col border-r bg-white lg:flex"
+            >
                 <SidebarInner />
             </aside>
 

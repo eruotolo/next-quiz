@@ -43,9 +43,7 @@ export default async function CertificadoVerificacionPage({ params }: Props) {
                     <div
                         className={cn(
                             'mb-6 flex flex-col items-center gap-3 rounded-xl border-2 p-6 text-center',
-                            isValid
-                                ? 'border-green-200 bg-green-50'
-                                : 'border-red-200 bg-red-50',
+                            isValid ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50',
                         )}
                     >
                         {isValid ? (
@@ -67,7 +65,7 @@ export default async function CertificadoVerificacionPage({ params }: Props) {
                                       : 'Certificado no encontrado'}
                             </p>
                             {cert?.revokedAt && (
-                                <p className="text-red-600 mt-1 text-sm">
+                                <p className="mt-1 text-sm text-red-600">
                                     Este certificado fue revocado el{' '}
                                     {new Date(cert.revokedAt).toLocaleDateString('es-CL', {
                                         day: 'numeric',
@@ -78,7 +76,7 @@ export default async function CertificadoVerificacionPage({ params }: Props) {
                                 </p>
                             )}
                             {!cert && (
-                                <p className="text-red-600 mt-1 text-sm">
+                                <p className="mt-1 text-sm text-red-600">
                                     No existe un certificado con el código proporcionado.
                                 </p>
                             )}
@@ -93,7 +91,7 @@ export default async function CertificadoVerificacionPage({ params }: Props) {
                                     <Award size={24} className="text-primary" />
                                 </div>
                                 <div>
-                                    <p className="text-ink text-xs font-medium uppercase tracking-wider">
+                                    <p className="text-ink text-xs font-medium tracking-wider uppercase">
                                         Certificado de finalización
                                     </p>
                                     <p className="text-mute font-mono text-xs">

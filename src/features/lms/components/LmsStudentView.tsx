@@ -2,7 +2,17 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { BookOpen, CheckCircle2, PlayCircle, FileText, Link2, ClipboardList, Radio, Lock, Award } from 'lucide-react';
+import {
+    BookOpen,
+    CheckCircle2,
+    PlayCircle,
+    FileText,
+    Link2,
+    ClipboardList,
+    Radio,
+    Lock,
+    Award,
+} from 'lucide-react';
 import { Card } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
@@ -152,10 +162,10 @@ export function LmsStudentView({
                             <Award size={20} className="text-amber-600" />
                         </div>
                         <div className="flex-1">
-                            <p className="text-amber-900 font-display text-base font-bold">
+                            <p className="font-display text-base font-bold text-amber-900">
                                 ¡Certificado obtenido!
                             </p>
-                            <p className="text-amber-800 mt-0.5 text-sm">
+                            <p className="mt-0.5 text-sm text-amber-800">
                                 {certificate.finalGrade !== null
                                     ? `Nota final: ${certificate.finalGrade.toFixed(1)}`
                                     : 'Curso aprobado'}
@@ -170,7 +180,7 @@ export function LmsStudentView({
                                     href={`/certificado/${certificate.verificationCode}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-amber-900 border-amber-300 hover:bg-amber-100 rounded-[8px] border bg-white px-3 py-1.5 text-xs font-medium transition-colors"
+                                    className="rounded-[8px] border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-amber-900 transition-colors hover:bg-amber-100"
                                 >
                                     Ver certificado
                                 </a>
@@ -179,7 +189,7 @@ export function LmsStudentView({
                                         href={certificate.pdfUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-amber-900 border-amber-300 hover:bg-amber-100 rounded-[8px] border bg-white px-3 py-1.5 text-xs font-medium transition-colors"
+                                        className="rounded-[8px] border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-amber-900 transition-colors hover:bg-amber-100"
                                     >
                                         Descargar PDF
                                     </a>
@@ -201,7 +211,9 @@ export function LmsStudentView({
                     modules.map((m) => (
                         <Card key={m.id} className="border-border p-5 shadow-sm">
                             <div className="mb-3 flex items-baseline justify-between">
-                                <h2 className="text-ink font-display text-lg font-bold">{m.title}</h2>
+                                <h2 className="text-ink font-display text-lg font-bold">
+                                    {m.title}
+                                </h2>
                                 <span className="text-mute font-mono text-[10px] tracking-wider uppercase">
                                     Módulo
                                 </span>
@@ -210,7 +222,9 @@ export function LmsStudentView({
                                 <p className="text-mute mb-3 text-sm">{m.description}</p>
                             )}
                             {m.lessons.length === 0 ? (
-                                <p className="text-mute py-2 text-xs italic">Sin lecciones publicadas.</p>
+                                <p className="text-mute py-2 text-xs italic">
+                                    Sin lecciones publicadas.
+                                </p>
                             ) : (
                                 <ul className="flex flex-col gap-1">
                                     {m.lessons.map((l) => {

@@ -60,9 +60,7 @@ test.describe('Student Dashboard (/dashboard)', () => {
         await expect(page.locator('body')).not.toContainText('Something went wrong');
     });
 
-    test('unauthenticated access to /dashboard redirects to student login', async ({
-        browser,
-    }) => {
+    test('unauthenticated access to /dashboard redirects to student login', async ({ browser }) => {
         const ctx = await browser.newContext();
         const page = await ctx.newPage();
         await page.goto('/dashboard');
@@ -153,9 +151,7 @@ test.describe('Student Configuración (/configuracion)', () => {
 
     test('has a logout button', async ({ page }) => {
         await page.goto('/configuracion');
-        await expect(
-            page.getByRole('button', { name: /Cerrar sesión/i }).first(),
-        ).toBeVisible();
+        await expect(page.getByRole('button', { name: /Cerrar sesión/i }).first()).toBeVisible();
     });
 
     test('unauthenticated access redirects to login', async ({ browser }) => {

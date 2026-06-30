@@ -82,7 +82,9 @@ export function LmsForumClient({ forums, courseId, isAdmin = false }: Props) {
                 <section key={forum.id}>
                     <div className="mb-3 flex items-center justify-between">
                         <div>
-                            <h2 className="text-ink font-display text-xl font-bold">{forum.title}</h2>
+                            <h2 className="text-ink font-display text-xl font-bold">
+                                {forum.title}
+                            </h2>
                             {forum.description && (
                                 <p className="text-mute mt-0.5 text-sm">{forum.description}</p>
                             )}
@@ -108,33 +110,49 @@ export function LmsForumClient({ forums, courseId, isAdmin = false }: Props) {
                             {forum.threads.map((thread, idx) => (
                                 <Link
                                     key={thread.id}
-                                    href={isAdmin
-                                        ? `#thread-${thread.id}`
-                                        : `/aula/cursos/${courseId}/foro/${thread.id}`}
+                                    href={
+                                        isAdmin
+                                            ? `#thread-${thread.id}`
+                                            : `/aula/cursos/${courseId}/foro/${thread.id}`
+                                    }
                                     className={cn(
-                                        'flex items-start gap-4 px-5 py-4 transition-colors hover:bg-paper',
-                                        idx < forum.threads.length - 1 && 'border-b border-border',
+                                        'hover:bg-paper flex items-start gap-4 px-5 py-4 transition-colors',
+                                        idx < forum.threads.length - 1 && 'border-border border-b',
                                     )}
                                 >
                                     {/* Icon */}
-                                    <div className={cn(
-                                        'mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
-                                        thread.locked ? 'bg-paper text-mute' : 'bg-primary/10 text-primary',
-                                    )}>
-                                        {thread.locked ? <Lock size={14} /> : <MessageSquare size={14} />}
+                                    <div
+                                        className={cn(
+                                            'mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
+                                            thread.locked
+                                                ? 'bg-paper text-mute'
+                                                : 'bg-primary/10 text-primary',
+                                        )}
+                                    >
+                                        {thread.locked ? (
+                                            <Lock size={14} />
+                                        ) : (
+                                            <MessageSquare size={14} />
+                                        )}
                                     </div>
 
                                     {/* Content */}
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2">
                                             {thread.pinned && (
-                                                <Pin size={12} className="text-amber-500 shrink-0" />
+                                                <Pin
+                                                    size={12}
+                                                    className="shrink-0 text-amber-500"
+                                                />
                                             )}
                                             <p className="text-ink truncate font-semibold">
                                                 {thread.title}
                                             </p>
                                             {thread.locked && (
-                                                <Badge variant="outline" className="shrink-0 text-[10px]">
+                                                <Badge
+                                                    variant="outline"
+                                                    className="shrink-0 text-[10px]"
+                                                >
                                                     Cerrado
                                                 </Badge>
                                             )}

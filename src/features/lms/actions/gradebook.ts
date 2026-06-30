@@ -2,10 +2,7 @@
 
 import { requireInstitutionAccess } from '@/features/auth/lib/auth-guard';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
-import {
-    lmsGradeSchema,
-    lmsGradebookItemSchema,
-} from '@/features/lms/schemas/lms-phase2.schemas';
+import { lmsGradeSchema, lmsGradebookItemSchema } from '@/features/lms/schemas/lms-phase2.schemas';
 import {
     calculateCourseFinalGrade,
     clipChilenGrade,
@@ -76,9 +73,7 @@ export async function createLmsGradebookItem(
         revalidatePath(`/aula/cursos/${course.id}`);
         return ok({ id: item.id });
     } catch (error) {
-        return fail<{ id: string }>(
-            toActionError(error, 'No se pudo crear el item del gradebook'),
-        );
+        return fail<{ id: string }>(toActionError(error, 'No se pudo crear el item del gradebook'));
     }
 }
 
@@ -134,10 +129,7 @@ export async function deleteLmsGradebookItem(
     itemId: string,
 ): Promise<ActionResult<{ id: string }>> {
     try {
-        const ctx = await requireInstitutionAccess(slug, [
-            USER_ROLE.ADMIN,
-            USER_ROLE.SUPER_ADMIN,
-        ]);
+        const ctx = await requireInstitutionAccess(slug, [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN]);
 
         const item = await prisma.lmsGradebookItem.findUnique({
             where: { id: itemId },

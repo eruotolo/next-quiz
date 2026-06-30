@@ -234,10 +234,7 @@ export async function deleteLmsModule(slug: string, moduleId: string): Promise<A
     }
 }
 
-export async function reorderLmsModules(
-    slug: string,
-    data: unknown,
-): Promise<ActionResult> {
+export async function reorderLmsModules(slug: string, data: unknown): Promise<ActionResult> {
     try {
         const parsed = reorderModulesSchema.safeParse(data);
         if (!parsed.success) return fail('Datos inválidos');
@@ -287,7 +284,10 @@ export async function createLmsLesson(
         ]);
 
         const mod = await prisma.lmsModule.findFirst({
-            where: { id: parsed.data.moduleId, course: { academicInstitutionId: ctx.institutionId } },
+            where: {
+                id: parsed.data.moduleId,
+                course: { academicInstitutionId: ctx.institutionId },
+            },
             select: { id: true },
         });
         if (!mod) return fail('Módulo no encontrado.');
@@ -343,7 +343,10 @@ export async function updateLmsLesson(
         ]);
 
         const lesson = await prisma.lmsLesson.findFirst({
-            where: { id: lessonId, module: { course: { academicInstitutionId: ctx.institutionId } } },
+            where: {
+                id: lessonId,
+                module: { course: { academicInstitutionId: ctx.institutionId } },
+            },
             select: { id: true },
         });
         if (!lesson) return fail('Lección no encontrada.');
@@ -379,7 +382,10 @@ export async function deleteLmsLesson(slug: string, lessonId: string): Promise<A
         const ctx = await requireInstitutionAccess(slug, [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN]);
 
         const lesson = await prisma.lmsLesson.findFirst({
-            where: { id: lessonId, module: { course: { academicInstitutionId: ctx.institutionId } } },
+            where: {
+                id: lessonId,
+                module: { course: { academicInstitutionId: ctx.institutionId } },
+            },
             select: { id: true },
         });
         if (!lesson) return fail('Lección no encontrada.');
@@ -393,10 +399,7 @@ export async function deleteLmsLesson(slug: string, lessonId: string): Promise<A
     }
 }
 
-export async function reorderLmsLessons(
-    slug: string,
-    data: unknown,
-): Promise<ActionResult> {
+export async function reorderLmsLessons(slug: string, data: unknown): Promise<ActionResult> {
     try {
         const parsed = reorderLessonsSchema.safeParse(data);
         if (!parsed.success) return fail('Datos inválidos');
@@ -408,7 +411,10 @@ export async function reorderLmsLessons(
         ]);
 
         const mod = await prisma.lmsModule.findFirst({
-            where: { id: parsed.data.moduleId, course: { academicInstitutionId: ctx.institutionId } },
+            where: {
+                id: parsed.data.moduleId,
+                course: { academicInstitutionId: ctx.institutionId },
+            },
             select: { id: true, courseId: true },
         });
         if (!mod) return fail('Módulo no encontrado.');

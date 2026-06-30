@@ -30,7 +30,7 @@ function ExamRow({ exam }: { exam: UpcomingExam }) {
         <li className="border-border flex items-start gap-3 border-b py-3 last:border-0">
             <span
                 className={cn(
-                    'mt-0.5 flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider',
+                    'mt-0.5 flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold tracking-wider uppercase',
                     URGENCY_BADGE[exam.urgency],
                 )}
             >
@@ -57,7 +57,7 @@ function AssignmentRow({ assignment }: { assignment: UpcomingAssignment }) {
         <li className="border-border flex items-start gap-3 border-b py-3 last:border-0">
             <span
                 className={cn(
-                    'mt-0.5 flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider',
+                    'mt-0.5 flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold tracking-wider uppercase',
                     URGENCY_BADGE[assignment.urgency],
                 )}
             >
@@ -93,7 +93,9 @@ export async function UpcomingWidget({ ctx }: UpcomingWidgetProps) {
                     <p className="text-success text-[13.5px] font-medium">
                         Todo al día por esta semana
                     </p>
-                    <p className="text-mute text-[12.5px]">No tenés exámenes ni entregas pendientes.</p>
+                    <p className="text-mute text-[12.5px]">
+                        No tenés exámenes ni entregas pendientes.
+                    </p>
                 </div>
             </section>
         );

@@ -1,7 +1,16 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { CheckCircle2, ArrowLeft, FileText, Link2, ClipboardList, Radio, PlayCircle, Sparkles } from 'lucide-react';
+import {
+    CheckCircle2,
+    ArrowLeft,
+    FileText,
+    Link2,
+    ClipboardList,
+    Radio,
+    PlayCircle,
+    Sparkles,
+} from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
@@ -103,7 +112,7 @@ export function LmsLessonViewer({
                         <p className="text-mute font-mono text-[10px] tracking-[0.1em] uppercase">
                             {lessonTypeLabel(lesson.type)}
                         </p>
-                        <h1 className="text-ink mt-1 font-display text-2xl font-bold">
+                        <h1 className="text-ink font-display mt-1 text-2xl font-bold">
                             {lesson.title}
                         </h1>
                     </div>
@@ -277,9 +286,7 @@ function extractText(node: unknown): string {
     const n = node as { type?: string; text?: string; content?: unknown[] };
     if (n.text) return n.text;
     if (Array.isArray(n.content)) {
-        return n.content
-            .map((c) => extractText(c))
-            .join(n.type === 'paragraph' ? '\n' : '');
+        return n.content.map((c) => extractText(c)).join(n.type === 'paragraph' ? '\n' : '');
     }
     return '';
 }

@@ -10,9 +10,7 @@ import {
     lmsForumThreadSchema,
     updateLmsForumSchema,
 } from '@/features/lms/schemas/lms-phase3-forums.schemas';
-import {
-    notifyNewForumPostBackground,
-} from '@/features/lms/lib/forum-notifications';
+import { notifyNewForumPostBackground } from '@/features/lms/lib/forum-notifications';
 import { awardPointsForEvent } from '@/features/lms/lib/points-engine';
 import { sanitizeForumMarkdown } from '@/shared/lib/sanitize';
 import { logAudit } from '@/shared/lib/audit';
@@ -293,9 +291,7 @@ export async function toggleForumThreadLock(
 
 // ─── Posts ────────────────────────────────────────────────────────────────
 
-export async function createLmsForumPost(
-    data: unknown,
-): Promise<ActionResult<{ id: string }>> {
+export async function createLmsForumPost(data: unknown): Promise<ActionResult<{ id: string }>> {
     try {
         const parsed = lmsForumPostSchema.safeParse(data);
         if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Datos inválidos');
@@ -501,9 +497,7 @@ export async function deleteLmsForumPost(
             metadata: { deletion: 'soft', threadId: post.threadId },
         });
 
-        revalidatePath(
-            `/${slug}/aula/${post.thread.forum.course.id}/foro/${post.threadId}`,
-        );
+        revalidatePath(`/${slug}/aula/${post.thread.forum.course.id}/foro/${post.threadId}`);
 
         return ok({ id: post.id });
     } catch (error) {
@@ -567,9 +561,7 @@ export async function editLmsForumPost(
             metadata: { edit: true, threadId: post.threadId },
         });
 
-        revalidatePath(
-            `/${slug}/aula/${post.thread.forum.course.id}/foro/${post.threadId}`,
-        );
+        revalidatePath(`/${slug}/aula/${post.thread.forum.course.id}/foro/${post.threadId}`);
 
         return ok({ id: post.id });
     } catch (error) {
@@ -579,9 +571,7 @@ export async function editLmsForumPost(
 
 // ─── Student: Creación de hilos ────────────────────────────────────────────
 
-export async function createLmsThread(
-    data: unknown,
-): Promise<ActionResult<{ threadId: string }>> {
+export async function createLmsThread(data: unknown): Promise<ActionResult<{ threadId: string }>> {
     try {
         const parsed = lmsForumThreadSchema.safeParse(data);
         if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Datos inválidos');

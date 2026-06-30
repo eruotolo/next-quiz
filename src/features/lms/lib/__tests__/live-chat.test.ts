@@ -46,10 +46,7 @@ describe('cleanChatContent', () => {
 
 describe('evaluateChatRateLimit', () => {
     it('permite el primer mensaje', () => {
-        const r = evaluateChatRateLimit(
-            { lastSentAt: null, windowStart: 0, windowCount: 0 },
-            1000,
-        );
+        const r = evaluateChatRateLimit({ lastSentAt: null, windowStart: 0, windowCount: 0 }, 1000);
         expect(r.allowed).toBe(true);
         if (r.allowed) {
             expect(r.nextState.lastSentAt).toBe(1000);

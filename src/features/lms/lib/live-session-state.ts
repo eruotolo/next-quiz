@@ -7,10 +7,7 @@ export const LIVE_SESSION_TRANSITIONS: Record<LiveSessionStatus, readonly LiveSe
     CANCELED: [],
 } as const;
 
-export function canTransition(
-    from: LiveSessionStatus,
-    to: LiveSessionStatus,
-): boolean {
+export function canTransition(from: LiveSessionStatus, to: LiveSessionStatus): boolean {
     return LIVE_SESSION_TRANSITIONS[from].includes(to);
 }
 
@@ -78,8 +75,7 @@ export function computeJoinWindow(input: TimeWindowInput): TimeWindowResult {
 
     const isLive = nowMs >= startMs && nowMs < endMs;
     const isPast = nowMs >= endMs;
-    const isJoinable =
-        (nowMs >= startMs - openMs && nowMs < endMs) || (isLive && nowMs < endMs);
+    const isJoinable = (nowMs >= startMs - openMs && nowMs < endMs) || (isLive && nowMs < endMs);
 
     const remainingSec = isLive ? Math.max(0, secondsUntilEnd) : null;
 
@@ -103,7 +99,10 @@ const ROOM_NAME_RE = /^[a-z0-9-]{3,64}$/;
 
 export function buildDailyRoomName(input: DailyRoomNameInput): string {
     const datePart = input.scheduledAt.toISOString().slice(0, 10).replaceAll('-', '');
-    const suffix = input.randomSuffix().toLowerCase().replace(/[^a-z0-9]/g, '');
+    const suffix = input
+        .randomSuffix()
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '');
     const idPart = input.courseId.replaceAll('-', '').slice(0, 8);
     const raw = `aulika-${datePart}-${idPart}-${suffix}`;
     return raw.slice(0, 60);

@@ -38,9 +38,7 @@ export function LiveSessionForm({ slug, courseId }: LiveSessionFormProps) {
                 toast.error(result.error);
             } else if (result.data) {
                 toast.success('Sesión creada');
-                router.push(
-                    `/${slug}/aula/${courseId}/clases` as `/${string}`,
-                );
+                router.push(`/${slug}/aula/${courseId}/clases` as `/${string}`);
                 router.refresh();
             }
         });
@@ -113,9 +111,7 @@ export function LiveSessionForm({ slug, courseId }: LiveSessionFormProps) {
                 <Button
                     type="button"
                     variant="ghost"
-                    onClick={() =>
-                        router.push(`/${slug}/aula/${courseId}/clases` as `/${string}`)
-                    }
+                    onClick={() => router.push(`/${slug}/aula/${courseId}/clases` as `/${string}`)}
                 >
                     Cancelar
                 </Button>

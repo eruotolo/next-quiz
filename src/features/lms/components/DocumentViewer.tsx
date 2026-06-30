@@ -10,11 +10,7 @@ export function DocumentViewer({ fileUrl, title }: Props) {
     if (isPdf) {
         return (
             <div className="border-border overflow-hidden rounded-[12px] border bg-white shadow-sm">
-                <iframe
-                    src={`${fileUrl}#toolbar=0`}
-                    title={title}
-                    className="h-[70vh] w-full"
-                />
+                <iframe src={`${fileUrl}#toolbar=0`} title={title} className="h-[70vh] w-full" />
             </div>
         );
     }

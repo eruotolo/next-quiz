@@ -38,7 +38,10 @@ test.describe('Admin LMS (/[slug]/aula)', () => {
         await page.goto(`/${SLUG}/aula`);
         const courseName = `E2E LMS ${Date.now()}`;
 
-        await page.getByRole('button', { name: /Nuevo curso/i }).first().click();
+        await page
+            .getByRole('button', { name: /Nuevo curso/i })
+            .first()
+            .click();
         await page.waitForSelector('[role="dialog"]');
         await page.getByLabel(/Título/i).fill(courseName);
         await page.getByRole('button', { name: 'Crear curso' }).click();
@@ -54,7 +57,10 @@ test.describe('Admin LMS (/[slug]/aula)', () => {
         const emptyState = page.getByText(/No hay cursos en el Aula/i);
         if ((await emptyState.count()) > 0) {
             const courseName = `E2E Module Test ${Date.now()}`;
-            await page.getByRole('button', { name: /Nuevo curso/i }).first().click();
+            await page
+                .getByRole('button', { name: /Nuevo curso/i })
+                .first()
+                .click();
             await page.waitForSelector('[role="dialog"]');
             await page.getByLabel(/Título/i).fill(courseName);
             await page.getByRole('button', { name: 'Crear curso' }).click();

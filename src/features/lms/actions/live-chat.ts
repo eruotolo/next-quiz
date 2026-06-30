@@ -2,12 +2,7 @@
 
 import type { ChatRateLimitState } from '@/features/lms/lib/live-chat';
 import { cleanChatContent, evaluateChatRateLimit } from '@/features/lms/lib/live-chat';
-import {
-    type ActionResult,
-    fail,
-    ok,
-    toActionError,
-} from '@/shared/types/action';
+import { type ActionResult, fail, ok, toActionError } from '@/shared/types/action';
 import {
     listLiveChatSchema,
     sendLiveChatSchema,
@@ -33,11 +28,7 @@ function readRateLimitState(userId: string, sessionId: string): ChatRateLimitSta
     return entry.state;
 }
 
-function writeRateLimitState(
-    userId: string,
-    sessionId: string,
-    state: ChatRateLimitState,
-): void {
+function writeRateLimitState(userId: string, sessionId: string, state: ChatRateLimitState): void {
     const key = `${userId}::${sessionId}`;
     rateLimitStore.set(key, { state, expiresAt: Date.now() + RATE_LIMIT_TTL_MS });
 }
@@ -110,8 +101,8 @@ export async function sendLiveChatMessage(
             cleaned.reason === 'empty'
                 ? 'Mensaje vacío'
                 : cleaned.reason === 'too_long'
-                    ? 'Mensaje demasiado largo'
-                    : 'Mensaje no permitido',
+                  ? 'Mensaje demasiado largo'
+                  : 'Mensaje no permitido',
         );
     }
 
@@ -175,8 +166,7 @@ export async function listLiveChatMessages(
         sentAt: m.sentAt,
     }));
 
-    const nextCursor = publicMessages.length > 0
-        ? publicMessages[publicMessages.length - 1]!.sentAt
-        : since;
+    const nextCursor =
+        publicMessages.length > 0 ? publicMessages[publicMessages.length - 1]!.sentAt : since;
     return ok({ messages: publicMessages, nextCursor });
 }

@@ -284,36 +284,122 @@ export function ResultsClient({
 
     return (
         <>
-            <main className="flex-1 space-y-8 overflow-auto p-8">
-                {/* Export action */}
-                {totalCount > 0 && (
-                    <div className="flex justify-end">
-                        <Button
-                            variant="ghost"
-                            size="md"
-                            className="gap-2"
-                            disabled={isExporting}
-                            onClick={async () => {
-                                setIsExporting(true);
-                                try {
-                                    await exportResultsToXlsx(visibleExamGroups, institutionName);
-                                } catch {
-                                    toast.error('No se pudo exportar el reporte.');
-                                } finally {
-                                    setIsExporting(false);
-                                }
-                            }}
-                        >
-                            {isExporting ? (
-                                <Loader2 size={16} className="animate-spin" />
-                            ) : (
-                                <Download size={16} />
-                            )}
-                            Exportar XLSX
-                        </Button>
-                    </div>
-                )}
+            {/* ── Subheader ── */}
+            <div
+                data-tour="results-filters"
+                className="border-border flex flex-wrap items-center gap-3 border-b bg-white px-8 py-4"
+            >
+                {examOptions.length > 0 && (
+                    <>
+                        <Select value={selectedExamId ?? ''} onValueChange={handleExamChange}>
+                            <SelectTrigger className="border-border h-[38px] w-[220px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
+                                <SelectValue placeholder="Todos los exámenes" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {examOptions.map((e) => (
+                                    <SelectItem key={e.id} value={e.id}>
+                                        {e.title}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
 
+                        {groupOptions.length > 0 && (
+                            <div
+                                title={!selectedExamId ? 'Selecciona un examen primero' : undefined}
+                            >
+                                <Select
+                                    value={selectedGroupId ?? ''}
+                                    onValueChange={handleGroupChange}
+                                    disabled={!selectedExamId}
+                                >
+                                    <SelectTrigger className="border-border h-[38px] w-[180px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm disabled:opacity-50">
+                                        <SelectValue placeholder="Todos los grupos" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {groupOptions.map((g) => (
+                                            <SelectItem key={g.id} value={g.id}>
+                                                {g.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+
+                        {programOptions.length > 0 && (
+                            <Select value={programFilter} onValueChange={setProgramFilter}>
+                                <SelectTrigger className="border-border h-[38px] w-[180px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
+                                    <SelectValue placeholder="Todos los programas" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Todos los programas</SelectItem>
+                                    {programOptions.map((p) => (
+                                        <SelectItem key={p.id} value={p.id}>
+                                            {p.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+
+                        {courseOptions.length > 0 && (
+                            <Select value={courseFilter} onValueChange={setCourseFilter}>
+                                <SelectTrigger className="border-border h-[38px] w-[180px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
+                                    <SelectValue placeholder="Todas las asignaturas" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Todas las asignaturas</SelectItem>
+                                    {courseOptions.map((c) => (
+                                        <SelectItem key={c.id} value={c.id}>
+                                            {c.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+
+                        {(hasActiveFilters || hasClientFilters) && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleClearFilters}
+                                className="text-mute hover:text-ink h-[38px] gap-1.5 rounded-[10px] text-[12px]"
+                            >
+                                <X size={13} />
+                                Limpiar filtros
+                            </Button>
+                        )}
+                    </>
+                )}
+                <div className="flex-1" />
+                {totalCount > 0 && (
+                    <Button
+                        variant="ghost"
+                        size="md"
+                        className="gap-2"
+                        disabled={isExporting}
+                        onClick={async () => {
+                            setIsExporting(true);
+                            try {
+                                await exportResultsToXlsx(visibleExamGroups, institutionName);
+                            } catch {
+                                toast.error('No se pudo exportar el reporte.');
+                            } finally {
+                                setIsExporting(false);
+                            }
+                        }}
+                    >
+                        {isExporting ? (
+                            <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                            <Download size={16} />
+                        )}
+                        Exportar XLSX
+                    </Button>
+                )}
+            </div>
+            <main className="flex-1 space-y-8 overflow-auto p-8">
                 {/* Global Stats */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     {[
@@ -354,94 +440,6 @@ export function ResultsClient({
                         </Card>
                     ))}
                 </div>
-
-                {/* Filters */}
-                {examOptions.length > 0 && (
-                    <div data-tour="results-filters" className="border-border flex flex-wrap items-center gap-3 rounded-[14px] border bg-white px-4 py-3 shadow-sm">
-                        <span className="text-mute font-mono text-[10px] font-bold tracking-widest uppercase">
-                            Filtrar por:
-                        </span>
-                        <Select value={selectedExamId ?? ''} onValueChange={handleExamChange}>
-                            <SelectTrigger className="border-border h-9 w-[220px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
-                                <SelectValue placeholder="Todos los exámenes" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {examOptions.map((e) => (
-                                    <SelectItem key={e.id} value={e.id}>
-                                        {e.title}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-
-                        {groupOptions.length > 0 && (
-                            <div
-                                title={!selectedExamId ? 'Selecciona un examen primero' : undefined}
-                            >
-                                <Select
-                                    value={selectedGroupId ?? ''}
-                                    onValueChange={handleGroupChange}
-                                    disabled={!selectedExamId}
-                                >
-                                    <SelectTrigger className="border-border h-9 w-[180px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm disabled:opacity-50">
-                                        <SelectValue placeholder="Todos los grupos" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {groupOptions.map((g) => (
-                                            <SelectItem key={g.id} value={g.id}>
-                                                {g.name}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        )}
-
-                        {programOptions.length > 0 && (
-                            <Select value={programFilter} onValueChange={setProgramFilter}>
-                                <SelectTrigger className="border-border h-9 w-[180px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
-                                    <SelectValue placeholder="Todos los programas" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Todos los programas</SelectItem>
-                                    {programOptions.map((p) => (
-                                        <SelectItem key={p.id} value={p.id}>
-                                            {p.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )}
-
-                        {courseOptions.length > 0 && (
-                            <Select value={courseFilter} onValueChange={setCourseFilter}>
-                                <SelectTrigger className="border-border h-9 w-[180px] rounded-[10px] bg-white text-[13px] font-medium shadow-sm">
-                                    <SelectValue placeholder="Todas las asignaturas" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Todas las asignaturas</SelectItem>
-                                    {courseOptions.map((c) => (
-                                        <SelectItem key={c.id} value={c.id}>
-                                            {c.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )}
-
-                        {(hasActiveFilters || hasClientFilters) && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={handleClearFilters}
-                                className="text-mute hover:text-ink h-9 gap-1.5 rounded-[10px] text-[12px]"
-                            >
-                                <X size={13} />
-                                Limpiar filtros
-                            </Button>
-                        )}
-                    </div>
-                )}
 
                 {totalCount === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">

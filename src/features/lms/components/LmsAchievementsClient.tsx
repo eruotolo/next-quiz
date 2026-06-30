@@ -30,7 +30,7 @@ function StatCard({
                 {icon}
             </div>
             <div>
-                <p className="text-mute text-xs font-medium uppercase tracking-wider">{label}</p>
+                <p className="text-mute text-xs font-medium tracking-wider uppercase">{label}</p>
                 <p className="text-ink text-3xl font-bold">{value}</p>
                 {sub && <p className="text-mute text-xs">{sub}</p>}
             </div>
@@ -57,22 +57,20 @@ function BadgeGrid({ earnedCodes }: { earnedCodes: Set<string> }) {
                             className={cn(
                                 'flex h-14 w-14 items-center justify-center rounded-xl text-2xl',
                                 earned
-                                    ? 'bg-gradient-to-br from-amber-400 to-amber-600 shadow-md text-white'
-                                    : 'bg-white/60 text-mute',
+                                    ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white shadow-md'
+                                    : 'text-mute bg-white/60',
                             )}
                         >
                             🏅
                         </div>
-                        <p className="text-ink text-xs font-bold leading-tight">{def.name}</p>
+                        <p className="text-ink text-xs leading-tight font-bold">{def.name}</p>
                         <p className="text-mute text-[10px] leading-snug">{def.description}</p>
                         {earned && def.pointsReward > 0 && (
                             <Badge variant="outline" className="text-[10px] text-amber-600">
                                 +{def.pointsReward} pts
                             </Badge>
                         )}
-                        {!earned && (
-                            <span className="text-mute text-[10px]">Bloqueada</span>
-                        )}
+                        {!earned && <span className="text-mute text-[10px]">Bloqueada</span>}
                     </div>
                 );
             })}
@@ -142,9 +140,12 @@ export function LmsAchievementsClient({ achievements }: Props) {
                     {achievements.recentEvents.length === 0 ? (
                         <p className="text-mute text-sm">Aún no tienes eventos de puntos.</p>
                     ) : (
-                        <div className="flex flex-col divide-y divide-border">
+                        <div className="divide-border flex flex-col divide-y">
                             {achievements.recentEvents.map((ev) => (
-                                <div key={ev.id} className="flex items-center justify-between py-2.5">
+                                <div
+                                    key={ev.id}
+                                    className="flex items-center justify-between py-2.5"
+                                >
                                     <div>
                                         <p className="text-ink text-sm">{ev.reason}</p>
                                         <p className="text-mute text-xs">

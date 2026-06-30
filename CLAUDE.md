@@ -47,12 +47,14 @@ No commitear ni pushear sin pedido explícito del usuario.
 Para maximizar el ahorro de tokens y evitar la inflación del historial en el chat, el contexto estratégico se transfiere mediante archivos en disco usando el patrón SPOOL (Simultaneous Peripheral Operations On-Line).
 
 ### Jerarquía Estricta de Estados
+
 - `.spool/01_raw/` → Exclusivo para los planos iniciales crudos generados por Opus 4.8 y GLM 5.2.
 - `.spool/02_inbox/` → Exclusivo para el "Plan Maestro Consolidado" en Markdown generado por Gemini.
 - `.spool/03_work/` → Zona activa de ejecución. El archivo del plan se mueve aquí durante el proceso de codificación.
 - `.spool/04_archive/` → Historial inmutable de ejecución. Los planes finalizados se mueven aquí tras el commit y el QA exitoso.
 
 ### Reglas Operativas para Sonnet y GLM-4.5 (EJECUCIÓN)
+
 1. **Lectura Obligatoria:** Al iniciar cualquier feature o refactorización, verificar la carpeta `.spool/02_inbox/`. Si está vacía, detener la ejecución de inmediato y reportar "Bandeja de entrada vacía".
 2. **Movimiento de Estado:** Antes de modificar cualquier archivo de código de la arquitectura DDD (`src/features/` o `src/shared/`), mover el archivo de plan consolidado de `02_inbox/` a `03_work/` para marcar la tarea en proceso.
 3. **Focalización Extrema:** Está PROHIBIDO leer archivos en `01_raw/`. El único contrato de ejecución válido es el archivo consolidado dentro de `03_work/`.
@@ -423,6 +425,7 @@ Plan en `AcademicInstitution.plan` (`Plan`: FREE · DOCENTE · COLEGIO · INSTIT
 Feature en `src/features/lms/` y Route Group `src/app/(aula)/` para evolucionar Aulika a un LMS independiente pero integrable con el motor de exámenes.
 
 ### Modelos Prisma (prefijo `Lms*` para no colisionar con `CourseSection`)
+
 - `LmsCourse` — curso del LMS, FK opcional a `CourseSection` (materia) y a `AcademicInstitution`.
 - `LmsModule` — módulo dentro de un curso (`order`, `title`).
 - `LmsLesson` — lección polimórfica (`LessonType`: VIDEO, DOCUMENTO, TEXTO, ENLACE, EXAMEN, TAREA, EN_VIVO). Soporta `videoAssetId` (Mux), `fileUrl` (Vercel Blob), `externalLink`, `contentJson` (Tiptap) y FK a `Exam` para embeber exámenes Aulika.
@@ -430,41 +433,48 @@ Feature en `src/features/lms/` y Route Group `src/app/(aula)/` para evolucionar 
 - `LmsLessonProgress` — progreso por lección (`completed`, `lastSeenSec` para videos, `@@unique([userId, lessonId])`).
 
 ### Enums
+
 - `LessonType`: VIDEO · DOCUMENTO · TEXTO · ENLACE · EXAMEN · TAREA · EN_VIVO.
 - `EnrollmentStatus`: ACTIVO · COMPLETADO · RETIRADO.
 
 ### Integraciones externas
+
 - **`src/shared/lib/mux.ts`** — wrapper lazy del SDK `@mux/mux-node`. Funciones: `createMuxDirectUpload`, `getMuxAssetFromUpload`, `getMuxAssetStatus`, `muxPlaybackId`, `deleteMuxAsset`. Requiere `MUX_TOKEN_ID` y `MUX_TOKEN_SECRET`. Cliente se inicializa on-demand para no romper el build sin envs.
 - **`src/shared/lib/blob.ts`** — wrapper de `@vercel/blob`. Funciones: `uploadLmsFile`, `deleteLmsFile`, `listLmsFiles`. Limita a 25 MB y tipos permitidos (PDF, DOCX, XLSX, imágenes).
 - **`src/features/lms/components/VideoPlayer.tsx`** — `@mux/mux-player-react` con autoplay, accent color del design system y callback de progreso.
 - **`src/features/lms/components/DocumentViewer.tsx`** — iframe para PDFs y enlace para otros tipos.
 
 ### Rutas
+
 - **Estudiante** (route group `(aula)/`, valida sesión jose):
-  - `/aula` — lista de cursos inscriptos y disponibles
-  - `/aula/cursos/[id]` — detalle del curso con módulos y lecciones
-  - `/aula/cursos/[id]/leccion/[lessonId]` — visualizador de lección (video / documento / texto / enlace / examen embebido)
+    - `/aula` — lista de cursos inscriptos y disponibles
+    - `/aula/cursos/[id]` — detalle del curso con módulos y lecciones
+    - `/aula/cursos/[id]/leccion/[lessonId]` — visualizador de lección (video / documento / texto / enlace / examen embebido)
 - **Admin/Profesor** (route group `(admin)/[slug]/`):
-  - `/[slug]/aula` — lista de cursos LMS con crear/editar/eliminar
-  - `/[slug]/aula/[id]` — editor con drag-and-drop de módulos (orden persistido vía `reorderLmsModules`)
+    - `/[slug]/aula` — lista de cursos LMS con crear/editar/eliminar
+    - `/[slug]/aula/[id]` — editor con drag-and-drop de módulos (orden persistido vía `reorderLmsModules`)
 - **Proxy** (`src/proxy.ts`) — `/aula/*` pasa sin requerir sesión NextAuth; la validación de estudiante vive en el layout.
 
 ### Actions
+
 - `src/features/lms/actions/courses.ts` — CRUD de `LmsCourse`, `LmsModule`, `LmsLesson` + reordenamiento.
 - `src/features/lms/actions/progress.ts` — `markLessonProgress`, `enrollInCourse`. Recalcula `progressPct` y `status` del enrollment.
 - `src/features/lms/actions/uploads.ts` — `uploadLessonDocument` (Vercel Blob), `requestMuxUpload`, `finalizeMuxUpload`.
 
 ### Seguridad
+
 - Server Actions usan `requireInstitutionAccess` (anti-IDOR) con scope de profesor en modo lectura.
 - Estudiantes validan su sesión jose via `getStudentAuthSession` y su inscripción (`LmsEnrollment`) antes de registrar progreso.
 - Validación Zod en `src/features/lms/schemas/lms.schemas.ts`.
 - Reglas de quota aplican via `assertQuota` al crear cursos.
 
 ### E2E Tests
+
 - `tests/e2e/admin/lms-courses.spec.ts` — crear curso, abrir editor, agregar módulo.
 - `tests/e2e/student/lms-flow.spec.ts` — login RUT, navegar `/aula`, ver detalle, inscripción.
 
 ### Pendiente para Fase 2
+
 - File upload directo a Vercel Blob desde el cliente (sin pasar por Server Action) para archivos > 1 MB.
 - Editor de texto enriquecido Tiptap para lecciones `TEXTO`.
 - Persistir `lastSeenSec` desde `VideoPlayer.onTimeUpdate` (placeholder actual, Fase 4 con rachas).
@@ -474,6 +484,7 @@ Feature en `src/features/lms/` y Route Group `src/app/(aula)/` para evolucionar 
 Modelos y lógica para entregas de estudiantes (archivo o texto), calificación del docente y cálculo del promedio final ponderado en escala chilena 1.0–7.0.
 
 ### Modelos Prisma nuevos
+
 - `LmsAssignment` — 1:1 con una lección de tipo TAREA. `instructions`, `dueAt`, `maxScore`.
 - `LmsSubmission` — entrega por estudiante (`@@unique([assignmentId, studentId])`). Estados: `PENDIENTE · ENTREGADO · CALIFICADO · ATRASADO`.
 - `LmsGradebookItem` — unidad evaluable del curso con `weight` (0..1) y tipo (`EXAMEN · TAREA · PARTICIPACION · MANUAL`). Puede vincularse a `Exam` (sincronización automática) o a `Assignment`.
@@ -485,6 +496,7 @@ Migración: `prisma/migrations/20260629185111_lms_assignments_gradebook/migratio
 ### Cálculo del promedio ponderado — `src/features/lms/lib/gradebook.ts`
 
 Funciones puras (sin acceso a BD, fáciles de testear):
+
 - `calculateFinalGrade(entries)` — promedio ponderado con clipping a [1.0, 7.0] y redondeo a 2 decimales.
 - `calculateCourseFinalGrade(studentId, items)` — wrapper con metadata (items completados, estado de aprobación).
 - `clipChilenGrade(score)` — defensa contra inputs fuera de rango.
@@ -493,6 +505,7 @@ Funciones puras (sin acceso a BD, fáciles de testear):
 - `validateGradebookWeights(items)` — la suma de pesos positivos de items evaluados no debe exceder 1.0 (tolerancia 0.001).
 
 **Reglas del cálculo:**
+
 - Items sin nota (`score === null`) no entran al promedio.
 - Items con peso `<= 0` se ignoran en el divisor.
 - Cada nota se clippea a [1.0, 7.0] antes de promediar (defensa).
@@ -505,50 +518,60 @@ Funciones puras (sin acceso a BD, fáciles de testear):
 28 tests cubren: clip, isPassing, cálculo básico, cálculo ponderado, redondeo, items nulos, items con peso 0, items fuera de rango, sincronización con Exam, validación de suma de pesos.
 
 ### Server Actions
+
 - `src/features/lms/actions/assignments.ts` — `upsertLmsAssignment`, `getLmsAssignmentByLesson`, `submitLmsAssignment`, `gradeLmsSubmission`, `listSubmissionsForAssignment`, `getMySubmission`.
 - `src/features/lms/actions/gradebook.ts` — `createLmsGradebookItem`, `updateLmsGradebookItem`, `deleteLmsGradebookItem`, `recordLmsGrade`, `syncExamGrades`, `getLmsGradebookForCourse`.
 - `src/features/lms/schemas/lms-phase2.schemas.ts` — Zod schemas para los forms.
 
 ### Sincronización con Exam de Aulika
+
 `syncExamGrades(slug, gradebookItemId)` recorre todos los `Result` del examen vinculado al `GradebookItem` y hace upsert de `LmsGrade` con la nota clippeada a [1.0, 7.0]. Idempotente: re-ejecutar actualiza sin duplicar.
 
 ### Seguridad
+
 - Anti-IDOR: cada action valida que el recurso pertenezca a la institución del `ctx`.
 - Estudiantes usan `session.studentId` (no `userId`) y se valida inscripción al curso.
 - Auto-marca de entrega `ATRASADO` si `dueAt < now` al momento de entregar.
 - Items tipo `EXAMEN` no aceptan notas manuales (deben venir de `syncExamGrades`).
 
 ### E2E
+
 - `tests/e2e/admin/lms-phase2.spec.ts` — smoke tests de navegación en `/[slug]/aula/[id]` y `/aula`.
 
 ### UI (Sonnet — Fase 2)
 
 **Componentes:**
+
 - `src/features/lms/components/LmsTaskSubmissionForm.tsx` — formulario cliente del estudiante para entregar texto y/o archivo. Muestra instrucciones, fecha límite, estado de la entrega y nota/feedback cuando está calificada.
 - `src/features/lms/components/LmsSubmissionsClient.tsx` — tabla de entregas para el docente con filtros por estado (Todas / Por calificar / Atrasadas / Calificadas). Cada fila es expandible y muestra el formulario de calificación inline (nota 1.0–7.0 + feedback).
 - `src/features/lms/components/LmsGradebookClient.tsx` — planilla de calificaciones estilo spreadsheet. Columnas = GradebookItems (con peso%), filas = alumnos inscriptos, promedio final ponderado con badge Aprueba/Reprueba. Celdas de tipo PARTICIPACION/MANUAL son editables inline.
 - `src/features/lms/components/LmsCourseTabs.tsx` — tab strip client-side con 3 pestañas (Contenido / Tareas / Calificaciones) activado por `pathname`.
 
 **Rutas admin:**
+
 - `src/app/(admin)/[slug]/aula/[id]/layout.tsx` — layout de curso: valida acceso, muestra `LmsCourseTabs`.
 - `src/app/(admin)/[slug]/aula/[id]/tareas/page.tsx` — lista de lecciones tipo TAREA con conteos de entregas por estado.
 - `src/app/(admin)/[slug]/aula/[id]/tareas/[lessonId]/page.tsx` — detalle de entregas de una tarea → `LmsSubmissionsClient`.
 - `src/app/(admin)/[slug]/aula/[id]/calificaciones/page.tsx` — gradebook completo → `LmsGradebookClient`.
 
 **Rutas estudiante (extensiones a Fase 1):**
+
 - `src/app/(aula)/aula/cursos/[id]/leccion/[lessonId]/page.tsx` — ahora fetch assignment + my submission cuando `lesson.type === 'TAREA'`.
 - `src/features/lms/components/LmsLessonViewer.tsx` — reemplazado el placeholder de TAREA por `LmsTaskSubmissionForm` con props `assignment` y `mySubmission`.
 
 **Upload de archivos del estudiante:**
+
 - `src/features/lms/actions/student-uploads.ts` — `uploadStudentSubmissionFile(formData)` valida sesión Jose, límite 25 MB, tipos permitidos (PDF, Word, imágenes).
 
 ### Pendiente para Fase 3
+
 - Notificación al estudiante cuando se califica.
 - Historial de re-entregas (hoy solo 1 entrega por estudiante).
 
 ## Aula Virtual (LMS) — Fase 3: Comunicación y Comunidad
 
 ### Modelos Prisma nuevos
+
 - `LmsForum` — foro por curso (`archived`, `order`). Ya existía en schema sin migración; migración pendiente junto con `LmsNotification`.
 - `LmsForumThread` — hilo de conversación (`pinned`, `locked`, `lastPostAt`).
 - `LmsForumPost` — post con respuestas anidadas (`parentPostId` autorreferencial `"ForumPostAnswers"`). Body en Markdown crudo.
@@ -557,32 +580,39 @@ Funciones puras (sin acceso a BD, fáciles de testear):
 **Nota:** correr `pnpm db:migrate` antes de deployar.
 
 ### Server Actions
+
 - `src/features/lms/actions/forum.ts` — `getForumsForCourse`, `getLmsThread`, `createLmsThread`, `createLmsPost`, `getAdminForumsForCourse`, `createLmsForum`, `pinLmsThread`, `lockLmsThread`, `deleteLmsForumPost`. `createLmsPost` crea `LmsNotification` para participantes del hilo.
 - `src/features/lms/actions/notifications.ts` — `getStudentNotifications`, `markNotificationRead`, `markAllNotificationsRead`.
 
 ### UI — Estudiante
+
 - `src/app/(aula)/aula/cursos/[id]/foro/page.tsx` — lista de foros y hilos.
 - `src/app/(aula)/aula/cursos/[id]/foro/[threadId]/page.tsx` — detalle del hilo.
 - `src/features/lms/components/LmsForumClient.tsx` — lista de hilos + Dialog para crear nuevo hilo.
 - `src/features/lms/components/LmsForumPostTree.tsx` — árbol recursivo de posts (`PostNode` autorreferencial) con `ReplyForm` inline.
 
 ### UI — Admin/Profesor
+
 - `src/app/(admin)/[slug]/aula/[id]/foro/page.tsx` — moderación del foro.
 - `src/features/lms/components/LmsAdminForumClient.tsx` — ver hilos, anclar, cerrar, crear foro. Extraído en `ThreadRow` + `ForumSection`.
 
 ### Bell de notificaciones
+
 - `src/features/lms/components/NotificationBell.tsx` — badge con contador, dropdown de últimas 20, marcar leída/todas.
 - `src/app/(aula)/layout.tsx` — fetch SSR en el layout, pasa datos iniciales al bell.
 
 ### Tab Foro
+
 - `src/features/lms/components/LmsCourseTabs.tsx` — pestaña "Foro" agregada (ícono `MessageSquare`).
 
 ### Pendiente para Fase 4
+
 - (cubierto en LMS Fase 4 abajo)
 
 ## Aula Virtual (LMS) — Fase 4: Gamificación (Puntos, Rachas, Insignias)
 
 ### Modelos Prisma nuevos
+
 - `LmsStreak` — racha diaria por estudiante (`currentStreak`, `longestStreak`, `lastActiveOn`, `freezeTokens` para preservar racha un día sin actividad). `userId` UNIQUE.
 - `LmsBadge` — catálogo global con `code` UNIQUE, `pointsReward`, `criteria` JSON (`{type, threshold}`), `active`.
 - `LmsUserBadge` — M:N (`@@unique([userId, badgeId])`) con `awardedAt` y `awardedReason` legible.
@@ -591,34 +621,40 @@ Funciones puras (sin acceso a BD, fáciles de testear):
 - Enum `LmsPointSource`: `LESSON_COMPLETED | ASSIGNMENT_SUBMITTED | ASSIGNMENT_GRADED | EXAM_PASSED | FORUM_POST | MANUAL | STREAK_BONUS`.
 
 ### Engine — `src/features/lms/lib/points-engine.ts`
+
 - API: `awardPointsForEvent({userId, sourceType, amount, reason, sourceId, courseId, dedupeKey})` + `getUserGamificationSummary(userId)`.
 - Transacción atómica: inserta `PointEvent` → actualiza `LmsStreak` → evalúa criterios de `LmsBadge` → acredita bonus.
 - Manejo de `P2002` en cada paso: idempotencia sin abortar la transacción.
 - Captura errores globales (no rompe el caller) — uso fire-and-forget desde server actions.
 
 ### Lógica pura (testeable sin DB)
+
 - `src/features/lms/lib/streak.ts` — `computeStreakUpdate(state, activityAt)`:
-  - lastActiveOn null → arranca en 1.
-  - Mismo día UTC → no cambia.
-  - 1 día consecutivo → +1.
-  - 2 días (gap=1 día intermedio) con `freezeTokens > 0` → consume token y +1.
-  - Gap > 2 días → reset a 1.
+    - lastActiveOn null → arranca en 1.
+    - Mismo día UTC → no cambia.
+    - 1 día consecutivo → +1.
+    - 2 días (gap=1 día intermedio) con `freezeTokens > 0` → consume token y +1.
+    - Gap > 2 días → reset a 1.
 - `src/features/lms/lib/badges.ts` — `evaluateCriterion(criterion, stats)` sobre tipos `TOTAL_POINTS | LESSONS_COMPLETED | ASSIGNMENTS_SUBMITTED | EXAMS_PASSED | FORUM_POSTS | LONGEST_STREAK`.
 
 ### Catálogo sembrado — `prisma/seeders/gamification-badges.ts`
+
 8 badges iniciales con `BADGE_SEED`: primer paso (+5), primera entrega (+10), perfección inaugural (+25), racha 7d (+50), racha 30d (+150), voz del aula (+2), conversador (+25), 100 puntos (+25). Idempotente vía `prisma.db:seed`.
 
 ### Esquema de puntos (bajo balanceado)
-| Evento | Puntos |
-|---|---|
-| Tarea entregada (`ASSIGNMENT_SUBMITTED`) | +10 |
-| Tarea calificada (`ASSIGNMENT_GRADED`) | +5 |
-| Examen aprobado (`EXAM_PASSED`, score ≥ 4.0) | +15 |
-| Post en foro (`FORUM_POST`) | +2 |
-| Nota manual (`ASSIGNMENT_GRADED` en `recordLmsGrade`) | +5 |
+
+| Evento                                                | Puntos |
+| ----------------------------------------------------- | ------ |
+| Tarea entregada (`ASSIGNMENT_SUBMITTED`)              | +10    |
+| Tarea calificada (`ASSIGNMENT_GRADED`)                | +5     |
+| Examen aprobado (`EXAM_PASSED`, score ≥ 4.0)          | +15    |
+| Post en foro (`FORUM_POST`)                           | +2     |
+| Nota manual (`ASSIGNMENT_GRADED` en `recordLmsGrade`) | +5     |
 
 ### Integración (fire-and-forget en actions existentes)
+
 Cada enganche usa `void awardPointsForEvent(...).catch(console.error)`:
+
 - `submitLmsAssignment` → `ASSIGNMENT_SUBMITTED` +10 + racha
 - `gradeLmsSubmission` → `ASSIGNMENT_GRADED` +5 + racha
 - `recordLmsGrade` (item manual) → `ASSIGNMENT_GRADED` +5
@@ -626,14 +662,17 @@ Cada enganche usa `void awardPointsForEvent(...).catch(console.error)`:
 - `createLmsForumPost` → `FORUM_POST` +2
 
 ### Server actions — `src/features/lms/actions/gamification.ts`
+
 - Admin: `awardManualLmsPoints`, `createLmsBadge`/`updateLmsBadge`/`deleteLmsBadge`, `listLmsBadges` (todos con anti-IDOR vía `requireInstitutionAccess`).
 - Estudiante: `getMyAchievements` (resumen + 20 últimos eventos), `markBadgesSeen` (via `LmsNotification` type `BADGE_ACK`), `getCourseLeaderboard`, `toggleLeaderboardOptOut`.
 
 ### Tipos exportados
+
 - `AchievementBadge`, `LeaderboardEntry`, `LeaderboardData`, `MyAchievements`, `RecentPointEvent` en `actions/gamification.ts`.
 - `BADGE_DEFINITIONS` en `lib/gamification.ts` (re-export de `BADGE_SEED` con tipo `BadgeDefinition`).
 
 ### Tests
+
 36 nuevos tests unitarios (`streak.test.ts`, `badges.test.ts`, `points-engine.test.ts` con Prisma mockeado). Total suite: **149/149 pasando**.
 
 Migraciones: `20260629203535_lms_gamification`, `20260629205142_lms_leaderboard_privacy`.
@@ -641,6 +680,7 @@ Migraciones: `20260629203535_lms_gamification`, `20260629205142_lms_leaderboard_
 ## Aula Virtual (LMS) — Fase 5: Certificación y Analítica
 
 ### Modelos Prisma nuevos / extendidos
+
 - `LmsCertificate` (id, userId, courseId, verificationCode UNIQUE, finalGrade, pdfUrl, qrCodeUrl, issuedAt, revokedAt). `@@unique([userId, courseId])` + `@@index([courseId, verificationCode])`.
 - `LmsCourse.certificateEnabled: Boolean @default(false)` — habilita emisión automática al aprobar examen.
 - `LmsCourse.aiSummaryEnabled: Boolean @default(false)` — habilita resúmenes IA para lecciones TEXTO.
@@ -648,6 +688,7 @@ Migraciones: `20260629203535_lms_gamification`, `20260629205142_lms_leaderboard_
 - Migración: `20260629220708_lms_phase5_certificates_summary`.
 
 ### Certificados PDF + QR + Cloudinary
+
 - **Deps nuevas** (autorizadas por usuario en sesión): `@react-pdf/renderer@4.5.1`, `qrcode@1.5.4`, `cloudinary@2.10.0`.
 - **`src/shared/lib/cloudinary.ts`** — wrapper lazy. Lee `CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET` de `AppConfig` (no env vars). Funciones: `uploadCertificatePdf(buffer, publicId)`, `deleteCertificatePdf(publicId)`, `isCloudinaryConfigured()`. Sin credenciales → `{uploaded:false, error:'Configurá las credenciales de Cloudinary en Configuración…'}` (modo degradado, no rompe el flujo).
 - **`src/features/lms/lib/certificate-pdf.tsx`** — plantilla A4 landscape con `<Document>/<Page>` de react-pdf, QR embebido vía `qrcode.toDataURL()`. `generateCertificatePdfBuffer(input)` retorna `Promise<Buffer>`.
@@ -656,37 +697,43 @@ Migraciones: `20260629203535_lms_gamification`, `20260629205142_lms_leaderboard_
 - **Hook fire-and-forget** en `syncExamGrades` (Fase 2): `if (normalizedScore >= 4.0) void tryIssueCertificate(...).catch(console.error)`. Solo emite si `course.certificateEnabled === true`.
 
 ### Configuración via `/config/settings` (SuperAdmin)
+
 - `APP_CONFIG_KEY` extendido con `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
 - `AppSettingsClient` reemplazó el card "IA próximamente" por "Cloudinary — Almacenamiento de certificados" con 3 inputs (Cloud Name, API Key, API Secret tipo password).
 - Misma acción `saveAppConfig` ya validaba con Zod; ahora cubre las 3 keys nuevas.
 
 ### Resúmenes IA con Gemini
+
 - **`src/features/lms/lib/lesson-summarizer.ts`** — `summarizeLessonText(content)` valida longitud (200–50000 chars), llama `generateText({model: google('gemini-2.5-flash')})` con prompt que fuerza JSON, parsea con `extractJson` (tolerante a markdown fences), valida estructura y persiste `LessonSummary`. Sin API key → error claro "Configurá la API key de Google Generative AI…".
 - **`actions/lesson-summary.ts`** — `generateLessonSummary(slug, lessonId)` valida lección TEXTO con `aiSummaryEnabled`, extrae texto de Tiptap JSON recursivamente, llama summarizer, persiste en `LmsLesson.summaryJson`. `getLessonSummary(lessonId)` para estudiante enrolado. `clearLessonSummary` para admin.
 
 ### Detección temprana de bajo rendimiento
+
 - **`src/features/lms/lib/at-risk-detector.ts`** (lib pura testeable): `identifyAtRiskStudents(enrollments, grades, options?)` con score 0-100 multi-factor:
-  - `progressPct < threshold` → +40 pts
-  - `daysSinceLastActivity ≥ inactivityDays` → +30 pts
-  - `averageGrade < gradeThreshold` → +40 pts
-  - `riskLevel`: BAJO (<25), MEDIO (25-49), ALTO (≥50)
-  - Sort por `riskScore` desc
+    - `progressPct < threshold` → +40 pts
+    - `daysSinceLastActivity ≥ inactivityDays` → +30 pts
+    - `averageGrade < gradeThreshold` → +40 pts
+    - `riskLevel`: BAJO (<25), MEDIO (25-49), ALTO (≥50)
+    - Sort por `riskScore` desc
 - `identifyInactiveStudents(progress, options?)` — usuarios sin actividad en N días.
 - `identifyFailingCourses(courseId, enrollments, grades, atRisk, gradeThreshold?)` — métricas agregadas (total, averageGrade, approvedCount, failedCount, approvalRate, atRiskCount).
 - **`actions/analytics.ts`** refactorizado: `getCourseAnalytics` ahora delega el cómputo a `identifyAtRiskStudents`. Mantiene interface `AtRiskStudent` (con `lastname`) que la UI ya consumía. El campo `riskLevel`, `reasons` y `averageGrade` ahora están disponibles para Sonnet (UI actualizada en `LmsAnalyticsClient.tsx:114` con tipo `RiskLevel` y `RISK_BADGE: Record<RiskLevel, …>`).
 
 ### Tests (34 nuevos)
+
 - `at-risk-detector.test.ts` (17 tests): factor progress, factor inactividad, factor notas, score cap a 100, exclude RETIRADO/COMPLETADO, sort por score, thresholds custom, mix de Date y string.
 - `lesson-summarizer.test.ts` (10 tests): validaciones de longitud, sin API key, JSON válido, JSON en fences, sin keyPoints, cap a 8, errores de IA, garbage response.
 - `cloudinary.test.ts` (7 tests): isConfigured true/false, upload ok, upload error, delete ok, delete sin config.
 - **Total suite: 183/183 pasando** (`pnpm test:run`).
 
 ### Verificación de cierre (vía MCP JetBrains)
+
 - `devBuild` (Next.js build) → ✅ `Compiled successfully in 3.6s` + `Finished TypeScript in 5.3s` + 58 rutas generadas.
 - `pnpm test:run` → ✅ 183/183 en 14 files.
 - Las nuevas rutas detectadas en build: `/[slug]/aula/[id]/certificados`, `/aula/cursos/[id]/logros`, `/aula/logros`, `/certificado/[code]` — la UI de verificación de certificados ya existe (Sonnet).
 
 ### Fixes colaterales (causados por nuevos campos en `LmsLesson`)
+
 - `LmsAnalyticsClient.tsx` — `RISK_BADGE: Record<string,…>` → `Record<RiskLevel,…>` con `type RiskLevel = 'BAJO'|'MEDIO'|'ALTO'`. Acceso directo `RISK_BADGE[student.riskLevel]` sin `??` fallback porque el Record es exhaustivo.
 - `app/(aula)/aula/cursos/[id]/page.tsx` — agregados `summaryJson: l.summaryJson` al mapping manual y `summaryJson: true` al `select` de Prisma.
 - `app/(admin)/[slug]/aula/[id]/page.tsx` — agregado `summaryJson: true` al `select` de Prisma (la interface `LessonWithMeta extends LmsLesson` lo requiere).
@@ -696,6 +743,7 @@ Migraciones: `20260629203535_lms_gamification`, `20260629205142_lms_leaderboard_
 Videollamadas reales (Daily.co), pizarra individual con snapshots a Cloudinary, chat en vivo con rate limit, y registro de asistencia automático vía webhook.
 
 ### Stack y decisiones
+
 - **Daily.co** como motor de videollamadas (REST API + iframe daily-js embebido). Salas efímeras creadas/borradas por sesión via backend.
 - **Chat en vivo**: tabla con polling cada 3s (sin WebSocket — serverless puro), rate limit por usuario (≥800ms entre mensajes, ≤20/min), sanitización agresiva (HTML/tags eliminadas).
 - **Pizarra**: drawing canvas HTML5 por participante (uno por persona, no multi-cursor real-time). El profesor "comparte pizarra" vía Daily screen-share. Snapshots se guardan a Cloudinary como PNG con título opcional.
@@ -703,6 +751,7 @@ Videollamadas reales (Daily.co), pizarra individual con snapshots a Cloudinary, 
 - **No agregamos Liveblocks/PartyKit**: la pizarra multi-cursor real-time requeriría servicio externo pago o servidor WebSocket (no viable en Vercel serverless).
 
 ### Modelos Prisma nuevos
+
 - `LmsLiveSession` (id, courseId, title, description, scheduledAt, durationMin, `dailyRoomName UNIQUE`, `dailyRoomUrl`, `dailyRoomExpiresAt`, maxParticipants?, status [SCHEDULED|LIVE|ENDED|CANCELED], createdById, startedAt?, endedAt?, recordingMuxAssetId?, recordingUrl?, recordingDurationSec?, recordingStatus [NONE|PENDING|READY|FAILED]). `@@index([courseId, status, scheduledAt, createdById])`.
 - `LmsLiveAttendance` (sessionId, userId, role [TEACHER|STUDENT|GUEST|ASSISTANT], displayName, joinedAt, leftAt?, durationSec?, `dailyParticipantId?`). Una fila por join (varias si entra/sale).
 - `LmsLiveChatMessage` (sessionId, userId, content, sentAt, deletedAt?). Soft-delete.
@@ -711,6 +760,7 @@ Videollamadas reales (Daily.co), pizarra individual con snapshots a Cloudinary, 
 - Migración: `20260629223637_lms_phase6_live_sessions`.
 
 ### Wrapper Daily.co (`src/shared/lib/daily.ts`)
+
 - Cache lazy de credenciales (`AppConfig`) con TTL 60s para no hacer Prisma en cada request.
 - Funciones: `createDailyRoom`, `getDailyRoom`, `deleteDailyRoom`, `createDailyMeetingToken({isOwner})`.
 - `verifyDailyWebhookSignature(rawBody, signatureHeader)` HMAC SHA-256 via Web Crypto API. Sin credenciales o sin firma → rechaza con `reason`.
@@ -718,49 +768,55 @@ Videollamadas reales (Daily.co), pizarra individual con snapshots a Cloudinary, 
 - Sin credenciales configuradas: cada función retorna `{ok:false, error:'Daily.co no está configurado…'}` sin tirar 401.
 
 ### Libs puras (testeables sin DB)
+
 - **`live-session-state.ts`**: state machine con `LIVE_SESSION_TRANSITIONS` (SCHEDULED→LIVE/CANCELED, LIVE→ENDED/CANCELED, resto denegado). `computeJoinWindow({scheduledAt, durationMin, now, openMinutesBefore=10})` devuelve `{isJoinable, isLive, isPast, secondsUntilStart, secondsUntilEnd, remainingSec}`. `deriveStatusFromSchedule` calcula estado desde schedule respetando override manual. `buildDailyRoomName` genera nombre `aulika-YYYYMMDD-XXXXXXXX-suffix` ≤60 chars y regex `[a-z0-9-]{3,64}`. `isValidDailyRoomName` valida.
 - **`live-attendance.ts`**: `computeAttendanceDurationSec`, `isWithinAttendanceWindow({openMinutesBefore=10, closeMinutesAfter=30})`, `summarizeAttendance(rows, durationMin)` agrega `totalDurationSec`, `joinCount`, `isPresent`, `attendancePct` (clamp 0-100), ordena por total desc.
 - **`live-chat.ts`**: `cleanChatContent` (trim + sanitiza + maxLength check), `evaluateChatRateLimit(state, nowMs)` (≥800ms, ≤20/min), `buildChatPollWindow` (filtra por `since` + cutoff 60min).
 - **`sanitizeChatText`** agregado a `src/shared/lib/sanitize.ts`: NFKC + elimina tags HTML `<[^>]*>` + chars `<`/`>` sueltos + control chars + `javascript|data|vbscript|file:` schemes. Más estricto que el sanitizer de foros porque chat debe ser texto plano.
 
 ### Server actions (`src/features/lms/actions/`)
+
 - **`live-sessions.ts`**: `createLiveSession`, `updateLiveSession`, `cancelLiveSession`, `startLiveSession` (genera token con `isOwner:true`), `endLiveSession` (borra room + cierra attendances abiertas), `joinLiveSession` (genera token estudiante + valida access por enrollment/institución/rol), `leaveLiveSession`, `getLiveSessionById`. Todas usan `requireInstitutionAccess(slug, roles[])` y `assertSessionEditableByManager` para anti-IDOR.
 - **`live-chat.ts`**: `sendLiveChatMessage` con rate limit por usuario (`Map<string, RateLimitState>` con TTL 30min) + sanitización obligatoria. `listLiveChatMessages({sessionId, since})` retorna `PublicLiveChatMessage[]` + `nextCursor`. Polling cada 3s cliente.
 - **`whiteboard.ts`**: `saveWhiteboardSnapshot` con Zod 200-8000px, sube PNG a Cloudinary (`uploadWhiteboardPng`, `resource_type: 'image'`, folder `lms/whiteboard`). Modo degradado: sin Cloudinary persiste `data:image/png;base64,…` in-place (recomendable cambiar después).
 
 ### Webhook handler `src/app/api/webhooks/daily/route.ts`
+
 - `dynamic = 'force-dynamic'`, `runtime = 'nodejs'`.
 - HMAC verify primero (rechaza 401 sin auth).
 - Switch por `payload.type`:
-  - `meeting.ended` → status ENDED + cierra attendances.
-  - `participant.joined` → upsert attendance con `dailyParticipantId`.
-  - `participant.left` → actualiza leftAt + compute durationSec.
-  - `recording.ready-to-download` → flip status READY + guarda `recordingUrl` + audit.
-  - `recording.failed` → flip status FAILED.
+    - `meeting.ended` → status ENDED + cierra attendances.
+    - `participant.joined` → upsert attendance con `dailyParticipantId`.
+    - `participant.left` → actualiza leftAt + compute durationSec.
+    - `recording.ready-to-download` → flip status READY + guarda `recordingUrl` + audit.
+    - `recording.failed` → flip status FAILED.
 
 ### UI (todo client+server)
+
 - **Páginas**:
-  - `/[slug]/aula/[courseId]/clases` — listado admin/profesor con cards + status badge + acciones (start/cancel/asistencia/grabación). Header "Clases en vivo" agregado al editor del curso (`/[slug]/aula/[id]/page.tsx`).
-  - `/[slug]/aula/[courseId]/clases/nueva` — form con `LiveSessionForm` (title 3-120 chars, datetime-local, duration 10-480 min, maxParticipants opcional).
-  - `/[slug]/aula/[courseId]/clases/[sessionId]` — host view con `DailyCallFrame` (iframe con token), tabs videollamada/pizarra, chat side panel, botón "Finalizar" (admin/prof owner).
-  - `/[slug]/aula/[courseId]/clases/[sessionId]/asistencia` — tabla con métricas (participantes únicos, conectados, asistencia promedio) + lista por usuario (nombre/RUT/rol/ingresos/tiempo/asistencia %).
-  - `/aula/cursos/[courseId]/clases` — listado estudiante con countdown + estado + link "Unirme" cuando joinable.
-  - `/aula/clases/[sessionId]` — sala estudiante con join-on-click (requiere NextAuth session + enrollment activo o jose session + enrollment). Falta tiempo → countdown.
+    - `/[slug]/aula/[courseId]/clases` — listado admin/profesor con cards + status badge + acciones (start/cancel/asistencia/grabación). Header "Clases en vivo" agregado al editor del curso (`/[slug]/aula/[id]/page.tsx`).
+    - `/[slug]/aula/[courseId]/clases/nueva` — form con `LiveSessionForm` (title 3-120 chars, datetime-local, duration 10-480 min, maxParticipants opcional).
+    - `/[slug]/aula/[courseId]/clases/[sessionId]` — host view con `DailyCallFrame` (iframe con token), tabs videollamada/pizarra, chat side panel, botón "Finalizar" (admin/prof owner).
+    - `/[slug]/aula/[courseId]/clases/[sessionId]/asistencia` — tabla con métricas (participantes únicos, conectados, asistencia promedio) + lista por usuario (nombre/RUT/rol/ingresos/tiempo/asistencia %).
+    - `/aula/cursos/[courseId]/clases` — listado estudiante con countdown + estado + link "Unirme" cuando joinable.
+    - `/aula/clases/[sessionId]` — sala estudiante con join-on-click (requiere NextAuth session + enrollment activo o jose session + enrollment). Falta tiempo → countdown.
 - **Componentes** (`src/features/lms/components/live/`):
-  - `DailyCallFrame.tsx` — iframe para `roomUrl?t={token}` con `allow="camera; microphone; display-capture; autoplay; clipboard-write"` + listener `message` para `left-meeting`.
-  - `LiveChat.tsx` — polling 3s, render con `userName`, hora, contenido sanitizado. Input con Enter envía. `maxLength={500}` server side vía Zod + sanitizer client-side.
-  - `Whiteboard.tsx` — canvas 1280×720 con stylus (`pointer` events), botones "Limpiar" y "Guardar snapshot". ToDataURL PNG → base64 → action.
-  - `LiveSessionListClient.tsx` — listado interactivo con transitions + router.refresh + confirms.
-  - `LiveSessionForm.tsx` — form controlado + validación HTML5.
-  - `LiveSessionRoomClient.tsx` — orquesta videollamada/pizarra/chat con tabs + end-session.
-  - `StudentRoomClient.tsx` — countdown pre-sesión + onJoin → guarda attendanceId para cleanup.
+    - `DailyCallFrame.tsx` — iframe para `roomUrl?t={token}` con `allow="camera; microphone; display-capture; autoplay; clipboard-write"` + listener `message` para `left-meeting`.
+    - `LiveChat.tsx` — polling 3s, render con `userName`, hora, contenido sanitizado. Input con Enter envía. `maxLength={500}` server side vía Zod + sanitizer client-side.
+    - `Whiteboard.tsx` — canvas 1280×720 con stylus (`pointer` events), botones "Limpiar" y "Guardar snapshot". ToDataURL PNG → base64 → action.
+    - `LiveSessionListClient.tsx` — listado interactivo con transitions + router.refresh + confirms.
+    - `LiveSessionForm.tsx` — form controlado + validación HTML5.
+    - `LiveSessionRoomClient.tsx` — orquesta videollamada/pizarra/chat con tabs + end-session.
+    - `StudentRoomClient.tsx` — countdown pre-sesión + onJoin → guarda attendanceId para cleanup.
 
 ### Configuración via `/config/settings` (SuperAdmin)
+
 - `APP_CONFIG_KEY` extendido con `DAILY_API_KEY`, `DAILY_WEBHOOK_SECRET`.
 - `AppSettingsClient` reemplazó "Cloudinary — Almacenamiento de certificados" con ambos cards (Cloudinary + Daily.co). Daily.co card tiene inputs `type="password"` + descripción.
 - Validación Zod en `saveSchema` enum extendido.
 
 ### Tests (70 nuevos — total suite: 253/253 pasando)
+
 - `live-session-state.test.ts` — 25 tests: state machine, join window (border cases), derive status, buildDailyRoomName, isValidDailyRoomName, minutesToSeconds.
 - `live-attendance.test.ts` — 12 tests: computeDuration, withinWindow, summarize (agregación, marcaje present, clamp pct, sort).
 - `live-chat.test.ts` — 14 tests: cleanChatContent (empty, too long, sanitización, javascript scheme, emojis), rate limit (first, too fast, burst, dentro de límite, reset ventana), poll window (since, cutoff 60min, nextCursor).
@@ -768,20 +824,23 @@ Videollamadas reales (Daily.co), pizarra individual con snapshots a Cloudinary, 
 - `daily.test.ts` — 10 tests: isConfigured, createDailyRoom (configurado, 401, no-config), deleteDailyRoom (404 OK, 500 fail), getDailyRoom, createMeetingToken, parseWebhookPayload, verifyWebhookSignature (sin header, sin secret, válida, inválida).
 
 ### Auditoría
+
 - 7 nuevas acciones: `lms.live_session.{create,update,start,end,cancel}`, `lms.live_session.{join,leave}`, `lms.live_session.recording_ready`. Cada `logAudit` con `entity='LmsLiveSession'`, `entityId` y metadata contextual.
 
 ### Verificación de cierre
+
 - `pnpm type-check` ✅ (con fix mínimo no-assertion en `testing-aula-seed.ts` para `badgeMap[code]!.id` — pre-existente de Fase 5).
 - `pnpm test:run` ✅ 323/323.
 - `pnpm devBuild` ✅ Compiled successfully, 6 rutas nuevas generadas:
-  - `ƒ /[slug]/aula/[courseId]/clases`
-  - `ƒ /[slug]/aula/[courseId]/clases/[sessionId]`
-  - `ƒ /[slug]/aula/[courseId]/clases/[sessionId]/asistencia`
-  - `ƒ /[slug]/aula/[courseId]/clases/nueva`
-  - `ƒ /aula/clases/[sessionId]`
-  - `ƒ /aula/cursos/[courseId]/clases`
+    - `ƒ /[slug]/aula/[courseId]/clases`
+    - `ƒ /[slug]/aula/[courseId]/clases/[sessionId]`
+    - `ƒ /[slug]/aula/[courseId]/clases/[sessionId]/asistencia`
+    - `ƒ /[slug]/aula/[courseId]/clases/nueva`
+    - `ƒ /aula/clases/[sessionId]`
+    - `ƒ /aula/cursos/[courseId]/clases`
 
 ### Limitaciones explícitas
+
 1. **Pizarra NO multi-cursor real-time** — cada participante ve su propio canvas. Para compartir pizarra, profesor usa Daily.co screen-share. Plan original de Fase 6 de Sonnet (Liveblocks) no se implementó por evitar dependencia externa de pago.
 2. **Grabación → Mux opcional**: si no hay credenciales Mux, la grabación queda como URL de Daily (los hosts pueden descargarla manualmente).
 3. **Webhook no es idempotente 100%**: `participant.joined` con el mismo `dailyParticipantId` puede duplicar si Daily reenvía. Aceptable para piloto.
@@ -794,19 +853,23 @@ Videollamadas reales (Daily.co), pizarra individual con snapshots a Cloudinary, 
 **`getUnseenBadges()`** — agregado a `gamification.ts`: cruza `LmsUserBadge` contra `LmsNotification(type=BADGE_ACK)` y devuelve insignias sin ACK para el toast animado.
 
 **Componentes:**
+
 - `BadgeUnlockProvider.tsx` (`'use client'`) — recibe `initialUnseenBadges: AchievementBadge[]` del layout SSR. Muestra cada insignia con Framer Motion (`AnimatePresence` + slide desde abajo). Cada toast dura 5.5s con barra de progreso animada y llama `markBadgesSeen([badge.code])` al cerrar (fire-and-forget).
 - `LmsAchievementsClient.tsx` (`'use client'`) — "Mis Logros" con 4 stat cards (puntos totales, racha actual, racha máxima, total insignias), grid de todas las insignias del catálogo (ganadas en dorado, bloqueadas en gris), historial de últimos puntos.
 - `LmsLeaderboard.tsx` (`'use client'`) — top 10 por puntos, íconos de podio (Trophy/Medal), toggle de privacidad que llama `toggleLeaderboardOptOut(courseId)`, anonimiza nombre con "Estudiante anónimo" para opt-outs ajenos.
 
 **Páginas:**
+
 - `src/app/(aula)/aula/logros/page.tsx` — SSR llama `getMyAchievements()`, renderiza `LmsAchievementsClient`.
 - `src/app/(aula)/aula/cursos/[id]/logros/page.tsx` — SSR valida inscripción + llama `getCourseLeaderboard(courseId)`, renderiza `LmsLeaderboard`.
 
 **Actualizaciones:**
+
 - `src/app/(aula)/layout.tsx` — agrega `getUnseenBadges()` en paralelo a las notificaciones, envuelve con `BadgeUnlockProvider`. Filtra BADGE_ACK del contador de unread del Bell. Agrega link "Mis logros" con ícono Trophy en el nav.
 - `LmsCourseTabs.tsx` — pestaña "Ranking" con ícono `Trophy` → `/${slug}/aula/${courseId}/ranking`.
 
 **Pendiente para Fase 5:**
+
 - Página `/[slug]/aula/[id]/ranking` en el panel admin.
 - Seeder de badges (`gamification-badges.ts`) que corra `pnpm db:seed` para poblar `LmsBadge` en producción antes de que los badges sean funcionales.
 
@@ -815,6 +878,7 @@ Videollamadas reales (Daily.co), pizarra individual con snapshots a Cloudinary, 
 Modelo de datos para discusión asíncrona por curso y sistema de notificaciones in-app.
 
 ### Modelos Prisma nuevos
+
 - `LmsForum` — tablero dentro de un curso (`archived` para "sólo lectura", `order` para orden visual).
 - `LmsForumThread` — hilo individual con `pinned`, `locked`, `lastPostAt` (para ordenar por actividad).
 - `LmsForumPost` — respuesta con `parentPostId` nullable (respuestas anidadas tipo Reddit/GitHub). El body es Markdown crudo (sanitizado server-side en server actions).
@@ -826,6 +890,7 @@ Migraciones: `20260629191306_lms_forums`, `20260629191923_lms_notifications`.
 ### Sanitización anti-XSS — `src/shared/lib/sanitize.ts`
 
 Implementación sin dependencias (no se instaló `sanitize-html` ni `dompurify` para mantener el bundle). Cobertura battle-tested:
+
 - Whitelist de tags (`p`, `br`, `b`, `strong`, `i`, `em`, `u`, `s`, `ul`, `ol`, `li`, `blockquote`, `code`, `pre`, `h3`, `h4`, `a`).
 - Atributos: solo `href` y `title` en `<a>`, con validación de protocolo (`http`, `https`, `mailto`).
 - Strip por defecto de cualquier tag, atributo, protocolo desconocido.
@@ -841,37 +906,36 @@ Vector XSS cubierto: `<script>`, `<img onerror>`, `<style>`, `<iframe>`, `<objec
 
 - `buildNewForumPostEmail({...})` — plantilla HTML consistente con `buildExamResultEmail` / `buildAdminWelcomeEmail`.
 - `notifyNewForumPost({ threadId, postId, authorId, siteUrl })` — fan-out best-effort a:
-  - Todos los autores previos del hilo (dedupeado por `distinct authorId`).
-  - Estudiantes inscriptos activos en el curso.
-  - Excluye al autor del nuevo post.
+    - Todos los autores previos del hilo (dedupeado por `distinct authorId`).
+    - Estudiantes inscriptos activos en el curso.
+    - Excluye al autor del nuevo post.
 - `notifyNewForumPostBackground(...)` — fire-and-forget (`void Promise`), nunca lanza errores al caller; logs con `console.error`.
 - Las notas internas de estudiantes viven en `LmsNotification` (Bell Icon UI lo levanta Sonnet).
 
 ### Server Actions del Foro — `src/features/lms/actions/forums.ts`
 
-| Action | Rol | Descripción |
-| --- | --- | --- |
-| `createLmsForum(slug, data)` | ADMIN/PROFESOR | Crear foro dentro de curso. |
-| `updateLmsForum(slug, data)` | ADMIN/PROFESOR | Editar título / archivar. |
-| `createLmsForumThread(slug, data)` | ADMIN/PROFESOR | Inicia hilo + primer post en transacción. |
-| `toggleForumThreadPin(slug, threadId)` | ADMIN/PROFESOR | Pin / unpin. |
-| `toggleForumThreadLock(slug, threadId)` | ADMIN/PROFESOR | Lock / unlock. |
-| `createLmsForumPost(data)` | Estudiante | Responder desde `/aula`. Pasa body por `sanitizeForumMarkdown`. |
-| `createLmsForumPostAdmin(slug, data)` | ADMIN/PROFESOR | Responder desde panel admin. |
-| `editLmsForumPost(slug, data)` | ADMIN/PROFESOR | Editar post. |
-| `deleteLmsForumPost(slug, data)` | ADMIN/PROFESOR | Soft-delete (body → `[contenido eliminado por el moderador]`). |
+| Action                                  | Rol            | Descripción                                                     |
+| --------------------------------------- | -------------- | --------------------------------------------------------------- |
+| `createLmsForum(slug, data)`            | ADMIN/PROFESOR | Crear foro dentro de curso.                                     |
+| `updateLmsForum(slug, data)`            | ADMIN/PROFESOR | Editar título / archivar.                                       |
+| `createLmsForumThread(slug, data)`      | ADMIN/PROFESOR | Inicia hilo + primer post en transacción.                       |
+| `toggleForumThreadPin(slug, threadId)`  | ADMIN/PROFESOR | Pin / unpin.                                                    |
+| `toggleForumThreadLock(slug, threadId)` | ADMIN/PROFESOR | Lock / unlock.                                                  |
+| `createLmsForumPost(data)`              | Estudiante     | Responder desde `/aula`. Pasa body por `sanitizeForumMarkdown`. |
+| `createLmsForumPostAdmin(slug, data)`   | ADMIN/PROFESOR | Responder desde panel admin.                                    |
+| `editLmsForumPost(slug, data)`          | ADMIN/PROFESOR | Editar post.                                                    |
+| `deleteLmsForumPost(slug, data)`        | ADMIN/PROFESOR | Soft-delete (body → `[contenido eliminado por el moderador]`).  |
 
 Validación de acceso anti-IDOR en cada acción: requiere `academicInstitutionId` del curso coincida con la sesión.
 
 ### Tests
+
 - `src/shared/lib/__tests__/sanitize.test.ts` — 23 unit tests XSS.
 - `tests/e2e/admin/lms-phase3-forums.spec.ts` — smoke test E2E.
 
 ### Pendiente para Fase 5+ (Certificación y Analítica)
+
 - Diff side-by-side en UI de edición de post.
-
-
-
 
 Feature en `src/features/demo/`. Institución `slug = 'aulika-demo'`, `isDemo = true`, plan FREE.
 
@@ -964,13 +1028,13 @@ Feature en `src/features/tour/`:
 
 **Pasos del tour (targets `data-tour`):**
 
-| # | Atributo | Descripción |
-|---|----------|-------------|
-| 1 | `sidebar` | Sidebar desktop (`<aside>`) en `Sidebar.tsx` |
-| 2 | `stat-tiles` | Grid de 4 tiles de métricas en `DashboardClient.tsx` |
-| 3 | `new-exam-btn` | Botón dropdown "Nuevo examen" en `DashboardClient.tsx` |
-| 4 | `active-exams` | Card "Exámenes en curso" en `DashboardClient.tsx` |
-| 5 | `recent-results` | Card "Últimos resultados" en `DashboardClient.tsx` |
+| #   | Atributo         | Descripción                                            |
+| --- | ---------------- | ------------------------------------------------------ |
+| 1   | `sidebar`        | Sidebar desktop (`<aside>`) en `Sidebar.tsx`           |
+| 2   | `stat-tiles`     | Grid de 4 tiles de métricas en `DashboardClient.tsx`   |
+| 3   | `new-exam-btn`   | Botón dropdown "Nuevo examen" en `DashboardClient.tsx` |
+| 4   | `active-exams`   | Card "Exámenes en curso" en `DashboardClient.tsx`      |
+| 5   | `recent-results` | Card "Últimos resultados" en `DashboardClient.tsx`     |
 
 **Lógica de TourButton:**
 
@@ -1084,18 +1148,21 @@ Ubicadas en `src/app/(public)/empresa/`:
 - `/empresa/terminos` — Términos y Condiciones de Uso
 
 **Marco legal cubierto:**
+
 - Ley Nº 19.628 (vigente) + Ley Nº 21.719 (vacatio legis hasta dic. 2026)
 - Decreto Exento MINEDUC Nº 678/2018 (protección datos escolares)
 - Ley Nº 17.336 Propiedad Intelectual
 - Boletín Nº 16821-19 (Proyecto IA Chile)
 
 **Datos legales de la empresa:**
+
 - Razón social: Crow Advance EIRL — RUT 27.039.635-6
 - Representante: Edgardo Ruotolo Cardozo
 - Domicilio: Centenario 493, Chonchi, Chiloé, Región de Los Lagos, Chile
 - Email legal: edgardoruotolo@crowadvance.com
 
 **Puntos clave:**
+
 - Crow Advance = Encargado del Tratamiento; Institución educativa = Responsable
 - IA solo para generación de preguntas (MCP), con supervisión humana obligatoria
 - IA no corrige ni califica exámenes (calificación matemática determinista)
@@ -1112,15 +1179,16 @@ Feature en `src/features/lms/`. Evolución de Aulika hacia LMS completo ("Aula A
 
 ### Modelos Prisma (prefijo `Lms`)
 
-| Modelo | Descripción |
-|--------|-------------|
-| `LmsCourse` | Curso LMS. FK a `AcademicInstitution`, `CourseSection`, `User` (creador) |
-| `LmsModule` | Módulo dentro de un curso. Campo `order` para drag-and-drop |
-| `LmsLesson` | Lección dentro de un módulo. `type: LessonType`, `order` |
-| `LmsEnrollment` | Inscripción de estudiante. `progressPct`, `status: EnrollmentStatus` |
-| `LmsLessonProgress` | Progreso por lección. `completed`, `lastSeenSec` (para videos) |
+| Modelo              | Descripción                                                              |
+| ------------------- | ------------------------------------------------------------------------ |
+| `LmsCourse`         | Curso LMS. FK a `AcademicInstitution`, `CourseSection`, `User` (creador) |
+| `LmsModule`         | Módulo dentro de un curso. Campo `order` para drag-and-drop              |
+| `LmsLesson`         | Lección dentro de un módulo. `type: LessonType`, `order`                 |
+| `LmsEnrollment`     | Inscripción de estudiante. `progressPct`, `status: EnrollmentStatus`     |
+| `LmsLessonProgress` | Progreso por lección. `completed`, `lastSeenSec` (para videos)           |
 
 **Enums:**
+
 - `LessonType`: `VIDEO | DOCUMENTO | TEXTO | ENLACE | EXAMEN | TAREA | EN_VIVO`
 - `EnrollmentStatus`: `ACTIVO | COMPLETADO | RETIRADO`
 
@@ -1132,6 +1200,7 @@ Feature en `src/features/lms/`. Evolución de Aulika hacia LMS completo ("Aula A
 - **`lib/access.ts`** — `requireLmsViewer(institutionId)`, `isLmsEnrolled(userId, courseId)`
 
 **Componentes:**
+
 - `LmsCoursesListClient.tsx` — tabla de cursos con CRUD (Dialog + AlertDialog). Admin panel.
 - `LmsCourseEditorClient.tsx` — editor drag-and-drop de módulos/lecciones con `@dnd-kit/core` + `@dnd-kit/sortable`
 - `LmsStudentView.tsx` — vista de curso para el estudiante con progreso y enroll
@@ -1218,7 +1287,7 @@ cd ~/.claude/skills/gstack && ./setup --team
 
 **Regla crítica para reducir tokens:**
 
-- **No imprimir diffs grandes en el chat cuando el MCP puede mostrarlos en el IDE.** Después de `apply_changes`, decir *"cambios aplicados en N archivos, diffs abiertos en WebStorm"* en lugar de pegar el contenido modificado.
+- **No imprimir diffs grandes en el chat cuando el MCP puede mostrarlos en el IDE.** Después de `apply_changes`, decir _"cambios aplicados en N archivos, diffs abiertos en WebStorm"_ en lugar de pegar el contenido modificado.
 - Si el MCP no responde (puerto 64342 cambió tras restart de WebStorm), caer a Read/Edit nativos sin cortar el flujo.
 
 ### ⚠️ REGLA CRÍTICA — Ejecución de comandos (NO NEGOCIABLE)
@@ -1227,15 +1296,15 @@ cd ~/.claude/skills/gstack && ./setup --team
 
 **SIEMPRE invocar estos comandos a través de `mcp__jetbrains__execute_terminal_command`** y capturar el resultado desde ahí.
 
-| Comando | ❌ Prohibido | ✅ Correcto |
-|---|---|---|
-| `pnpm lint` | `Bash("pnpm lint")` | `mcp__jetbrains__execute_terminal_command("pnpm lint")` |
-| `pnpm type-check` | `Bash("pnpm type-check")` | `mcp__jetbrains__execute_terminal_command("pnpm type-check")` |
-| `pnpm build` | `Bash("pnpm build")` | `mcp__jetbrains__execute_terminal_command("pnpm build")` |
-| `pnpm test:e2e` | `Bash("pnpm test:e2e")` | `mcp__jetbrains__execute_terminal_command("pnpm test:e2e")` |
-| `pnpm db:migrate` | `Bash("pnpm db:migrate")` | `mcp__jetbrains__execute_terminal_command("pnpm db:migrate")` |
+| Comando            | ❌ Prohibido               | ✅ Correcto                                                    |
+| ------------------ | -------------------------- | -------------------------------------------------------------- |
+| `pnpm lint`        | `Bash("pnpm lint")`        | `mcp__jetbrains__execute_terminal_command("pnpm lint")`        |
+| `pnpm type-check`  | `Bash("pnpm type-check")`  | `mcp__jetbrains__execute_terminal_command("pnpm type-check")`  |
+| `pnpm build`       | `Bash("pnpm build")`       | `mcp__jetbrains__execute_terminal_command("pnpm build")`       |
+| `pnpm test:e2e`    | `Bash("pnpm test:e2e")`    | `mcp__jetbrains__execute_terminal_command("pnpm test:e2e")`    |
+| `pnpm db:migrate`  | `Bash("pnpm db:migrate")`  | `mcp__jetbrains__execute_terminal_command("pnpm db:migrate")`  |
 | `pnpm db:generate` | `Bash("pnpm db:generate")` | `mcp__jetbrains__execute_terminal_command("pnpm db:generate")` |
-| `pnpm dev` | `Bash("pnpm dev")` | `mcp__jetbrains__execute_terminal_command("pnpm dev")` |
+| `pnpm dev`         | `Bash("pnpm dev")`         | `mcp__jetbrains__execute_terminal_command("pnpm dev")`         |
 
 Si el MCP de JetBrains no responde, **reportar el blocker al usuario** en lugar de caer a Bash para estos comandos.
 

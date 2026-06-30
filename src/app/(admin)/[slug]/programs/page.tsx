@@ -1,6 +1,4 @@
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
-import { NewProgramButton } from '@/features/programs/components/NewProgramButton';
 import { ProgramsClient, type ProgramRow } from '@/features/programs/components/ProgramsClient';
 import { academicLabel } from '@/shared/lib/academic-labels';
 import { prisma } from '@/shared/lib/prisma';
@@ -8,7 +6,7 @@ import { USER_ROLE } from '@/shared/lib/roles';
 
 export default async function ProgramsPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const { institutionId, institutionName, userRole, isProfesor, coordinatedProgramIds, isDemo } =
+    const { institutionId, userRole, isProfesor, coordinatedProgramIds, isDemo } =
         await requireInstitutionPageAccess(slug);
 
     const institution = await prisma.academicInstitution.findUnique({
@@ -17,7 +15,6 @@ export default async function ProgramsPage({ params }: { params: Promise<{ slug:
     });
     const labels = academicLabel(institution?.type ?? 'OTRO');
 
-    // Solo Admin/SuperAdmin gestionan; el Profesor coordinador solo ve los suyos.
     const canMutate = userRole === USER_ROLE.ADMIN || userRole === USER_ROLE.SUPER_ADMIN;
 
     const programs = await prisma.program.findMany({
@@ -46,23 +43,13 @@ export default async function ProgramsPage({ params }: { params: Promise<{ slug:
     }));
 
     return (
-        <>
-            <AdminTopBar
-                title={labels.programPlural}
-                breadcrumb={[institutionName, labels.programPlural]}
-                subtitle={`${rows.length} ${rows.length === 1 ? labels.program.toLowerCase() : labels.programPlural.toLowerCase()}`}
-                actions={
-                    canMutate ? <NewProgramButton slug={slug} label={labels.program} isDemo={isDemo} /> : undefined
-                }
-            />
-            <ProgramsClient
-                slug={slug}
-                programs={rows}
-                canMutate={canMutate}
-                label={labels.program}
-                labelPlural={labels.programPlural}
-                isDemo={isDemo}
-            />
-        </>
+        <ProgramsClient
+            slug={slug}
+            programs={rows}
+            canMutate={canMutate}
+            label={labels.program}
+            labelPlural={labels.programPlural}
+            isDemo={isDemo}
+        />
     );
 }

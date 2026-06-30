@@ -331,7 +331,10 @@ export function QuestionsClient({ slug, institutionName, initialItems, facets }:
     return (
         <>
             {/* Filter bar */}
-            <div data-tour="questions-filters" className="border-border border-b bg-white px-8 py-4">
+            <div
+                data-tour="questions-filters"
+                className="border-border border-b bg-white px-8 py-4"
+            >
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="relative min-w-[220px] flex-1">
                         <Search className="text-mute absolute top-1/2 left-3 size-4 -translate-y-1/2" />

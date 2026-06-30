@@ -29,7 +29,22 @@ import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Input } from '@/shared/components/ui/input';
 import { Switch } from '@/shared/components/ui/switch';
-import { GripVertical, Plus, Trash2, BookOpen, FileText, Video, Link2, ClipboardList, Radio, ChevronDown, ChevronRight, Award, Sparkles, Loader2 } from 'lucide-react';
+import {
+    GripVertical,
+    Plus,
+    Trash2,
+    BookOpen,
+    FileText,
+    Video,
+    Link2,
+    ClipboardList,
+    Radio,
+    ChevronDown,
+    ChevronRight,
+    Award,
+    Sparkles,
+    Loader2,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
@@ -107,8 +122,8 @@ function SortableModuleRow({
             ref={setNodeRef}
             style={style}
             className={cn(
-                'border-border bg-white rounded-[12px] border shadow-sm',
-                isDragging && 'ring-2 ring-primary',
+                'border-border rounded-[12px] border bg-white shadow-sm',
+                isDragging && 'ring-primary ring-2',
             )}
         >
             <div className="flex items-center gap-2 px-4 py-3">
@@ -132,14 +147,11 @@ function SortableModuleRow({
                 <div className="flex-1">
                     <p className="text-ink font-display text-[15px] font-bold">{module.title}</p>
                     <p className="text-mute text-xs">
-                        {module.lessons.length} {module.lessons.length === 1 ? 'lección' : 'lecciones'}
+                        {module.lessons.length}{' '}
+                        {module.lessons.length === 1 ? 'lección' : 'lecciones'}
                     </p>
                 </div>
-                <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => onAddLesson(module.id)}
-                >
+                <Button size="sm" variant="ghost" onClick={() => onAddLesson(module.id)}>
                     <Plus size={14} className="mr-1" /> Lección
                 </Button>
                 <Button
@@ -177,9 +189,11 @@ function SortableModuleRow({
                                             title="Generar resumen IA"
                                             className="text-violet-600 hover:text-violet-700"
                                         >
-                                            {generatingId === l.id
-                                                ? <Loader2 size={12} className="animate-spin" />
-                                                : <Sparkles size={12} />}
+                                            {generatingId === l.id ? (
+                                                <Loader2 size={12} className="animate-spin" />
+                                            ) : (
+                                                <Sparkles size={12} />
+                                            )}
                                         </Button>
                                     )}
                                     <Button
@@ -201,7 +215,13 @@ function SortableModuleRow({
     );
 }
 
-export function LmsCourseEditorClient({ slug, courseId, modules, certificateEnabled, aiSummaryEnabled }: Props) {
+export function LmsCourseEditorClient({
+    slug,
+    courseId,
+    modules,
+    certificateEnabled,
+    aiSummaryEnabled,
+}: Props) {
     const router = useRouter();
     const [items, setItems] = useState<ModuleWithLessons[]>(modules);
     const [expanded, setExpanded] = useState<Set<string>>(new Set(modules.map((m) => m.id)));
@@ -304,7 +324,12 @@ export function LmsCourseEditorClient({ slug, courseId, modules, certificateEnab
     const handleToggleCert = (value: boolean) => {
         setCertEnabled(value);
         startTransition(async () => {
-            const result = await toggleLmsCourseSetting(slug, courseId, 'certificateEnabled', value);
+            const result = await toggleLmsCourseSetting(
+                slug,
+                courseId,
+                'certificateEnabled',
+                value,
+            );
             if (result.error) {
                 toast.error(result.error);
                 setCertEnabled(!value);
@@ -344,118 +369,137 @@ export function LmsCourseEditorClient({ slug, courseId, modules, certificateEnab
 
     return (
         <div className="flex flex-col gap-6">
-        {/* Course settings */}
-        <Card className="border-border divide-border divide-y p-0 shadow-sm">
-            <div className="flex items-center justify-between px-5 py-4">
-                <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-full">
-                        <Award size={15} />
-                    </div>
-                    <div>
-                        <p className="text-ink text-sm font-semibold">Certificados automáticos</p>
-                        <p className="text-mute text-xs">Emite PDF al estudiante cuando aprueba el examen del curso.</p>
-                    </div>
-                </div>
-                <Switch
-                    checked={certEnabled}
-                    onCheckedChange={handleToggleCert}
-                    disabled={isPending}
-                    aria-label="Habilitar certificados"
-                />
-            </div>
-            <div className="flex items-center justify-between px-5 py-4">
-                <div className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-100 text-violet-600">
-                        <Sparkles size={15} />
-                    </div>
-                    <div>
-                        <p className="text-ink text-sm font-semibold">Resúmenes IA (Gemini)</p>
-                        <p className="text-mute text-xs">Genera resúmenes automáticos para lecciones de texto.</p>
-                    </div>
-                </div>
-                <Switch
-                    checked={aiEnabled}
-                    onCheckedChange={handleToggleAi}
-                    disabled={isPending}
-                    aria-label="Habilitar resúmenes IA"
-                />
-            </div>
-        </Card>
-
-        <Card className="border-border p-6 shadow-sm">
-            <div className="mb-4 flex items-center justify-between">
-                <div>
-                    <h2 className="text-ink font-display text-xl font-bold">Módulos del curso</h2>
-                    <p className="text-mute text-xs">
-                        Arrastrá para reordenar. Expandí para ver y editar las lecciones.
-                    </p>
-                </div>
-                <Button
-                    size="md"
-                    variant="primary"
-                    onClick={() => setShowNew((v) => !v)}
-                    disabled={isPending}
-                >
-                    <Plus size={16} className="mr-1" /> Nuevo módulo
-                </Button>
-            </div>
-
-            {showNew && (
-                <div className="border-border mb-4 flex items-center gap-2 rounded-[10px] border bg-white p-3">
-                    <Input
-                        value={newTitle}
-                        onChange={(e) => setNewTitle(e.target.value)}
-                        placeholder="Ej: Unidad 1 — Introducción"
-                        className="border-border h-10 flex-1"
-                        autoFocus
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleAddModule();
-                            if (e.key === 'Escape') setShowNew(false);
-                        }}
-                    />
-                    <Button variant="ink" onClick={handleAddModule} disabled={isPending || !newTitle.trim()}>
-                        Crear
-                    </Button>
-                    <Button variant="ghost" onClick={() => setShowNew(false)}>
-                        Cancelar
-                    </Button>
-                </div>
-            )}
-
-            {items.length === 0 ? (
-                <p className="text-mute py-12 text-center text-sm">
-                    Este curso aún no tiene módulos. Empezá creando el primero.
-                </p>
-            ) : (
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                    <SortableContext items={items.map((m) => m.id)} strategy={verticalListSortingStrategy}>
-                        <div className="flex flex-col gap-2">
-                            {items.map((m) => (
-                                <SortableModuleRow
-                                    key={m.id}
-                                    module={m}
-                                    expanded={expanded.has(m.id)}
-                                    onToggleExpand={(id) =>
-                                        setExpanded((prev) => {
-                                            const next = new Set(prev);
-                                            if (next.has(id)) next.delete(id);
-                                            else next.add(id);
-                                            return next;
-                                        })
-                                    }
-                                    onAddLesson={handleAddLesson}
-                                    onDeleteLesson={handleDeleteLesson}
-                                    onDeleteModule={handleDeleteModule}
-                                    onGenerateSummary={handleGenerateSummary}
-                                    aiSummaryEnabled={aiEnabled}
-                                    generatingId={summaryLoadingId}
-                                />
-                            ))}
+            {/* Course settings */}
+            <Card className="border-border divide-border divide-y p-0 shadow-sm">
+                <div className="flex items-center justify-between px-5 py-4">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-full">
+                            <Award size={15} />
                         </div>
-                    </SortableContext>
-                </DndContext>
-            )}
-        </Card>
+                        <div>
+                            <p className="text-ink text-sm font-semibold">
+                                Certificados automáticos
+                            </p>
+                            <p className="text-mute text-xs">
+                                Emite PDF al estudiante cuando aprueba el examen del curso.
+                            </p>
+                        </div>
+                    </div>
+                    <Switch
+                        checked={certEnabled}
+                        onCheckedChange={handleToggleCert}
+                        disabled={isPending}
+                        aria-label="Habilitar certificados"
+                    />
+                </div>
+                <div className="flex items-center justify-between px-5 py-4">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-100 text-violet-600">
+                            <Sparkles size={15} />
+                        </div>
+                        <div>
+                            <p className="text-ink text-sm font-semibold">Resúmenes IA (Gemini)</p>
+                            <p className="text-mute text-xs">
+                                Genera resúmenes automáticos para lecciones de texto.
+                            </p>
+                        </div>
+                    </div>
+                    <Switch
+                        checked={aiEnabled}
+                        onCheckedChange={handleToggleAi}
+                        disabled={isPending}
+                        aria-label="Habilitar resúmenes IA"
+                    />
+                </div>
+            </Card>
+
+            <Card className="border-border p-6 shadow-sm">
+                <div className="mb-4 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-ink font-display text-xl font-bold">
+                            Módulos del curso
+                        </h2>
+                        <p className="text-mute text-xs">
+                            Arrastrá para reordenar. Expandí para ver y editar las lecciones.
+                        </p>
+                    </div>
+                    <Button
+                        size="md"
+                        variant="primary"
+                        onClick={() => setShowNew((v) => !v)}
+                        disabled={isPending}
+                    >
+                        <Plus size={16} className="mr-1" /> Nuevo módulo
+                    </Button>
+                </div>
+
+                {showNew && (
+                    <div className="border-border mb-4 flex items-center gap-2 rounded-[10px] border bg-white p-3">
+                        <Input
+                            value={newTitle}
+                            onChange={(e) => setNewTitle(e.target.value)}
+                            placeholder="Ej: Unidad 1 — Introducción"
+                            className="border-border h-10 flex-1"
+                            autoFocus
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleAddModule();
+                                if (e.key === 'Escape') setShowNew(false);
+                            }}
+                        />
+                        <Button
+                            variant="ink"
+                            onClick={handleAddModule}
+                            disabled={isPending || !newTitle.trim()}
+                        >
+                            Crear
+                        </Button>
+                        <Button variant="ghost" onClick={() => setShowNew(false)}>
+                            Cancelar
+                        </Button>
+                    </div>
+                )}
+
+                {items.length === 0 ? (
+                    <p className="text-mute py-12 text-center text-sm">
+                        Este curso aún no tiene módulos. Empezá creando el primero.
+                    </p>
+                ) : (
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={items.map((m) => m.id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            <div className="flex flex-col gap-2">
+                                {items.map((m) => (
+                                    <SortableModuleRow
+                                        key={m.id}
+                                        module={m}
+                                        expanded={expanded.has(m.id)}
+                                        onToggleExpand={(id) =>
+                                            setExpanded((prev) => {
+                                                const next = new Set(prev);
+                                                if (next.has(id)) next.delete(id);
+                                                else next.add(id);
+                                                return next;
+                                            })
+                                        }
+                                        onAddLesson={handleAddLesson}
+                                        onDeleteLesson={handleDeleteLesson}
+                                        onDeleteModule={handleDeleteModule}
+                                        onGenerateSummary={handleGenerateSummary}
+                                        aiSummaryEnabled={aiEnabled}
+                                        generatingId={summaryLoadingId}
+                                    />
+                                ))}
+                            </div>
+                        </SortableContext>
+                    </DndContext>
+                )}
+            </Card>
         </div>
     );
 }

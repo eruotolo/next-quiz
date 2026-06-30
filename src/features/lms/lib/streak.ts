@@ -39,10 +39,7 @@ export function daysBetween(a: Date, b: Date): number {
     return Math.round((dayB - dayA) / (1000 * 60 * 60 * 24));
 }
 
-export function computeStreakUpdate(
-    current: StreakState,
-    activityAt: Date,
-): StreakUpdate {
+export function computeStreakUpdate(current: StreakState, activityAt: Date): StreakUpdate {
     const activityDay = toUtcDay(activityAt);
 
     if (current.lastActiveOn === null) {

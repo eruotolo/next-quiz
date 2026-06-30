@@ -193,7 +193,10 @@ export function ProfessorsClient({ professors, groups, slug, isDemo }: Props) {
     return (
         <>
             {/* Filter bar */}
-            <div data-tour="professors-header" className="border-border flex items-center gap-2 border-b bg-white px-8 py-4">
+            <div
+                data-tour="professors-header"
+                className="border-border flex items-center gap-2 border-b bg-white px-8 py-4"
+            >
                 <div className="relative max-w-sm flex-1">
                     <Search className="text-mute absolute top-1/2 left-3 size-4 -translate-y-1/2" />
                     <Input
@@ -223,7 +226,10 @@ export function ProfessorsClient({ professors, groups, slug, isDemo }: Props) {
                         </Button>
                     </Card>
                 ) : (
-                    <Card data-tour="professors-list" className="border-border overflow-visible p-0 shadow-sm">
+                    <Card
+                        data-tour="professors-list"
+                        className="border-border overflow-visible p-0 shadow-sm"
+                    >
                         <Table>
                             <TableHeader className="bg-paper">
                                 <TableRow className="border-border border-b hover:bg-transparent">

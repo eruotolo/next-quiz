@@ -21,10 +21,7 @@ export const revokeCertificateSchema = z.object({
 
 export type RevokeCertificateInput = z.infer<typeof revokeCertificateSchema>;
 
-export const verificationCodeSchema = z
-    .string()
-    .min(20, 'Código de verificación inválido')
-    .max(40);
+export const verificationCodeSchema = z.string().min(20, 'Código de verificación inválido').max(40);
 
 export type VerificationCode = z.infer<typeof verificationCodeSchema>;
 

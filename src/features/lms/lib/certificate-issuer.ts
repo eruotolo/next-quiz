@@ -34,7 +34,11 @@ export async function tryIssueCertificate(
         });
 
         if (existing && existing.revokedAt === null && existing.pdfUrl) {
-            return { ok: true, verificationCode: existing.verificationCode, pdfUrl: existing.pdfUrl };
+            return {
+                ok: true,
+                verificationCode: existing.verificationCode,
+                pdfUrl: existing.pdfUrl,
+            };
         }
 
         const [student, course] = await Promise.all([

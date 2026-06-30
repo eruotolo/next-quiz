@@ -201,7 +201,10 @@ export function LiveResultsClient({
     return (
         <>
             {/* Filter / control bar */}
-            <div data-tour="liveresults-header" className="border-border flex flex-wrap items-center gap-3 border-b bg-white px-8 py-4">
+            <div
+                data-tour="liveresults-header"
+                className="border-border flex flex-wrap items-center gap-3 border-b bg-white px-8 py-4"
+            >
                 <span className="text-success flex items-center gap-1.5 text-[13px] font-bold">
                     <span className="relative flex h-2 w-2">
                         <span className="bg-success absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" />
@@ -260,7 +263,10 @@ export function LiveResultsClient({
 
             <main className="flex flex-1 flex-col space-y-6 overflow-hidden p-8">
                 {examData && (
-                    <div data-tour="liveresults-stats" className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div
+                        data-tour="liveresults-stats"
+                        className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+                    >
                         <Card className="border-border flex items-center gap-4 bg-white p-5 shadow-sm">
                             <div className="bg-primary-wash text-primary border-primary/10 flex size-10 items-center justify-center rounded-[10px] border">
                                 <Activity size={20} />

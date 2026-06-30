@@ -54,7 +54,7 @@ export default async function AulaTaskSubmissionsPage({ params }: PageProps) {
     return (
         <main className="flex-1 overflow-auto p-8">
             <div className="mb-6">
-                <p className="text-mute font-mono text-[10px] uppercase tracking-widest">Tarea</p>
+                <p className="text-mute font-mono text-[10px] tracking-widest uppercase">Tarea</p>
                 <h1 className="text-ink font-display text-3xl font-bold">{lesson.title}</h1>
                 {assignment?.instructions && (
                     <p className="text-mute mt-1 text-sm leading-relaxed">

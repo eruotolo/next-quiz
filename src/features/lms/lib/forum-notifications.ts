@@ -17,14 +17,8 @@ export function buildNewForumPostEmail(input: {
     postExcerptHtml: string;
     threadUrl: string;
 }): string {
-    const {
-        recipientName,
-        authorName,
-        courseName,
-        threadTitle,
-        postExcerptHtml,
-        threadUrl,
-    } = input;
+    const { recipientName, authorName, courseName, threadTitle, postExcerptHtml, threadUrl } =
+        input;
 
     return `
 <!DOCTYPE html>
@@ -96,9 +90,7 @@ interface NotifyResult {
  *
  * El sitio debe conocer su URL base vía `siteUrl` (sin slash al final).
  */
-export async function notifyNewForumPost(
-    input: NotifyNewForumPostInput,
-): Promise<NotifyResult> {
+export async function notifyNewForumPost(input: NotifyNewForumPostInput): Promise<NotifyResult> {
     const { threadId, postId, authorId, siteUrl } = input;
 
     try {

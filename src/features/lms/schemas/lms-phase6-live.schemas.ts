@@ -56,10 +56,7 @@ export const leaveLiveSessionSchema = z.object({
 
 export const sendLiveChatSchema = z.object({
     sessionId: z.string().uuid(),
-    content: z
-        .string()
-        .min(1, 'Mensaje vacío')
-        .max(800, 'Mensaje demasiado largo'),
+    content: z.string().min(1, 'Mensaje vacío').max(800, 'Mensaje demasiado largo'),
 });
 
 export const listLiveChatSchema = z.object({

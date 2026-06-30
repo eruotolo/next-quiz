@@ -81,7 +81,7 @@ export function StudentRoomClient({
         return (
             <Card className="p-8 text-center">
                 <h2 className="text-lg font-medium">{sessionTitle}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="text-muted-foreground mt-2 text-sm">
                     No tenés acceso a esta clase en vivo.
                 </p>
             </Card>
@@ -92,21 +92,18 @@ export function StudentRoomClient({
         return (
             <Card className="flex flex-col items-center gap-3 p-8 text-center">
                 <h2 className="text-lg font-medium">{sessionTitle}</h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                     {isLive
                         ? 'La sesión está en vivo ahora mismo.'
                         : secondsToStart !== null && secondsToStart > 0
-                            ? `Abre 10 minutos antes del inicio (faltan ${formatRemaining(secondsToStart)}).`
-                            : 'Aún no es hora de ingresar.'}
+                          ? `Abre 10 minutos antes del inicio (faltan ${formatRemaining(secondsToStart)}).`
+                          : 'Aún no es hora de ingresar.'}
                 </p>
                 <Button onClick={onJoin} disabled={joining || !isLive}>
                     {joining ? 'Conectando…' : 'Unirme a la clase'}
                 </Button>
                 {!isLive ? (
-                    <Button
-                        variant="ghost"
-                        onClick={() => router.refresh()}
-                    >
+                    <Button variant="ghost" onClick={() => router.refresh()}>
                         Actualizar
                     </Button>
                 ) : null}
@@ -117,7 +114,7 @@ export function StudentRoomClient({
     return (
         <div className="grid h-[calc(100vh-180px)] grid-cols-1 gap-4 lg:grid-cols-[1fr_360px]">
             <Card className="flex flex-col overflow-hidden">
-                <div className="flex items-center justify-between border-b border-border px-4 py-2">
+                <div className="border-border flex items-center justify-between border-b px-4 py-2">
                     <div className="flex items-center gap-2">
                         <button
                             type="button"

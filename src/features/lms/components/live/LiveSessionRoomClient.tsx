@@ -56,7 +56,8 @@ export function LiveSessionRoomClient({
     };
 
     const onEnd = () => {
-        if (!window.confirm('¿Finalizar la sesión? Todos los participantes serán expulsados.')) return;
+        if (!window.confirm('¿Finalizar la sesión? Todos los participantes serán expulsados.'))
+            return;
         startTransition(async () => {
             const result = await endLiveSession(slug, { sessionId });
             if (result.error) {
@@ -72,7 +73,7 @@ export function LiveSessionRoomClient({
     return (
         <div className="grid h-[calc(100vh-180px)] grid-cols-1 gap-4 lg:grid-cols-[1fr_360px]">
             <Card className="flex flex-col overflow-hidden">
-                <div className="flex items-center justify-between border-b border-border px-4 py-2">
+                <div className="border-border flex items-center justify-between border-b px-4 py-2">
                     <div className="flex items-center gap-2">
                         <button
                             type="button"
@@ -100,7 +101,11 @@ export function LiveSessionRoomClient({
                             >
                                 <Circle
                                     size={10}
-                                    className={isRecording ? 'fill-current animate-pulse' : 'fill-current opacity-50'}
+                                    className={
+                                        isRecording
+                                            ? 'animate-pulse fill-current'
+                                            : 'fill-current opacity-50'
+                                    }
                                 />
                                 {isRecording ? 'Grabando' : 'Grabar'}
                             </Button>

@@ -32,7 +32,7 @@ function EntryRow({ entry, isLast }: EntryRowProps) {
         <div
             className={cn(
                 'flex items-center gap-3 px-5 py-3.5',
-                !isLast && 'border-b border-border',
+                !isLast && 'border-border border-b',
                 entry.isCurrentUser && 'bg-primary/5',
             )}
         >

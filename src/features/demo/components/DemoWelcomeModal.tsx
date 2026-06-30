@@ -4,12 +4,7 @@ import { useEffect, useState } from 'react';
 import type { ComponentType } from 'react';
 import { AlertTriangle, Building2, ShieldCheck, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@/shared/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/components/ui/dialog';
 
 const STORAGE_KEY = 'aulika-demo-welcome-seen';
 
@@ -47,7 +42,12 @@ export function DemoWelcomeModal() {
     }
 
     return (
-        <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
+        <Dialog
+            open={open}
+            onOpenChange={(v) => {
+                if (!v) handleClose();
+            }}
+        >
             <DialogContent className="max-w-[400px]">
                 <DialogHeader>
                     <div className="bg-ink mb-3 flex h-10 w-10 items-center justify-center rounded-[10px]">

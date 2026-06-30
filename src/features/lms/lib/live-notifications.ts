@@ -198,8 +198,7 @@ export async function notifyLiveSessionScheduled(
 
             const result = await sendEmail({
                 to: recipient.email,
-                toName:
-                    `${recipient.name} ${recipient.lastname ?? ''}`.trim() || recipient.email,
+                toName: `${recipient.name} ${recipient.lastname ?? ''}`.trim() || recipient.email,
                 subject: `Nueva clase en vivo: ${liveSession.title}`,
                 htmlContent: html,
             });

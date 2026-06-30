@@ -200,7 +200,10 @@ export function L3Hero() {
                 <h1 className="sr-only">
                     Sistema de evaluación online para colegios y universidades en Chile
                 </h1>
-                <p className="font-display text-ink mx-auto mb-8 max-w-[1100px] text-center text-[64px] leading-[0.9] font-medium tracking-[-0.05em] md:text-[100px] lg:text-[144px]" aria-hidden="true">
+                <p
+                    className="font-display text-ink mx-auto mb-8 max-w-[1100px] text-center text-[64px] leading-[0.9] font-medium tracking-[-0.05em] md:text-[100px] lg:text-[144px]"
+                    aria-hidden="true"
+                >
                     El examen de aula <br className="hidden lg:block" />
                     <span className="text-primary relative inline-block">
                         deja de ser un trámite.

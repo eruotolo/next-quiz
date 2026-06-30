@@ -625,7 +625,13 @@ export function ExamsClient({
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <Button data-tour="exam-new-btn" variant="ink" size="md" onClick={openCreate} className="gap-2">
+                    <Button
+                        data-tour="exam-new-btn"
+                        variant="ink"
+                        size="md"
+                        onClick={openCreate}
+                        className="gap-2"
+                    >
                         <Plus size={16} />
                         Nuevo examen
                     </Button>

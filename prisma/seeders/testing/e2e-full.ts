@@ -286,11 +286,21 @@ async function seedCompletedExams(prisma: PrismaClient, institutionId: string): 
             for (let qi = 0; qi < EXAM_QUESTIONS.length; qi++) {
                 const q = EXAM_QUESTIONS[qi]!;
                 const question = await prisma.question.create({
-                    data: { examId: exam.id, text: q.text, points: 1, order: qi, questionType: 'UNICA' },
+                    data: {
+                        examId: exam.id,
+                        text: q.text,
+                        points: 1,
+                        order: qi,
+                        questionType: 'UNICA',
+                    },
                 });
                 for (let oi = 0; oi < q.options.length; oi++) {
                     await prisma.option.create({
-                        data: { questionId: question.id, text: q.options[oi]!, isCorrect: oi === q.correctIndex },
+                        data: {
+                            questionId: question.id,
+                            text: q.options[oi]!,
+                            isCorrect: oi === q.correctIndex,
+                        },
                     });
                 }
             }
@@ -298,7 +308,9 @@ async function seedCompletedExams(prisma: PrismaClient, institutionId: string): 
             for (let si = 0; si < students.length && si < scores.length; si++) {
                 const student = students[si]!;
                 const score = scores[si] as number;
-                const completedAt = new Date(closedAt.getTime() - (students.length - si) * 5 * 60_000);
+                const completedAt = new Date(
+                    closedAt.getTime() - (students.length - si) * 5 * 60_000,
+                );
                 await prisma.result.create({
                     data: {
                         studentId: student.id,
@@ -361,7 +373,11 @@ async function seedActiveExam(prisma: PrismaClient, institutionId: string): Prom
         const opts: Array<{ id: string; isCorrect: boolean }> = [];
         for (let o = 0; o < q.options.length; o++) {
             const opt = await prisma.option.create({
-                data: { questionId: question.id, text: q.options[o]!, isCorrect: o === q.correctIndex },
+                data: {
+                    questionId: question.id,
+                    text: q.options[o]!,
+                    isCorrect: o === q.correctIndex,
+                },
             });
             opts.push({ id: opt.id, isCorrect: o === q.correctIndex });
         }
@@ -405,7 +421,9 @@ async function seedActiveExam(prisma: PrismaClient, institutionId: string): Prom
             });
         }
 
-        console.log(`    ✅ In progress: ${student.name} ${student.lastname} — ${cfg.answeredCount}/${questionIds.length} answered`);
+        console.log(
+            `    ✅ In progress: ${student.name} ${student.lastname} — ${cfg.answeredCount}/${questionIds.length} answered`,
+        );
     }
 
     if (students.length >= 3) {
@@ -480,11 +498,21 @@ export async function seedE2E(prisma: PrismaClient): Promise<void> {
         console.log(`  Profes:  prof1-4@${inst.slug}.test`);
 
         const program = await prisma.program.create({
-            data: { name: inst.program.name, code: inst.program.code, academicInstitutionId: institution.id },
+            data: {
+                name: inst.program.name,
+                code: inst.program.code,
+                academicInstitutionId: institution.id,
+            },
         });
 
         const period = await prisma.academicPeriod.create({
-            data: { name: inst.period.name, year: inst.period.year, type: inst.period.type, isActive: true, academicInstitutionId: institution.id },
+            data: {
+                name: inst.period.name,
+                year: inst.period.year,
+                type: inst.period.type,
+                isActive: true,
+                academicInstitutionId: institution.id,
+            },
         });
 
         for (let g = 0; g < inst.groups.length; g++) {
@@ -541,7 +569,9 @@ export async function seedE2E(prisma: PrismaClient): Promise<void> {
     await seedActiveExam(prisma, ulagos.id);
 
     console.log('\n\nE2E Seed completed:');
-    console.log('  8 institutions · 8 admins · 32 professors · 32 groups · 64 courses · 96 students');
+    console.log(
+        '  8 institutions · 8 admins · 32 professors · 32 groups · 64 courses · 96 students',
+    );
     console.log('  6 completed exams with results (ULagos)');
     console.log('  1 active exam with in-progress attempts (ULagos)');
     console.log('  Password: Admin2026! | LiveResults: /universidad-de-los-lagos/liveresults');

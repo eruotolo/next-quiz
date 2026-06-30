@@ -66,17 +66,17 @@ export default function TerminosPage() {
                         <p>
                             El presente contrato se celebra entre{' '}
                             <strong className="text-ink">Crow Advance E.I.R.L.</strong> (RUT
-                            78.456.748-6), titular de la plataforma Aulika (en adelante, "Aulika"
-                            o "el Proveedor"), y la{' '}
+                            78.456.748-6), titular de la plataforma Aulika (en adelante, "Aulika" o
+                            "el Proveedor"), y la{' '}
                             <strong className="text-ink">institución educativa</strong> (en
                             adelante, "el Cliente") que ha aceptado estos términos al contratar o
                             acceder al servicio.
                         </p>
                         <p className="mt-4">
-                            Aulika provee una plataforma SaaS (Software as a Service) de
-                            evaluación en línea para instituciones educativas, que incluye gestión
-                            de exámenes, preguntas, estudiantes, grupos, resultados académicos y
-                            herramientas de asistencia por IA.
+                            Aulika provee una plataforma SaaS (Software as a Service) de evaluación
+                            en línea para instituciones educativas, que incluye gestión de exámenes,
+                            preguntas, estudiantes, grupos, resultados académicos y herramientas de
+                            asistencia por IA.
                         </p>
                     </section>
 
@@ -91,23 +91,25 @@ export default function TerminosPage() {
                         </p>
                         <ul className="mt-4 list-disc space-y-2 pl-6">
                             <li>No exclusiva e intransferible.</li>
-                            <li>Limitada al período de vigencia del contrato y suscripción activa.</li>
+                            <li>
+                                Limitada al período de vigencia del contrato y suscripción activa.
+                            </li>
                             <li>
                                 Circunscrita al uso interno de la institución para fines educativos.
                             </li>
                             <li>
-                                Sin derecho a sublicenciar ni ceder el acceso a terceros ajenos a
-                                la institución.
+                                Sin derecho a sublicenciar ni ceder el acceso a terceros ajenos a la
+                                institución.
                             </li>
                         </ul>
                         <p className="mt-4">
-                            Queda expresamente <strong className="text-ink">prohibido</strong>{' '}
-                            al Cliente:
+                            Queda expresamente <strong className="text-ink">prohibido</strong> al
+                            Cliente:
                         </p>
                         <ul className="mt-3 list-disc space-y-2 pl-6">
                             <li>
-                                Sublicenciar, vender, ceder o transferir el acceso a la plataforma
-                                a terceros.
+                                Sublicenciar, vender, ceder o transferir el acceso a la plataforma a
+                                terceros.
                             </li>
                             <li>
                                 Realizar ingeniería inversa, descompilación o extracción del código
@@ -131,17 +133,16 @@ export default function TerminosPage() {
                         </h2>
                         <p>
                             El código fuente, diseño, interfaces, logotipos, nombre comercial,
-                            arquitectura de software, bases de datos propias y toda la
-                            documentación técnica de Aulika son propiedad exclusiva de{' '}
+                            arquitectura de software, bases de datos propias y toda la documentación
+                            técnica de Aulika son propiedad exclusiva de{' '}
                             <strong className="text-ink">Crow Advance E.I.R.L.</strong>, protegidos
                             por la Ley Nº 17.336 sobre Propiedad Intelectual y sus modificaciones,
                             incluyendo la Ley Nº 20.435.
                         </p>
                         <p className="mt-4">
-                            El Cliente retiene la propiedad de los datos que carga en la
-                            plataforma: preguntas, exámenes, información de estudiantes y
-                            resultados académicos. Aulika no reivindica propiedad sobre dichos
-                            contenidos.
+                            El Cliente retiene la propiedad de los datos que carga en la plataforma:
+                            preguntas, exámenes, información de estudiantes y resultados académicos.
+                            Aulika no reivindica propiedad sobre dichos contenidos.
                         </p>
                     </section>
 
@@ -165,8 +166,8 @@ export default function TerminosPage() {
                                 Términos y a la normativa educativa vigente.
                             </li>
                             <li>
-                                Obtener el consentimiento informado de los representantes legales
-                                de los estudiantes menores de edad antes de registrarlos.
+                                Obtener el consentimiento informado de los representantes legales de
+                                los estudiantes menores de edad antes de registrarlos.
                             </li>
                             <li>
                                 No cargar contenido ilegal, discriminatorio, ofensivo ni que
@@ -200,23 +201,20 @@ export default function TerminosPage() {
                             </li>
                             <li>
                                 Mantenimientos de emergencia sin aviso previo, notificados en{' '}
-                                <a
-                                    href="/recursos/estado"
-                                    className="text-primary hover:underline"
-                                >
+                                <a href="/recursos/estado" className="text-primary hover:underline">
                                     aulika.cl/recursos/estado
                                 </a>{' '}
                                 durante su ejecución.
                             </li>
                         </ul>
                         <p className="mt-4">
-                            Aulika <strong className="text-ink">no garantiza</strong>{' '}
-                            disponibilidad ante:
+                            Aulika <strong className="text-ink">no garantiza</strong> disponibilidad
+                            ante:
                         </p>
                         <ul className="mt-3 list-disc space-y-2 pl-6">
                             <li>
-                                Fallas de proveedores de infraestructura (Vercel, Neon/AWS) fuera
-                                de su control.
+                                Fallas de proveedores de infraestructura (Vercel, Neon/AWS) fuera de
+                                su control.
                             </li>
                             <li>Interrupciones del servicio de Internet del Cliente.</li>
                             <li>Ataques de denegación de servicio (DDoS) de escala masiva.</li>
@@ -230,15 +228,14 @@ export default function TerminosPage() {
                             Artículo 6 — Limitación de Responsabilidad
                         </h2>
                         <p>
-                            En la máxima extensión permitida por la ley chilena, se establecen
-                            las siguientes limitaciones:
+                            En la máxima extensión permitida por la ley chilena, se establecen las
+                            siguientes limitaciones:
                         </p>
                         <ol className="mt-4 list-[lower-alpha] space-y-4 pl-6">
                             <li>
-                                Aulika{' '}
-                                <strong className="text-ink">no será responsable</strong> de daños
-                                directos, indirectos, incidentales, especiales o consecuenciales
-                                derivados de:
+                                Aulika <strong className="text-ink">no será responsable</strong> de
+                                daños directos, indirectos, incidentales, especiales o
+                                consecuenciales derivados de:
                                 <ul className="mt-2 list-disc space-y-1 pl-6 text-sm">
                                     <li>
                                         Negligencia del personal del Cliente en la gestión de
@@ -280,15 +277,13 @@ export default function TerminosPage() {
                                 La responsabilidad total de Aulika frente al Cliente, en cualquier
                                 caso y concepto, no excederá el monto efectivamente pagado por el
                                 Cliente en los{' '}
-                                <strong className="text-ink">
-                                    tres (3) meses anteriores
-                                </strong>{' '}
-                                al evento que origina el reclamo.
+                                <strong className="text-ink">tres (3) meses anteriores</strong> al
+                                evento que origina el reclamo.
                             </li>
                             <li>
                                 El Cliente es exclusivamente responsable de la veracidad e
-                                integridad del contenido educativo (preguntas y exámenes) que
-                                carga en la plataforma.
+                                integridad del contenido educativo (preguntas y exámenes) que carga
+                                en la plataforma.
                             </li>
                         </ol>
                     </section>
@@ -296,15 +291,14 @@ export default function TerminosPage() {
                     {/* Art. 7 */}
                     <section>
                         <h2 className="text-ink mb-4 text-2xl font-bold">
-                            Artículo 7 — Inteligencia Artificial: Transparencia y Supervisión
-                            Humana
+                            Artículo 7 — Inteligencia Artificial: Transparencia y Supervisión Humana
                         </h2>
                         <p>
-                            Aulika incorpora herramientas de Inteligencia Artificial para asistir
-                            a los docentes en la generación de preguntas de evaluación. En
-                            cumplimiento del marco regulatorio chileno vigente (Boletín Nº
-                            16821-19) y las directrices internacionales sobre IA en contextos
-                            educativos, se declara expresamente:
+                            Aulika incorpora herramientas de Inteligencia Artificial para asistir a
+                            los docentes en la generación de preguntas de evaluación. En
+                            cumplimiento del marco regulatorio chileno vigente (Boletín Nº 16821-19)
+                            y las directrices internacionales sobre IA en contextos educativos, se
+                            declara expresamente:
                         </p>
                         <ol className="mt-4 list-[lower-alpha] space-y-3 pl-6">
                             <li>
@@ -314,7 +308,9 @@ export default function TerminosPage() {
                                 usuario.
                             </li>
                             <li>
-                                <strong className="text-ink">Supervisión humana obligatoria.</strong>{' '}
+                                <strong className="text-ink">
+                                    Supervisión humana obligatoria.
+                                </strong>{' '}
                                 Toda pregunta sugerida por IA requiere revisión, validación y
                                 aprobación explícita del docente antes de publicarse.
                             </li>
@@ -322,20 +318,20 @@ export default function TerminosPage() {
                                 <strong className="text-ink">
                                     La IA no evalúa ni califica estudiantes.
                                 </strong>{' '}
-                                La corrección de exámenes es matemáticamente determinista (porcentaje
-                                de respuestas correctas). Ningún sistema de IA incide en la
-                                calificación final.
+                                La corrección de exámenes es matemáticamente determinista
+                                (porcentaje de respuestas correctas). Ningún sistema de IA incide en
+                                la calificación final.
                             </li>
                             <li>
                                 <strong className="text-ink">Sin perfilamiento por IA.</strong> La
-                                IA no construye perfiles de aprendizaje, conductuales ni
-                                predictivos sobre los estudiantes.
+                                IA no construye perfiles de aprendizaje, conductuales ni predictivos
+                                sobre los estudiantes.
                             </li>
                             <li>
-                                <strong className="text-ink">No discriminación.</strong> Los
-                                modelos de IA utilizados no producen ni replican sesgos
-                                discriminatorios basados en género, etnia, origen socioeconómico u
-                                otras categorías protegidas.
+                                <strong className="text-ink">No discriminación.</strong> Los modelos
+                                de IA utilizados no producen ni replican sesgos discriminatorios
+                                basados en género, etnia, origen socioeconómico u otras categorías
+                                protegidas.
                             </li>
                             <li>
                                 <strong className="text-ink">Trazabilidad.</strong> Aulika mantiene
@@ -343,9 +339,9 @@ export default function TerminosPage() {
                                 disponibles al Cliente mediante solicitud formal.
                             </li>
                             <li>
-                                <strong className="text-ink">Derecho a revisión.</strong> El
-                                Cliente tiene derecho a solicitar que cualquier contenido generado
-                                con asistencia de IA sea revisado, editado o eliminado.
+                                <strong className="text-ink">Derecho a revisión.</strong> El Cliente
+                                tiene derecho a solicitar que cualquier contenido generado con
+                                asistencia de IA sea revisado, editado o eliminado.
                             </li>
                             <li>
                                 <strong className="text-ink">
@@ -358,8 +354,8 @@ export default function TerminosPage() {
                                 que el personal docente o directivo de la Institución adopte
                                 basándose en los resultados, sugerencias o reportes generados por
                                 las herramientas de asistencia algorítmica disponibles en la
-                                plataforma. La responsabilidad por dichas decisiones recae
-                                exclusiva e íntegramente en el profesional humano que las adopta.
+                                plataforma. La responsabilidad por dichas decisiones recae exclusiva
+                                e íntegramente en el profesional humano que las adopta.
                             </li>
                         </ol>
                     </section>
@@ -375,11 +371,9 @@ export default function TerminosPage() {
                                 Política de Privacidad y Tratamiento de Datos de Aulika
                             </a>
                             , disponible en{' '}
-                            <strong className="text-ink">
-                                www.aulika.cl/empresa/privacidad
-                            </strong>
-                            , la que se considera parte integrante e inseparable de estos
-                            Términos y Condiciones.
+                            <strong className="text-ink">www.aulika.cl/empresa/privacidad</strong>,
+                            la que se considera parte integrante e inseparable de estos Términos y
+                            Condiciones.
                         </p>
                     </section>
 
@@ -390,8 +384,8 @@ export default function TerminosPage() {
                         </h2>
                         <ol className="list-[lower-alpha] space-y-3 pl-6">
                             <li>
-                                El contrato entra en vigor en la fecha de activación del servicio
-                                y se mantiene vigente durante el período de suscripción contratado.
+                                El contrato entra en vigor en la fecha de activación del servicio y
+                                se mantiene vigente durante el período de suscripción contratado.
                             </li>
                             <li>
                                 El Cliente puede solicitar la no renovación del servicio en
@@ -439,9 +433,7 @@ export default function TerminosPage() {
                                 </p>
                             </div>
                             <div className="border-border rounded-lg border p-4">
-                                <p className="text-ink font-semibold">
-                                    Fase 3 — Certificación
-                                </p>
+                                <p className="text-ink font-semibold">Fase 3 — Certificación</p>
                                 <p className="mt-1 text-sm">
                                     A solicitud del Cliente, Aulika emitirá un certificado de
                                     eliminación de datos dentro de los 15 días hábiles siguientes.
@@ -457,14 +449,14 @@ export default function TerminosPage() {
                         </h2>
                         <p>
                             Crow Advance E.I.R.L. implementa medidas de seguridad descritas en la
-                            Política de Privacidad. En caso de detectar una brecha de seguridad
-                            que afecte o pueda afectar datos del Cliente, Aulika:
+                            Política de Privacidad. En caso de detectar una brecha de seguridad que
+                            afecte o pueda afectar datos del Cliente, Aulika:
                         </p>
                         <ol className="mt-4 list-[lower-alpha] space-y-3 pl-6">
                             <li>
-                                Notificará al contacto registrado del Cliente en un plazo máximo
-                                de <strong className="text-ink">72 horas</strong> desde la
-                                detección del incidente.
+                                Notificará al contacto registrado del Cliente en un plazo máximo de{' '}
+                                <strong className="text-ink">72 horas</strong> desde la detección
+                                del incidente.
                             </li>
                             <li>
                                 Proporcionará información sobre la naturaleza, alcance y datos
@@ -488,10 +480,10 @@ export default function TerminosPage() {
                             Artículo 12 — Ley Aplicable y Jurisdicción
                         </h2>
                         <p>
-                            Estos Términos y Condiciones se rigen por las leyes de la República
-                            de Chile. Para la resolución de conflictos, las partes se someten a
-                            la jurisdicción de los Tribunales Ordinarios de Justicia de la ciudad
-                            de Santiago de Chile, renunciando a cualquier otro fuero o domicilio
+                            Estos Términos y Condiciones se rigen por las leyes de la República de
+                            Chile. Para la resolución de conflictos, las partes se someten a la
+                            jurisdicción de los Tribunales Ordinarios de Justicia de la ciudad de
+                            Santiago de Chile, renunciando a cualquier otro fuero o domicilio
                             especial que pudiera corresponderles.
                         </p>
                     </section>
@@ -523,9 +515,7 @@ export default function TerminosPage() {
                         <h2 className="text-ink mb-4 text-2xl font-bold">Contacto Legal</h2>
                         <div className="border-border bg-paper rounded-xl border p-6 text-sm">
                             <p className="text-ink font-semibold">Crow Advance E.I.R.L. — Aulika</p>
-                            <p className="mt-2">
-                                Responsable: Edgardo Ruotolo Cardozo
-                            </p>
+                            <p className="mt-2">Responsable: Edgardo Ruotolo Cardozo</p>
                             <p>
                                 Domicilio: Centenario 493, Chonchi, Chiloé, Región de Los Lagos,
                                 Chile

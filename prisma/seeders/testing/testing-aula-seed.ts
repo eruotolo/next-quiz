@@ -136,7 +136,12 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
 
     // ── Jerarquía académica ───────────────────────────────────────────────────
     const program = await prisma.program.upsert({
-        where: { academicInstitutionId_name: { academicInstitutionId: institution.id, name: 'Ingeniería en Informática' } },
+        where: {
+            academicInstitutionId_name: {
+                academicInstitutionId: institution.id,
+                name: 'Ingeniería en Informática',
+            },
+        },
         update: {},
         create: {
             name: 'Ingeniería en Informática',
@@ -146,7 +151,12 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
     });
 
     const period = await prisma.academicPeriod.upsert({
-        where: { academicInstitutionId_name: { academicInstitutionId: institution.id, name: '2026 - Primer Semestre' } },
+        where: {
+            academicInstitutionId_name: {
+                academicInstitutionId: institution.id,
+                name: '2026 - Primer Semestre',
+            },
+        },
         update: {},
         create: {
             name: '2026 - Primer Semestre',
@@ -174,7 +184,14 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
 
     // Materias
     const cs1 = await prisma.courseSection.upsert({
-        where: { programId_periodId_name_groupId: { programId: program.id, periodId: period.id, name: 'Introducción a la Programación', groupId: group.id } },
+        where: {
+            programId_periodId_name_groupId: {
+                programId: program.id,
+                periodId: period.id,
+                name: 'Introducción a la Programación',
+                groupId: group.id,
+            },
+        },
         update: {},
         create: {
             name: 'Introducción a la Programación',
@@ -186,7 +203,14 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
     });
 
     const cs2 = await prisma.courseSection.upsert({
-        where: { programId_periodId_name_groupId: { programId: program.id, periodId: period.id, name: 'Base de Datos', groupId: group.id } },
+        where: {
+            programId_periodId_name_groupId: {
+                programId: program.id,
+                periodId: period.id,
+                name: 'Base de Datos',
+                groupId: group.id,
+            },
+        },
         update: {},
         create: {
             name: 'Base de Datos',
@@ -199,11 +223,21 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
 
     // ── Estudiantes ───────────────────────────────────────────────────────────
     const studentData = [
-        { name: 'Ana',       lastname: 'García',    email: 'ana.garcia@lms-testing.test',       offset: 10 },
-        { name: 'Carlos',    lastname: 'Muñoz',     email: 'carlos.munoz@lms-testing.test',      offset: 11 },
-        { name: 'Sofía',     lastname: 'Herrera',   email: 'sofia.herrera2@lms-testing.test',    offset: 12 },
-        { name: 'Diego',     lastname: 'Torres',    email: 'diego.torres@lms-testing.test',      offset: 13 },
-        { name: 'Valentina', lastname: 'Cruz',      email: 'valentina.cruz@lms-testing.test',    offset: 14 },
+        { name: 'Ana', lastname: 'García', email: 'ana.garcia@lms-testing.test', offset: 10 },
+        { name: 'Carlos', lastname: 'Muñoz', email: 'carlos.munoz@lms-testing.test', offset: 11 },
+        {
+            name: 'Sofía',
+            lastname: 'Herrera',
+            email: 'sofia.herrera2@lms-testing.test',
+            offset: 12,
+        },
+        { name: 'Diego', lastname: 'Torres', email: 'diego.torres@lms-testing.test', offset: 13 },
+        {
+            name: 'Valentina',
+            lastname: 'Cruz',
+            email: 'valentina.cruz@lms-testing.test',
+            offset: 14,
+        },
     ];
 
     const students = await Promise.all(
@@ -224,11 +258,11 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
         ),
     );
     const [ana, carlos, sofia, diego, valentina] = students as [
-        typeof students[number],
-        typeof students[number],
-        typeof students[number],
-        typeof students[number],
-        typeof students[number],
+        (typeof students)[number],
+        (typeof students)[number],
+        (typeof students)[number],
+        (typeof students)[number],
+        (typeof students)[number],
     ];
     const studentIds = students.map((s) => s.id);
     console.log(`  ✓ Estudiantes: ${students.map((s) => s.name).join(', ')}`);
@@ -239,7 +273,10 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
     await prisma.lmsCourse.deleteMany({ where: { academicInstitutionId: institution.id } });
     // Examen embebido de la fase anterior (si existe)
     await prisma.exam.deleteMany({
-        where: { academicInstitutionId: institution.id, title: 'Evaluación Final — Introducción a la Programación' },
+        where: {
+            academicInstitutionId: institution.id,
+            title: 'Evaluación Final — Introducción a la Programación',
+        },
     });
     // Fase 6: live sessions en cascada borran attendances, chat, whiteboard
     await prisma.lmsLiveSession.deleteMany({
@@ -259,7 +296,8 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
     const course1 = await prisma.lmsCourse.create({
         data: {
             title: 'Introducción a la Programación',
-            description: 'Fundamentos de programación con Python. Desde variables hasta estructuras de datos.',
+            description:
+                'Fundamentos de programación con Python. Desde variables hasta estructuras de datos.',
             published: true,
             certificateEnabled: true,
             aiSummaryEnabled: true,
@@ -279,7 +317,20 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
             type: 'TEXTO',
             order: 0,
             moduleId: m1.id,
-            contentJson: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'La programación es el proceso de diseñar instrucciones...' }] }] },
+            contentJson: {
+                type: 'doc',
+                content: [
+                    {
+                        type: 'paragraph',
+                        content: [
+                            {
+                                type: 'text',
+                                text: 'La programación es el proceso de diseñar instrucciones...',
+                            },
+                        ],
+                    },
+                ],
+            },
         },
     });
     const l1_2 = await prisma.lmsLesson.create({
@@ -288,9 +339,23 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
             type: 'TEXTO',
             order: 1,
             moduleId: m1.id,
-            contentJson: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Una variable es un espacio en memoria que almacena un valor...' }] }] },
+            contentJson: {
+                type: 'doc',
+                content: [
+                    {
+                        type: 'paragraph',
+                        content: [
+                            {
+                                type: 'text',
+                                text: 'Una variable es un espacio en memoria que almacena un valor...',
+                            },
+                        ],
+                    },
+                ],
+            },
             summaryJson: {
-                summary: 'Las variables son contenedores de datos. Python soporta int, float, str y bool como tipos básicos.',
+                summary:
+                    'Las variables son contenedores de datos. Python soporta int, float, str y bool como tipos básicos.',
                 keyPoints: [
                     'int para números enteros',
                     'float para decimales',
@@ -322,7 +387,20 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
             type: 'TEXTO',
             order: 0,
             moduleId: m2.id,
-            contentJson: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Las estructuras condicionales permiten tomar decisiones...' }] }] },
+            contentJson: {
+                type: 'doc',
+                content: [
+                    {
+                        type: 'paragraph',
+                        content: [
+                            {
+                                type: 'text',
+                                text: 'Las estructuras condicionales permiten tomar decisiones...',
+                            },
+                        ],
+                    },
+                ],
+            },
         },
     });
     const l2_2 = await prisma.lmsLesson.create({
@@ -331,7 +409,20 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
             type: 'TEXTO',
             order: 1,
             moduleId: m2.id,
-            contentJson: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Los bucles permiten repetir bloques de código...' }] }] },
+            contentJson: {
+                type: 'doc',
+                content: [
+                    {
+                        type: 'paragraph',
+                        content: [
+                            {
+                                type: 'text',
+                                text: 'Los bucles permiten repetir bloques de código...',
+                            },
+                        ],
+                    },
+                ],
+            },
         },
     });
     const l2_3 = await prisma.lmsLesson.create({
@@ -446,7 +537,8 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
     const assignment1 = await prisma.lmsAssignment.create({
         data: {
             lessonId: l2_3.id,
-            instructions: 'Implementar una calculadora en Python que soporte las 4 operaciones básicas. Entregar como archivo .py con comentarios explicativos.',
+            instructions:
+                'Implementar una calculadora en Python que soporte las 4 operaciones básicas. Entregar como archivo .py con comentarios explicativos.',
             dueAt: daysAgo(7),
             maxScore: 100,
         },
@@ -525,7 +617,12 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
     await Promise.all(
         allLessons1.slice(0, 4).map((l) =>
             prisma.lmsLessonProgress.create({
-                data: { userId: sofia.id, lessonId: l.id, completed: true, completedAt: daysAgo(12) },
+                data: {
+                    userId: sofia.id,
+                    lessonId: l.id,
+                    completed: true,
+                    completedAt: daysAgo(12),
+                },
             }),
         ),
     );
@@ -537,7 +634,12 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
     await Promise.all(
         allLessons1.slice(0, 3).map((l) =>
             prisma.lmsLessonProgress.create({
-                data: { userId: carlos.id, lessonId: l.id, completed: true, completedAt: daysAgo(15) },
+                data: {
+                    userId: carlos.id,
+                    lessonId: l.id,
+                    completed: true,
+                    completedAt: daysAgo(15),
+                },
             }),
         ),
     );
@@ -555,7 +657,8 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
         data: {
             assignmentId: assignment1.id,
             studentId: valentina.id,
-            textContent: 'def suma(a, b): return a + b\n# Implementé las 4 operaciones básicas con validación de división por cero.',
+            textContent:
+                'def suma(a, b): return a + b\n# Implementé las 4 operaciones básicas con validación de división por cero.',
             status: 'CALIFICADO',
             score: 98,
             feedback: 'Excelente implementación. Código limpio y bien comentado.',
@@ -596,11 +699,19 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
 
     // ── Notas del gradebook ───────────────────────────────────────────────────
     // Valentina: tarea 7.0, examen 7.0
-    await prisma.lmsGrade.create({ data: { gradebookItemId: gbTarea.id, studentId: valentina.id, score: 7.0 } });
-    await prisma.lmsGrade.create({ data: { gradebookItemId: gbExamen.id, studentId: valentina.id, score: 7.0 } });
+    await prisma.lmsGrade.create({
+        data: { gradebookItemId: gbTarea.id, studentId: valentina.id, score: 7.0 },
+    });
+    await prisma.lmsGrade.create({
+        data: { gradebookItemId: gbExamen.id, studentId: valentina.id, score: 7.0 },
+    });
     // Ana: tarea 5.8, examen 6.5
-    await prisma.lmsGrade.create({ data: { gradebookItemId: gbTarea.id, studentId: ana.id, score: 5.8 } });
-    await prisma.lmsGrade.create({ data: { gradebookItemId: gbExamen.id, studentId: ana.id, score: 6.5 } });
+    await prisma.lmsGrade.create({
+        data: { gradebookItemId: gbTarea.id, studentId: ana.id, score: 5.8 },
+    });
+    await prisma.lmsGrade.create({
+        data: { gradebookItemId: gbExamen.id, studentId: ana.id, score: 6.5 },
+    });
 
     // ── Foros — Course 1 ─────────────────────────────────────────────────────
     const forum1 = await prisma.lmsForum.create({
@@ -682,7 +793,8 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
             {
                 userId: ana.id,
                 type: 'NEW_POST',
-                message: 'Patricia Sánchez respondió en "¿Cómo manejo la división por cero en Python?"',
+                message:
+                    'Patricia Sánchez respondió en "¿Cómo manejo la división por cero en Python?"',
                 link: `/aula/cursos/${course1.id}/foro/${thread2.id}`,
                 read: false,
             },
@@ -727,7 +839,20 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
             type: 'TEXTO',
             order: 0,
             moduleId: m2_1.id,
-            contentJson: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Una base de datos relacional organiza datos en tablas...' }] }] },
+            contentJson: {
+                type: 'doc',
+                content: [
+                    {
+                        type: 'paragraph',
+                        content: [
+                            {
+                                type: 'text',
+                                text: 'Una base de datos relacional organiza datos en tablas...',
+                            },
+                        ],
+                    },
+                ],
+            },
         },
     });
     await prisma.lmsLesson.create({
@@ -759,7 +884,20 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
             type: 'TEXTO',
             order: 0,
             moduleId: m2_2.id,
-            contentJson: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Los JOINs permiten combinar filas de dos o más tablas...' }] }] },
+            contentJson: {
+                type: 'doc',
+                content: [
+                    {
+                        type: 'paragraph',
+                        content: [
+                            {
+                                type: 'text',
+                                text: 'Los JOINs permiten combinar filas de dos o más tablas...',
+                            },
+                        ],
+                    },
+                ],
+            },
         },
     });
     const l2_tarea = await prisma.lmsLesson.create({
@@ -774,7 +912,8 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
     const assignment2 = await prisma.lmsAssignment.create({
         data: {
             lessonId: l2_tarea.id,
-            instructions: 'Diseñar el esquema E-R de un sistema de e-commerce. Entregar diagrama y script SQL de creación de tablas.',
+            instructions:
+                'Diseñar el esquema E-R de un sistema de e-commerce. Entregar diagrama y script SQL de creación de tablas.',
             dueAt: daysFromNow(14),
             maxScore: 100,
         },
@@ -834,12 +973,54 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
 
     // Insignias — upsert del catálogo mínimo para testing
     const badgeDefs = [
-        { code: 'first_lesson',     name: 'Primer Paso',          description: 'Completaste tu primera lección', icon: '👣', pointsReward: 5,   criteria: { type: 'LESSONS_COMPLETED', threshold: 1 } },
-        { code: 'first_assignment', name: 'Primera Entrega',      description: 'Entregaste tu primera tarea',    icon: '📝', pointsReward: 10,  criteria: { type: 'ASSIGNMENTS_SUBMITTED', threshold: 1 } },
-        { code: 'first_perfect',    name: 'Perfección Inaugural', description: 'Obtuviste un 7.0 en un examen', icon: '🌟', pointsReward: 25,  criteria: { type: 'EXAMS_PASSED', threshold: 1 } },
-        { code: 'streak_week',      name: 'Semana Imparable',     description: 'Mantuviste una racha de 7 días', icon: '🔥', pointsReward: 50,  criteria: { type: 'LONGEST_STREAK', threshold: 7 } },
-        { code: 'hundred_points',   name: 'Centenario',           description: 'Acumulaste 100 puntos',          icon: '💯', pointsReward: 25,  criteria: { type: 'TOTAL_POINTS', threshold: 100 } },
-        { code: 'first_post',       name: 'Voz del Aula',         description: 'Publicaste en el foro',          icon: '💬', pointsReward: 2,   criteria: { type: 'FORUM_POSTS', threshold: 1 } },
+        {
+            code: 'first_lesson',
+            name: 'Primer Paso',
+            description: 'Completaste tu primera lección',
+            icon: '👣',
+            pointsReward: 5,
+            criteria: { type: 'LESSONS_COMPLETED', threshold: 1 },
+        },
+        {
+            code: 'first_assignment',
+            name: 'Primera Entrega',
+            description: 'Entregaste tu primera tarea',
+            icon: '📝',
+            pointsReward: 10,
+            criteria: { type: 'ASSIGNMENTS_SUBMITTED', threshold: 1 },
+        },
+        {
+            code: 'first_perfect',
+            name: 'Perfección Inaugural',
+            description: 'Obtuviste un 7.0 en un examen',
+            icon: '🌟',
+            pointsReward: 25,
+            criteria: { type: 'EXAMS_PASSED', threshold: 1 },
+        },
+        {
+            code: 'streak_week',
+            name: 'Semana Imparable',
+            description: 'Mantuviste una racha de 7 días',
+            icon: '🔥',
+            pointsReward: 50,
+            criteria: { type: 'LONGEST_STREAK', threshold: 7 },
+        },
+        {
+            code: 'hundred_points',
+            name: 'Centenario',
+            description: 'Acumulaste 100 puntos',
+            icon: '💯',
+            pointsReward: 25,
+            criteria: { type: 'TOTAL_POINTS', threshold: 100 },
+        },
+        {
+            code: 'first_post',
+            name: 'Voz del Aula',
+            description: 'Publicaste en el foro',
+            icon: '💬',
+            pointsReward: 2,
+            criteria: { type: 'FORUM_POSTS', threshold: 1 },
+        },
     ];
     const badges = await Promise.all(
         badgeDefs.map(({ code, ...rest }) =>
@@ -858,29 +1039,29 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
     await prisma.lmsStreak.createMany({
         data: [
             { userId: valentina.id, currentStreak: 12, longestStreak: 15, lastActiveOn: today },
-            { userId: ana.id,       currentStreak: 5,  longestStreak: 8,  lastActiveOn: daysAgo(1) },
-            { userId: carlos.id,    currentStreak: 3,  longestStreak: 3,  lastActiveOn: daysAgo(1) },
-            { userId: sofia.id,     currentStreak: 0,  longestStreak: 4,  lastActiveOn: daysAgo(5) },
-            { userId: diego.id,     currentStreak: 1,  longestStreak: 1,  lastActiveOn: today },
+            { userId: ana.id, currentStreak: 5, longestStreak: 8, lastActiveOn: daysAgo(1) },
+            { userId: carlos.id, currentStreak: 3, longestStreak: 3, lastActiveOn: daysAgo(1) },
+            { userId: sofia.id, currentStreak: 0, longestStreak: 4, lastActiveOn: daysAgo(5) },
+            { userId: diego.id, currentStreak: 1, longestStreak: 1, lastActiveOn: today },
         ],
     });
 
     // Insignias desbloqueadas
     const badgeAwards: Array<{ userId: string; code: string; reason: string }> = [
-        { userId: valentina.id, code: 'first_lesson',     reason: 'Completó su primera lección' },
+        { userId: valentina.id, code: 'first_lesson', reason: 'Completó su primera lección' },
         { userId: valentina.id, code: 'first_assignment', reason: 'Entregó su primera tarea' },
-        { userId: valentina.id, code: 'first_perfect',    reason: 'Obtuvo 7.0 en Evaluación Final' },
-        { userId: valentina.id, code: 'streak_week',      reason: 'Alcanzó racha de 7 días' },
-        { userId: valentina.id, code: 'hundred_points',   reason: 'Acumuló 100 puntos' },
-        { userId: valentina.id, code: 'first_post',       reason: 'Participó en el foro' },
-        { userId: ana.id,       code: 'first_lesson',     reason: 'Completó su primera lección' },
-        { userId: ana.id,       code: 'first_assignment', reason: 'Entregó su primera tarea' },
-        { userId: ana.id,       code: 'first_post',       reason: 'Participó en el foro' },
-        { userId: carlos.id,    code: 'first_lesson',     reason: 'Completó su primera lección' },
-        { userId: carlos.id,    code: 'first_assignment', reason: 'Entregó su primera tarea' },
-        { userId: carlos.id,    code: 'first_post',       reason: 'Participó en el foro' },
-        { userId: sofia.id,     code: 'first_lesson',     reason: 'Completó su primera lección' },
-        { userId: diego.id,     code: 'first_lesson',     reason: 'Completó su primera lección' },
+        { userId: valentina.id, code: 'first_perfect', reason: 'Obtuvo 7.0 en Evaluación Final' },
+        { userId: valentina.id, code: 'streak_week', reason: 'Alcanzó racha de 7 días' },
+        { userId: valentina.id, code: 'hundred_points', reason: 'Acumuló 100 puntos' },
+        { userId: valentina.id, code: 'first_post', reason: 'Participó en el foro' },
+        { userId: ana.id, code: 'first_lesson', reason: 'Completó su primera lección' },
+        { userId: ana.id, code: 'first_assignment', reason: 'Entregó su primera tarea' },
+        { userId: ana.id, code: 'first_post', reason: 'Participó en el foro' },
+        { userId: carlos.id, code: 'first_lesson', reason: 'Completó su primera lección' },
+        { userId: carlos.id, code: 'first_assignment', reason: 'Entregó su primera tarea' },
+        { userId: carlos.id, code: 'first_post', reason: 'Participó en el foro' },
+        { userId: sofia.id, code: 'first_lesson', reason: 'Completó su primera lección' },
+        { userId: diego.id, code: 'first_lesson', reason: 'Completó su primera lección' },
     ];
     await prisma.lmsUserBadge.createMany({
         data: badgeAwards.map(({ userId, code, reason }) => ({
@@ -895,26 +1076,136 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
     await prisma.lmsPointEvent.createMany({
         data: [
             // Valentina
-            { userId: valentina.id, amount: 5,  reason: 'Primera lección completada',  sourceType: 'LESSON_COMPLETED',     courseId: course1.id, dedupeKey: 'seed-val-lesson1' },
-            { userId: valentina.id, amount: 10, reason: 'Tarea entregada',              sourceType: 'ASSIGNMENT_SUBMITTED', courseId: course1.id, dedupeKey: 'seed-val-assign-sub' },
-            { userId: valentina.id, amount: 5,  reason: 'Tarea calificada',             sourceType: 'ASSIGNMENT_GRADED',    courseId: course1.id, dedupeKey: 'seed-val-assign-grade' },
-            { userId: valentina.id, amount: 15, reason: 'Examen aprobado con 7.0',      sourceType: 'EXAM_PASSED',          courseId: course1.id, dedupeKey: 'seed-val-exam-pass' },
-            { userId: valentina.id, amount: 2,  reason: 'Post en foro',                 sourceType: 'FORUM_POST',           courseId: course1.id, dedupeKey: 'seed-val-forum-post' },
-            { userId: valentina.id, amount: 50, reason: 'Racha de 7 días',              sourceType: 'STREAK_BONUS',                               dedupeKey: 'seed-val-streak7' },
-            { userId: valentina.id, amount: 25, reason: 'Insignia: Centenario',         sourceType: 'MANUAL',                                     dedupeKey: 'seed-val-badge-100pts' },
+            {
+                userId: valentina.id,
+                amount: 5,
+                reason: 'Primera lección completada',
+                sourceType: 'LESSON_COMPLETED',
+                courseId: course1.id,
+                dedupeKey: 'seed-val-lesson1',
+            },
+            {
+                userId: valentina.id,
+                amount: 10,
+                reason: 'Tarea entregada',
+                sourceType: 'ASSIGNMENT_SUBMITTED',
+                courseId: course1.id,
+                dedupeKey: 'seed-val-assign-sub',
+            },
+            {
+                userId: valentina.id,
+                amount: 5,
+                reason: 'Tarea calificada',
+                sourceType: 'ASSIGNMENT_GRADED',
+                courseId: course1.id,
+                dedupeKey: 'seed-val-assign-grade',
+            },
+            {
+                userId: valentina.id,
+                amount: 15,
+                reason: 'Examen aprobado con 7.0',
+                sourceType: 'EXAM_PASSED',
+                courseId: course1.id,
+                dedupeKey: 'seed-val-exam-pass',
+            },
+            {
+                userId: valentina.id,
+                amount: 2,
+                reason: 'Post en foro',
+                sourceType: 'FORUM_POST',
+                courseId: course1.id,
+                dedupeKey: 'seed-val-forum-post',
+            },
+            {
+                userId: valentina.id,
+                amount: 50,
+                reason: 'Racha de 7 días',
+                sourceType: 'STREAK_BONUS',
+                dedupeKey: 'seed-val-streak7',
+            },
+            {
+                userId: valentina.id,
+                amount: 25,
+                reason: 'Insignia: Centenario',
+                sourceType: 'MANUAL',
+                dedupeKey: 'seed-val-badge-100pts',
+            },
             // Ana
-            { userId: ana.id,       amount: 5,  reason: 'Primera lección completada',   sourceType: 'LESSON_COMPLETED',     courseId: course1.id, dedupeKey: 'seed-ana-lesson1' },
-            { userId: ana.id,       amount: 10, reason: 'Tarea entregada',              sourceType: 'ASSIGNMENT_SUBMITTED', courseId: course1.id, dedupeKey: 'seed-ana-assign-sub' },
-            { userId: ana.id,       amount: 5,  reason: 'Tarea calificada',             sourceType: 'ASSIGNMENT_GRADED',    courseId: course1.id, dedupeKey: 'seed-ana-assign-grade' },
-            { userId: ana.id,       amount: 2,  reason: 'Post en foro',                 sourceType: 'FORUM_POST',           courseId: course1.id, dedupeKey: 'seed-ana-forum-post' },
+            {
+                userId: ana.id,
+                amount: 5,
+                reason: 'Primera lección completada',
+                sourceType: 'LESSON_COMPLETED',
+                courseId: course1.id,
+                dedupeKey: 'seed-ana-lesson1',
+            },
+            {
+                userId: ana.id,
+                amount: 10,
+                reason: 'Tarea entregada',
+                sourceType: 'ASSIGNMENT_SUBMITTED',
+                courseId: course1.id,
+                dedupeKey: 'seed-ana-assign-sub',
+            },
+            {
+                userId: ana.id,
+                amount: 5,
+                reason: 'Tarea calificada',
+                sourceType: 'ASSIGNMENT_GRADED',
+                courseId: course1.id,
+                dedupeKey: 'seed-ana-assign-grade',
+            },
+            {
+                userId: ana.id,
+                amount: 2,
+                reason: 'Post en foro',
+                sourceType: 'FORUM_POST',
+                courseId: course1.id,
+                dedupeKey: 'seed-ana-forum-post',
+            },
             // Carlos
-            { userId: carlos.id,    amount: 5,  reason: 'Primera lección completada',   sourceType: 'LESSON_COMPLETED',     courseId: course1.id, dedupeKey: 'seed-carlos-lesson1' },
-            { userId: carlos.id,    amount: 10, reason: 'Tarea entregada',              sourceType: 'ASSIGNMENT_SUBMITTED', courseId: course1.id, dedupeKey: 'seed-carlos-assign-sub' },
-            { userId: carlos.id,    amount: 2,  reason: 'Post en foro — Base de Datos', sourceType: 'FORUM_POST',           courseId: course2.id, dedupeKey: 'seed-carlos-forum-post-bd' },
+            {
+                userId: carlos.id,
+                amount: 5,
+                reason: 'Primera lección completada',
+                sourceType: 'LESSON_COMPLETED',
+                courseId: course1.id,
+                dedupeKey: 'seed-carlos-lesson1',
+            },
+            {
+                userId: carlos.id,
+                amount: 10,
+                reason: 'Tarea entregada',
+                sourceType: 'ASSIGNMENT_SUBMITTED',
+                courseId: course1.id,
+                dedupeKey: 'seed-carlos-assign-sub',
+            },
+            {
+                userId: carlos.id,
+                amount: 2,
+                reason: 'Post en foro — Base de Datos',
+                sourceType: 'FORUM_POST',
+                courseId: course2.id,
+                dedupeKey: 'seed-carlos-forum-post-bd',
+            },
             // Sofia
-            { userId: sofia.id,     amount: 5,  reason: 'Primera lección completada',   sourceType: 'LESSON_COMPLETED',     courseId: course1.id, dedupeKey: 'seed-sofia-lesson1' },
+            {
+                userId: sofia.id,
+                amount: 5,
+                reason: 'Primera lección completada',
+                sourceType: 'LESSON_COMPLETED',
+                courseId: course1.id,
+                dedupeKey: 'seed-sofia-lesson1',
+            },
             // Diego
-            { userId: diego.id,     amount: 5,  reason: 'Primera lección completada',   sourceType: 'LESSON_COMPLETED',     courseId: course1.id, dedupeKey: 'seed-diego-lesson1' },
+            {
+                userId: diego.id,
+                amount: 5,
+                reason: 'Primera lección completada',
+                sourceType: 'LESSON_COMPLETED',
+                courseId: course1.id,
+                dedupeKey: 'seed-diego-lesson1',
+            },
         ],
     });
 
@@ -1112,12 +1403,16 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
         ],
     });
 
-    console.log('  ✓ Fase 6: live sessions (1 ENDED + 1 SCHEDULED + 1 LIVE) + attendances + chat + whiteboard');
+    console.log(
+        '  ✓ Fase 6: live sessions (1 ENDED + 1 SCHEDULED + 1 LIVE) + attendances + chat + whiteboard',
+    );
     console.log('🎓 LMS seed — completo');
     console.log('');
     console.log('  Institución:  lms-testing');
     console.log('  Admin:        admin@lms-testing.test / Admin2026!');
     console.log('  Profesor:     patricia.sanchez@lms-testing.test / Admin2026!');
     console.log('  Cursos:       "Introducción a la Programación" · "Base de Datos"');
-    console.log('  Estudiantes:  ana · carlos · sofia · diego · valentina (todos @lms-testing.test)');
+    console.log(
+        '  Estudiantes:  ana · carlos · sofia · diego · valentina (todos @lms-testing.test)',
+    );
 }

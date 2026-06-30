@@ -29,14 +29,14 @@ AcademicInstitution.isDemo (DB)
 
 ### Estado actual de props de permisos
 
-| Componente | Props hoy | Necesita |
-|---|---|---|
-| `GroupsClient` | `canMutate: boolean` | + `isDemo: boolean` |
-| `StudentsClient` | `canCreate/Edit/Delete/ToggleActive` | + `isDemo: boolean` |
-| `ProfessorsClient` | ❌ ninguna | + `isDemo: boolean` |
-| `ExamsClient` | ❌ ninguna | + `isDemo: boolean` |
-| `DashboardClient` | ❌ ninguna | + `isDemo: boolean` |
-| `ExamEditorClient` | ❌ ninguna | + `isDemo: boolean` |
+| Componente         | Props hoy                            | Necesita            |
+| ------------------ | ------------------------------------ | ------------------- |
+| `GroupsClient`     | `canMutate: boolean`                 | + `isDemo: boolean` |
+| `StudentsClient`   | `canCreate/Edit/Delete/ToggleActive` | + `isDemo: boolean` |
+| `ProfessorsClient` | ❌ ninguna                           | + `isDemo: boolean` |
+| `ExamsClient`      | ❌ ninguna                           | + `isDemo: boolean` |
+| `DashboardClient`  | ❌ ninguna                           | + `isDemo: boolean` |
+| `ExamEditorClient` | ❌ ninguna                           | + `isDemo: boolean` |
 
 ### Comportamiento en demo
 
@@ -60,6 +60,7 @@ src/app/(admin)/[slug]/exams/[id]/edit/page.tsx
 ```
 
 Patrón en cada page.tsx:
+
 ```tsx
 const { isDemo, ... } = await requireInstitutionPageAccess(slug);
 return <FooClient isDemo={isDemo} ... />;
@@ -148,7 +149,7 @@ src/features/tour/
 ### Pasos del tour dashboard
 
 1. `[data-tour="sidebar"]` — Navegación principal
-2. `[data-tour="stat-tiles"]` — Métricas en tiempo real  
+2. `[data-tour="stat-tiles"]` — Métricas en tiempo real
 3. `[data-tour="new-exam-btn"]` — Crear y publicar exámenes
 4. `[data-tour="active-exams"]` — Exámenes en curso
 5. `[data-tour="recent-results"]` — Resultados recientes
@@ -156,6 +157,7 @@ src/features/tour/
 ### CSS overrides Driver.js
 
 Aplicar variables CSS del design system de Aulika en el popover:
+
 - `--driver-popover-bg-color`: `white`
 - Border radius: `16px`
 - Primary color: `var(--color-primary)`

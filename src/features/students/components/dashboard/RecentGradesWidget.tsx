@@ -21,9 +21,7 @@ export async function RecentGradesWidget({ studentId }: RecentGradesWidgetProps)
                         Últimas notas
                     </h2>
                 </header>
-                <p className="text-mute text-[13px]">
-                    Cuando rindas un examen, lo vas a ver acá.
-                </p>
+                <p className="text-mute text-[13px]">Cuando rindas un examen, lo vas a ver acá.</p>
             </section>
         );
     }
@@ -53,7 +51,7 @@ export async function RecentGradesWidget({ studentId }: RecentGradesWidgetProps)
                         >
                             <span
                                 className={cn(
-                                    'flex size-10 shrink-0 items-center justify-center rounded-full font-display text-[15px] font-semibold',
+                                    'font-display flex size-10 shrink-0 items-center justify-center rounded-full text-[15px] font-semibold',
                                     grade.passed
                                         ? 'bg-success-wash text-success'
                                         : 'bg-danger-wash text-destructive',

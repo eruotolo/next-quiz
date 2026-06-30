@@ -301,7 +301,12 @@ export function GroupForm({
                     >
                         Cancelar
                     </Button>
-                    <Button variant="ink" size="md" disabled={isPending || !!disabled} onClick={handleSave}>
+                    <Button
+                        variant="ink"
+                        size="md"
+                        disabled={isPending || !!disabled}
+                        onClick={handleSave}
+                    >
                         {isPending && <Loader2 className="mr-2 size-4 animate-spin" />}
                         {editing ? 'Guardar cambios' : 'Crear grupo'}
                     </Button>

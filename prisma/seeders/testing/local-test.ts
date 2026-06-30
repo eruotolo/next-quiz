@@ -226,7 +226,10 @@ export async function seedLocal(prisma: PrismaClient): Promise<void> {
         const institutionId = institutionMap.get(inst.slug)!;
         const group = await getOrCreate(
             () => prisma.group.findFirst({ where: { name: groupName } }),
-            () => prisma.group.create({ data: { name: groupName, academicInstitutionId: institutionId } }),
+            () =>
+                prisma.group.create({
+                    data: { name: groupName, academicInstitutionId: institutionId },
+                }),
         );
         groupMap.set(inst.slug, group.id);
         console.log(`  Group: ${groupName}`);
@@ -278,28 +281,58 @@ export async function seedLocal(prisma: PrismaClient): Promise<void> {
         const professorId = firstProfessorByInstitution.get(academic.institution)!;
 
         const program = await getOrCreate(
-            () => prisma.program.findFirst({ where: { academicInstitutionId: institutionId, name: academic.programName } }),
-            () => prisma.program.create({ data: { name: academic.programName, code: academic.programCode, academicInstitutionId: institutionId } }),
+            () =>
+                prisma.program.findFirst({
+                    where: { academicInstitutionId: institutionId, name: academic.programName },
+                }),
+            () =>
+                prisma.program.create({
+                    data: {
+                        name: academic.programName,
+                        code: academic.programCode,
+                        academicInstitutionId: institutionId,
+                    },
+                }),
         );
 
         const period = await getOrCreate(
-            () => prisma.academicPeriod.findFirst({ where: { academicInstitutionId: institutionId, name: academic.periodName } }),
-            () => prisma.academicPeriod.create({
-                data: { name: academic.periodName, year: 2026, type: academic.periodType, isActive: true, academicInstitutionId: institutionId },
-            }),
+            () =>
+                prisma.academicPeriod.findFirst({
+                    where: { academicInstitutionId: institutionId, name: academic.periodName },
+                }),
+            () =>
+                prisma.academicPeriod.create({
+                    data: {
+                        name: academic.periodName,
+                        year: 2026,
+                        type: academic.periodType,
+                        isActive: true,
+                        academicInstitutionId: institutionId,
+                    },
+                }),
         );
 
         await prisma.group.update({ where: { id: groupId }, data: { programId: program.id } });
 
         for (const courseName of academic.courses) {
-            const existing = await prisma.courseSection.findFirst({ where: { periodId: period.id, name: courseName, groupId } });
+            const existing = await prisma.courseSection.findFirst({
+                where: { periodId: period.id, name: courseName, groupId },
+            });
             if (!existing) {
                 await prisma.courseSection.create({
-                    data: { name: courseName, programId: program.id, periodId: period.id, groupId, professors: { connect: { id: professorId } } },
+                    data: {
+                        name: courseName,
+                        programId: program.id,
+                        periodId: period.id,
+                        groupId,
+                        professors: { connect: { id: professorId } },
+                    },
                 });
             }
         }
-        console.log(`  Académico: ${academic.programName} · ${academic.courses.length} materias → ${academic.institution}`);
+        console.log(
+            `  Académico: ${academic.programName} · ${academic.courses.length} materias → ${academic.institution}`,
+        );
     }
 
     for (const student of STUDENTS) {

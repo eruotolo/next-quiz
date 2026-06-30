@@ -41,7 +41,9 @@ export async function getMuxAssetFromUpload(uploadId: string): Promise<string | 
     return upload.asset_id;
 }
 
-export async function getMuxAssetStatus(assetId: string): Promise<'preparing' | 'ready' | 'errored'> {
+export async function getMuxAssetStatus(
+    assetId: string,
+): Promise<'preparing' | 'ready' | 'errored'> {
     const asset = await getMuxClient().video.assets.retrieve(assetId);
     return asset.status as 'preparing' | 'ready' | 'errored';
 }

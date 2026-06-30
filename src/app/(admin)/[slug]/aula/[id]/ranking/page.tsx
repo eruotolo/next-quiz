@@ -1,5 +1,4 @@
 import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { prisma } from '@/shared/lib/prisma';
 import { notFound } from 'next/navigation';
 import { Trophy, Medal } from 'lucide-react';
@@ -61,63 +60,60 @@ export default async function RankingAdminPage({ params }: Props) {
         .map((e, idx) => ({ ...e, rank: idx + 1 }));
 
     return (
-        <>
-            <AdminTopBar
-                title="Ranking"
-                icon={<Trophy size={18} />}
-                breadcrumb={[institutionName, 'Aula Virtual', course.title, 'Ranking']}
-                subtitle={`${entries.length} estudiante${entries.length !== 1 ? 's' : ''} inscriptos`}
-            />
-            <main className="flex-1 overflow-auto p-8">
-                {entries.length === 0 ? (
-                    <Card className="flex flex-col items-center justify-center border-dashed py-24">
-                        <Trophy size={40} className="text-mute/30 mb-4" />
-                        <p className="text-ink text-lg font-medium">Sin estudiantes inscriptos</p>
-                        <p className="text-mute mt-1 text-sm">El ranking aparecerá cuando haya alumnos activos.</p>
-                    </Card>
-                ) : (
-                    <Card className="border-border divide-border divide-y overflow-hidden shadow-sm">
-                        {entries.map((entry) => (
-                            <div
-                                key={entry.userId}
-                                className={cn(
-                                    'flex items-center gap-4 px-5 py-3',
-                                    entry.rank === 1 && 'bg-amber-50',
+        <main className="flex-1 overflow-auto p-8">
+            {entries.length === 0 ? (
+                <Card className="flex flex-col items-center justify-center border-dashed py-24">
+                    <Trophy size={40} className="text-mute/30 mb-4" />
+                    <p className="text-ink text-lg font-medium">Sin estudiantes inscriptos</p>
+                    <p className="text-mute mt-1 text-sm">
+                        El ranking aparecerá cuando haya alumnos activos.
+                    </p>
+                </Card>
+            ) : (
+                <Card className="border-border divide-border divide-y overflow-hidden shadow-sm">
+                    {entries.map((entry) => (
+                        <div
+                            key={entry.userId}
+                            className={cn(
+                                'flex items-center gap-4 px-5 py-3',
+                                entry.rank === 1 && 'bg-amber-50',
+                            )}
+                        >
+                            <div className="w-8 shrink-0 text-center">
+                                {entry.rank === 1 ? (
+                                    <Trophy size={18} className="mx-auto text-amber-500" />
+                                ) : entry.rank === 2 ? (
+                                    <Medal size={18} className="text-mute mx-auto" />
+                                ) : entry.rank === 3 ? (
+                                    <Medal size={18} className="mx-auto text-amber-700" />
+                                ) : (
+                                    <span className="text-mute font-mono text-sm">
+                                        #{entry.rank}
+                                    </span>
                                 )}
-                            >
-                                <div className="w-8 shrink-0 text-center">
-                                    {entry.rank === 1 ? (
-                                        <Trophy size={18} className="mx-auto text-amber-500" />
-                                    ) : entry.rank === 2 ? (
-                                        <Medal size={18} className="text-mute mx-auto" />
-                                    ) : entry.rank === 3 ? (
-                                        <Medal size={18} className="mx-auto text-amber-700" />
-                                    ) : (
-                                        <span className="text-mute text-sm font-mono">#{entry.rank}</span>
-                                    )}
-                                </div>
-                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 font-mono text-xs font-bold text-primary">
-                                    {entry.name[0]?.toUpperCase()}{entry.lastname[0]?.toUpperCase()}
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <p className="text-ink text-sm font-semibold">
-                                        {entry.name} {entry.lastname}
-                                    </p>
-                                </div>
-                                {entry.optedOut && (
-                                    <Badge variant="outline" className="text-[10px]">
-                                        Anónimo
-                                    </Badge>
-                                )}
-                                <div className="shrink-0 text-right">
-                                    <p className="text-ink text-sm font-bold">{entry.totalPoints}</p>
-                                    <p className="text-mute text-[10px]">pts</p>
-                                </div>
                             </div>
-                        ))}
-                    </Card>
-                )}
-            </main>
-        </>
+                            <div className="bg-primary/10 text-primary flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-mono text-xs font-bold">
+                                {entry.name[0]?.toUpperCase()}
+                                {entry.lastname[0]?.toUpperCase()}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-ink text-sm font-semibold">
+                                    {entry.name} {entry.lastname}
+                                </p>
+                            </div>
+                            {entry.optedOut && (
+                                <Badge variant="outline" className="text-[10px]">
+                                    Anónimo
+                                </Badge>
+                            )}
+                            <div className="shrink-0 text-right">
+                                <p className="text-ink text-sm font-bold">{entry.totalPoints}</p>
+                                <p className="text-mute text-[10px]">pts</p>
+                            </div>
+                        </div>
+                    ))}
+                </Card>
+            )}
+        </main>
     );
 }

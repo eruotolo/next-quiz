@@ -206,7 +206,11 @@ export function identifyInactiveStudents(
         }
     }
 
-    const inactive: { userId: string; lastActivityAt: string | null; daysSinceLastActivity: number | null }[] = [];
+    const inactive: {
+        userId: string;
+        lastActivityAt: string | null;
+        daysSinceLastActivity: number | null;
+    }[] = [];
     for (const [userId, last] of lastByUser) {
         const days = daysBetween(opts.now, last);
         if (days >= opts.inactivityDays) {

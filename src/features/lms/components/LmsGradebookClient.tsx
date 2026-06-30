@@ -239,11 +239,16 @@ function AddItemDialog({
                 </DialogHeader>
                 <div className="flex flex-col gap-4 py-2">
                     <div className="flex flex-col gap-1.5">
-                        <label htmlFor="gb-item-title" className="text-ink text-[13px] font-bold">Título</label>
+                        <label htmlFor="gb-item-title" className="text-ink text-[13px] font-bold">
+                            Título
+                        </label>
                         <Input
                             id="gb-item-title"
                             value={title}
-                            onChange={(e) => { setTitle(e.target.value); setError(null); }}
+                            onChange={(e) => {
+                                setTitle(e.target.value);
+                                setError(null);
+                            }}
                             placeholder="Ej: Participación clase 1"
                             className="border-border h-11 rounded-[10px]"
                             disabled={isPending}
@@ -273,7 +278,10 @@ function AddItemDialog({
                             max={1}
                             step={0.05}
                             value={weight}
-                            onChange={(e) => { setWeight(e.target.value); setError(null); }}
+                            onChange={(e) => {
+                                setWeight(e.target.value);
+                                setError(null);
+                            }}
                             className="border-border h-11 rounded-[10px]"
                             disabled={isPending}
                         />
@@ -284,7 +292,11 @@ function AddItemDialog({
                     <Button variant="ghost" onClick={onClose} disabled={isPending}>
                         Cancelar
                     </Button>
-                    <Button variant="ink" onClick={handleCreate} disabled={isPending || !title.trim()}>
+                    <Button
+                        variant="ink"
+                        onClick={handleCreate}
+                        disabled={isPending || !title.trim()}
+                    >
                         {isPending && <Loader2 size={14} className="mr-1 animate-spin" />}
                         Agregar
                     </Button>
@@ -357,7 +369,7 @@ export function LmsGradebookClient({ slug, courseId, items, rows }: Props) {
                 <table className="min-w-full text-sm">
                     <thead className="bg-paper border-border border-b">
                         <tr>
-                            <th className="text-mute sticky left-0 bg-paper px-6 py-3 text-left font-mono text-[10px] uppercase tracking-widest">
+                            <th className="text-mute bg-paper sticky left-0 px-6 py-3 text-left font-mono text-[10px] tracking-widest uppercase">
                                 Estudiante
                             </th>
                             {items.map((it) => (
@@ -370,7 +382,10 @@ export function LmsGradebookClient({ slug, courseId, items, rows }: Props) {
                                             {it.title}
                                         </span>
                                         <div className="flex items-center gap-1">
-                                            <Badge variant="outline" className="text-[9px] px-1.5 py-0">
+                                            <Badge
+                                                variant="outline"
+                                                className="px-1.5 py-0 text-[9px]"
+                                            >
                                                 {ITEM_TYPE_LABEL[it.type] ?? it.type}
                                             </Badge>
                                             <span className="text-mute font-mono text-[9px]">
@@ -390,7 +405,7 @@ export function LmsGradebookClient({ slug, courseId, items, rows }: Props) {
                                     </div>
                                 </th>
                             ))}
-                            <th className="text-mute min-w-[90px] px-3 py-3 text-center font-mono text-[10px] uppercase tracking-widest">
+                            <th className="text-mute min-w-[90px] px-3 py-3 text-center font-mono text-[10px] tracking-widest uppercase">
                                 Promedio
                             </th>
                         </tr>
@@ -398,7 +413,7 @@ export function LmsGradebookClient({ slug, courseId, items, rows }: Props) {
                     <tbody className="divide-border divide-y">
                         {rows.map((row) => (
                             <tr key={row.studentId} className="hover:bg-paper/50 transition-colors">
-                                <td className="border-border sticky left-0 bg-white border-r px-6 py-3">
+                                <td className="border-border sticky left-0 border-r bg-white px-6 py-3">
                                     <p className="text-ink text-sm font-semibold">
                                         {row.studentName}
                                     </p>
@@ -440,7 +455,7 @@ export function LmsGradebookClient({ slug, courseId, items, rows }: Props) {
                                             {row.passed !== null && (
                                                 <Badge
                                                     variant={row.passed ? 'default' : 'destructive'}
-                                                    className="mt-0.5 text-[9px] px-1.5 py-0"
+                                                    className="mt-0.5 px-1.5 py-0 text-[9px]"
                                                 >
                                                     {row.passed ? 'Aprueba' : 'Reprueba'}
                                                 </Badge>
@@ -469,11 +484,16 @@ export function LmsGradebookClient({ slug, courseId, items, rows }: Props) {
                         <DialogHeader>
                             <DialogTitle className="text-destructive">Eliminar ítem</DialogTitle>
                             <DialogDescription>
-                                Esta acción eliminará el ítem y todas las notas asociadas. ¿Continuar?
+                                Esta acción eliminará el ítem y todas las notas asociadas.
+                                ¿Continuar?
                             </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
-                            <Button variant="ghost" onClick={() => setDeletingId(null)} disabled={isPending}>
+                            <Button
+                                variant="ghost"
+                                onClick={() => setDeletingId(null)}
+                                disabled={isPending}
+                            >
                                 Cancelar
                             </Button>
                             <Button

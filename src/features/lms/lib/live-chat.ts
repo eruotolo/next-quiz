@@ -18,7 +18,8 @@ export function evaluateChatRateLimit(
     state: ChatRateLimitState,
     nowMs: number,
 ): ChatRateLimitResult {
-    const sinceLastSent = state.lastSentAt === null ? Number.POSITIVE_INFINITY : nowMs - state.lastSentAt;
+    const sinceLastSent =
+        state.lastSentAt === null ? Number.POSITIVE_INFINITY : nowMs - state.lastSentAt;
     if (sinceLastSent < LIVE_CHAT_MIN_INTERVAL_MS) {
         return {
             allowed: false,

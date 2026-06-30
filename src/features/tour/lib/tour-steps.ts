@@ -65,8 +65,7 @@ const EXAMS_STEPS: DriveStep[] = [
         element: '[data-tour="exam-stats"]',
         popover: {
             title: 'Vista rápida',
-            description:
-                'Hacé clic en cualquier tile para filtrar la lista por ese estado.',
+            description: 'Hacé clic en cualquier tile para filtrar la lista por ese estado.',
             side: 'bottom',
         },
     },
@@ -74,8 +73,7 @@ const EXAMS_STEPS: DriveStep[] = [
         element: '[data-tour="exam-new-btn"]',
         popover: {
             title: 'Crear examen',
-            description:
-                'Creá un nuevo examen desde cero o usá una plantilla Excel o Markdown.',
+            description: 'Creá un nuevo examen desde cero o usá una plantilla Excel o Markdown.',
             side: 'bottom',
             align: 'end',
         },
@@ -169,85 +167,146 @@ const RESULTS_STEPS: DriveStep[] = [
 const COURSES_STEPS: DriveStep[] = [
     {
         element: '[data-tour="courses-header"]',
-        popover: { title: 'Gestión de materias', description: 'Crea y administra las materias o asignaturas de tu institución.', side: 'bottom' },
+        popover: {
+            title: 'Gestión de materias',
+            description: 'Crea y administra las materias o asignaturas de tu institución.',
+            side: 'bottom',
+        },
     },
     {
         element: '[data-tour="courses-list"]',
-        popover: { title: 'Lista de materias', description: 'Aquí verás todas las materias, con su programa, período y profesores asignados.', side: 'top' },
-    }
+        popover: {
+            title: 'Lista de materias',
+            description:
+                'Aquí verás todas las materias, con su programa, período y profesores asignados.',
+            side: 'top',
+        },
+    },
 ];
 
 const PROFESSORS_STEPS: DriveStep[] = [
     {
         element: '[data-tour="professors-header"]',
-        popover: { title: 'Gestión de profesores', description: 'Administra los accesos y roles de los docentes.', side: 'bottom' },
+        popover: {
+            title: 'Gestión de profesores',
+            description: 'Administra los accesos y roles de los docentes.',
+            side: 'bottom',
+        },
     },
     {
         element: '[data-tour="professors-list"]',
-        popover: { title: 'Lista de profesores', description: 'Cada profesor muestra su rol y los grupos que tiene asignados.', side: 'top' },
-    }
+        popover: {
+            title: 'Lista de profesores',
+            description: 'Cada profesor muestra su rol y los grupos que tiene asignados.',
+            side: 'top',
+        },
+    },
 ];
 
 const PROGRAMS_STEPS: DriveStep[] = [
     {
         element: '[data-tour="programs-header"]',
-        popover: { title: 'Gestión de programas', description: 'Organiza las carreras, niveles o programas académicos.', side: 'bottom' },
+        popover: {
+            title: 'Gestión de programas',
+            description: 'Organiza las carreras, niveles o programas académicos.',
+            side: 'bottom',
+        },
     },
     {
         element: '[data-tour="programs-list"]',
-        popover: { title: 'Lista de programas', description: 'Detalle de los grupos y materias asociadas a cada programa.', side: 'top' },
-    }
+        popover: {
+            title: 'Lista de programas',
+            description: 'Detalle de los grupos y materias asociadas a cada programa.',
+            side: 'top',
+        },
+    },
 ];
 
 const PERIODS_STEPS: DriveStep[] = [
     {
         element: '[data-tour="periods-header"]',
-        popover: { title: 'Períodos académicos', description: 'Administra los semestres o años académicos activos.', side: 'bottom' },
+        popover: {
+            title: 'Períodos académicos',
+            description: 'Administra los semestres o años académicos activos.',
+            side: 'bottom',
+        },
     },
     {
         element: '[data-tour="periods-list"]',
-        popover: { title: 'Lista de períodos', description: 'Visualiza las fechas y el estado de cada período.', side: 'top' },
-    }
+        popover: {
+            title: 'Lista de períodos',
+            description: 'Visualiza las fechas y el estado de cada período.',
+            side: 'top',
+        },
+    },
 ];
 
 const QUESTIONS_STEPS: DriveStep[] = [
     {
         element: '[data-tour="questions-filters"]',
-        popover: { title: 'Banco de preguntas', description: 'Filtra y busca preguntas por asignatura, unidad, dificultad o tags.', side: 'bottom' },
+        popover: {
+            title: 'Banco de preguntas',
+            description: 'Filtra y busca preguntas por asignatura, unidad, dificultad o tags.',
+            side: 'bottom',
+        },
     },
     {
         element: '[data-tour="questions-list"]',
-        popover: { title: 'Tus preguntas', description: 'Crea, edita y reutiliza preguntas para distintos exámenes.', side: 'top' },
-    }
+        popover: {
+            title: 'Tus preguntas',
+            description: 'Crea, edita y reutiliza preguntas para distintos exámenes.',
+            side: 'top',
+        },
+    },
 ];
 
 const LIVERESULTS_STEPS: DriveStep[] = [
     {
         element: '[data-tour="liveresults-header"]',
-        popover: { title: 'Resultados en vivo', description: 'Selecciona el examen y grupo para monitorear en tiempo real.', side: 'bottom' },
+        popover: {
+            title: 'Resultados en vivo',
+            description: 'Selecciona el examen y grupo para monitorear en tiempo real.',
+            side: 'bottom',
+        },
     },
     {
         element: '[data-tour="liveresults-stats"]',
-        popover: { title: 'Estadísticas generales', description: 'Observa cuántos alumnos están rindiendo y el progreso general.', side: 'bottom' },
+        popover: {
+            title: 'Estadísticas generales',
+            description: 'Observa cuántos alumnos están rindiendo y el progreso general.',
+            side: 'bottom',
+        },
     },
     {
         element: '[data-tour="liveresults-list"]',
-        popover: { title: 'Progreso por estudiante', description: 'Sigue el avance pregunta por pregunta de cada alumno.', side: 'top' },
-    }
+        popover: {
+            title: 'Progreso por estudiante',
+            description: 'Sigue el avance pregunta por pregunta de cada alumno.',
+            side: 'top',
+        },
+    },
 ];
 
 const SETTINGS_STEPS: DriveStep[] = [
     {
         element: '[data-tour="settings-form"]',
-        popover: { title: 'Configuración', description: 'Ajusta los datos y preferencias principales de tu institución.', side: 'bottom' },
-    }
+        popover: {
+            title: 'Configuración',
+            description: 'Ajusta los datos y preferencias principales de tu institución.',
+            side: 'bottom',
+        },
+    },
 ];
 
 const UPGRADE_STEPS: DriveStep[] = [
     {
         element: '[data-tour="upgrade-plans"]',
-        popover: { title: 'Planes y facturación', description: 'Revisa y mejora tu plan para acceder a más características.', side: 'bottom' },
-    }
+        popover: {
+            title: 'Planes y facturación',
+            description: 'Revisa y mejora tu plan para acceder a más características.',
+            side: 'bottom',
+        },
+    },
 ];
 
 export const PAGE_TOUR_STEPS: Record<string, DriveStep[]> = {

@@ -1,5 +1,6 @@
 import { auth } from '@/features/auth/auth';
 import { Sidebar } from '@/features/dashboard/components/Sidebar';
+import { SlugTopBar } from '@/shared/components/layout/SlugTopBar';
 import { TourButton } from '@/features/tour/components/TourButton';
 import { demoExamFilter } from '@/features/demo/lib/demo';
 import { PlanUsageBanner } from '@/features/subscriptions/components/PlanUsageBanner';
@@ -85,7 +86,7 @@ export default async function InstitutionLayout({ children, params }: Props) {
               isSuperAdmin ? Promise.resolve([]) : getQuotaUsage(institutionId),
               prisma.academicInstitution.findUnique({
                   where: { id: institutionId },
-                  select: { plan: true, type: true },
+                  select: { plan: true, type: true, name: true },
               }),
           ])
         : [undefined, undefined, undefined, [], [], null];
@@ -122,12 +123,18 @@ export default async function InstitutionLayout({ children, params }: Props) {
                 institutionList={institutionList as { name: string; slug: string }[]}
                 showPlanPromo={showPlanPromo}
             />
-            <main className="flex flex-1 flex-col overflow-y-auto lg:ml-60">
-                {isAdmin && quotaUsage && quotaUsage.length > 0 && (
-                    <PlanUsageBanner usage={quotaUsage} slug={slug} />
-                )}
-                {children}
-            </main>
+            <div className="flex flex-1 flex-col overflow-y-auto lg:ml-60">
+                <SlugTopBar
+                    institutionName={institutionData?.name ?? slug}
+                    institutionType={institutionData?.type ?? 'OTRO'}
+                />
+                <main className="flex flex-1 flex-col">
+                    {isAdmin && quotaUsage && quotaUsage.length > 0 && (
+                        <PlanUsageBanner usage={quotaUsage} slug={slug} />
+                    )}
+                    {children}
+                </main>
+            </div>
             <TourButton slug={slug} />
         </div>
     );

@@ -33,25 +33,26 @@ export default async function StudentLiveSessionsListPage() {
         select: { courseId: true },
     });
 
-    const sessions = enrollments.length === 0
-        ? []
-        : await prisma.lmsLiveSession.findMany({
-            where: {
-                courseId: { in: enrollments.map((e) => e.courseId) },
-                status: { not: 'CANCELED' },
-            },
-            orderBy: [{ scheduledAt: 'desc' }],
-            take: 30,
-            select: {
-                id: true,
-                title: true,
-                description: true,
-                scheduledAt: true,
-                durationMin: true,
-                status: true,
-                course: { select: { id: true, title: true } },
-            },
-        });
+    const sessions =
+        enrollments.length === 0
+            ? []
+            : await prisma.lmsLiveSession.findMany({
+                  where: {
+                      courseId: { in: enrollments.map((e) => e.courseId) },
+                      status: { not: 'CANCELED' },
+                  },
+                  orderBy: [{ scheduledAt: 'desc' }],
+                  take: 30,
+                  select: {
+                      id: true,
+                      title: true,
+                      description: true,
+                      scheduledAt: true,
+                      durationMin: true,
+                      status: true,
+                      course: { select: { id: true, title: true } },
+                  },
+              });
 
     const now = new Date();
 
@@ -59,13 +60,13 @@ export default async function StudentLiveSessionsListPage() {
         <div className="flex flex-col gap-4">
             <header>
                 <h1 className="text-2xl font-semibold">Aulas en vivo</h1>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                     Todas las clases programadas de tus cursos activos.
                 </p>
             </header>
 
             {sessions.length === 0 ? (
-                <Card className="p-8 text-center text-sm text-muted-foreground">
+                <Card className="text-muted-foreground p-8 text-center text-sm">
                     Aún no tienes clases en vivo programadas en tus cursos.
                 </Card>
             ) : (
@@ -85,16 +86,16 @@ export default async function StudentLiveSessionsListPage() {
                             <li key={s.id}>
                                 <Card className="flex items-start justify-between gap-3 p-4">
                                     <div>
-                                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                                        <p className="text-muted-foreground text-xs tracking-wide uppercase">
                                             {s.course.title}
                                         </p>
                                         <h3 className="mt-1 text-base font-medium">{s.title}</h3>
                                         {s.description ? (
-                                            <p className="mt-1 text-sm text-muted-foreground">
+                                            <p className="text-muted-foreground mt-1 text-sm">
                                                 {s.description}
                                             </p>
                                         ) : null}
-                                        <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+                                        <div className="text-muted-foreground mt-2 flex items-center gap-3 text-xs">
                                             <span>{new Date(s.scheduledAt).toLocaleString()}</span>
                                             <span>· {s.durationMin} min</span>
                                         </div>
@@ -106,12 +107,12 @@ export default async function StudentLiveSessionsListPage() {
                                         {joinable ? (
                                             <Link
                                                 href={`/aula/clases/${s.id}` as `/${string}`}
-                                                className="text-sm font-medium text-primary hover:underline"
+                                                className="text-primary text-sm font-medium hover:underline"
                                             >
                                                 Unirme
                                             </Link>
                                         ) : (
-                                            <span className="text-xs text-muted-foreground">
+                                            <span className="text-muted-foreground text-xs">
                                                 {win.secondsUntilStart > 0
                                                     ? `Abre en ${Math.max(
                                                           1,

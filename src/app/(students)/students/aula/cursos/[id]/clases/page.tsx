@@ -67,12 +67,12 @@ export default async function StudentLiveCoursePage({ params }: PageProps) {
         <div className="flex flex-col gap-4">
             <header>
                 <h1 className="text-2xl font-semibold">Aulas en vivo</h1>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                     Curso: <strong>{course.title}</strong>
                 </p>
             </header>
             {sessions.length === 0 ? (
-                <Card className="p-8 text-center text-sm text-muted-foreground">
+                <Card className="text-muted-foreground p-8 text-center text-sm">
                     Aún no hay clases en vivo programadas.
                 </Card>
             ) : (
@@ -94,14 +94,12 @@ export default async function StudentLiveCoursePage({ params }: PageProps) {
                                     <div>
                                         <h3 className="text-base font-medium">{s.title}</h3>
                                         {s.description ? (
-                                            <p className="mt-1 text-sm text-muted-foreground">
+                                            <p className="text-muted-foreground mt-1 text-sm">
                                                 {s.description}
                                             </p>
                                         ) : null}
-                                        <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-                                            <span>
-                                                {new Date(s.scheduledAt).toLocaleString()}
-                                            </span>
+                                        <div className="text-muted-foreground mt-2 flex items-center gap-3 text-xs">
+                                            <span>{new Date(s.scheduledAt).toLocaleString()}</span>
                                             <span>· {s.durationMin} min</span>
                                         </div>
                                     </div>
@@ -112,12 +110,12 @@ export default async function StudentLiveCoursePage({ params }: PageProps) {
                                         {joinable ? (
                                             <Link
                                                 href={`/aula/clases/${s.id}` as `/${string}`}
-                                                className="text-sm font-medium text-primary hover:underline"
+                                                className="text-primary text-sm font-medium hover:underline"
                                             >
                                                 Unirme
                                             </Link>
                                         ) : (
-                                            <span className="text-xs text-muted-foreground">
+                                            <span className="text-muted-foreground text-xs">
                                                 {win.secondsUntilStart > 0
                                                     ? `Abre en ${Math.max(
                                                           1,

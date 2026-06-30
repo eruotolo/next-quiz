@@ -17,11 +17,7 @@
 // - La acreditación de puntos, actualización de racha y desbloqueo de badges
 //   ocurre en una sola transacción para garantizar consistencia.
 
-import {
-    type BadgeCriterion,
-    evaluateCriterion,
-    isBadgeCriterion,
-} from './badges';
+import { type BadgeCriterion, evaluateCriterion, isBadgeCriterion } from './badges';
 import { computeStreakUpdate, type StreakState } from './streak';
 import type { UserStats } from './user-stats';
 import { prisma } from '@/shared/lib/prisma';
@@ -193,17 +189,16 @@ async function loadUserStats(
     totalPoints: number,
     streak: StreakRow,
 ): Promise<UserStats> {
-    const [lessonsCompleted, assignmentsSubmitted, examsPassed, forumPosts] =
-        await Promise.all([
-            tx.lmsLessonProgress.count({
-                where: { userId, completed: true },
-            }),
-            tx.lmsSubmission.count({ where: { studentId: userId } }),
-            tx.lmsPointEvent.count({
-                where: { userId, sourceType: 'EXAM_PASSED' },
-            }),
-            tx.lmsForumPost.count({ where: { authorId: userId } }),
-        ]);
+    const [lessonsCompleted, assignmentsSubmitted, examsPassed, forumPosts] = await Promise.all([
+        tx.lmsLessonProgress.count({
+            where: { userId, completed: true },
+        }),
+        tx.lmsSubmission.count({ where: { studentId: userId } }),
+        tx.lmsPointEvent.count({
+            where: { userId, sourceType: 'EXAM_PASSED' },
+        }),
+        tx.lmsForumPost.count({ where: { authorId: userId } }),
+    ]);
 
     return {
         totalPoints,
@@ -303,10 +298,7 @@ async function creditBadgeRewardIfAny(
     }
 }
 
-function badgeRewardReason(
-    criterion: BadgeCriterion,
-    stats: UserStats,
-): string {
+function badgeRewardReason(criterion: BadgeCriterion, stats: UserStats): string {
     switch (criterion.type) {
         case 'TOTAL_POINTS':
             return `Alcanzaste ${stats.totalPoints} puntos`;
@@ -336,7 +328,14 @@ function isUniqueViolation(err: unknown): boolean {
 export async function getUserGamificationSummary(userId: string): Promise<{
     totalPoints: number;
     streak: { current: number; longest: number; lastActiveOn: Date | null; freezeTokens: number };
-    badges: Array<{ id: string; code: string; name: string; description: string; icon: string; awardedAt: Date }>;
+    badges: Array<{
+        id: string;
+        code: string;
+        name: string;
+        description: string;
+        icon: string;
+        awardedAt: Date;
+    }>;
     pointsBySource: Array<{ sourceType: string; total: number }>;
 }> {
     const [aggregate, streak, ownedBadges, bySource] = await Promise.all([

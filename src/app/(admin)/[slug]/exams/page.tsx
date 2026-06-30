@@ -1,4 +1,3 @@
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { ExamsClient } from '@/features/exams/components/ExamsClient';
 import { demoExamFilter } from '@/features/demo/lib/demo';
@@ -139,19 +138,12 @@ export default async function ExamsPage({ params }: { params: Promise<{ slug: st
     });
 
     return (
-        <>
-            <AdminTopBar
-                title="Exámenes"
-                breadcrumb={[institutionName, 'Exámenes']}
-                subtitle={`${exams.length} examen${exams.length !== 1 ? 'es' : ''} registrados`}
-            />
-            <ExamsClient
-                exams={examsWithStats}
-                groups={groups}
-                courseSections={courseSections}
-                isProfesor={isProfesor}
-                isDemo={isDemo}
-            />
-        </>
+        <ExamsClient
+            exams={examsWithStats}
+            groups={groups}
+            courseSections={courseSections}
+            isProfesor={isProfesor}
+            isDemo={isDemo}
+        />
     );
 }

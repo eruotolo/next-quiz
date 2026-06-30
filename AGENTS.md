@@ -30,25 +30,25 @@ CodeGraph es un servidor MCP que expone un índice estructural pre-parseado del 
 
 **Disponible solo si el agente tiene el MCP `codegraph_*` configurado.** Si lo tiene, se prefiere sobre búsquedas nativas para preguntas **estructurales** (qué llama a qué, dónde se define X, qué se rompe si cambio Y).
 
-| Pregunta                                              | Herramienta              |
-| ----------------------------------------------------- | ------------------------ |
-| "¿Dónde está definido X?" / "Buscar símbolo X"       | `codegraph_search`       |
-| "¿Qué llama a Y?"                                     | `codegraph_callers`      |
-| "¿Qué llama Y?"                                       | `codegraph_callees`      |
-| "¿Cómo llega X hasta Y? / trazar el flujo"            | `codegraph_trace`        |
-| "¿Qué se rompe si cambio Z?"                         | `codegraph_impact`       |
-| "Firma / fuente / docstring de Y"                     | `codegraph_node`         |
-| "Contexto enfocado para una tarea/área"               | `codegraph_context`      |
-| "Ver fuente de varios símbolos juntos"                | `codegraph_explore`      |
-| "¿Qué archivos hay bajo `path/`?"                     | `codegraph_files`        |
-| "¿El índice está sano?"                               | `codegraph_status`       |
+| Pregunta                                       | Herramienta         |
+| ---------------------------------------------- | ------------------- |
+| "¿Dónde está definido X?" / "Buscar símbolo X" | `codegraph_search`  |
+| "¿Qué llama a Y?"                              | `codegraph_callers` |
+| "¿Qué llama Y?"                                | `codegraph_callees` |
+| "¿Cómo llega X hasta Y? / trazar el flujo"     | `codegraph_trace`   |
+| "¿Qué se rompe si cambio Z?"                   | `codegraph_impact`  |
+| "Firma / fuente / docstring de Y"              | `codegraph_node`    |
+| "Contexto enfocado para una tarea/área"        | `codegraph_context` |
+| "Ver fuente de varios símbolos juntos"         | `codegraph_explore` |
+| "¿Qué archivos hay bajo `path/`?"              | `codegraph_files`   |
+| "¿El índice está sano?"                        | `codegraph_status`  |
 
 **Reglas de uso:**
 
 - Responder directo, sin delegar exploración innecesaria. Para "cómo funciona X" usar 2-3 llamadas a CodeGraph, no un loop de grep + read.
 - Confiar en los resultados (vienen de un parse AST completo). No re-verificar con grep.
 - No encadenar `codegraph_search` + `codegraph_node` cuando alcanza con `codegraph_context` (una llamada).
-- Si el índice no está inicializado (`.codegraph/` no existe) y el agente lo detecta, debe avisar al usuario: *"No veo CodeGraph inicializado en este proyecto. ¿Querés que corra `codegraph init -i`?"*
+- Si el índice no está inicializado (`.codegraph/` no existe) y el agente lo detecta, debe avisar al usuario: _"No veo CodeGraph inicializado en este proyecto. ¿Querés que corra `codegraph init -i`?"_
 
 ### MCP JetBrains (`jetbrains`)
 
@@ -61,20 +61,20 @@ Servidor MCP que expone herramientas del IDE JetBrains (WebStorm, IntelliJ, PhpS
 
 Si está disponible, **usar preferentemente** sobre Read/Edit nativos para:
 
-| Acción                                          | MCP JetBrains                                  | Alternativa sin MCP      |
-| ----------------------------------------------- | ---------------------------------------------- | ------------------------ |
-| Abrir archivo en el editor                      | `open_file`                                    | `read` + mostrar en chat |
-| Aplicar cambio con preview visual               | `apply_changes` + `show_diff`                  | `Edit` + diff en chat    |
-| Ejecutar test con el runner del IDE             | `run_configuration`                            | `Bash(pnpm test)`        |
-| Renombrar / extraer función con refactor seguro | rename/extract del IDE                         | `Edit` + verificar manual |
-| Ver inspecciones de TypeScript/JavaScript       | inspecciones nativas de IntelliJ               | `Bash(pnpm lint)`        |
+| Acción                                          | MCP JetBrains                    | Alternativa sin MCP       |
+| ----------------------------------------------- | -------------------------------- | ------------------------- |
+| Abrir archivo en el editor                      | `open_file`                      | `read` + mostrar en chat  |
+| Aplicar cambio con preview visual               | `apply_changes` + `show_diff`    | `Edit` + diff en chat     |
+| Ejecutar test con el runner del IDE             | `run_configuration`              | `Bash(pnpm test)`         |
+| Renombrar / extraer función con refactor seguro | rename/extract del IDE           | `Edit` + verificar manual |
+| Ver inspecciones de TypeScript/JavaScript       | inspecciones nativas de IntelliJ | `Bash(pnpm lint)`         |
 
 **Reglas de uso (CRÍTICAS para reducir tokens):**
 
-- **No imprimir diffs grandes en el chat cuando el MCP puede mostrarlos en el IDE.** Después de `apply_changes`, decir *"cambios aplicados en N archivos, diffs abiertos en WebStorm"* en lugar de pegar el contenido modificado. Cada bloque de código pegado en el chat consume tokens que se acumulan en el historial.
+- **No imprimir diffs grandes en el chat cuando el MCP puede mostrarlos en el IDE.** Después de `apply_changes`, decir _"cambios aplicados en N archivos, diffs abiertos en WebStorm"_ en lugar de pegar el contenido modificado. Cada bloque de código pegado en el chat consume tokens que se acumulan en el historial.
 - **No releer archivos ya abiertos en el IDE** — si el archivo está cargado, operar directamente. Reduce lecturas redundantes.
 - **Aprovechar el project model del IDE** — para distinguir código fuente / tests / config / generated sin hacer `find` en el filesystem.
-- **Si el MCP no responde** (puerto cambió tras restart de WebStorm, IDE cerrado), caer a Read/Edit nativos sin cortar el flujo. Avisar al usuario: *"El MCP de JetBrains no responde, sigo con Read/Edit nativos. Si querés reactivarlo, abrí WebStorm y verificá el puerto."*
+- **Si el MCP no responde** (puerto cambió tras restart de WebStorm, IDE cerrado), caer a Read/Edit nativos sin cortar el flujo. Avisar al usuario: _"El MCP de JetBrains no responde, sigo con Read/Edit nativos. Si querés reactivarlo, abrí WebStorm y verificá el puerto."_
 
 ### ⚠️ REGLA CRÍTICA — Ejecución de comandos (NO NEGOCIABLE)
 
@@ -82,15 +82,15 @@ Si está disponible, **usar preferentemente** sobre Read/Edit nativos para:
 
 **SIEMPRE invocar estos comandos a través de `mcp__jetbrains__execute_terminal_command`** y capturar el resultado desde ahí.
 
-| Comando | ❌ Prohibido | ✅ Correcto |
-|---|---|---|
-| `pnpm lint` | `Bash("pnpm lint")` | `mcp__jetbrains__execute_terminal_command("pnpm lint")` |
-| `pnpm type-check` | `Bash("pnpm type-check")` | `mcp__jetbrains__execute_terminal_command("pnpm type-check")` |
-| `pnpm build` | `Bash("pnpm build")` | `mcp__jetbrains__execute_terminal_command("pnpm build")` |
-| `pnpm test:e2e` | `Bash("pnpm test:e2e")` | `mcp__jetbrains__execute_terminal_command("pnpm test:e2e")` |
-| `pnpm db:migrate` | `Bash("pnpm db:migrate")` | `mcp__jetbrains__execute_terminal_command("pnpm db:migrate")` |
+| Comando            | ❌ Prohibido               | ✅ Correcto                                                    |
+| ------------------ | -------------------------- | -------------------------------------------------------------- |
+| `pnpm lint`        | `Bash("pnpm lint")`        | `mcp__jetbrains__execute_terminal_command("pnpm lint")`        |
+| `pnpm type-check`  | `Bash("pnpm type-check")`  | `mcp__jetbrains__execute_terminal_command("pnpm type-check")`  |
+| `pnpm build`       | `Bash("pnpm build")`       | `mcp__jetbrains__execute_terminal_command("pnpm build")`       |
+| `pnpm test:e2e`    | `Bash("pnpm test:e2e")`    | `mcp__jetbrains__execute_terminal_command("pnpm test:e2e")`    |
+| `pnpm db:migrate`  | `Bash("pnpm db:migrate")`  | `mcp__jetbrains__execute_terminal_command("pnpm db:migrate")`  |
 | `pnpm db:generate` | `Bash("pnpm db:generate")` | `mcp__jetbrains__execute_terminal_command("pnpm db:generate")` |
-| `pnpm dev` | `Bash("pnpm dev")` | `mcp__jetbrains__execute_terminal_command("pnpm dev")` |
+| `pnpm dev`         | `Bash("pnpm dev")`         | `mcp__jetbrains__execute_terminal_command("pnpm dev")`         |
 
 Si el MCP de JetBrains no responde, **reportar el blocker al usuario** en lugar de caer a Bash para estos comandos.
 
@@ -117,15 +117,15 @@ cd ~/.claude/skills/gstack && ./setup --team
 
 **Skills más relevantes para este proyecto:**
 
-| Tarea                              | Skill          |
-| ---------------------------------- | -------------- |
-| Explorar / entender código         | CodeGraph      |
-| Especificar features ambiguos      | `/spec`        |
-| Investigar bugs                    | `/investigate` |
-| QA en navegador                    | `/qa` o `/qa-only` |
-| Review pre-commit                  | `/review`      |
-| Auditoría de diseño                | `/design-review` |
-| Commit + ship                      | `/ship` (solo cuando el usuario lo pida) |
+| Tarea                         | Skill                                    |
+| ----------------------------- | ---------------------------------------- |
+| Explorar / entender código    | CodeGraph                                |
+| Especificar features ambiguos | `/spec`                                  |
+| Investigar bugs               | `/investigate`                           |
+| QA en navegador               | `/qa` o `/qa-only`                       |
+| Review pre-commit             | `/review`                                |
+| Auditoría de diseño           | `/design-review`                         |
+| Commit + ship                 | `/ship` (solo cuando el usuario lo pida) |
 
 ### Pipeline asíncrono de agentes — `.spool/`
 
@@ -512,6 +512,7 @@ Plan en `AcademicInstitution.plan` (`Plan`: FREE · DOCENTE · COLEGIO · INSTIT
 Feature en `src/features/lms/` y Route Group `src/app/(aula)/` para evolucionar Aulika a un LMS independiente pero integrable con el motor de exámenes.
 
 ### Modelos Prisma (prefijo `Lms*` para no colisionar con `CourseSection`)
+
 - `LmsCourse` — curso del LMS, FK opcional a `CourseSection` (materia) y a `AcademicInstitution`.
 - `LmsModule` — módulo dentro de un curso (`order`, `title`).
 - `LmsLesson` — lección polimórfica (`LessonType`: VIDEO, DOCUMENTO, TEXTO, ENLACE, EXAMEN, TAREA, EN_VIVO). Soporta `videoAssetId` (Mux), `fileUrl` (Vercel Blob), `externalLink`, `contentJson` (Tiptap) y FK a `Exam` para embeber exámenes Aulika.
@@ -519,25 +520,29 @@ Feature en `src/features/lms/` y Route Group `src/app/(aula)/` para evolucionar 
 - `LmsLessonProgress` — progreso por lección (`completed`, `lastSeenSec` para videos, `@@unique([userId, lessonId])`).
 
 ### Enums
+
 - `LessonType`: VIDEO · DOCUMENTO · TEXTO · ENLACE · EXAMEN · TAREA · EN_VIVO.
 - `EnrollmentStatus`: ACTIVO · COMPLETADO · RETIRADO.
 
 ### Integraciones externas
+
 - **`src/shared/lib/mux.ts`** — wrapper lazy del SDK `@mux/mux-node`. Funciones: `createMuxDirectUpload`, `getMuxAssetFromUpload`, `getMuxAssetStatus`, `muxPlaybackId`, `deleteMuxAsset`. Requiere `MUX_TOKEN_ID` y `MUX_TOKEN_SECRET`. Cliente se inicializa on-demand para no romper el build sin envs.
 - **`src/shared/lib/blob.ts`** — wrapper de `@vercel/blob`. Funciones: `uploadLmsFile`, `deleteLmsFile`, `listLmsFiles`. Limita a 25 MB y tipos permitidos (PDF, DOCX, XLSX, imágenes).
 - **`src/features/lms/components/VideoPlayer.tsx`** — `@mux/mux-player-react` con autoplay, accent color del design system y callback de progreso.
 - **`src/features/lms/components/DocumentViewer.tsx`** — iframe para PDFs y enlace para otros tipos.
 
 ### Rutas
+
 - **Estudiante** (route group `(aula)/`, valida sesión jose):
-  - `/aula` — lista de cursos inscriptos y disponibles
-  - `/aula/cursos/[id]` — detalle del curso con módulos y lecciones
-  - `/aula/cursos/[id]/leccion/[lessonId]` — visualizador de lección
+    - `/aula` — lista de cursos inscriptos y disponibles
+    - `/aula/cursos/[id]` — detalle del curso con módulos y lecciones
+    - `/aula/cursos/[id]/leccion/[lessonId]` — visualizador de lección
 - **Admin/Profesor** (route group `(admin)/[slug]/`):
-  - `/[slug]/aula` — lista de cursos LMS
-  - `/[slug]/aula/[id]` — editor con drag-and-drop de módulos
+    - `/[slug]/aula` — lista de cursos LMS
+    - `/[slug]/aula/[id]` — editor con drag-and-drop de módulos
 
 ### Pendiente para Fase 2
+
 - File upload directo a Vercel Blob desde el cliente para archivos > 1 MB.
 - Editor de texto enriquecido Tiptap para lecciones `TEXTO`.
 
@@ -567,16 +572,15 @@ Feature en `src/features/lms/` y Route Group `src/app/(aula)/` para evolucionar 
 - **Catálogo sembrado**: 8 badges iniciales en `prisma/seeders/gamification-badges.ts` (`BADGE_SEED`): primer paso, primera entrega, perfección inaugural, racha 7d, racha 30d, voz del aula, conversador, 100 puntos.
 - **Esquema de puntos** (bajo balanceado): tarea +10, tarea calificada +5, examen aprobado +15, post foro +2.
 - **Integración** (fire-and-forget con `void ... .catch(console.error)` en cada action existente):
-  - `submitLmsAssignment` → +10 ASSIGNMENT_SUBMITTED + racha.
-  - `gradeLmsSubmission` → +5 ASSIGNMENT_GRADED + racha.
-  - `recordLmsGrade` (item manual) → +5.
-  - `syncExamGrades` → +15 EXAM_PASSED solo si `score >= 4.0`.
-  - `createLmsForumPost` → +2 FORUM_POST.
+    - `submitLmsAssignment` → +10 ASSIGNMENT_SUBMITTED + racha.
+    - `gradeLmsSubmission` → +5 ASSIGNMENT_GRADED + racha.
+    - `recordLmsGrade` (item manual) → +5.
+    - `syncExamGrades` → +15 EXAM_PASSED solo si `score >= 4.0`.
+    - `createLmsForumPost` → +2 FORUM_POST.
 - **Server actions admin** en `src/features/lms/actions/gamification.ts`: `awardManualLmsPoints`, `createLmsBadge`/`updateLmsBadge`/`deleteLmsBadge`, `listLmsBadges`, `getMyAchievements`, `markBadgesSeen`, `getCourseLeaderboard`, `toggleLeaderboardOptOut`. Anti-IDOR con `requireInstitutionAccess` y `getStudentAuthSession`.
 - **Tipos exportados** desde `actions/gamification.ts`: `AchievementBadge`, `LeaderboardEntry`, `LeaderboardData`, `MyAchievements`, `RecentPointEvent`. `BADGE_DEFINITIONS` en `lib/gamification.ts`.
 - **Tests**: 36 nuevos tests unitarios (racha + badges + engine con Prisma mockeado). Total: **149/149 pasando**.
 - Migraciones: `20260629203535_lms_gamification`, `20260629205142_lms_leaderboard_privacy`.
-
 
 Feature en `src/features/demo/`. Institución `slug = 'aulika-demo'`, `isDemo = true`, plan FREE.
 
@@ -617,6 +621,7 @@ tests/e2e/
 ## Aula Virtual (LMS) — Fase 5: Certificación y Analítica
 
 ### Modelos Prisma nuevos / extendidos
+
 - `LmsCertificate` (id, userId, courseId, verificationCode UNIQUE, finalGrade, pdfUrl, qrCodeUrl, issuedAt, revokedAt). `@@unique([userId, courseId])` + `@@index([courseId, verificationCode])`.
 - `LmsCourse.certificateEnabled: Boolean @default(false)` — emisión automática al aprobar examen.
 - `LmsCourse.aiSummaryEnabled: Boolean @default(false)` — resúmenes IA en lecciones TEXTO.
@@ -624,6 +629,7 @@ tests/e2e/
 - Migración: `20260629220708_lms_phase5_certificates_summary`.
 
 ### Certificados PDF + QR + Cloudinary
+
 - **Deps nuevas** (autorizadas por usuario): `@react-pdf/renderer@4.5.1`, `qrcode@1.5.4`, `cloudinary@2.10.0`.
 - **`src/shared/lib/cloudinary.ts`** — wrapper lazy. Lee credenciales de `AppConfig` (no env vars). Funciones: `uploadCertificatePdf`, `deleteCertificatePdf`, `isCloudinaryConfigured`. Sin credenciales → modo degradado (no rompe el flujo).
 - **`src/features/lms/lib/certificate-pdf.tsx`** — plantilla A4 landscape con QR embebido. `generateCertificatePdfBuffer(input): Promise<Buffer>`.
@@ -632,29 +638,35 @@ tests/e2e/
 - **Hook fire-and-forget** en `syncExamGrades` (Fase 2): `if (normalizedScore >= 4.0) void tryIssueCertificate(...).catch(console.error)`. Solo emite si `course.certificateEnabled === true`.
 
 ### Configuración via `/config/settings` (SuperAdmin)
+
 - `APP_CONFIG_KEY` extendido: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
 - `AppSettingsClient` reemplazó "IA próximamente" por card "Cloudinary — Almacenamiento de certificados" (3 inputs).
 - Validación Zod ya cubre las 3 keys nuevas.
 
 ### Resúmenes IA con Gemini
+
 - **`src/features/lms/lib/lesson-summarizer.ts`** — `summarizeLessonText(content)`. Valida 200-50000 chars, llama `generateText({model: google('gemini-2.5-flash')})`, parsea JSON tolerante, valida estructura.
 - **`actions/lesson-summary.ts`** — `generateLessonSummary(slug, lessonId)` extrae texto de Tiptap JSON recursivo, llama summarizer, persiste. `getLessonSummary(lessonId)` para estudiante. `clearLessonSummary` para admin.
 
 ### Detección temprana (lib pura)
+
 - **`src/features/lms/lib/at-risk-detector.ts`** — funciones puras testeables sin DB:
-  - `identifyAtRiskStudents(enrollments, grades, options?)` → score 0-100 multi-factor (progressPct +40, inactividad +30, nota <4.0 +40), `riskLevel: BAJO|MEDIO|ALTO`.
-  - `identifyInactiveStudents(progress, options?)` → usuarios sin actividad en N días.
-  - `identifyFailingCourses(courseId, enrollments, grades, atRisk, gradeThreshold?)` → métricas agregadas.
+    - `identifyAtRiskStudents(enrollments, grades, options?)` → score 0-100 multi-factor (progressPct +40, inactividad +30, nota <4.0 +40), `riskLevel: BAJO|MEDIO|ALTO`.
+    - `identifyInactiveStudents(progress, options?)` → usuarios sin actividad en N días.
+    - `identifyFailingCourses(courseId, enrollments, grades, atRisk, gradeThreshold?)` → métricas agregadas.
 - **`actions/analytics.ts`** refactorizado: `getCourseAnalytics` delega a `identifyAtRiskStudents`. Mantiene interface `AtRiskStudent` (con `lastname`) que la UI ya consumía.
 
 ### Tests (34 nuevos)
+
 - `at-risk-detector.test.ts` (17), `lesson-summarizer.test.ts` (10), `cloudinary.test.ts` (7). Total suite: **183/183 pasando**.
 
 ### Verificación
+
 - `devBuild` (Next.js build vía MCP JetBrains) → ✅ Compiled successfully, Finished TypeScript 5.3s, 58 rutas.
 - `pnpm test:run` → ✅ 183/183.
 
 ### Fixes colaterales
+
 - `LmsAnalyticsClient.tsx` — `RISK_BADGE: Record<RiskLevel,…>` con tipo `RiskLevel = 'BAJO'|'MEDIO'|'ALTO'`.
 - `app/(aula)/aula/cursos/[id]/page.tsx` y `app/(admin)/[slug]/aula/[id]/page.tsx` — agregados `summaryJson: true` al `select` Prisma (requeridos por interface `LmsLesson` extendida).
 
@@ -663,68 +675,82 @@ tests/e2e/
 Videollamadas reales (Daily.co) + pizarra + chat + registro de asistencia. Chat con polling, pizarra canvas HTML5 (no multi-cursor real-time — para esto se necesitaría Liveblocks/PartyKit).
 
 ### Modelos Prisma nuevos
+
 - `LmsLiveSession`, `LmsLiveAttendance`, `LmsLiveChatMessage`, `LmsWhiteboardSnapshot`.
 - Enums: `LiveSessionStatus {SCHEDULED|LIVE|ENDED|CANCELED}`, `LiveAttendanceRole {TEACHER|STUDENT|GUEST|ASSISTANT}`, `LiveRecordingStatus {NONE|PENDING|READY|FAILED}`.
 - Migración: `20260629223637_lms_phase6_live_sessions`.
 
 ### Integración Daily.co
+
 - `src/shared/lib/daily.ts` — wrapper lazy lee `DAILY_API_KEY`/`DAILY_WEBHOOK_SECRET` desde `AppConfig` (cache TTL 60s).
 - Funciones: `createDailyRoom`, `getDailyRoom`, `deleteDailyRoom`, `createDailyMeetingToken({isOwner})`, `verifyDailyWebhookSignature` (HMAC SHA-256 Web Crypto), `parseDailyWebhookPayload`.
 - Sin credenciales configuradas → `{ok:false, error:'Daily.co no está configurado…'}` (modo degradado).
 
 ### Libs puras (testeables sin DB)
+
 - `live-session-state.ts` — state machine `LIVE_SESSION_TRANSITIONS`, `computeJoinWindow({openMinutesBefore=10})`, `deriveStatusFromSchedule`, `buildDailyRoomName` (regex `[a-z0-9-]{3,64}`, ≤60 chars).
 - `live-attendance.ts` — `computeAttendanceDurationSec`, `isWithinAttendanceWindow({closeMinutesAfter=30})`, `summarizeAttendance(rows, durationMin)` (clamp pct 0-100).
 - `live-chat.ts` — `cleanChatContent` (trim + sanitize + maxLength), `evaluateChatRateLimit` (≥800ms, ≤20/min), `buildChatPollWindow`.
 - `shared/lib/sanitize.ts` — `sanitizeChatText` (NFKC + elimina tags HTML completas + `<`/`>` sueltos + control chars + javascript/data schemes).
 
 ### Server actions
+
 - `src/features/lms/actions/live-sessions.ts` — `createLiveSession` (notifica in-app + Brevo best-effort vía `notifyLiveSessionScheduledBackground`), `updateLiveSession`, `cancelLiveSession` (borra room), `startLiveSession` (genera token isOwner:true), `endLiveSession`, `joinLiveSession` (genera token estudiante + valida access), `leaveLiveSession`, `getLiveSessionById`, `toggleLiveSessionRecording` (start/stop Daily recording). Todas usan `requireInstitutionAccess(slug, roles[])` + `assertSessionEditableByManager` anti-IDOR.
 - `src/features/lms/actions/live-chat.ts` — rate limit in-memory (`Map<string, RateLimitState>` TTL 30min) + `listLiveChatMessages({since})` para polling 3s.
 - `src/features/lms/actions/whiteboard.ts` — `saveWhiteboardSnapshot` Zod (200-8000px), sube PNG via `uploadWhiteboardPng` (Cloudinary `resource_type:'image'`, folder `lms/whiteboard`).
 
 ### Notificaciones in-app + Brevo
+
 - `src/features/lms/lib/live-notifications.ts` — `buildLiveSessionScheduledEmail` (template HTML responsive), `notifyLiveSessionScheduled({sessionId, courseId})` (crea `LmsNotification` por estudiante activo + fan-out Brevo), `notifyLiveSessionScheduledBackground` (fire-and-forget con cache try/catch). Patrón `siteUrlProvider` con default `process.env.AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? 'https://aulika.cl'`.
 
 ### Cron recordatorio 1h antes
+
 - `src/app/api/cron/live-reminders/route.ts` — GET, protegido con `CRON_SECRET` (Bearer), corre cada 15 minutos (`*/15 * * * *` en `vercel.json`). Query: `LmsLiveSession` con `status=SCHEDULED`, `reminderSentAt=null`, `scheduledAt` entre now+55min y now+65min. Envía Brevo a cada estudiante con `LmsEnrollment.status='ACTIVO'`. Marca `reminderSentAt` para idempotencia.
 - Campo `reminderSentAt: DateTime?` agregado a `LmsLiveSession` (migración `20260630003208_lms_live_session_reminder_sent_at`).
 
 ### Grabación → Mux (opcional)
+
 - `src/features/lms/lib/mux-recording.ts` — `uploadDailyRecordingToMux(downloadUrl)` descarga el archivo firmado de Daily y lo sube vía `createMuxDirectUpload` + PUT + polling `getMuxAssetFromUpload`. Si falla, fallback transparente a URL externa de Daily.
 - Webhook Daily `recording.ready-to-download` extendido: invoca `uploadRecordingToMuxBackground(sessionId, downloadUrl)` fire-and-forget que actualiza `recordingMuxAssetId` + `recordingUrl` con playback HLS de Mux si hay credenciales.
 
 ### Webhook `src/app/api/webhooks/daily/route.ts`
+
 - HMAC verify → switch por `payload.type`: `meeting.ended` (status ENDED + cierra attendances), `participant.joined`/`left` (upsert + delta duration), `recording.ready-to-download` (recordingUrl + fire-and-forget upload Mux + audit), `recording.failed`.
 
 ### UI nueva
+
 - **Páginas**:
-  - `/[slug]/aula/[id]/clases` (admin/prof listado).
-  - `/[slug]/aula/[id]/clases/nueva` (form).
-  - `/[slug]/aula/[id]/clases/[sessionId]` (host — videollamada + tabs).
-  - `/[slug]/aula/[id]/clases/[sessionId]/asistencia` (registro).
-  - `/aula/cursos/[id]/clases` (estudiante listado por curso).
-  - `/aula/clases` (estudiante — listado global de todas las sesiones de cursos activos).
-  - `/aula/clases/[sessionId]` (sala estudiante).
+    - `/[slug]/aula/[id]/clases` (admin/prof listado).
+    - `/[slug]/aula/[id]/clases/nueva` (form).
+    - `/[slug]/aula/[id]/clases/[sessionId]` (host — videollamada + tabs).
+    - `/[slug]/aula/[id]/clases/[sessionId]/asistencia` (registro).
+    - `/aula/cursos/[id]/clases` (estudiante listado por curso).
+    - `/aula/clases` (estudiante — listado global de todas las sesiones de cursos activos).
+    - `/aula/clases/[sessionId]` (sala estudiante).
 - **Componentes** (`src/features/lms/components/live/`): `DailyCallFrame` (iframe + listener left-meeting), `LiveChat` (polling 3s + rate limit), `Whiteboard` (canvas 1280×720 + snapshot PNG), `LiveSessionListClient`, `LiveSessionForm`, `LiveSessionRoomClient`, `StudentRoomClient`.
 - **Nota sobre slug dinámico**: las rutas `[courseId]` originales fueron renombradas a `[id]` para coincidir con el resto del LMS (Next.js 16.2 no permite nombres diferentes para el mismo dynamic path).
 
 ### Configuración via `/config/settings` (SuperAdmin)
+
 - `APP_CONFIG_KEY` extendido con `DAILY_API_KEY`, `DAILY_WEBHOOK_SECRET` (passwords).
 - `AppSettingsClient` agrega card "Daily.co — Aulas sincrónicas" con 2 inputs.
 
 ### Auditoría
+
 - `lms.live_session.{create,update,start,end,cancel,join,leave,recording_ready}` agregadas a `AUDIT_ACTION`.
 
 ### Tests E2E (Playwright — 3 nuevos)
+
 - `tests/e2e/admin/lms-phase4-gamification.spec.ts` — ranking admin + logros estudiante.
 - `tests/e2e/admin/lms-phase5.spec.ts` — analytics, certificados, verificación pública.
 - `tests/e2e/admin/lms-phase6-live.spec.ts` — listado clases admin, formulario nueva, listado estudiante.
 
 ### Tests unitarios (70 nuevos — total suite: 253/253 pasando)
+
 - `live-session-state.test.ts` (25), `live-attendance.test.ts` (12), `live-chat.test.ts` (14), `sanitize-chat.test.ts` (9), `daily.test.ts` (10).
 
 ### Seeder de testing (`pnpm db:seed:aula`)
+
 - Cubre Fases 1-6 (institución `lms-testing` / UNIVERSIDAD / INSTITUCIONAL).
 - 5 estudiantes + Patricia Sánchez (profesora) + admin.
 - 2 cursos: Introducción a la Programación (3 módulos, examen embebido, tarea con gradebook) y Base de Datos (2 módulos, tarea, foro activo).
@@ -732,6 +758,7 @@ Videollamadas reales (Daily.co) + pizarra + chat + registro de asistencia. Chat 
 - **Fase 6**: 3 `LmsLiveSession` (1 ENDED con attendance + chat + whiteboard, 1 SCHEDULED para dentro de 2 días, 1 LIVE con chat activo).
 
 ### Limitaciones
+
 1. **Pizarra NO multi-cursor real-time** — cada participante ve su propio canvas. Para colaboración, profesor usa Daily screen-share. Plan original (Liveblocks) no se implementó para evitar dependencia externa de pago.
 2. **Grabación → Mux opcional**: sin credenciales Mux, queda como URL externa de Daily.
 3. **Chat polling 3s**: sin WebSocket. Si se pierden polls, refresh manual.
@@ -739,12 +766,14 @@ Videollamadas reales (Daily.co) + pizarra + chat + registro de asistencia. Chat 
 5. **Webhook no idempotente 100%**: `participant.joined` con mismo `dailyParticipantId` puede duplicar si Daily reenvía.
 
 ### Verificación
+
 - `pnpm type-check` ✅ 0 errores.
 - `pnpm test:run` ✅ 253/253.
 - `pnpm devBuild` ✅ 6 rutas nuevas compiladas.
 - `pnpm db:seed:aula` ✅ ejecuta idempotente; valida con `curl` que todas las rutas (`/lms-testing/aula`, `/lms-testing/aula/[id]/clases`, `/lms-testing/aula/[id]/ranking`, etc.) responden 200 con datos reales.
 
 ## Variables de entorno requeridas
+
 **Flujo completo de examen del estudiante:** Los tests en `student/exam-flow.spec.ts` se saltean automáticamente si no hay un examen activo asignado al grupo del estudiante. Para activar estos tests: crear un examen publicado y asignarlo al grupo de Juan Pérez.
 
 ## Variables de entorno requeridas
@@ -816,18 +845,21 @@ Ubicadas en `src/app/(public)/empresa/`:
 - `/empresa/terminos` — Términos y Condiciones de Uso
 
 **Marco legal cubierto:**
+
 - Ley Nº 19.628 (vigente) + Ley Nº 21.719 (vacatio legis hasta dic. 2026)
 - Decreto Exento MINEDUC Nº 678/2018 (protección datos escolares)
 - Ley Nº 17.336 Propiedad Intelectual
 - Boletín Nº 16821-19 (Proyecto IA Chile)
 
 **Datos legales de la empresa:**
+
 - Razón social: Crow Advance EIRL — RUT 27.039.635-6
 - Representante: Edgardo Ruotolo Cardozo
 - Domicilio: Centenario 493, Chonchi, Chiloé, Región de Los Lagos, Chile
 - Email legal: edgardoruotolo@crowadvance.com
 
 **Puntos clave:**
+
 - Crow Advance = Encargado del Tratamiento; Institución educativa = Responsable
 - IA solo para generación de preguntas (MCP), con supervisión humana obligatoria
 - IA no corrige ni califica exámenes (calificación matemática determinista)

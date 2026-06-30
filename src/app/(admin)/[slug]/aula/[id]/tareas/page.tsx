@@ -75,7 +75,7 @@ export default async function AulaTareasPage({ params }: PageProps) {
                                 <Card className="border-border hover:border-primary/40 hover:bg-paper bg-white p-5 shadow-sm transition-all">
                                     <div className="flex items-start justify-between gap-4">
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-mute font-mono text-[10px] uppercase tracking-widest">
+                                            <p className="text-mute font-mono text-[10px] tracking-widest uppercase">
                                                 {lesson.module.title}
                                             </p>
                                             <p className="text-ink mt-0.5 font-semibold">
@@ -86,9 +86,9 @@ export default async function AulaTareasPage({ params }: PageProps) {
                                                     <Clock size={12} className="text-mute" />
                                                     <span className="text-mute text-xs">
                                                         Vence{' '}
-                                                        {new Date(
-                                                            asg.dueAt,
-                                                        ).toLocaleDateString('es-CL')}
+                                                        {new Date(asg.dueAt).toLocaleDateString(
+                                                            'es-CL',
+                                                        )}
                                                     </span>
                                                 </div>
                                             )}

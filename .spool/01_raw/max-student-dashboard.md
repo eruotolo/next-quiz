@@ -6,19 +6,19 @@
 
 ## 0. RESUMEN EJECUTIVO (TL;DR)
 
-| # | Entregable | Tipo | Prioridad |
-|---|------------|------|-----------|
-| 1 | `StudentSidebar` con variante LMS/NO-LMS | Componente nuevo | 🔴 Crítica |
-| 2 | `(student)/layout.tsx` con sidebar + provider | Layout nuevo | 🔴 Crítica |
-| 3 | Mover `/aula/*` desde `(aula)/aula/` a `(student)/aula/` (URLs sin cambio) | Refactor | 🔴 Crítica |
-| 4 | Layout anidado `(student)/examen/[examId]/layout.tsx` que suprime el sidebar durante examen activo | Layout anidado | 🔴 Crítica |
-| 5 | `/dashboard` con widgets granulares (`<Suspense>`) | Página nueva | 🟡 Alta |
-| 6 | `/mis-materias`, `/calendario`, `/configuracion` | Páginas nuevas | 🟡 Alta |
-| 7 | Botón "Volver al inicio" → `/dashboard` en resultado | Cambio mínimo | 🟢 Baja |
-| 8 | `post-login` → redirect a `/dashboard` | Cambio mínimo | 🟢 Baja |
-| 9 | Verificar `src/proxy.ts` y limpiar `PUBLIC_PREFIXES` de `/post-login` | Verificación | 🟡 Alta |
-| 10 | Tests E2E de los nuevos flujos Playwright | Tests | 🟡 Alta |
-| 11 | Actualizar `CLAUDE.md` + `AGENTS.md` con la nueva sección | Docs | 🟢 Baja |
+| #   | Entregable                                                                                         | Tipo             | Prioridad  |
+| --- | -------------------------------------------------------------------------------------------------- | ---------------- | ---------- |
+| 1   | `StudentSidebar` con variante LMS/NO-LMS                                                           | Componente nuevo | 🔴 Crítica |
+| 2   | `(student)/layout.tsx` con sidebar + provider                                                      | Layout nuevo     | 🔴 Crítica |
+| 3   | Mover `/aula/*` desde `(aula)/aula/` a `(student)/aula/` (URLs sin cambio)                         | Refactor         | 🔴 Crítica |
+| 4   | Layout anidado `(student)/examen/[examId]/layout.tsx` que suprime el sidebar durante examen activo | Layout anidado   | 🔴 Crítica |
+| 5   | `/dashboard` con widgets granulares (`<Suspense>`)                                                 | Página nueva     | 🟡 Alta    |
+| 6   | `/mis-materias`, `/calendario`, `/configuracion`                                                   | Páginas nuevas   | 🟡 Alta    |
+| 7   | Botón "Volver al inicio" → `/dashboard` en resultado                                               | Cambio mínimo    | 🟢 Baja    |
+| 8   | `post-login` → redirect a `/dashboard`                                                             | Cambio mínimo    | 🟢 Baja    |
+| 9   | Verificar `src/proxy.ts` y limpiar `PUBLIC_PREFIXES` de `/post-login`                              | Verificación     | 🟡 Alta    |
+| 10  | Tests E2E de los nuevos flujos Playwright                                                          | Tests            | 🟡 Alta    |
+| 11  | Actualizar `CLAUDE.md` + `AGENTS.md` con la nueva sección                                          | Docs             | 🟢 Baja    |
 
 ---
 
@@ -75,22 +75,22 @@ src/app/
 
 ### 2.2 Archivos críticos (LEYENDO ANTES DE IMPLEMENTAR — ya analizados)
 
-| Archivo | Hallazgo clave que afecta la implementación |
-|---|---|
-| `src/proxy.ts:8-22` | `PUBLIC_PREFIXES` incluye `/aula`, `/post-login` y `/examen`. **No requieren cambios** porque el chequeo de estudiante se hace en el layout con `getStudentAuthSession()`. **Pero:** `/post-login` debería seguir funcionando como redirect, no como ruta pública por sí sola. Después de esta tarea, `post-login` puede dejarse en `PUBLIC_PREFIXES` o removerse (es un redirect instantáneo). |
-| `src/proxy.ts:47-49` | El proxy bypassa NextAuth para `/aula/*` y deja que el layout valide con la sesión de estudiante. **Crítico:** con la unificación, **todas** las rutas bajo `(student)/` (que incluye `/dashboard`, `/mis-materias`, etc.) necesitan este mismo bypass. Hay dos opciones: (a) agregar prefijos al bypass, o (b) validar siempre con `getStudentAuthSession()` en cada layout. **Recomendado (b)** — es lo que hoy ya hace el layout de `(aula)`. Asegurarse de que **`/(student)/<cualquier ruta>`** tenga un layout que valide sesión. |
-| `src/features/dashboard/components/Sidebar.tsx` | Sidebar del admin: 748 líneas, `'use client'`, usa `usePathname`, soporta command palette, secciones colapsables, mobile drawer con `Sheet`. **Patrón canónico a imitar** — pero **no reutilizar tal cual**: la versión estudiante no necesita `institutionList` (jefe de carrera) ni `coordinatedProgramIds`. Crear versión específica. |
-| `src/app/(aula)/layout.tsx:16-27` | Hoy se obtienen `notifications`, `unreadCount`, `getUnseenBadges()` en paralelo. Reutilizar exactamente este patrón. |
-| `src/features/exam-session/lib/session.ts:82-93` | `getStudentAuthSession()` retorna `{ studentId, groupId }`. **Importante:** el payload **no** trae nombre, plan ni grupo — esos hay que fetchearlos en el layout. |
-| `src/features/lms/components/NotificationBell.tsx` | Bell con dropdown, polling al `markAsRead`/`markAllRead`. Acepta `initialNotifications` + `initialUnreadCount`. Reutilizar tal cual — pasando los valores desde el nuevo layout. |
-| `src/features/lms/components/BadgeUnlockProvider.tsx` | Provider cliente que muestra toasts de insignias nuevas (usa `framer-motion`). Acepta `initialUnseenBadges: AchievementBadge[]`. Reutilizar tal cual. |
-| `src/shared/components/ui/stat-tile.tsx` | Componente canónico de KPI tile: `tone: 'default'\|'primary'\|'ink'\|'lime'`. **OBLIGATORIO** usar este para todos los tiles del dashboard. **No** crear variantes locales. |
-| `src/shared/components/ui/avatar.tsx` | `Avatar` con `name` y `color` opcional. **OBLIGATORIO** para el avatar del sidebar del estudiante. |
-| `src/shared/lib/grade.ts:1-19` | `calcGrade(score, maxScore, maxGrade, passingGrade, passingPercentage)` retorna 1.0–7.0 con clipping. Reutilizar en Mis Materias y Últimas Calificaciones. |
-| `src/features/lms/lib/gradebook.ts:76-97` | `calculateCourseFinalGrade(studentId, items)` retorna `CourseFinalGrade` con `passed: boolean | null`. Reutilizar en Mis Materias para la sección LMS. |
-| `src/features/lms/actions/gamification.ts:352` | `getUnseenBadges()` — ya devuelve `AchievementBadge[]` listo para `BadgeUnlockProvider`. Reutilizar tal cual. |
-| `src/features/exam-session/actions/mutations.ts:365` | `logoutStudent()` Server Action. Reutilizar. |
-| `src/app/(student)/examen/resultado/[resultId]/page.tsx:191,352` | Los dos Links exactos a cambiar de `/examen/seleccion` → `/dashboard`. **Ya se documentaron en este prompt.** |
+| Archivo                                                          | Hallazgo clave que afecta la implementación                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `src/proxy.ts:8-22`                                              | `PUBLIC_PREFIXES` incluye `/aula`, `/post-login` y `/examen`. **No requieren cambios** porque el chequeo de estudiante se hace en el layout con `getStudentAuthSession()`. **Pero:** `/post-login` debería seguir funcionando como redirect, no como ruta pública por sí sola. Después de esta tarea, `post-login` puede dejarse en `PUBLIC_PREFIXES` o removerse (es un redirect instantáneo).                                                                                                                                         |
+| `src/proxy.ts:47-49`                                             | El proxy bypassa NextAuth para `/aula/*` y deja que el layout valide con la sesión de estudiante. **Crítico:** con la unificación, **todas** las rutas bajo `(student)/` (que incluye `/dashboard`, `/mis-materias`, etc.) necesitan este mismo bypass. Hay dos opciones: (a) agregar prefijos al bypass, o (b) validar siempre con `getStudentAuthSession()` en cada layout. **Recomendado (b)** — es lo que hoy ya hace el layout de `(aula)`. Asegurarse de que **`/(student)/<cualquier ruta>`** tenga un layout que valide sesión. |
+| `src/features/dashboard/components/Sidebar.tsx`                  | Sidebar del admin: 748 líneas, `'use client'`, usa `usePathname`, soporta command palette, secciones colapsables, mobile drawer con `Sheet`. **Patrón canónico a imitar** — pero **no reutilizar tal cual**: la versión estudiante no necesita `institutionList` (jefe de carrera) ni `coordinatedProgramIds`. Crear versión específica.                                                                                                                                                                                                |
+| `src/app/(aula)/layout.tsx:16-27`                                | Hoy se obtienen `notifications`, `unreadCount`, `getUnseenBadges()` en paralelo. Reutilizar exactamente este patrón.                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `src/features/exam-session/lib/session.ts:82-93`                 | `getStudentAuthSession()` retorna `{ studentId, groupId }`. **Importante:** el payload **no** trae nombre, plan ni grupo — esos hay que fetchearlos en el layout.                                                                                                                                                                                                                                                                                                                                                                       |
+| `src/features/lms/components/NotificationBell.tsx`               | Bell con dropdown, polling al `markAsRead`/`markAllRead`. Acepta `initialNotifications` + `initialUnreadCount`. Reutilizar tal cual — pasando los valores desde el nuevo layout.                                                                                                                                                                                                                                                                                                                                                        |
+| `src/features/lms/components/BadgeUnlockProvider.tsx`            | Provider cliente que muestra toasts de insignias nuevas (usa `framer-motion`). Acepta `initialUnseenBadges: AchievementBadge[]`. Reutilizar tal cual.                                                                                                                                                                                                                                                                                                                                                                                   |
+| `src/shared/components/ui/stat-tile.tsx`                         | Componente canónico de KPI tile: `tone: 'default'\|'primary'\|'ink'\|'lime'`. **OBLIGATORIO** usar este para todos los tiles del dashboard. **No** crear variantes locales.                                                                                                                                                                                                                                                                                                                                                             |
+| `src/shared/components/ui/avatar.tsx`                            | `Avatar` con `name` y `color` opcional. **OBLIGATORIO** para el avatar del sidebar del estudiante.                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `src/shared/lib/grade.ts:1-19`                                   | `calcGrade(score, maxScore, maxGrade, passingGrade, passingPercentage)` retorna 1.0–7.0 con clipping. Reutilizar en Mis Materias y Últimas Calificaciones.                                                                                                                                                                                                                                                                                                                                                                              |
+| `src/features/lms/lib/gradebook.ts:76-97`                        | `calculateCourseFinalGrade(studentId, items)` retorna `CourseFinalGrade` con `passed: boolean                                                                                                                                                                                                                                                                                                                                                                                                                                           | null`. Reutilizar en Mis Materias para la sección LMS. |
+| `src/features/lms/actions/gamification.ts:352`                   | `getUnseenBadges()` — ya devuelve `AchievementBadge[]` listo para `BadgeUnlockProvider`. Reutilizar tal cual.                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `src/features/exam-session/actions/mutations.ts:365`             | `logoutStudent()` Server Action. Reutilizar.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `src/app/(student)/examen/resultado/[resultId]/page.tsx:191,352` | Los dos Links exactos a cambiar de `/examen/seleccion` → `/dashboard`. **Ya se documentaron en este prompt.**                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 ---
 
@@ -145,7 +145,7 @@ interface StudentSidebarProps {
     studentName: string;
     groupName: string | null;
     notificationCount: number;
-    hasLms: boolean;          // false → oculta "Mis Cursos"
+    hasLms: boolean; // false → oculta "Mis Cursos"
 }
 ```
 
@@ -155,19 +155,19 @@ Luego en el layout:
 const hasLms = plan !== 'FREE';
 const navItems: StudentNavItem[] = hasLms
     ? [
-        { label: 'Dashboard',   href: '/dashboard',        icon: LayoutDashboard },
-        { label: 'Mis Cursos',  href: '/aula',             icon: GraduationCap },
-        { label: 'Mis Materias',href: '/mis-materias',     icon: BookOpen },
-        { label: 'Calendario',  href: '/calendario',       icon: CalendarDays },
-        { label: 'Exámenes',    href: '/examen/seleccion', icon: ClipboardList },
-        { label: 'Configuración',href:'/configuracion',    icon: Settings },
+          { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+          { label: 'Mis Cursos', href: '/aula', icon: GraduationCap },
+          { label: 'Mis Materias', href: '/mis-materias', icon: BookOpen },
+          { label: 'Calendario', href: '/calendario', icon: CalendarDays },
+          { label: 'Exámenes', href: '/examen/seleccion', icon: ClipboardList },
+          { label: 'Configuración', href: '/configuracion', icon: Settings },
       ]
     : [
-        { label: 'Dashboard',   href: '/dashboard',        icon: LayoutDashboard },
-        { label: 'Mis Materias',href: '/mis-materias',     icon: BookOpen },
-        { label: 'Calendario',  href: '/calendario',       icon: CalendarDays },
-        { label: 'Exámenes',    href: '/examen/seleccion', icon: ClipboardList },
-        { label: 'Configuración',href:'/configuracion',    icon: Settings },
+          { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+          { label: 'Mis Materias', href: '/mis-materias', icon: BookOpen },
+          { label: 'Calendario', href: '/calendario', icon: CalendarDays },
+          { label: 'Exámenes', href: '/examen/seleccion', icon: ClipboardList },
+          { label: 'Configuración', href: '/configuracion', icon: Settings },
       ];
 ```
 
@@ -274,11 +274,11 @@ src/app/(aula)/                    ← carpeta completa queda vacía; eliminarla
 
 ### 5.1 Comportamiento responsive
 
-| Breakpoint | Layout | Ancho | Mecanismo |
-|---|---|---|---|
-| `<lg` (<1024px) | Drawer mobile | `100%` (Sheet side=left) | Hamburger fijo top-left |
-| `lg–xl` (1024–1280px) | Sidebar fijo | `240px` | Clamps a `240px` |
-| `≥xl` (≥1280px) | Sidebar fijo | `280px` | Más holgado |
+| Breakpoint            | Layout        | Ancho                    | Mecanismo               |
+| --------------------- | ------------- | ------------------------ | ----------------------- |
+| `<lg` (<1024px)       | Drawer mobile | `100%` (Sheet side=left) | Hamburger fijo top-left |
+| `lg–xl` (1024–1280px) | Sidebar fijo  | `240px`                  | Clamps a `240px`        |
+| `≥xl` (≥1280px)       | Sidebar fijo  | `280px`                  | Más holgado             |
 
 ### 5.2 Estructura interna del sidebar (de arriba a abajo)
 
@@ -346,12 +346,12 @@ Para esta entrega, el sidebar es **siempre ancho completo** (240–280px). El co
 
 ### 5.5 Estados de cada ítem
 
-| Estado | Visual |
-|---|---|
-| Activo (pathname exacto o prefijo) | `bg-primary-wash text-primary font-bold` |
-| Hover | `bg-paper-warm text-ink` |
-| Inactivo | `text-ink-dim` |
-| Focus visible | `focus-visible:ring-2 focus-visible:ring-ring outline-none` |
+| Estado                             | Visual                                                      |
+| ---------------------------------- | ----------------------------------------------------------- |
+| Activo (pathname exacto o prefijo) | `bg-primary-wash text-primary font-bold`                    |
+| Hover                              | `bg-paper-warm text-ink`                                    |
+| Inactivo                           | `text-ink-dim`                                              |
+| Focus visible                      | `focus-visible:ring-2 focus-visible:ring-ring outline-none` |
 
 ### 5.6 Cierre de sesión
 
@@ -383,12 +383,7 @@ Para esta entrega, el sidebar es **siempre ancho completo** (240–280px). El co
 const session = await getStudentAuthSession();
 if (!session) redirect('/examen/login');
 
-const [
-    student,
-    notifications,
-    unreadCount,
-    unseenBadges,
-] = await Promise.all([
+const [student, notifications, unreadCount, unseenBadges] = await Promise.all([
     prisma.user.findUnique({
         where: { id: session.studentId },
         select: {
@@ -433,9 +428,7 @@ const institutionName = student.academicInstitution?.name ?? 'Aulika';
             notificationCount={unreadCount}
             navItems={hasLms ? LMS_NAV_ITEMS : FREE_NAV_ITEMS}
         />
-        <main className="flex-1 lg:ml-60 xl:ml-70">
-            {children}
-        </main>
+        <main className="flex-1 lg:ml-60 xl:ml-70">{children}</main>
     </div>
 </BadgeUnlockProvider>
 ```
@@ -453,7 +446,9 @@ import { cache } from 'react';
 export const getStudent = cache(async (studentId: string) => {
     return prisma.user.findUnique({
         where: { id: studentId },
-        select: { /* ... */ },
+        select: {
+            /* ... */
+        },
     });
 });
 ```
@@ -517,12 +512,12 @@ export async function WelcomeHeader() {
 
 **OBLIGATORIO usar `<StatTile>` de `@/shared/components/ui/stat-tile.tsx`.** No crear variantes nuevas.
 
-| Tile | Condición | Fuente | Tone | Icon |
-|---|---|---|---|---|
-| Promedio general | Siempre | `avg(score/maxScore * 7)` de todos los `Result` del estudiante | `'default'` | `BarChart3` |
-| Progreso LMS | Solo si `hasLms` | `Math.round(avg of enrollments.progressPct WHERE status='ACTIVO')` | `'primary'` | `TrendingUp` |
-| Racha activa | Solo si `hasLms` | `LmsStreak.currentStreak` días | `'default'` (fire icon a la derecha) | `Flame` |
-| Puntos XP | Solo si `hasLms` | `SUM(LmsPointEvent.amount) WHERE userId` | `'lime'` | `Sparkles` |
+| Tile             | Condición        | Fuente                                                             | Tone                                 | Icon         |
+| ---------------- | ---------------- | ------------------------------------------------------------------ | ------------------------------------ | ------------ |
+| Promedio general | Siempre          | `avg(score/maxScore * 7)` de todos los `Result` del estudiante     | `'default'`                          | `BarChart3`  |
+| Progreso LMS     | Solo si `hasLms` | `Math.round(avg of enrollments.progressPct WHERE status='ACTIVO')` | `'primary'`                          | `TrendingUp` |
+| Racha activa     | Solo si `hasLms` | `LmsStreak.currentStreak` días                                     | `'default'` (fire icon a la derecha) | `Flame`      |
+| Puntos XP        | Solo si `hasLms` | `SUM(LmsPointEvent.amount) WHERE userId`                           | `'lime'`                             | `Sparkles`   |
 
 > **Plan FREE:** solo se renderizan 2 tiles: **Promedio general** + **Exámenes rendidos** (count). El segundo tile reemplaza Progreso LMS por `value = totalResults`, `sub = "exámenes rendidos"`.
 
@@ -557,18 +552,20 @@ const pendingExams = exams
 
 const pendingAssignments = hasLms
     ? await prisma.lmsSubmission.findMany({
-        where: {
-            studentId,
-            status: 'PENDIENTE',
-            assignment: { dueAt: { gte: new Date(now) } },
-        },
-        select: {
-            id: true,
-            assignment: { select: { title: true, dueAt: true, course: { select: { title: true } } } },
-        },
-        orderBy: { assignment: { dueAt: 'asc' } },
-        take: 3,
-    })
+          where: {
+              studentId,
+              status: 'PENDIENTE',
+              assignment: { dueAt: { gte: new Date(now) } },
+          },
+          select: {
+              id: true,
+              assignment: {
+                  select: { title: true, dueAt: true, course: { select: { title: true } } },
+              },
+          },
+          orderBy: { assignment: { dueAt: 'asc' } },
+          take: 3,
+      })
     : [];
 ```
 
@@ -588,11 +585,11 @@ export function urgencyOf(dueAt: Date, now: Date = new Date()): UrgencyLevel {
 
 **Visualización:**
 
-| Level | Color | Clases |
-|---|---|---|
-| critical | rojo | `bg-red-50 text-red-700` |
-| warning | amarillo | `bg-amber-50 text-amber-700` |
-| normal | verde | `bg-emerald-50 text-emerald-700` |
+| Level    | Color    | Clases                           |
+| -------- | -------- | -------------------------------- |
+| critical | rojo     | `bg-red-50 text-red-700`         |
+| warning  | amarillo | `bg-amber-50 text-amber-700`     |
+| normal   | verde    | `bg-emerald-50 text-emerald-700` |
 
 **Empty state:** "Todo al día por esta semana ✓" en `text-success`, ícono `CheckCircle2`.
 
@@ -609,13 +606,15 @@ export function urgencyOf(dueAt: Date, now: Date = new Date()): UrgencyLevel {
 - 5 últimos `Result` del estudiante.
 - Una **tabla compacta** (NO usar `Table` shadcn — usar `<div>` con grid utility, más liviano para mobile). Columnas:
 
-  ```tsx
-  <div className="grid grid-cols-[1fr_auto_auto] gap-3 items-center px-4 py-3 border-b border-border last:border-0 hover:bg-paper-warm">
-      <p className="text-ink text-[13px] truncate">{exam.title}</p>
-      <GradeBadge score={grade} passing={passing} />
-      <p className="text-mute font-mono text-[11px]">{formatDistanceToNow(completedAt, { addSuffix: true, locale: es })}</p>
-  </div>
-  ```
+    ```tsx
+    <div className="border-border hover:bg-paper-warm grid grid-cols-[1fr_auto_auto] items-center gap-3 border-b px-4 py-3 last:border-0">
+        <p className="text-ink truncate text-[13px]">{exam.title}</p>
+        <GradeBadge score={grade} passing={passing} />
+        <p className="text-mute font-mono text-[11px]">
+            {formatDistanceToNow(completedAt, { addSuffix: true, locale: es })}
+        </p>
+    </div>
+    ```
 
 - `<GradeBadge>` (componente local en el mismo archivo): pill de color según nota.
 - Link al final: "Ver historial completo →" a `/mis-materias`.
@@ -624,19 +623,19 @@ export function urgencyOf(dueAt: Date, now: Date = new Date()): UrgencyLevel {
 
 - Últimos 8 `LmsPointEvent`.
 - Por evento:
-  - Ícono según `sourceType` (helper `iconForSourceType(sourceType)`):
-    | sourceType | Ícono Lucide |
-    |---|---|
-    | `LESSON_COMPLETED` | `BookOpen` |
-    | `ASSIGNMENT_SUBMITTED` | `Send` |
-    | `ASSIGNMENT_GRADED` | `CheckCircle2` |
-    | `EXAM_PASSED` | `Trophy` |
-    | `FORUM_POST` | `MessageSquare` |
-    | `MANUAL` | `Sparkles` |
-    | `STREAK_BONUS` | `Flame` |
-  - `reason` truncado a 60 chars con tooltip.
-  - `+N XP` en `text-success` con `ArrowUp`.
-  - `formatDistanceToNow(createdAt, { addSuffix: true, locale: es })`.
+    - Ícono según `sourceType` (helper `iconForSourceType(sourceType)`):
+      | sourceType | Ícono Lucide |
+      |---|---|
+      | `LESSON_COMPLETED` | `BookOpen` |
+      | `ASSIGNMENT_SUBMITTED` | `Send` |
+      | `ASSIGNMENT_GRADED` | `CheckCircle2` |
+      | `EXAM_PASSED` | `Trophy` |
+      | `FORUM_POST` | `MessageSquare` |
+      | `MANUAL` | `Sparkles` |
+      | `STREAK_BONUS` | `Flame` |
+    - `reason` truncado a 60 chars con tooltip.
+    - `+N XP` en `text-success` con `ArrowUp`.
+    - `formatDistanceToNow(createdAt, { addSuffix: true, locale: es })`.
 - Empty state: "Sin actividad reciente. ¡Empezá con una lección!"
 
 ### 7.8 `loading.tsx` y `error.tsx`
@@ -648,12 +647,12 @@ export default function DashboardLoading() {
         <div className="mx-auto max-w-6xl px-6 py-8">
             <div className="bg-paper-warm h-12 w-64 animate-pulse rounded-[10px]" />
             <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-                {[0,1,2,3].map((i) => (
+                {[0, 1, 2, 3].map((i) => (
                     <div key={i} className="bg-paper-warm h-32 animate-pulse rounded-[14px]" />
                 ))}
             </div>
             <div className="mt-6 grid gap-6 lg:grid-cols-2">
-                {[0,1].map((i) => (
+                {[0, 1].map((i) => (
                     <div key={i} className="bg-paper-warm h-64 animate-pulse rounded-[14px]" />
                 ))}
             </div>
@@ -669,9 +668,14 @@ export default function DashboardError({ error, reset }: { error: Error; reset: 
     return (
         <div className="mx-auto max-w-md px-6 py-16 text-center">
             <p className="text-mute font-mono text-[10px] tracking-[0.12em] uppercase">Error</p>
-            <h2 className="font-display text-ink mt-2 text-2xl font-bold">Algo falló al cargar tu dashboard</h2>
+            <h2 className="font-display text-ink mt-2 text-2xl font-bold">
+                Algo falló al cargar tu dashboard
+            </h2>
             <p className="text-ink-dim mt-2 text-[14px]">{error.message}</p>
-            <button onClick={reset} className="bg-primary text-paper mt-6 rounded-full px-5 py-2.5 text-[13px] font-semibold">
+            <button
+                onClick={reset}
+                className="bg-primary text-paper mt-6 rounded-full px-5 py-2.5 text-[13px] font-semibold"
+            >
                 Reintentar
             </button>
         </div>
@@ -750,17 +754,25 @@ const enrollments = await prisma.lmsEnrollment.findMany({
 
 // Por cada enrollment, fetchear gradebook:
 const items = await prisma.lmsGradebookItem.findMany({
-    where: { courseId, },
+    where: { courseId },
     select: {
-        id: true, title: true, weight: true, type: true,
+        id: true,
+        title: true,
+        weight: true,
+        type: true,
         grades: { where: { studentId }, select: { score: true } },
     },
 });
 
-const grade = calculateCourseFinalGrade(studentId, items.map(it => ({
-    id: it.id, title: it.title, weight: it.weight,
-    score: it.grades[0]?.score ?? null,
-})));
+const grade = calculateCourseFinalGrade(
+    studentId,
+    items.map((it) => ({
+        id: it.id,
+        title: it.title,
+        weight: it.weight,
+        score: it.grades[0]?.score ?? null,
+    })),
+);
 ```
 
 Componente acordeón **client component simple** (sin librería externa):
@@ -771,7 +783,7 @@ function Accordion({ title, defaultOpen = false, children }) {
     const [open, setOpen] = useState(defaultOpen);
     return (
         <div>
-            <button onClick={() => setOpen(o => !o)} aria-expanded={open}>
+            <button onClick={() => setOpen((o) => !o)} aria-expanded={open}>
                 {title}
             </button>
             {open && children}
@@ -792,13 +804,13 @@ El grid de días puede ser Server Component con `Date` derivado de la URL (`?mes
 
 ### 9.2 Eventos a mostrar
 
-| Tipo | Ícono | Color |
-|---|---|---|
-| Examen programado | `ClipboardList` | 🔴 rojo |
-| Cierre de examen | `Clock` | 🟠 naranja |
-| Tarea LMS pendiente | `BookOpen` | 🟡 amarillo |
-| Clase en vivo | `Video` | 🔵 azul |
-| Examen rendido (histórico) | `CheckCircle2` | 🟢 verde |
+| Tipo                       | Ícono           | Color       |
+| -------------------------- | --------------- | ----------- |
+| Examen programado          | `ClipboardList` | 🔴 rojo     |
+| Cierre de examen           | `Clock`         | 🟠 naranja  |
+| Tarea LMS pendiente        | `BookOpen`      | 🟡 amarillo |
+| Clase en vivo              | `Video`         | 🔵 azul     |
+| Examen rendido (histórico) | `CheckCircle2`  | 🟢 verde    |
 
 ### 9.3 Query de eventos del mes
 
@@ -819,21 +831,25 @@ const [exams, assignments, liveSessions, results] = await Promise.all([
         },
         select: { id: true, title: true, scheduledAt: true, closesAt: true },
     }),
-    hasLms ? prisma.lmsAssignment.findMany({
-        where: {
-            course: { enrollments: { some: { userId: studentId } } },
-            dueAt: { gte: monthStart, lte: monthEnd },
-        },
-        select: { id: true, title: true, dueAt: true },
-    }) : Promise.resolve([]),
-    hasLms ? prisma.lmsLiveSession.findMany({
-        where: {
-            course: { enrollments: { some: { userId: studentId, status: 'ACTIVO' } } },
-            status: { in: ['SCHEDULED', 'LIVE'] },
-            scheduledAt: { gte: monthStart, lte: monthEnd },
-        },
-        select: { id: true, title: true, scheduledAt: true },
-    }) : Promise.resolve([]),
+    hasLms
+        ? prisma.lmsAssignment.findMany({
+              where: {
+                  course: { enrollments: { some: { userId: studentId } } },
+                  dueAt: { gte: monthStart, lte: monthEnd },
+              },
+              select: { id: true, title: true, dueAt: true },
+          })
+        : Promise.resolve([]),
+    hasLms
+        ? prisma.lmsLiveSession.findMany({
+              where: {
+                  course: { enrollments: { some: { userId: studentId, status: 'ACTIVO' } } },
+                  status: { in: ['SCHEDULED', 'LIVE'] },
+                  scheduledAt: { gte: monthStart, lte: monthEnd },
+              },
+              select: { id: true, title: true, scheduledAt: true },
+          })
+        : Promise.resolve([]),
     prisma.result.findMany({
         where: {
             studentId,
@@ -904,11 +920,13 @@ Cualquier feature de edición está **fuera de scope**. Si en el futuro se quier
 Aplicar en líneas **191 y 352** del archivo actual (verificado). **No tocar nada más en ese archivo.**
 
 > **Advertencia:** hay un bloque similar (líneas 351-354) que dice:
+>
 > ```tsx
 > <Button asChild variant="ink" size="lg" className="rounded-full">
 >     <Link href="/examen/seleccion">Volver al inicio</Link>
 > </Button>
 > ```
+>
 > **También cambiar este.** El archivo tiene 2 ocurrencias de "Volver al inicio" apuntando a `/examen/seleccion`.
 
 ### 11.2 `post-login/page.tsx`
@@ -932,6 +950,7 @@ export default function PostLoginPage() {
 **Análisis:** actualmente `/post-login`, `/examen`, `/aula` están en `PUBLIC_PREFIXES`. Esto significa que el proxy **NO verifica sesión** para esas URLs y deja que el layout (o la página) las valide.
 
 **Decisión:** mantener el comportamiento actual. **No tocar `proxy.ts`.** Razones:
+
 1. La ruta `/post-login` se reduce a un redirect instantáneo (`<1ms`); no hay datos sensibles expuestos.
 2. `/examen/*` es la ruta pública de login + examen activo; ya está protegida por el layout de la página específica.
 3. `/aula/*` y las nuevas rutas viven bajo `(student)/layout.tsx`, que valida con `getStudentAuthSession()`. El proxy las deja pasar (porque `/aula` está en `PUBLIC_PREFIXES`), pero el layout las bloquea en server-side.
@@ -951,41 +970,41 @@ export default function PostLoginPage() {
 
 ### 12.2 Componentes a reutilizar (obligatorio)
 
-| Componente | Path | Uso |
-|---|---|---|
-| `StatTile` | `@/shared/components/ui/stat-tile` | KPI tiles del dashboard |
-| `Avatar` | `@/shared/components/ui/avatar` | Avatar del sidebar |
-| `AvatarBadge` / `AvatarGroup` | mismo path | (opcional) |
-| `Sheet`, `SheetContent`, `SheetTitle` | `@/shared/components/ui/sheet` | Drawer mobile del sidebar |
-| `LogoLockup`, `LogoMark` | `@/shared/components/branding/logo` | Branding del sidebar |
-| `NotificationBell` | `@/features/lms/components/NotificationBell` | Campana del sidebar/header |
-| `BadgeUnlockProvider` | `@/features/lms/components/BadgeUnlockProvider` | Toasts de insignias nuevas |
-| `Table`, `TableBody`, etc. | `@/shared/components/ui/table` | Tabla de Mis Materias |
-| `TablePaginator` | `@/shared/components/ui/table-paginator` | Paginación de tablas largas |
-| `Button` | `@/shared/components/ui/button` | Todos los CTAs |
-| `calcGrade` | `@/shared/lib/grade` | Cálculo de notas (exámenes) |
-| `calculateCourseFinalGrade`, `isPassing` | `@/features/lms/lib/gradebook` | Cálculo de notas (LMS) |
-| `logoutStudent` | `@/features/exam-session/actions/mutations` | Server Action de logout |
-| `getStudentAuthSession` | `@/features/exam-session/lib/session` | Validación de sesión |
-| `getUnseenBadges` | `@/features/lms/actions/gamification` | Toast de badges |
+| Componente                               | Path                                            | Uso                         |
+| ---------------------------------------- | ----------------------------------------------- | --------------------------- |
+| `StatTile`                               | `@/shared/components/ui/stat-tile`              | KPI tiles del dashboard     |
+| `Avatar`                                 | `@/shared/components/ui/avatar`                 | Avatar del sidebar          |
+| `AvatarBadge` / `AvatarGroup`            | mismo path                                      | (opcional)                  |
+| `Sheet`, `SheetContent`, `SheetTitle`    | `@/shared/components/ui/sheet`                  | Drawer mobile del sidebar   |
+| `LogoLockup`, `LogoMark`                 | `@/shared/components/branding/logo`             | Branding del sidebar        |
+| `NotificationBell`                       | `@/features/lms/components/NotificationBell`    | Campana del sidebar/header  |
+| `BadgeUnlockProvider`                    | `@/features/lms/components/BadgeUnlockProvider` | Toasts de insignias nuevas  |
+| `Table`, `TableBody`, etc.               | `@/shared/components/ui/table`                  | Tabla de Mis Materias       |
+| `TablePaginator`                         | `@/shared/components/ui/table-paginator`        | Paginación de tablas largas |
+| `Button`                                 | `@/shared/components/ui/button`                 | Todos los CTAs              |
+| `calcGrade`                              | `@/shared/lib/grade`                            | Cálculo de notas (exámenes) |
+| `calculateCourseFinalGrade`, `isPassing` | `@/features/lms/lib/gradebook`                  | Cálculo de notas (LMS)      |
+| `logoutStudent`                          | `@/features/exam-session/actions/mutations`     | Server Action de logout     |
+| `getStudentAuthSession`                  | `@/features/exam-session/lib/session`           | Validación de sesión        |
+| `getUnseenBadges`                        | `@/features/lms/actions/gamification`           | Toast de badges             |
 
 ### 12.3 Tipografía
 
-| Nivel | Clase | Uso |
-|---|---|---|
-| H1 | `font-display text-[34px] leading-tight font-semibold tracking-[-0.025em]` | "Mis Materias", "Calendario" |
-| H2 | `font-display text-[24px] leading-tight font-semibold` | "Últimas Calificaciones" |
-| Eyebrow | `font-mono text-[10px] tracking-[0.12em] uppercase text-mute` | Etiquetas de sección |
-| Body | `text-[14px] leading-relaxed text-ink-dim` | Texto común |
-| Caption | `text-[12px] text-mute font-sans` | Metadata (fechas, sub-texto) |
+| Nivel   | Clase                                                                      | Uso                          |
+| ------- | -------------------------------------------------------------------------- | ---------------------------- |
+| H1      | `font-display text-[34px] leading-tight font-semibold tracking-[-0.025em]` | "Mis Materias", "Calendario" |
+| H2      | `font-display text-[24px] leading-tight font-semibold`                     | "Últimas Calificaciones"     |
+| Eyebrow | `font-mono text-[10px] tracking-[0.12em] uppercase text-mute`              | Etiquetas de sección         |
+| Body    | `text-[14px] leading-relaxed text-ink-dim`                                 | Texto común                  |
+| Caption | `text-[12px] text-mute font-sans`                                          | Metadata (fechas, sub-texto) |
 
 ### 12.4 Colores de notas (escala chilena 1.0–7.0)
 
-| Rango | Background | Text | Border (opcional) |
-|---|---|---|---|
-| `>= 4.0` (aprueba) | `bg-emerald-50` | `text-emerald-700` | `border-emerald-200` |
-| `3.0 – 3.9` (limítrofe) | `bg-amber-50` | `text-amber-700` | `border-amber-200` |
-| `< 3.0` (reprueba) | `bg-red-50` | `text-red-700` | `border-red-200` |
+| Rango                   | Background      | Text               | Border (opcional)    |
+| ----------------------- | --------------- | ------------------ | -------------------- |
+| `>= 4.0` (aprueba)      | `bg-emerald-50` | `text-emerald-700` | `border-emerald-200` |
+| `3.0 – 3.9` (limítrofe) | `bg-amber-50`   | `text-amber-700`   | `border-amber-200`   |
+| `< 3.0` (reprueba)      | `bg-red-50`     | `text-red-700`     | `border-red-200`     |
 
 Implementar como helper en `src/features/students/lib/grade-color.ts`:
 
@@ -1018,13 +1037,13 @@ export function gradeColorClass(grade: number): string {
 
 ### 13.1 Estrategia de fetching
 
-| Acción | Decisión | Justificación |
-|---|---|---|
-| Fetches en layout | `Promise.all` | Igual que `(aula)/layout.tsx:16-27` actual |
-| Fetches en dashboard | Cada widget async + `<Suspense>` | Falla aislada, mejor TTFB |
-| Memoización con `cache()` | Opcional, justificada solo si vemos doble-fetch | El layout ya hace lo suyo |
-| `useSWR` / `react-query` | **NO** usar en esta tarea | El dashboard es estático hasta refresh |
-| Revalidación | `revalidate = 60` en cada widget que muestra datos que pueden cambiar (próximos exámenes, actividad) | Balance freshness/performance |
+| Acción                    | Decisión                                                                                             | Justificación                              |
+| ------------------------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| Fetches en layout         | `Promise.all`                                                                                        | Igual que `(aula)/layout.tsx:16-27` actual |
+| Fetches en dashboard      | Cada widget async + `<Suspense>`                                                                     | Falla aislada, mejor TTFB                  |
+| Memoización con `cache()` | Opcional, justificada solo si vemos doble-fetch                                                      | El layout ya hace lo suyo                  |
+| `useSWR` / `react-query`  | **NO** usar en esta tarea                                                                            | El dashboard es estático hasta refresh     |
+| Revalidación              | `revalidate = 60` en cada widget que muestra datos que pueden cambiar (próximos exámenes, actividad) | Balance freshness/performance              |
 
 > **`revalidate = 60`** solo se aplica si los datos son Server Components cacheables. En la práctica, para esta entrega dejamos el default de Next (server components dinámicos) y optimizamos si medimos problema.
 
@@ -1043,19 +1062,19 @@ export function gradeColorClass(grade: number): string {
 
 ## 14. ACCESIBILIDAD (a11y)
 
-| Aspecto | Implementación |
-|---|---|
-| Landmarks | `<aside>`, `<nav>`, `<main>`, `<section>` semánticos |
-| Headings | H1 único por página; H2 por sección; H3 por widget |
-| Focus visible | `focus-visible:ring-2 focus-visible:ring-ring outline-none` en todos los interactivos |
-| Skip link | `<a href="#main" class="sr-only focus:not-sr-only">Saltar al contenido</a>` al inicio del `<body>` (Next.js metadata) |
-| `aria-current="page"` | En el Link activo del sidebar |
-| `aria-expanded` | En acordeones y drawer mobile |
-| `aria-label` | En botones icónicos (hamburger, bell, logout) |
-| Color no es único indicador | Badges de urgencia tienen ícono + texto, no solo color |
-| Reduced motion | `framer-motion` respeta `prefers-reduced-motion` por default |
-| Contraste | Todos los pares color/bg cumplen WCAG AA (verificado con tokens existentes) |
-| Screen reader | `sr-only` para iconos decorativos, `aria-label` para significativos |
+| Aspecto                     | Implementación                                                                                                        |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Landmarks                   | `<aside>`, `<nav>`, `<main>`, `<section>` semánticos                                                                  |
+| Headings                    | H1 único por página; H2 por sección; H3 por widget                                                                    |
+| Focus visible               | `focus-visible:ring-2 focus-visible:ring-ring outline-none` en todos los interactivos                                 |
+| Skip link                   | `<a href="#main" class="sr-only focus:not-sr-only">Saltar al contenido</a>` al inicio del `<body>` (Next.js metadata) |
+| `aria-current="page"`       | En el Link activo del sidebar                                                                                         |
+| `aria-expanded`             | En acordeones y drawer mobile                                                                                         |
+| `aria-label`                | En botones icónicos (hamburger, bell, logout)                                                                         |
+| Color no es único indicador | Badges de urgencia tienen ícono + texto, no solo color                                                                |
+| Reduced motion              | `framer-motion` respeta `prefers-reduced-motion` por default                                                          |
+| Contraste                   | Todos los pares color/bg cumplen WCAG AA (verificado con tokens existentes)                                           |
+| Screen reader               | `sr-only` para iconos decorativos, `aria-label` para significativos                                                   |
 
 ---
 
@@ -1092,28 +1111,28 @@ Todas las queries a `LmsEnrollment`, `Result`, `LmsSubmission`, etc. **deben fil
 
 **Archivo:** `tests/e2e/student/dashboard.spec.ts`
 
-| Test | Pasos | Aserción |
-|---|---|---|
-| Estudiante FREE ve sidebar sin "Mis Cursos" | Login FREE → /dashboard | Sidebar no contiene "Mis Cursos" |
-| Estudiante LMS ve sidebar completo | Login LMS → /dashboard | Sidebar contiene "Mis Cursos" + 6 items |
-| Dashboard muestra promedio correcto | Sembrar 3 Results con notas conocidas | Tile "Promedio" muestra `5.4` (±0.1) |
-| /mis-materias lista exámenes y LMS | Sembrar datos | Tabla "Exámenes rendidos" tiene 3 filas |
-| /calendario muestra eventos del mes | Sembrar exam + tarea + clase en vivo en el mes actual | Día con eventos tiene 3 puntos de colores |
-| /configuracion muestra datos personales | Login → /configuracion | Ver nombre, RUT enmascarado, grupo |
-| Botón "Volver al dashboard" funciona | Login → examen → resultado | Click redirige a /dashboard |
-| Mobile drawer se abre/cierra | Resize a <1024px | Hamburger abre drawer, X lo cierra |
-| Active item del sidebar resalta | Login → click /mis-materias | `aria-current="page"` en item activo |
-| Logout desde sidebar | Click "Cerrar sesión" | Redirect a /examen/login + cookie limpia |
+| Test                                        | Pasos                                                 | Aserción                                  |
+| ------------------------------------------- | ----------------------------------------------------- | ----------------------------------------- |
+| Estudiante FREE ve sidebar sin "Mis Cursos" | Login FREE → /dashboard                               | Sidebar no contiene "Mis Cursos"          |
+| Estudiante LMS ve sidebar completo          | Login LMS → /dashboard                                | Sidebar contiene "Mis Cursos" + 6 items   |
+| Dashboard muestra promedio correcto         | Sembrar 3 Results con notas conocidas                 | Tile "Promedio" muestra `5.4` (±0.1)      |
+| /mis-materias lista exámenes y LMS          | Sembrar datos                                         | Tabla "Exámenes rendidos" tiene 3 filas   |
+| /calendario muestra eventos del mes         | Sembrar exam + tarea + clase en vivo en el mes actual | Día con eventos tiene 3 puntos de colores |
+| /configuracion muestra datos personales     | Login → /configuracion                                | Ver nombre, RUT enmascarado, grupo        |
+| Botón "Volver al dashboard" funciona        | Login → examen → resultado                            | Click redirige a /dashboard               |
+| Mobile drawer se abre/cierra                | Resize a <1024px                                      | Hamburger abre drawer, X lo cierra        |
+| Active item del sidebar resalta             | Login → click /mis-materias                           | `aria-current="page"` en item activo      |
+| Logout desde sidebar                        | Click "Cerrar sesión"                                 | Redirect a /examen/login + cookie limpia  |
 
 **Setup previo:** requerir `pnpm db:seed:aula` para tener un estudiante LMS y un estudiante FREE sembrados. Para el FREE puro, considerar crear `tests/e2e/student/free-plan.spec.ts` con datos mínimos (1 institución FREE, 1 grupo, 1 estudiante).
 
 ### 16.2 Tests unitarios
 
-| Archivo | Qué testear |
-|---|---|
-| `src/features/students/lib/urgency.test.ts` | `urgencyOf()` con fechas críticas/warning/normal |
+| Archivo                                         | Qué testear                                      |
+| ----------------------------------------------- | ------------------------------------------------ |
+| `src/features/students/lib/urgency.test.ts`     | `urgencyOf()` con fechas críticas/warning/normal |
 | `src/features/students/lib/grade-color.test.ts` | `gradeColorClass()` con notas 1.0, 3.5, 5.4, 7.0 |
-| `src/features/students/lib/mask-rut.test.ts` | Enmascarar RUT dejando solo el DV |
+| `src/features/students/lib/mask-rut.test.ts`    | Enmascarar RUT dejando solo el DV                |
 
 ### 16.3 Tests manuales (checklist QA)
 

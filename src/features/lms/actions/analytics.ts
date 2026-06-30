@@ -4,7 +4,11 @@ import { prisma } from '@/shared/lib/prisma';
 import { requireInstitutionAccess } from '@/features/auth/lib/auth-guard';
 import { ok, fail } from '@/shared/types/action';
 import type { ActionResult } from '@/shared/types/action';
-import { identifyAtRiskStudents, type EnrollmentLike, type GradeLike } from '@/features/lms/lib/at-risk-detector';
+import {
+    identifyAtRiskStudents,
+    type EnrollmentLike,
+    type GradeLike,
+} from '@/features/lms/lib/at-risk-detector';
 
 export interface CourseAnalytics {
     enrollment: {
@@ -105,13 +109,9 @@ export async function getCourseAnalytics(
         ];
 
         const enrolledUserIds = new Set(enrollments.map((e) => e.userId));
-        const totalAssignmentSlots = assignments.reduce(
-            (acc, a) => acc + enrolledUserIds.size,
-            0,
-        );
+        const totalAssignmentSlots = assignments.reduce((acc, a) => acc + enrolledUserIds.size, 0);
         const submittedCount = assignments.reduce(
-            (acc, a) =>
-                acc + a.submissions.filter((s) => s.status !== 'PENDIENTE').length,
+            (acc, a) => acc + a.submissions.filter((s) => s.status !== 'PENDIENTE').length,
             0,
         );
         const gradedCount = assignments.reduce(
@@ -126,7 +126,8 @@ export async function getCourseAnalytics(
         const validGrades = grades.map((g) => Number(g.score)).filter((s) => s >= 1 && s <= 7);
         const avgGrade =
             validGrades.length > 0
-                ? Math.round((validGrades.reduce((a, b) => a + b, 0) / validGrades.length) * 10) / 10
+                ? Math.round((validGrades.reduce((a, b) => a + b, 0) / validGrades.length) * 10) /
+                  10
                 : null;
         const passing = validGrades.filter((g) => g >= 4).length;
         const failing = validGrades.filter((g) => g < 4).length;

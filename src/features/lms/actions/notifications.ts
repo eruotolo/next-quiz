@@ -25,7 +25,14 @@ export async function getStudentNotifications(
                 where: { userId: session.studentId },
                 orderBy: { createdAt: 'desc' },
                 take: limit,
-                select: { id: true, type: true, message: true, link: true, read: true, createdAt: true },
+                select: {
+                    id: true,
+                    type: true,
+                    message: true,
+                    link: true,
+                    read: true,
+                    createdAt: true,
+                },
             }),
             prisma.lmsNotification.count({
                 where: { userId: session.studentId, read: false },

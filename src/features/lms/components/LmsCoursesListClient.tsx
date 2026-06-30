@@ -25,7 +25,12 @@ import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { SearchableSelect } from '@/shared/components/ui/searchable-select';
 import { BookOpen, Edit2, Plus, Trash2, MoreHorizontal, Eye, EyeOff } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/shared/components/ui/dropdown-menu';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/shared/components/ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { createLmsCourse, deleteLmsCourse, updateLmsCourse } from '@/features/lms/actions/courses';
@@ -128,7 +133,9 @@ export function LmsCoursesListClient({ slug, courses, courseSections }: Props) {
             {courses.length === 0 ? (
                 <Card className="flex flex-col items-center justify-center border-dashed py-20">
                     <BookOpen size={48} className="text-mute/20 mb-4" />
-                    <p className="text-ink font-display text-lg font-bold">No hay cursos en el Aula</p>
+                    <p className="text-ink font-display text-lg font-bold">
+                        No hay cursos en el Aula
+                    </p>
                     <p className="text-mute mt-1 text-sm">
                         Creá el primer curso para empezar a cargar contenido.
                     </p>
@@ -139,7 +146,9 @@ export function LmsCoursesListClient({ slug, courses, courseSections }: Props) {
             ) : (
                 <Card className="border-border overflow-hidden bg-white shadow-sm">
                     <div className="border-border flex items-center justify-between border-b px-6 py-4">
-                        <h2 className="text-ink font-display text-xl font-bold">Cursos del Aula Virtual</h2>
+                        <h2 className="text-ink font-display text-xl font-bold">
+                            Cursos del Aula Virtual
+                        </h2>
                         <Button variant="primary" size="sm" onClick={openCreate}>
                             <Plus size={14} className="mr-1" /> Nuevo curso
                         </Button>
@@ -165,7 +174,10 @@ export function LmsCoursesListClient({ slug, courses, courseSections }: Props) {
                             </thead>
                             <tbody className="divide-border divide-y">
                                 {courses.map((c) => (
-                                    <tr key={c.id} className="hover:bg-paper-warm/30 transition-colors">
+                                    <tr
+                                        key={c.id}
+                                        className="hover:bg-paper-warm/30 transition-colors"
+                                    >
                                         <td className="px-6 py-4">
                                             <p className="text-ink font-semibold">{c.title}</p>
                                             {c.description && (
@@ -233,7 +245,9 @@ export function LmsCoursesListClient({ slug, courses, courseSections }: Props) {
                         <DialogTitle className="font-display text-2xl">
                             {editing ? 'Editar curso' : 'Nuevo curso'}
                         </DialogTitle>
-                        <DialogDescription className="sr-only">Formulario de curso</DialogDescription>
+                        <DialogDescription className="sr-only">
+                            Formulario de curso
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="grid grid-cols-1 gap-4 py-4">
                         <div className="flex flex-col gap-2">
@@ -271,7 +285,10 @@ export function LmsCoursesListClient({ slug, courses, courseSections }: Props) {
                                 onChange={setCourseSectionId}
                                 options={[
                                     { value: 'none', label: 'Sin materia asociada' },
-                                    ...courseSections.map((cs) => ({ value: cs.id, label: cs.name })),
+                                    ...courseSections.map((cs) => ({
+                                        value: cs.id,
+                                        label: cs.name,
+                                    })),
                                 ]}
                                 placeholder="Sin materia asociada"
                             />
@@ -293,7 +310,11 @@ export function LmsCoursesListClient({ slug, courses, courseSections }: Props) {
                         {error && <p className="text-destructive text-sm">{error}</p>}
                     </div>
                     <DialogFooter>
-                        <Button variant="ghost" onClick={() => setIsOpen(false)} disabled={isPending}>
+                        <Button
+                            variant="ghost"
+                            onClick={() => setIsOpen(false)}
+                            disabled={isPending}
+                        >
                             Cancelar
                         </Button>
                         <Button variant="ink" onClick={handleSave} disabled={isPending}>
@@ -306,9 +327,12 @@ export function LmsCoursesListClient({ slug, courses, courseSections }: Props) {
             <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-destructive">Eliminar curso</AlertDialogTitle>
+                        <AlertDialogTitle className="text-destructive">
+                            Eliminar curso
+                        </AlertDialogTitle>
                         <AlertDialogDescription>
-                            ¿Eliminar <strong>{toDelete?.title}</strong> y todos sus módulos y lecciones?
+                            ¿Eliminar <strong>{toDelete?.title}</strong> y todos sus módulos y
+                            lecciones?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

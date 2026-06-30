@@ -38,7 +38,9 @@ export default async function StudentAulaCoursePage({ params }: PageProps) {
                     updatedAt: true,
                     lessons: {
                         orderBy: { order: 'asc' },
-                        where: { type: { in: ['VIDEO', 'DOCUMENTO', 'TEXTO', 'ENLACE', 'EXAMEN'] } },
+                        where: {
+                            type: { in: ['VIDEO', 'DOCUMENTO', 'TEXTO', 'ENLACE', 'EXAMEN'] },
+                        },
                         select: {
                             id: true,
                             title: true,
@@ -74,7 +76,13 @@ export default async function StudentAulaCoursePage({ params }: PageProps) {
         }),
         prisma.lmsCertificate.findUnique({
             where: { userId_courseId: { userId: student.id, courseId: id } },
-            select: { verificationCode: true, finalGrade: true, issuedAt: true, pdfUrl: true, revokedAt: true },
+            select: {
+                verificationCode: true,
+                finalGrade: true,
+                issuedAt: true,
+                pdfUrl: true,
+                revokedAt: true,
+            },
         }),
     ]);
 
@@ -106,12 +114,15 @@ export default async function StudentAulaCoursePage({ params }: PageProps) {
         })),
     }));
 
-    const activeCertificate = certificate && !certificate.revokedAt ? {
-        verificationCode: certificate.verificationCode,
-        finalGrade: certificate.finalGrade?.toNumber() ?? null,
-        issuedAt: certificate.issuedAt,
-        pdfUrl: certificate.pdfUrl,
-    } : null;
+    const activeCertificate =
+        certificate && !certificate.revokedAt
+            ? {
+                  verificationCode: certificate.verificationCode,
+                  finalGrade: certificate.finalGrade?.toNumber() ?? null,
+                  issuedAt: certificate.issuedAt,
+                  pdfUrl: certificate.pdfUrl,
+              }
+            : null;
 
     return (
         <LmsStudentView

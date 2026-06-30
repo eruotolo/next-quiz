@@ -26,8 +26,7 @@ export function LmsCourseTabs({ slug, courseId }: Props) {
         <div className="border-border bg-paper border-b px-8">
             <nav className="-mb-px flex gap-1">
                 {tabs.map(({ href, label, icon: Icon }) => {
-                    const isActive =
-                        href === base ? pathname === base : pathname.startsWith(href);
+                    const isActive = href === base ? pathname === base : pathname.startsWith(href);
                     return (
                         <Link
                             key={href}

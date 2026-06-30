@@ -50,7 +50,8 @@ function formatDueDate(date: Date): string {
     const diff = date.getTime() - now.getTime();
     if (diff < 0) return `Venció el ${date.toLocaleDateString('es-CL')}`;
     const days = Math.floor(diff / 86400000);
-    if (days > 0) return `Vence en ${days} día${days !== 1 ? 's' : ''} (${date.toLocaleDateString('es-CL')})`;
+    if (days > 0)
+        return `Vence en ${days} día${days !== 1 ? 's' : ''} (${date.toLocaleDateString('es-CL')})`;
     const hours = Math.floor(diff / 3600000);
     if (hours > 0) return `Vence en ${hours} hora${hours !== 1 ? 's' : ''}`;
     return 'Vence pronto';
@@ -143,7 +144,8 @@ export function LmsTaskSubmissionForm({
                     <div className="flex items-center gap-2">
                         {existingSubmission && (
                             <Badge variant={STATUS_VARIANT[existingSubmission.status] ?? 'outline'}>
-                                {STATUS_LABEL[existingSubmission.status] ?? existingSubmission.status}
+                                {STATUS_LABEL[existingSubmission.status] ??
+                                    existingSubmission.status}
                             </Badge>
                         )}
                         <span className="text-mute text-xs">Nota máx. {maxScore}</span>
@@ -275,7 +277,9 @@ export function LmsTaskSubmissionForm({
                                 variant="primary"
                                 size="md"
                                 onClick={handleSubmit}
-                                disabled={isPending || (!text.trim() && !uploadedFileUrl && !selectedFile)}
+                                disabled={
+                                    isPending || (!text.trim() && !uploadedFileUrl && !selectedFile)
+                                }
                             >
                                 {isPending ? (
                                     <Loader2 size={14} className="mr-1 animate-spin" />

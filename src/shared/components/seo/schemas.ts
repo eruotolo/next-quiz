@@ -39,7 +39,8 @@ export const softwareApplicationSchema = {
         '@type': 'Offer',
         price: '0',
         priceCurrency: 'CLP',
-        description: 'Plan gratuito disponible. Planes pagos para instituciones desde $9.990 CLP/mes.',
+        description:
+            'Plan gratuito disponible. Planes pagos para instituciones desde $9.990 CLP/mes.',
     },
     publisher: {
         '@id': `${BASE_URL}/#organization`,

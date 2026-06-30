@@ -39,8 +39,7 @@ export default async function HostLiveSessionPage({ params }: PageProps) {
     const isSuperAdmin = userRole === USER_ROLE.SUPER_ADMIN;
     const isOwnerTeacher = session.course.createdById === userId;
     const isHostOfThisCourse =
-        userRole === USER_ROLE.ADMIN ||
-        (userRole === USER_ROLE.PROFESOR && isOwnerTeacher);
+        userRole === USER_ROLE.ADMIN || (userRole === USER_ROLE.PROFESOR && isOwnerTeacher);
 
     if (!isSuperAdmin && !isHostOfThisCourse) {
         redirect(`/${slug}/aula/${id}/clases`);
@@ -54,8 +53,7 @@ export default async function HostLiveSessionPage({ params }: PageProps) {
         durationMin: session.durationMin,
         now: new Date(),
     });
-    const derivedLive =
-        session.status === 'LIVE' || (win.isLive && session.status === 'SCHEDULED');
+    const derivedLive = session.status === 'LIVE' || (win.isLive && session.status === 'SCHEDULED');
     if (!derivedLive && session.status !== 'LIVE') {
         redirect(`/${slug}/aula/${id}/clases`);
     }
@@ -72,7 +70,7 @@ export default async function HostLiveSessionPage({ params }: PageProps) {
             <header className="flex items-center justify-between">
                 <div>
                     <h1 className="text-xl font-semibold">{session.title}</h1>
-                    <p className="text-xs text-muted-foreground">Sala del profesor</p>
+                    <p className="text-muted-foreground text-xs">Sala del profesor</p>
                 </div>
             </header>
             <LiveSessionRoomClient

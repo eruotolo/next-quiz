@@ -131,13 +131,13 @@ export function L3Footer() {
                         >
                             Privacidad
                         </Link>
-                        <Link
-                            href="/empresa/terminos"
-                            className="hover:text-ink transition-colors"
-                        >
+                        <Link href="/empresa/terminos" className="hover:text-ink transition-colors">
                             Términos
                         </Link>
-                        <Link href="/students/examen/login" className="hover:text-ink transition-colors">
+                        <Link
+                            href="/students/examen/login"
+                            className="hover:text-ink transition-colors"
+                        >
                             Acceso alumnos
                         </Link>
                         <Link href="/login" className="hover:text-ink transition-colors">

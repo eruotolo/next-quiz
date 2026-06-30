@@ -9,7 +9,8 @@ import {
 } from '../at-risk-detector';
 
 const NOW = new Date('2026-06-29T12:00:00Z');
-const daysAgo = (n: number): string => new Date(NOW.getTime() - n * 24 * 60 * 60 * 1000).toISOString();
+const daysAgo = (n: number): string =>
+    new Date(NOW.getTime() - n * 24 * 60 * 60 * 1000).toISOString();
 
 function enrollment(overrides: Partial<EnrollmentLike> = {}): EnrollmentLike {
     return {
@@ -132,7 +133,10 @@ describe('identifyAtRiskStudents', () => {
     it('handles string and Date inputs for timestamps', () => {
         const enrollments = [
             enrollment({ lastActivityAt: NOW }),
-            enrollment({ userId: 'u2', lastActivityAt: new Date(NOW.getTime() - 10 * 24 * 60 * 60 * 1000) }),
+            enrollment({
+                userId: 'u2',
+                lastActivityAt: new Date(NOW.getTime() - 10 * 24 * 60 * 60 * 1000),
+            }),
         ];
         const result = identifyAtRiskStudents(enrollments, [], { now: NOW });
         const u2 = result.find((r) => r.studentId === 'u2');

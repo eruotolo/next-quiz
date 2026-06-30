@@ -49,9 +49,7 @@ interface RowProps {
 }
 
 function StudentRow({ student, slug, courseId, onRefresh }: RowProps) {
-    const [grade, setGrade] = useState<string>(
-        student.certificate?.finalGrade?.toString() ?? '',
-    );
+    const [grade, setGrade] = useState<string>(student.certificate?.finalGrade?.toString() ?? '');
     const [isPending, startTransition] = useTransition();
 
     const cert = student.certificate;
@@ -109,12 +107,12 @@ function StudentRow({ student, slug, courseId, onRefresh }: RowProps) {
             </TableCell>
             <TableCell>
                 {hasActiveCert ? (
-                    <Badge className="bg-green-100 text-green-700 border-green-200">
+                    <Badge className="border-green-200 bg-green-100 text-green-700">
                         <CheckCircle2 size={11} className="mr-1" />
                         Emitido
                     </Badge>
                 ) : cert?.revokedAt ? (
-                    <Badge variant="outline" className="text-red-500 border-red-200">
+                    <Badge variant="outline" className="border-red-200 text-red-500">
                         <XCircle size={11} className="mr-1" />
                         Revocado
                     </Badge>
@@ -147,12 +145,7 @@ function StudentRow({ student, slug, courseId, onRefresh }: RowProps) {
                 <div className="flex items-center justify-end gap-1.5">
                     {hasActiveCert && (
                         <>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 gap-1 text-xs"
-                                asChild
-                            >
+                            <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs" asChild>
                                 <a
                                     href={`/certificado/${cert!.verificationCode}`}
                                     target="_blank"
@@ -209,12 +202,7 @@ function StudentRow({ student, slug, courseId, onRefresh }: RowProps) {
     );
 }
 
-export function LmsCertificatesClient({
-    slug,
-    courseId,
-    students,
-    certificateEnabled,
-}: Props) {
+export function LmsCertificatesClient({ slug, courseId, students, certificateEnabled }: Props) {
     const router = useRouter();
     const [search, setSearch] = useState('');
 
@@ -231,7 +219,7 @@ export function LmsCertificatesClient({
     return (
         <div className="flex flex-col gap-4 p-6">
             {!certificateEnabled && (
-                <div className="bg-amber-50 border-amber-200 text-amber-800 flex items-center gap-2 rounded-lg border px-4 py-3 text-sm">
+                <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
                     <Award size={16} />
                     Los certificados están deshabilitados en este curso. Actívalos desde la
                     configuración del curso para poder emitirlos.

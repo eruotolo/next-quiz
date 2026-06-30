@@ -96,7 +96,7 @@ export function Whiteboard({ sessionId, canSave }: WhiteboardProps) {
 
     return (
         <div className="flex h-full flex-col">
-            <div className="flex items-center justify-between border-b border-border px-4 py-2">
+            <div className="border-border flex items-center justify-between border-b px-4 py-2">
                 <h3 className="text-sm font-medium">Pizarra</h3>
                 {canSave ? (
                     <div className="flex items-center gap-2">

@@ -1,4 +1,3 @@
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { CoursesClient } from '@/features/courses/components/CoursesClient';
 import { academicLabel } from '@/shared/lib/academic-labels';
@@ -11,8 +10,15 @@ interface Props {
 
 export default async function CoursesPage({ params }: Props) {
     const { slug } = await params;
-    const { institutionId, institutionName, userRole, userId, isProfesor, coordinatedProgramIds, isDemo } =
-        await requireInstitutionPageAccess(slug);
+    const {
+        institutionId,
+        institutionName,
+        userRole,
+        userId,
+        isProfesor,
+        coordinatedProgramIds,
+        isDemo,
+    } = await requireInstitutionPageAccess(slug);
 
     const institution = await prisma.academicInstitution.findUnique({
         where: { id: institutionId },
@@ -89,22 +95,15 @@ export default async function CoursesPage({ params }: Props) {
     }));
 
     return (
-        <>
-            <AdminTopBar
-                title={labels.coursePlural}
-                breadcrumb={[institutionName, labels.coursePlural]}
-                subtitle={`${mappedCourses.length} registradas`}
-            />
-            <CoursesClient
-                slug={slug}
-                courses={mappedCourses}
-                programs={programs}
-                periods={periods}
-                groups={groups}
-                canMutate={canMutate}
-                courseLabel={label}
-                isDemo={isDemo}
-            />
-        </>
+        <CoursesClient
+            slug={slug}
+            courses={mappedCourses}
+            programs={programs}
+            periods={periods}
+            groups={groups}
+            canMutate={canMutate}
+            courseLabel={label}
+            isDemo={isDemo}
+        />
     );
 }

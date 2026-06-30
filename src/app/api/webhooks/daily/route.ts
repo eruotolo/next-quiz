@@ -2,10 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
 import { logAudit } from '@/shared/lib/audit';
 import { prisma } from '@/shared/lib/prisma';
-import {
-    parseDailyWebhookPayload,
-    verifyDailyWebhookSignature,
-} from '@/shared/lib/daily';
+import { parseDailyWebhookPayload, verifyDailyWebhookSignature } from '@/shared/lib/daily';
 import { uploadDailyRecordingToMux } from '@/features/lms/lib/mux-recording';
 
 export const dynamic = 'force-dynamic';

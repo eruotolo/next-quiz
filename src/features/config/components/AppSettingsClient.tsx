@@ -169,9 +169,7 @@ export function AppSettingsClient({ config }: Props) {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-base">
-                            Daily.co — Aulas sincrónicas
-                        </CardTitle>
+                        <CardTitle className="text-base">Daily.co — Aulas sincrónicas</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col gap-6">
                         <SettingField

@@ -2,19 +2,11 @@
 
 import { revalidatePath } from 'next/cache';
 import { randomBytes } from 'node:crypto';
-import type {
-    LiveAttendanceRole,
-    LiveSessionStatus,
-} from '@prisma/client';
+import type { LiveAttendanceRole, LiveSessionStatus } from '@prisma/client';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { prisma } from '@/shared/lib/prisma';
 import { requireInstitutionAccess } from '@/features/auth/lib/auth-guard';
-import {
-    type ActionResult,
-    fail,
-    ok,
-    toActionError,
-} from '@/shared/types/action';
+import { type ActionResult, fail, ok, toActionError } from '@/shared/types/action';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
 import { logAudit } from '@/shared/lib/audit';
 import {
@@ -51,11 +43,7 @@ async function requireLiveManager(slug: string): Promise<{
     userRole: string;
     institutionId: string;
 }> {
-    const allowed: LiveSessionRole[] = [
-        USER_ROLE.ADMIN,
-        USER_ROLE.PROFESOR,
-        USER_ROLE.SUPER_ADMIN,
-    ];
+    const allowed: LiveSessionRole[] = [USER_ROLE.ADMIN, USER_ROLE.PROFESOR, USER_ROLE.SUPER_ADMIN];
     const ctx = await requireInstitutionAccess(slug, allowed);
     return {
         userId: ctx.userId,
@@ -239,7 +227,8 @@ export async function updateLiveSession(
                 description: data.description ?? session.description,
                 scheduledAt: nextScheduledAt,
                 durationMin: nextDuration,
-                maxParticipants: data.maxParticipants === undefined ? undefined : data.maxParticipants,
+                maxParticipants:
+                    data.maxParticipants === undefined ? undefined : data.maxParticipants,
                 dailyRoomExpiresAt: nextExpiresAt,
             },
         });
@@ -522,9 +511,7 @@ export async function joinLiveSession(
     }
 }
 
-export async function leaveLiveSession(
-    input: unknown,
-): Promise<ActionResult<{ id: string }>> {
+export async function leaveLiveSession(input: unknown): Promise<ActionResult<{ id: string }>> {
     const parsed = leaveLiveSessionSchema.safeParse(input);
     if (!parsed.success) return fail(parsed.error.errors[0]?.message ?? 'Datos inválidos');
 
@@ -605,16 +592,16 @@ export async function toggleLiveSessionRecording(
             revalidatePath(`/${slug}/aula/${session.courseId}/clases/${sessionId}`);
             return ok({ recording: false });
         }
-            // Start recording via Daily API
-            const result = await startDailyRecording(session.dailyRoomName);
-            if (!result.ok) return fail(result.error);
+        // Start recording via Daily API
+        const result = await startDailyRecording(session.dailyRoomName);
+        if (!result.ok) return fail(result.error);
 
-            await prisma.lmsLiveSession.update({
-                where: { id: sessionId },
-                data: { recordingStatus: 'PENDING' },
-            });
-            revalidatePath(`/${slug}/aula/${session.courseId}/clases/${sessionId}`);
-            return ok({ recording: true });
+        await prisma.lmsLiveSession.update({
+            where: { id: sessionId },
+            data: { recordingStatus: 'PENDING' },
+        });
+        revalidatePath(`/${slug}/aula/${session.courseId}/clases/${sessionId}`);
+        return ok({ recording: true });
     } catch (err) {
         return fail(toActionError(err, 'Error al cambiar estado de grabación.'));
     }
@@ -629,7 +616,9 @@ export async function getLiveSessionById(input: unknown) {
         include: {
             course: { select: { id: true, title: true } },
             createdBy: { select: { id: true, name: true } },
-            _count: { select: { attendances: true, chatMessages: true, whiteboardSnapshots: true } },
+            _count: {
+                select: { attendances: true, chatMessages: true, whiteboardSnapshots: true },
+            },
         },
     });
     return { data: session, error: null as string | null };

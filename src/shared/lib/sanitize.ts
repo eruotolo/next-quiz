@@ -289,10 +289,7 @@ export function sanitizeForumMarkdown(input: string): string {
         i++;
         while (i < lines.length) {
             const cur = lines[i] ?? '';
-            if (
-                cur.trim() === '' ||
-                /^([-]\s|\d+\.\s|#{3,4}\s|>\s|```)/.test(cur)
-            ) {
+            if (cur.trim() === '' || /^([-]\s|\d+\.\s|#{3,4}\s|>\s|```)/.test(cur)) {
                 break;
             }
             para.push(cur);
@@ -343,17 +340,15 @@ function renderInline(input: string): string {
         }
         return tok({ type: 'link', label, url });
     });
-    text = text.replace(/\*\*([^*\n]+)\*\*/g, (_m, value) =>
-        tok({ type: 'bold', value }),
+    text = text.replace(/\*\*([^*\n]+)\*\*/g, (_m, value) => tok({ type: 'bold', value }));
+    text = text.replace(/__([^_\n]+)__/g, (_m, value) => tok({ type: 'bold', value }));
+    text = text.replace(
+        /(^|[^*\w])\*([^*\n]+)\*(?=[^*\w]|$)/g,
+        (_m, lead, value) => lead + tok({ type: 'italic', value }),
     );
-    text = text.replace(/__([^_\n]+)__/g, (_m, value) =>
-        tok({ type: 'bold', value }),
-    );
-    text = text.replace(/(^|[^*\w])\*([^*\n]+)\*(?=[^*\w]|$)/g, (_m, lead, value) =>
-        lead + tok({ type: 'italic', value }),
-    );
-    text = text.replace(/(^|[^_\w])_([^_\n]+)_(?=[^_\w]|$)/g, (_m, lead, value) =>
-        lead + tok({ type: 'italic', value }),
+    text = text.replace(
+        /(^|[^_\w])_([^_\n]+)_(?=[^_\w]|$)/g,
+        (_m, lead, value) => lead + tok({ type: 'italic', value }),
     );
 
     let escaped = escapeHtml(text);

@@ -7,9 +7,7 @@ interface UploadResult {
     error?: string;
 }
 
-export async function uploadDailyRecordingToMux(
-    downloadUrl: string,
-): Promise<UploadResult> {
+export async function uploadDailyRecordingToMux(downloadUrl: string): Promise<UploadResult> {
     try {
         const downloadResponse = await fetch(downloadUrl);
         if (!downloadResponse.ok) {

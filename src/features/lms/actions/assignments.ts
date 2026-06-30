@@ -125,22 +125,18 @@ export async function getLmsAssignmentByLesson(
             maxScore: assignment.maxScore,
         });
     } catch (error) {
-        return fail<
-            {
-                id: string;
-                instructions: string | null;
-                dueAt: Date | null;
-                maxScore: number;
-            } | null
-        >(toActionError(error, 'No se pudo leer la tarea'));
+        return fail<{
+            id: string;
+            instructions: string | null;
+            dueAt: Date | null;
+            maxScore: number;
+        } | null>(toActionError(error, 'No se pudo leer la tarea'));
     }
 }
 
 // ─── Submissions (entregas del estudiante) ──────────────────────────────────
 
-export async function submitLmsAssignment(
-    data: unknown,
-): Promise<ActionResult<{ id: string }>> {
+export async function submitLmsAssignment(data: unknown): Promise<ActionResult<{ id: string }>> {
     try {
         const parsed = lmsSubmissionSchema.safeParse(data);
         if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Datos inválidos');
@@ -149,9 +145,7 @@ export async function submitLmsAssignment(
         if (!session) return fail<{ id: string }>('No estás autenticado como estudiante');
 
         if (!parsed.data.fileUrl && !parsed.data.textContent) {
-            return fail<{ id: string }>(
-                'Debes adjuntar un archivo o escribir una respuesta',
-            );
+            return fail<{ id: string }>('Debes adjuntar un archivo o escribir una respuesta');
         }
 
         // Verificar que el assignment existe y pertenece a un curso al que
@@ -263,8 +257,7 @@ export async function gradeLmsSubmission(
 
         if (!submission) return fail<{ id: string }>('Entrega no encontrada');
         if (
-            submission.assignment.lesson.module.course.academicInstitutionId !==
-            ctx.institutionId
+            submission.assignment.lesson.module.course.academicInstitutionId !== ctx.institutionId
         ) {
             return fail<{ id: string }>('La entrega no pertenece a esta institución');
         }
@@ -388,9 +381,7 @@ export async function listSubmissionsForAssignment(
     }
 }
 
-export async function getMySubmission(
-    assignmentId: string,
-): Promise<
+export async function getMySubmission(assignmentId: string): Promise<
     ActionResult<{
         id: string;
         fileUrl: string | null;
@@ -424,17 +415,14 @@ export async function getMySubmission(
             submittedAt: submission.submittedAt,
         });
     } catch (error) {
-        return fail<
-            | {
-                  id: string;
-                  fileUrl: string | null;
-                  textContent: string | null;
-                  status: string;
-                  score: number | null;
-                  feedback: string | null;
-                  submittedAt: Date | null;
-              }
-            | null
-        >(toActionError(error, 'No se pudo leer tu entrega'));
+        return fail<{
+            id: string;
+            fileUrl: string | null;
+            textContent: string | null;
+            status: string;
+            score: number | null;
+            feedback: string | null;
+            submittedAt: Date | null;
+        } | null>(toActionError(error, 'No se pudo leer tu entrega'));
     }
 }

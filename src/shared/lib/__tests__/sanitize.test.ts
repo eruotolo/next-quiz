@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-    escapeHtml,
-    sanitizeHtml,
-    sanitizeForumMarkdown,
-} from '../sanitize';
+import { escapeHtml, sanitizeHtml, sanitizeForumMarkdown } from '../sanitize';
 
 describe('escapeHtml', () => {
     it('escapes standard XSS characters', () => {
@@ -132,9 +128,7 @@ describe('sanitizeForumMarkdown', () => {
 
     it('renders blockquotes', () => {
         const md = '> Una nota';
-        expect(sanitizeForumMarkdown(md)).toContain(
-            '<blockquote><p>Una nota</p></blockquote>',
-        );
+        expect(sanitizeForumMarkdown(md)).toContain('<blockquote><p>Una nota</p></blockquote>');
     });
 
     it('renders h3 and h4 headings', () => {

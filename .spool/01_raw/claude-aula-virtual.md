@@ -43,26 +43,26 @@ Un **LMS (Learning Management System)** es una plataforma de software que **plan
 - **Analítica** (reportes por rol, alertas tempranas de deserción).
 - **Certificación** (constancias verificables).
 
-Conceptualmente, un LMS responde a tres preguntas que una herramienta de evaluación **no** responde por sí sola: *¿Qué debe aprender el estudiante?* (currículo), *¿cómo lo aprende?* (contenido + interacción) y *¿cómo demuestro que aprendió?* (evaluación + certificación). Aulika hoy resuelve sólo la tercera.
+Conceptualmente, un LMS responde a tres preguntas que una herramienta de evaluación **no** responde por sí sola: _¿Qué debe aprender el estudiante?_ (currículo), _¿cómo lo aprende?_ (contenido + interacción) y _¿cómo demuestro que aprendió?_ (evaluación + certificación). Aulika hoy resuelve sólo la tercera.
 
 ### Tabla comparativa: Aulika hoy vs. Aula Virtual completa
 
-| Dimensión | **Aulika hoy (herramienta de evaluación)** | **Aula Virtual completa (LMS)** |
-|---|---|---|
-| **Unidad central** | Examen (`Exam`) | Curso (`Course` → `Module` → `Lesson`) |
-| **Contenido didáctico** | ❌ No existe (solo preguntas) | ✅ Videos, documentos, texto enriquecido, SCORM/H5P |
-| **Inscripción** | Implícita por grupo (`Group`) | ✅ Enrollment explícito con estados y fechas |
-| **Progreso del alumno** | Solo intento de examen (`ExamAttempt`) | ✅ `LessonProgress`, % curso, racha, ruta |
-| **Evaluación** | ✅ Exámenes con ventana horaria, anti-trampa, nota 1–7 | ✅ Exámenes **+ tareas con entrega de archivos + rúbricas** |
-| **Calificación** | ✅ All-or-nothing por pregunta → `Result` | ✅ **Gradebook ponderado** (exámenes + tareas + participación) |
-| **Comunicación** | ❌ | ✅ Foros anidados, anuncios, mensajería, notificaciones |
-| **Sincronía** | Asíncrono puntual (rendir examen) | ✅ Asíncrono + Sincrónico (clases en vivo) + Blended/HyFlex |
-| **Gamificación** | ❌ | ✅ Puntos, badges, rachas, leaderboards |
-| **Certificación** | ❌ | ✅ PDF con QR verificable |
-| **Analítica** | Resultados en vivo / finales por examen | ✅ Dashboards por rol + analítica predictiva de deserción |
-| **Multi-tenant** | ✅ Por `slug` de institución | ✅ Igual + white-label opcional |
-| **Roles** | SuperAdmin / Admin / Profesor / Estudiante | Mismos + matices (autor de contenido, moderador foro) |
-| **Modelo de negocio** | 1 SaaS (planes Free/Docente/Colegio/Institucional) | **2 SaaS** (Exámenes ⊂ Aula Virtual) |
+| Dimensión               | **Aulika hoy (herramienta de evaluación)**             | **Aula Virtual completa (LMS)**                                |
+| ----------------------- | ------------------------------------------------------ | -------------------------------------------------------------- |
+| **Unidad central**      | Examen (`Exam`)                                        | Curso (`Course` → `Module` → `Lesson`)                         |
+| **Contenido didáctico** | ❌ No existe (solo preguntas)                          | ✅ Videos, documentos, texto enriquecido, SCORM/H5P            |
+| **Inscripción**         | Implícita por grupo (`Group`)                          | ✅ Enrollment explícito con estados y fechas                   |
+| **Progreso del alumno** | Solo intento de examen (`ExamAttempt`)                 | ✅ `LessonProgress`, % curso, racha, ruta                      |
+| **Evaluación**          | ✅ Exámenes con ventana horaria, anti-trampa, nota 1–7 | ✅ Exámenes **+ tareas con entrega de archivos + rúbricas**    |
+| **Calificación**        | ✅ All-or-nothing por pregunta → `Result`              | ✅ **Gradebook ponderado** (exámenes + tareas + participación) |
+| **Comunicación**        | ❌                                                     | ✅ Foros anidados, anuncios, mensajería, notificaciones        |
+| **Sincronía**           | Asíncrono puntual (rendir examen)                      | ✅ Asíncrono + Sincrónico (clases en vivo) + Blended/HyFlex    |
+| **Gamificación**        | ❌                                                     | ✅ Puntos, badges, rachas, leaderboards                        |
+| **Certificación**       | ❌                                                     | ✅ PDF con QR verificable                                      |
+| **Analítica**           | Resultados en vivo / finales por examen                | ✅ Dashboards por rol + analítica predictiva de deserción      |
+| **Multi-tenant**        | ✅ Por `slug` de institución                           | ✅ Igual + white-label opcional                                |
+| **Roles**               | SuperAdmin / Admin / Profesor / Estudiante             | Mismos + matices (autor de contenido, moderador foro)          |
+| **Modelo de negocio**   | 1 SaaS (planes Free/Docente/Colegio/Institucional)     | **2 SaaS** (Exámenes ⊂ Aula Virtual)                           |
 
 **Conclusión de la sección:** Aulika es hoy el **subsistema de evaluación** de lo que será un LMS. La evolución no es un reemplazo, es una **envoltura** que añade contenido, comunicación y certificación alrededor del motor de exámenes existente.
 
@@ -100,13 +100,13 @@ El **intercambio de datos** es bidireccional: el docente **produce** estructura 
 
 ### Modalidades de aprendizaje y herramientas requeridas
 
-| Modalidad | Definición | Herramientas requeridas |
-|---|---|---|
-| **Asincrónico** | El alumno aprende a su ritmo, sin coincidencia temporal con el docente. | Lecciones con video/documentos, foros, tareas con deadline, progreso persistido. |
-| **Sincrónico** | Docente y alumnos coinciden en tiempo real. | Videoconferencia integrada, pizarrón colaborativo, chat en vivo, asistencia. |
-| **Blended (semipresencial)** | Combina presencial + online; lo online complementa el aula física. | Repositorio de material, tareas, exámenes en línea, anuncios. |
-| **HyFlex** | El alumno elige por sesión: presencial, sincrónico-remoto o asincrónico. | Grabación automática de clases en vivo, equivalencia de actividades en los 3 canales, asistencia flexible. |
-| **Microlearning** | Unidades muy cortas (3–7 min) y autocontenidas, ideal mobile. | Lecciones atómicas, quizzes rápidos, push notifications, racha/gamificación, diseño mobile-first. |
+| Modalidad                    | Definición                                                               | Herramientas requeridas                                                                                    |
+| ---------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| **Asincrónico**              | El alumno aprende a su ritmo, sin coincidencia temporal con el docente.  | Lecciones con video/documentos, foros, tareas con deadline, progreso persistido.                           |
+| **Sincrónico**               | Docente y alumnos coinciden en tiempo real.                              | Videoconferencia integrada, pizarrón colaborativo, chat en vivo, asistencia.                               |
+| **Blended (semipresencial)** | Combina presencial + online; lo online complementa el aula física.       | Repositorio de material, tareas, exámenes en línea, anuncios.                                              |
+| **HyFlex**                   | El alumno elige por sesión: presencial, sincrónico-remoto o asincrónico. | Grabación automática de clases en vivo, equivalencia de actividades en los 3 canales, asistencia flexible. |
+| **Microlearning**            | Unidades muy cortas (3–7 min) y autocontenidas, ideal mobile.            | Lecciones atómicas, quizzes rápidos, push notifications, racha/gamificación, diseño mobile-first.          |
 
 > **Para Chile:** el predominio **mobile-first** y la conectividad intermitente hacen del **asincrónico + microlearning** la modalidad de mayor ROI inicial; el **sincrónico** (Fase 6) es valioso pero costoso y debe ser opcional.
 
@@ -148,12 +148,12 @@ El **intercambio de datos** es bidireccional: el docente **produce** estructura 
 
 ### Análisis de patrones arquitectónicos
 
-| Patrón | Descripción | ¿Apto para Aulika/Next.js? |
-|---|---|---|
-| **Monolito modular** | Un solo deployable, organizado en módulos de dominio con fronteras claras. | ✅ **RECOMENDADO.** Es lo que Aulika ya hace con DDD (`src/features/*`). Cero overhead operacional, transacciones ACID nativas, un solo deploy en Vercel. |
-| **Microservicios** | Servicios independientes por dominio, comunicados por red. | ❌ Sobre-ingeniería para el tamaño actual. Introduce latencia, consistencia eventual, DevOps complejo. No se justifica con un equipo pequeño. |
-| **Serverless / Functions** | Cómputo efímero por request (Vercel Functions). | ✅ **Ya es el modelo de Vercel.** Server Actions y Route Handlers corren serverless. Ideal; cuidar cold starts y límites de payload para uploads grandes (usar uploads directos a blob). |
-| **Event-Driven** | Componentes reaccionan a eventos (cola/bus). | ⚠️ **Selectivo.** Útil para gamificación (motor de puntos/badges), notificaciones y procesamiento de video (webhooks de Mux). Implementar como **eventos in-process + jobs/cron**, no un bus dedicado. |
+| Patrón                     | Descripción                                                                | ¿Apto para Aulika/Next.js?                                                                                                                                                                             |
+| -------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Monolito modular**       | Un solo deployable, organizado en módulos de dominio con fronteras claras. | ✅ **RECOMENDADO.** Es lo que Aulika ya hace con DDD (`src/features/*`). Cero overhead operacional, transacciones ACID nativas, un solo deploy en Vercel.                                              |
+| **Microservicios**         | Servicios independientes por dominio, comunicados por red.                 | ❌ Sobre-ingeniería para el tamaño actual. Introduce latencia, consistencia eventual, DevOps complejo. No se justifica con un equipo pequeño.                                                          |
+| **Serverless / Functions** | Cómputo efímero por request (Vercel Functions).                            | ✅ **Ya es el modelo de Vercel.** Server Actions y Route Handlers corren serverless. Ideal; cuidar cold starts y límites de payload para uploads grandes (usar uploads directos a blob).               |
+| **Event-Driven**           | Componentes reaccionan a eventos (cola/bus).                               | ⚠️ **Selectivo.** Útil para gamificación (motor de puntos/badges), notificaciones y procesamiento de video (webhooks de Mux). Implementar como **eventos in-process + jobs/cron**, no un bus dedicado. |
 
 **Dictamen:** **Monolito modular serverless** sobre Next.js, con **toques event-driven** (webhooks + cron de Vercel, ya usados para MercadoPago y demo-reset) para tareas asíncronas (transcoding de video, eventos de gamificación, notificaciones). Esto extiende el patrón actual sin reescritura.
 
@@ -163,23 +163,23 @@ El **intercambio de datos** es bidireccional: el docente **produce** estructura 
 
 ### 4.1 Núcleo educativo (Core)
 
-- **Gestión de cursos jerárquica** — `Course → Module → Lesson → Activity`. Una lección tiene un `type` (VIDEO, DOCUMENT, TEXT, EXAM, ASSIGNMENT, LIVE). Reordenamiento drag-and-drop (ya hay `@dnd-kit` instalado). *Implicancia:* árbol de contenido con `order` por nivel; render server-side; navegación "siguiente/anterior" con gating por progreso.
-- **Roles y permisos jerárquicos** — reutilizar los 4 roles existentes (`SuperAdministrador`, `Administrador`, `Profesor`, `Estudiante`) + el scoping por institución/grupo/programa ya implementado (`src/shared/lib/scoping.ts`, `ProgramCoordinator`). *Implicancia:* el LMS **no introduce un nuevo sistema de permisos**, hereda el de Aulika. Profesor acotado a sus cursos/grupos.
-- **Banco de preguntas con anti-trampa** — **ya existe** (`BankQuestion`/`BankOption`, clonado a `Question` al usar; `antiCheatEnabled`, `lockTabSwitch`, `uniqueIp`, `randomizeQuestions`, `TabSwitchEvent`). *Implicancia:* la lección tipo examen reutiliza todo esto vía `examId` (ver §16.5).
-- **Libro de calificaciones (Gradebook)** — `GradebookItem` por curso (examen, tarea, participación) con `weight` (ponderación). Nota final = Σ(nota_item × peso) normalizada a escala 1–7. *Implicancia:* el cálculo de notas determinista (sin IA) se preserva; el gradebook **agrega** la capa de ponderación que hoy no existe (hoy cada `Result` es independiente).
+- **Gestión de cursos jerárquica** — `Course → Module → Lesson → Activity`. Una lección tiene un `type` (VIDEO, DOCUMENT, TEXT, EXAM, ASSIGNMENT, LIVE). Reordenamiento drag-and-drop (ya hay `@dnd-kit` instalado). _Implicancia:_ árbol de contenido con `order` por nivel; render server-side; navegación "siguiente/anterior" con gating por progreso.
+- **Roles y permisos jerárquicos** — reutilizar los 4 roles existentes (`SuperAdministrador`, `Administrador`, `Profesor`, `Estudiante`) + el scoping por institución/grupo/programa ya implementado (`src/shared/lib/scoping.ts`, `ProgramCoordinator`). _Implicancia:_ el LMS **no introduce un nuevo sistema de permisos**, hereda el de Aulika. Profesor acotado a sus cursos/grupos.
+- **Banco de preguntas con anti-trampa** — **ya existe** (`BankQuestion`/`BankOption`, clonado a `Question` al usar; `antiCheatEnabled`, `lockTabSwitch`, `uniqueIp`, `randomizeQuestions`, `TabSwitchEvent`). _Implicancia:_ la lección tipo examen reutiliza todo esto vía `examId` (ver §16.5).
+- **Libro de calificaciones (Gradebook)** — `GradebookItem` por curso (examen, tarea, participación) con `weight` (ponderación). Nota final = Σ(nota_item × peso) normalizada a escala 1–7. _Implicancia:_ el cálculo de notas determinista (sin IA) se preserva; el gradebook **agrega** la capa de ponderación que hoy no existe (hoy cada `Result` es independiente).
 
 ### 4.2 Comunicación e interacción
 
-- **Foros anidados** — `Forum` (por curso/ramo) → `Thread` → `Post` (con `parentId` para respuestas anidadas). Moderación por docente. *Implicancia:* árbol auto-referencial; paginación; notificaciones en nuevas respuestas; markdown/rich-text sanitizado.
-- **Mensajería** — directa (1:1) y por cohorte. *Implicancia:* `Message`/`Conversation`; entrega in-app + email (Brevo ya integrado). MVP: anuncios broadcast antes que mensajería 1:1.
-- **Videoconferencia** — **integración**, no construcción propia. LiveKit/Daily/Jitsi embebido. *Implicancia:* es la pieza más cara y se deja para Fase 6, opcional y por plan superior.
+- **Foros anidados** — `Forum` (por curso/ramo) → `Thread` → `Post` (con `parentId` para respuestas anidadas). Moderación por docente. _Implicancia:_ árbol auto-referencial; paginación; notificaciones en nuevas respuestas; markdown/rich-text sanitizado.
+- **Mensajería** — directa (1:1) y por cohorte. _Implicancia:_ `Message`/`Conversation`; entrega in-app + email (Brevo ya integrado). MVP: anuncios broadcast antes que mensajería 1:1.
+- **Videoconferencia** — **integración**, no construcción propia. LiveKit/Daily/Jitsi embebido. _Implicancia:_ es la pieza más cara y se deja para Fase 6, opcional y por plan superior.
 
 ### 4.3 Analítica, gamificación y administración
 
-- **Dashboards por rol** — extender los dashboards actuales: alumno (mi progreso, mis notas, próximas entregas), docente (avance de cohorte, entregas pendientes de corregir), admin (uso por curso/institución). *Implicancia:* queries agregadas con índices; reutilizar `stat-tile`/`AdminTopBar`.
-- **Analítica predictiva de deserción** — señales: inactividad (días sin login), baja completitud, notas en descenso, entregas atrasadas. MVP heurístico (reglas) → fase posterior con IA (Gemini). *Implicancia:* job/cron que computa "riesgo" y alerta al docente.
-- **Gamificación** — puntos por completar lecciones/entregar a tiempo, badges por hitos, rachas (días consecutivos). *Implicancia:* **motor de eventos** (`GamificationEvent`) que reacciona a acciones; idempotente; configurable por institución.
-- **Multi-tenant / White-label** — multi-tenant **ya existe** (slug). White-label = logo/colores/dominio propio por institución. *Implicancia:* tema dinámico por tenant (CSS variables, ya usado en el proyecto); habilitación por plan.
+- **Dashboards por rol** — extender los dashboards actuales: alumno (mi progreso, mis notas, próximas entregas), docente (avance de cohorte, entregas pendientes de corregir), admin (uso por curso/institución). _Implicancia:_ queries agregadas con índices; reutilizar `stat-tile`/`AdminTopBar`.
+- **Analítica predictiva de deserción** — señales: inactividad (días sin login), baja completitud, notas en descenso, entregas atrasadas. MVP heurístico (reglas) → fase posterior con IA (Gemini). _Implicancia:_ job/cron que computa "riesgo" y alerta al docente.
+- **Gamificación** — puntos por completar lecciones/entregar a tiempo, badges por hitos, rachas (días consecutivos). _Implicancia:_ **motor de eventos** (`GamificationEvent`) que reacciona a acciones; idempotente; configurable por institución.
+- **Multi-tenant / White-label** — multi-tenant **ya existe** (slug). White-label = logo/colores/dominio propio por institución. _Implicancia:_ tema dinámico por tenant (CSS variables, ya usado en el proyecto); habilitación por plan.
 
 ---
 
@@ -187,21 +187,21 @@ El **intercambio de datos** es bidireccional: el docente **produce** estructura 
 
 ### Open Source (gigantes)
 
-| Plataforma | Stack técnico | Fortalezas | Debilidades | Infraestructura |
-|---|---|---|---|---|
-| **Moodle** | PHP + MySQL/PostgreSQL/MariaDB; tema Mustache; plugins PHP | Madurez extrema, +20 años, ecosistema de plugins masivo, estándar de facto en universidades, SCORM/LTI, gratuito | UX anticuada, mobile-first débil, monolito PHP pesado, mantenimiento operacional alto, "feo" para colegios | Servidor LAMP propio o Moodle Cloud; requiere DBA y sysadmin |
-| **Canvas LMS** | Ruby on Rails + PostgreSQL; frontend React; Redis | UI moderna, excelente API REST/GraphQL, fuerte en educación superior, SpeedGrader, app móvil sólida | Pesado de auto-hospedar (Rails + servicios), curva de despliegue alta, orientado a grandes instituciones | Multi-servicio (Rails, Postgres, Redis, Canvabadges…); normalmente SaaS (Instructure) |
-| **Open edX** | Python/Django + MySQL + MongoDB + Node; microservicios (Tutor/Docker) | Escala MOOC masiva, contenido estructurado (XBlocks), analítica avanzada, usado por edX/MIT | Complejidad de despliegue muy alta (varios servicios), overkill para colegios, requiere equipo dedicado | Kubernetes/Docker (Tutor); pesado en recursos |
+| Plataforma     | Stack técnico                                                         | Fortalezas                                                                                                       | Debilidades                                                                                                | Infraestructura                                                                       |
+| -------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| **Moodle**     | PHP + MySQL/PostgreSQL/MariaDB; tema Mustache; plugins PHP            | Madurez extrema, +20 años, ecosistema de plugins masivo, estándar de facto en universidades, SCORM/LTI, gratuito | UX anticuada, mobile-first débil, monolito PHP pesado, mantenimiento operacional alto, "feo" para colegios | Servidor LAMP propio o Moodle Cloud; requiere DBA y sysadmin                          |
+| **Canvas LMS** | Ruby on Rails + PostgreSQL; frontend React; Redis                     | UI moderna, excelente API REST/GraphQL, fuerte en educación superior, SpeedGrader, app móvil sólida              | Pesado de auto-hospedar (Rails + servicios), curva de despliegue alta, orientado a grandes instituciones   | Multi-servicio (Rails, Postgres, Redis, Canvabadges…); normalmente SaaS (Instructure) |
+| **Open edX**   | Python/Django + MySQL + MongoDB + Node; microservicios (Tutor/Docker) | Escala MOOC masiva, contenido estructurado (XBlocks), analítica avanzada, usado por edX/MIT                      | Complejidad de despliegue muy alta (varios servicios), overkill para colegios, requiere equipo dedicado    | Kubernetes/Docker (Tutor); pesado en recursos                                         |
 
 ### SaaS comerciales
 
-| Plataforma | Enfoque | Pricing aprox. | Notas |
-|---|---|---|---|
-| **TalentLMS** | Corporate training, PYMEs | Por usuario activo/mes | Setup rápido, gamificación nativa |
-| **Teachable** | Creadores / cursos individuales | % de ventas + mensualidad | Foco en monetizar cursos, no en colegios |
-| **Thinkific** | Creadores / negocios de cursos | Plano mensual | Similar a Teachable, sin transaction fees en planes altos |
-| **Kajabi** | Creadores + marketing all-in-one | Premium ($$$) | Incluye email marketing, funnels, no académico |
-| **Google Classroom** | Colegios (K-12) | Gratis (Workspace for Education) | **Competidor directo en Chile**; simple, pero no es un LMS completo ni tiene evaluación robusta ni notas 1–7 nativas |
+| Plataforma           | Enfoque                          | Pricing aprox.                   | Notas                                                                                                                |
+| -------------------- | -------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **TalentLMS**        | Corporate training, PYMEs        | Por usuario activo/mes           | Setup rápido, gamificación nativa                                                                                    |
+| **Teachable**        | Creadores / cursos individuales  | % de ventas + mensualidad        | Foco en monetizar cursos, no en colegios                                                                             |
+| **Thinkific**        | Creadores / negocios de cursos   | Plano mensual                    | Similar a Teachable, sin transaction fees en planes altos                                                            |
+| **Kajabi**           | Creadores + marketing all-in-one | Premium ($$$)                    | Incluye email marketing, funnels, no académico                                                                       |
+| **Google Classroom** | Colegios (K-12)                  | Gratis (Workspace for Education) | **Competidor directo en Chile**; simple, pero no es un LMS completo ni tiene evaluación robusta ni notas 1–7 nativas |
 
 ### Nueva generación LMS en JavaScript/TypeScript
 
@@ -217,27 +217,27 @@ El **intercambio de datos** es bidireccional: el docente **produce** estructura 
 
 ### Repositorios open source para estudiar lógica
 
-| Repo | URL | Qué estudiar |
-|---|---|---|
-| **moodle/moodle** | github.com/moodle/moodle | Modelo de gradebook ponderado, completion tracking, roles/capabilities |
-| **instructure/canvas-lms** | github.com/instructure/canvas-lms | API design, SpeedGrader (corrección), assignments + rubrics |
-| **openedx/edx-platform** | github.com/openedx/edx-platform | XBlocks (contenido modular), analítica de aprendizaje |
-| **learnhouse/learnhouse** | github.com/learnhouse/learnhouse | LMS Next.js moderno, estructura de cursos, editor |
-| **classroomio/classroomio** | github.com/classroomio/classroomio | Multi-tenant, modelo de datos curso/lección en Postgres |
+| Repo                        | URL                                | Qué estudiar                                                           |
+| --------------------------- | ---------------------------------- | ---------------------------------------------------------------------- |
+| **moodle/moodle**           | github.com/moodle/moodle           | Modelo de gradebook ponderado, completion tracking, roles/capabilities |
+| **instructure/canvas-lms**  | github.com/instructure/canvas-lms  | API design, SpeedGrader (corrección), assignments + rubrics            |
+| **openedx/edx-platform**    | github.com/openedx/edx-platform    | XBlocks (contenido modular), analítica de aprendizaje                  |
+| **learnhouse/learnhouse**   | github.com/learnhouse/learnhouse   | LMS Next.js moderno, estructura de cursos, editor                      |
+| **classroomio/classroomio** | github.com/classroomio/classroomio | Multi-tenant, modelo de datos curso/lección en Postgres                |
 
 ### Librerías npm / servicios externos idóneos
 
-| Necesidad | Opción recomendada | Alternativas | Nota |
-|---|---|---|---|
-| **Editor Rich Text** | **Tiptap** (ProseMirror, React) | Lexical (Meta), Plate, BlockNote | Tiptap = headless, extensible, JSON serializable; ideal para lecciones y foros |
-| **Video streaming (CDN)** | **Mux** (`@mux/mux-node`, `@mux/mux-player-react`) | Cloudflare Stream, Bunny Stream, api.video | Transcoding adaptativo (HLS), webhooks de "ready", analytics; no servir video desde Vercel |
-| **Almacenamiento de archivos** | **Vercel Blob** (`@vercel/blob`) | AWS S3 (`@aws-sdk/client-s3`), Cloudflare R2 | Uploads directos cliente→blob (evita límite de payload serverless); R2 sin egress fees para escala |
-| **Pizarrón colaborativo** | **tldraw** (`@tldraw/tldraw`) | Excalidraw (`@excalidraw/excalidraw` — ya en ecosistema), Liveblocks para colab realtime | tldraw + Liveblocks/Yjs para multiusuario |
-| **Generación de PDF (certificados)** | **@react-pdf/renderer** | Puppeteer (server), pdf-lib, jsPDF | React-PDF = declarativo, server-side; para QR usar `qrcode` |
-| **QR verificable** | **qrcode** + endpoint de verificación | — | QR apunta a `aula.aulika.cl/verificar/{certId}` |
-| **Videoconferencia integrada** | **LiveKit** (`@livekit/components-react`) | Daily (`@daily-co/daily-js`), Jitsi (embed gratis) | LiveKit open source self-host o cloud; Jitsi = MVP gratis |
-| **Notificaciones in-app/push** | **Novu** (open source) o Web Push nativo | Knock, Resend (email) | Brevo ya cubre email transaccional |
-| **Realtime (foros/notif live)** | **Pusher** / **Ably** / **Supabase Realtime** | SSE nativo de Next.js | Para MVP, polling + revalidate alcanza |
+| Necesidad                            | Opción recomendada                                 | Alternativas                                                                             | Nota                                                                                               |
+| ------------------------------------ | -------------------------------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| **Editor Rich Text**                 | **Tiptap** (ProseMirror, React)                    | Lexical (Meta), Plate, BlockNote                                                         | Tiptap = headless, extensible, JSON serializable; ideal para lecciones y foros                     |
+| **Video streaming (CDN)**            | **Mux** (`@mux/mux-node`, `@mux/mux-player-react`) | Cloudflare Stream, Bunny Stream, api.video                                               | Transcoding adaptativo (HLS), webhooks de "ready", analytics; no servir video desde Vercel         |
+| **Almacenamiento de archivos**       | **Vercel Blob** (`@vercel/blob`)                   | AWS S3 (`@aws-sdk/client-s3`), Cloudflare R2                                             | Uploads directos cliente→blob (evita límite de payload serverless); R2 sin egress fees para escala |
+| **Pizarrón colaborativo**            | **tldraw** (`@tldraw/tldraw`)                      | Excalidraw (`@excalidraw/excalidraw` — ya en ecosistema), Liveblocks para colab realtime | tldraw + Liveblocks/Yjs para multiusuario                                                          |
+| **Generación de PDF (certificados)** | **@react-pdf/renderer**                            | Puppeteer (server), pdf-lib, jsPDF                                                       | React-PDF = declarativo, server-side; para QR usar `qrcode`                                        |
+| **QR verificable**                   | **qrcode** + endpoint de verificación              | —                                                                                        | QR apunta a `aula.aulika.cl/verificar/{certId}`                                                    |
+| **Videoconferencia integrada**       | **LiveKit** (`@livekit/components-react`)          | Daily (`@daily-co/daily-js`), Jitsi (embed gratis)                                       | LiveKit open source self-host o cloud; Jitsi = MVP gratis                                          |
+| **Notificaciones in-app/push**       | **Novu** (open source) o Web Push nativo           | Knock, Resend (email)                                                                    | Brevo ya cubre email transaccional                                                                 |
+| **Realtime (foros/notif live)**      | **Pusher** / **Ably** / **Supabase Realtime**      | SSE nativo de Next.js                                                                    | Para MVP, polling + revalidate alcanza                                                             |
 
 ---
 
@@ -286,12 +286,12 @@ La IA dejó de ser un "feature" para ser **capa transversal**:
 
 ### Modelos posibles
 
-| Modelo | Descripción | Aplicabilidad a Aulika |
-|---|---|---|
-| **Por asiento (per-seat)** | Precio por estudiante/usuario activo. | ⚠️ Penaliza colegios grandes; difícil de presupuestar para directores. |
-| **Por uso (usage-based)** | Precio por examen rendido, GB de video, etc. | ⚠️ Impredecible; mejor para overage, no como base. |
-| **Freemium** | Tier gratis con límites; pago para escalar. | ✅ **Ya es el modelo de Aulika** (plan FREE). Excelente para adopción docente individual. |
-| **Institucional (flat/tiered)** | Cuota fija por institución según tamaño/features. | ✅ **Recomendado** para colegios; presupuestable, B2B. |
+| Modelo                          | Descripción                                       | Aplicabilidad a Aulika                                                                    |
+| ------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| **Por asiento (per-seat)**      | Precio por estudiante/usuario activo.             | ⚠️ Penaliza colegios grandes; difícil de presupuestar para directores.                    |
+| **Por uso (usage-based)**       | Precio por examen rendido, GB de video, etc.      | ⚠️ Impredecible; mejor para overage, no como base.                                        |
+| **Freemium**                    | Tier gratis con límites; pago para escalar.       | ✅ **Ya es el modelo de Aulika** (plan FREE). Excelente para adopción docente individual. |
+| **Institucional (flat/tiered)** | Cuota fija por institución según tamaño/features. | ✅ **Recomendado** para colegios; presupuestable, B2B.                                    |
 
 **Estrategia recomendada:** **Freemium + Institucional por tiers** (lo que Aulika ya hace), extendido al Aula Virtual con **dos líneas de producto** (ver §16.6).
 
@@ -299,14 +299,14 @@ La IA dejó de ser un "feature" para ser **capa transversal**:
 
 > Reutiliza el enum `Plan` existente (`FREE`, `DOCENTE`, `COLEGIO`, `INSTITUCIONAL`) y `PlanLimits`/`CustomPlan`. Se añade una **dimensión Aula Virtual**.
 
-| Plan | Público | Exámenes (SaaS actual) | Aula Virtual (nuevo) | Límites ejemplo |
-|---|---|---|---|---|
-| **FREE** | Docente individual / prueba | ✅ básico | ❌ (o demo) | 1 grupo, 30 alumnos, exámenes limitados |
-| **DOCENTE** | Profesor que paga | ✅ completo | ⚠️ 1 curso | 100 alumnos, almacenamiento básico |
-| **COLEGIO** | Colegio/liceo | ✅ completo | ✅ completo (incluye exámenes) | N grupos, video con cuota, foros, certificados |
-| **INSTITUCIONAL** | Universidad/red | ✅ completo | ✅ completo + white-label + video alto + soporte | A medida (`CustomPlan`) |
+| Plan              | Público                     | Exámenes (SaaS actual) | Aula Virtual (nuevo)                             | Límites ejemplo                                |
+| ----------------- | --------------------------- | ---------------------- | ------------------------------------------------ | ---------------------------------------------- |
+| **FREE**          | Docente individual / prueba | ✅ básico              | ❌ (o demo)                                      | 1 grupo, 30 alumnos, exámenes limitados        |
+| **DOCENTE**       | Profesor que paga           | ✅ completo            | ⚠️ 1 curso                                       | 100 alumnos, almacenamiento básico             |
+| **COLEGIO**       | Colegio/liceo               | ✅ completo            | ✅ completo (incluye exámenes)                   | N grupos, video con cuota, foros, certificados |
+| **INSTITUCIONAL** | Universidad/red             | ✅ completo            | ✅ completo + white-label + video alto + soporte | A medida (`CustomPlan`)                        |
 
-**Regla de oro (§16.6):** *suscribirse al Aula Virtual de un tier incluye automáticamente los Exámenes de ese tier* (Aula Virtual ⊃ Exámenes). Pero **se pueden vender por separado** (un colegio puede querer solo exámenes).
+**Regla de oro (§16.6):** _suscribirse al Aula Virtual de un tier incluye automáticamente los Exámenes de ese tier_ (Aula Virtual ⊃ Exámenes). Pero **se pueden vender por separado** (un colegio puede querer solo exámenes).
 
 ---
 
@@ -314,38 +314,38 @@ La IA dejó de ser un "feature" para ser **capa transversal**:
 
 ### Lo que Aulika YA tiene (verificado contra el código)
 
-| Capacidad | Implementación real |
-|---|---|
-| **Multi-tenant por slug** | `AcademicInstitution.slug` único; proxy enruta `/[slug]/*` |
-| **Roles definidos** | `UserRole` (4 roles) + scoping por grupo/programa (`ProgramCoordinator`, `scoping.ts`) |
+| Capacidad                       | Implementación real                                                                                                                               |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Multi-tenant por slug**       | `AcademicInstitution.slug` único; proxy enruta `/[slug]/*`                                                                                        |
+| **Roles definidos**             | `UserRole` (4 roles) + scoping por grupo/programa (`ProgramCoordinator`, `scoping.ts`)                                                            |
 | **Jerarquía académica chilena** | `Program` (Carrera/Nivel) · `AcademicPeriod` (Semestre/Año) · `CourseSection` (Ramo/Asignatura) · `Group`; labels dinámicos por `InstitutionType` |
-| **Banco de exámenes** | `BankQuestion`/`BankOption` reutilizable por institución, clonado a `Question`/`Option` |
-| **Ventana horaria** | `Exam.scheduledAt` / `closesAt`; gating en `startSelectedExam` |
-| **Proctoring básico** | `antiCheatEnabled`, `lockTabSwitch`, `uniqueIp`, `randomizeQuestions`, `TabSwitchEvent` |
-| **Notas 1–7** | `maxGrade`, `passingGrade`, `passingPercentage`; corrección all-or-nothing → `Result` |
-| **Reanudación de intento** | `ExamAttempt` (startedAt/endsAt), auto-entrega al vencer |
-| **Login por RUT (estudiante)** | Jose HS256, cookie propia, validación de DV |
-| **NextAuth (admin/docente)** | NextAuth v5 beta.25, Credentials + JWT, `institutionSlug` en token |
-| **Suscripciones/pagos** | `Subscription`/`Payment`/`Plan`/`PlanLimits`/`CustomPlan` + MercadoPago (preapproval) |
-| **IA para preguntas** | `@ai-sdk/google` (Gemini) |
-| **Auditoría** | `AuditLog` |
-| **Modo demo público** | Institución `aulika-demo`, aislamiento por `demoSessionId`, limpieza por sesión/cron |
-| **SEO + legal** | Sitemap, JSON-LD, robots, páginas legales (Ley 19.628/21.719, Mineduc) |
+| **Banco de exámenes**           | `BankQuestion`/`BankOption` reutilizable por institución, clonado a `Question`/`Option`                                                           |
+| **Ventana horaria**             | `Exam.scheduledAt` / `closesAt`; gating en `startSelectedExam`                                                                                    |
+| **Proctoring básico**           | `antiCheatEnabled`, `lockTabSwitch`, `uniqueIp`, `randomizeQuestions`, `TabSwitchEvent`                                                           |
+| **Notas 1–7**                   | `maxGrade`, `passingGrade`, `passingPercentage`; corrección all-or-nothing → `Result`                                                             |
+| **Reanudación de intento**      | `ExamAttempt` (startedAt/endsAt), auto-entrega al vencer                                                                                          |
+| **Login por RUT (estudiante)**  | Jose HS256, cookie propia, validación de DV                                                                                                       |
+| **NextAuth (admin/docente)**    | NextAuth v5 beta.25, Credentials + JWT, `institutionSlug` en token                                                                                |
+| **Suscripciones/pagos**         | `Subscription`/`Payment`/`Plan`/`PlanLimits`/`CustomPlan` + MercadoPago (preapproval)                                                             |
+| **IA para preguntas**           | `@ai-sdk/google` (Gemini)                                                                                                                         |
+| **Auditoría**                   | `AuditLog`                                                                                                                                        |
+| **Modo demo público**           | Institución `aulika-demo`, aislamiento por `demoSessionId`, limpieza por sesión/cron                                                              |
+| **SEO + legal**                 | Sitemap, JSON-LD, robots, páginas legales (Ley 19.628/21.719, Mineduc)                                                                            |
 
 ### Lo que le FALTA para ser un LMS
 
-| Falta | Impacto |
-|---|---|
-| **Materiales/contenido didáctico** | ❌ No hay cursos, módulos ni lecciones — **lo más crítico** |
-| **Streaming de video** | ❌ No hay pipeline de video |
-| **Upload de archivos** | ❌ No hay storage de documentos |
-| **Tareas con entrega** | ❌ Solo exámenes de opción múltiple, sin entrega de archivos |
-| **Gradebook ponderado** | ❌ Cada `Result` es independiente; no hay nota de curso ponderada |
-| **Foros / comunicación** | ❌ Sin foros, mensajería ni anuncios |
-| **Notificaciones** | ❌ Sin sistema in-app |
-| **Certificados** | ❌ Sin generación de constancias |
-| **Inscripción explícita (enrollment)** | ⚠️ Implícita por grupo; falta enrollment a curso |
-| **Gamificación / analítica de progreso** | ❌ Sin puntos/badges ni `LessonProgress` |
+| Falta                                    | Impacto                                                           |
+| ---------------------------------------- | ----------------------------------------------------------------- |
+| **Materiales/contenido didáctico**       | ❌ No hay cursos, módulos ni lecciones — **lo más crítico**       |
+| **Streaming de video**                   | ❌ No hay pipeline de video                                       |
+| **Upload de archivos**                   | ❌ No hay storage de documentos                                   |
+| **Tareas con entrega**                   | ❌ Solo exámenes de opción múltiple, sin entrega de archivos      |
+| **Gradebook ponderado**                  | ❌ Cada `Result` es independiente; no hay nota de curso ponderada |
+| **Foros / comunicación**                 | ❌ Sin foros, mensajería ni anuncios                              |
+| **Notificaciones**                       | ❌ Sin sistema in-app                                             |
+| **Certificados**                         | ❌ Sin generación de constancias                                  |
+| **Inscripción explícita (enrollment)**   | ⚠️ Implícita por grupo; falta enrollment a curso                  |
+| **Gamificación / analítica de progreso** | ❌ Sin puntos/badges ni `LessonProgress`                          |
 
 ---
 
@@ -374,20 +374,22 @@ La IA dejó de ser un "feature" para ser **capa transversal**:
 
 ### Clasificación de brechas
 
-| Prioridad | Brechas | Justificación |
-|---|---|---|
-| 🔴 **Críticas** | Contenido (cursos/módulos/lecciones), Video/Storage, Gradebook ponderado | Sin esto **no es un LMS**. Son el corazón de la propuesta de valor. |
-| 🟠 **Importantes** | Tareas con entrega, Foros, Notificaciones, Enrollment | Diferenciadores de engagement; esperables en un LMS serio. |
+| Prioridad                | Brechas                                                                                   | Justificación                                                             |
+| ------------------------ | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| 🔴 **Críticas**          | Contenido (cursos/módulos/lecciones), Video/Storage, Gradebook ponderado                  | Sin esto **no es un LMS**. Son el corazón de la propuesta de valor.       |
+| 🟠 **Importantes**       | Tareas con entrega, Foros, Notificaciones, Enrollment                                     | Diferenciadores de engagement; esperables en un LMS serio.                |
 | 🟡 **Moderadas/Futuras** | Gamificación, Certificados, Analítica predictiva, Clases en vivo, White-label, Blockchain | Alto valor percibido pero no bloquean el lanzamiento; iterables post-MVP. |
 
 ---
 
 ## 12. Roadmap estratégico incremental (6 fases)
 
-> **Principio rector:** *No romper lo que ya funciona en producción.* Cada fase es **aditiva** (nuevas tablas, nuevas rutas bajo `/aula`), nunca destructiva. Las migraciones Prisma sólo **agregan** columnas/tablas nullable. Flag `aulaVirtualEnabled` controla la exposición.
+> **Principio rector:** _No romper lo que ya funciona en producción._ Cada fase es **aditiva** (nuevas tablas, nuevas rutas bajo `/aula`), nunca destructiva. Las migraciones Prisma sólo **agregan** columnas/tablas nullable. Flag `aulaVirtualEnabled` controla la exposición.
 
 ### Fase 1 — Fundamentos de curso
+
 **Objetivo:** estructura de contenido + entrega de material.
+
 - Modelos: `Course`, `Module`, `Lesson`, `Enrollment`, `LessonProgress`.
 - Upload de archivos (Vercel Blob) + streaming de video nativo (Mux/Cloudflare Stream).
 - Rutas `/aula` (subdominio `aula.aulika.cl`), navegación curso→módulo→lección.
@@ -395,33 +397,43 @@ La IA dejó de ser un "feature" para ser **capa transversal**:
 - **Entregable:** un docente publica un curso con videos/PDFs; el alumno lo consume y se trackea progreso.
 
 ### Fase 2 — Evaluaciones enriquecidas
+
 **Objetivo:** tareas + libro de calificaciones.
+
 - Modelos: `Assignment`, `Submission` (con archivos), `GradebookItem`, `Grade`.
 - Lección tipo examen → FK `examId` al **motor existente** (rinde y guarda `Result` actual — §16.5).
 - Gradebook con ponderaciones configurables, nota final 1–7.
 - **Entregable:** docente crea tareas y exámenes dentro del curso; nota final ponderada visible al alumno.
 
 ### Fase 3 — Comunicación y comunidad
+
 **Objetivo:** interacción.
+
 - Modelos: `Forum`, `Thread`, `Post` (anidados), `Announcement`, `Notification`.
 - Notificaciones in-app + email (Brevo).
 - **Entregable:** foros por ramo, anuncios del docente, alumno recibe avisos de notas/entregas.
 
 ### Fase 4 — Gamificación y motivación
+
 **Objetivo:** engagement.
+
 - Modelos: `GamificationEvent`, `Badge`, `UserBadge`, `PointsLedger`, `Streak`.
 - Motor de eventos in-process (reacciona a completar lección, entregar a tiempo, aprobar).
 - **Entregable:** puntos, badges y rachas visibles; leaderboard opcional por curso.
 
 ### Fase 5 — Certificados y analítica avanzada
+
 **Objetivo:** valor de salida + insights.
+
 - Modelos: `Certificate` (con `verificationCode`), `RiskScore`.
 - PDF con `@react-pdf/renderer` + QR verificable (`aula.aulika.cl/verificar/{code}`).
 - IA (Gemini) para resúmenes de lecciones y señales de deserción.
 - **Entregable:** certificado descargable verificable + alerta de riesgo al docente.
 
 ### Fase 6 — Clases en vivo
+
 **Objetivo:** sincronía (opcional, plan superior).
+
 - Integración videoconferencia (LiveKit/Daily/Jitsi) + pizarrón (tldraw + Liveblocks).
 - Modelos: `LiveSession`, `Attendance`.
 - **Entregable:** sesión en vivo agendada, grabada (HyFlex), con asistencia.
@@ -441,17 +453,17 @@ Contenido  Tareas+    Foros+     Gamific.   Certs+     Clases
 
 > Ya instalado y reutilizable: `@ai-sdk/google` (IA), `@dnd-kit/*` (reorden), `framer-motion`, `zod`, `react-hook-form`, `mercadopago`, `jose`, `xlsx`, `radix-ui`, `sonner`.
 
-| Necesidad | Paquete nuevo | Fase |
-|---|---|---|
-| Editor rich text | `@tiptap/react` `@tiptap/starter-kit` | 1 |
-| Almacenamiento archivos | `@vercel/blob` (o `@aws-sdk/client-s3` para R2/S3) | 1 |
-| Video | `@mux/mux-node` `@mux/mux-player-react` | 1 |
-| Sanitización HTML | `sanitize-html` (o `isomorphic-dompurify`) | 3 |
-| PDF certificados | `@react-pdf/renderer` | 5 |
-| QR | `qrcode` | 5 |
-| Videoconferencia | `@livekit/components-react` `livekit-client` (o `@daily-co/daily-js`) | 6 |
-| Pizarrón | `@tldraw/tldraw` (+ `@liveblocks/client` para colab) | 6 |
-| Notificaciones realtime (opcional) | `pusher`/`pusher-js` o `ably` | 3 |
+| Necesidad                          | Paquete nuevo                                                         | Fase |
+| ---------------------------------- | --------------------------------------------------------------------- | ---- |
+| Editor rich text                   | `@tiptap/react` `@tiptap/starter-kit`                                 | 1    |
+| Almacenamiento archivos            | `@vercel/blob` (o `@aws-sdk/client-s3` para R2/S3)                    | 1    |
+| Video                              | `@mux/mux-node` `@mux/mux-player-react`                               | 1    |
+| Sanitización HTML                  | `sanitize-html` (o `isomorphic-dompurify`)                            | 3    |
+| PDF certificados                   | `@react-pdf/renderer`                                                 | 5    |
+| QR                                 | `qrcode`                                                              | 5    |
+| Videoconferencia                   | `@livekit/components-react` `livekit-client` (o `@daily-co/daily-js`) | 6    |
+| Pizarrón                           | `@tldraw/tldraw` (+ `@liveblocks/client` para colab)                  | 6    |
+| Notificaciones realtime (opcional) | `pusher`/`pusher-js` o `ably`                                         | 3    |
 
 ### Extensión del schema de Prisma (código)
 
@@ -758,16 +770,16 @@ src/
 
 ## 14. Riesgos y mitigaciones de ingeniería
 
-| Riesgo | Prob. | Impacto | Mitigación |
-|---|---|---|---|
-| **Scope creep** (querer todo el LMS de una) | Alta | Alto | Roadmap por fases estricto; flag `aulaVirtualEnabled`; cada fase entrega valor independiente; no empezar Fase N+1 sin cerrar N en producción. |
-| **Degradación de performance por video** | Media | Alto | **Nunca** servir video desde Vercel; usar CDN (Mux/Cloudflare Stream) con HLS adaptativo; uploads directos cliente→blob; lazy-load del player. |
-| **Costos de almacenamiento cloud** | Media | Medio | Cuotas de storage por plan (`PlanLimits`); video con expiración/archivado; R2 (sin egress) para escala; monitoreo de uso por institución. |
-| **Deuda técnica en la base de datos** | Media | Alto | Sólo migraciones aditivas (`pnpm db:migrate`, nunca SQL manual); FK nullable; índices desde el día 1; no tocar tablas existentes; revisión de schema en cada PR. |
-| **Romper producción (motor de exámenes)** | Baja | Crítico | El LMS **consume** el motor vía `examId`, no lo modifica; tests E2E (Playwright) del flujo de examen como regresión; feature-flag por institución. |
-| **Complejidad de auth cross-subdomain** | Media | Medio | Cookies con `domain: '.aulika.cl'` (§16.3); reutilizar NextAuth/Jose existentes sin bifurcar; probar SSO entre `www` y `aula`. |
-| **Privacidad de datos (Mineduc/Ley 21.719)** | Media | Alto | Consentimiento explícito; retención y borrado; el contenido del alumno es dato sensible; IA con supervisión humana (sin calificación automática). |
-| **Proctoring/IA: falsos positivos y sesgo** | Media | Medio | IA asiste, humano decide; transparencia con el alumno; no bloquear automáticamente. |
+| Riesgo                                       | Prob. | Impacto | Mitigación                                                                                                                                                       |
+| -------------------------------------------- | ----- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Scope creep** (querer todo el LMS de una)  | Alta  | Alto    | Roadmap por fases estricto; flag `aulaVirtualEnabled`; cada fase entrega valor independiente; no empezar Fase N+1 sin cerrar N en producción.                    |
+| **Degradación de performance por video**     | Media | Alto    | **Nunca** servir video desde Vercel; usar CDN (Mux/Cloudflare Stream) con HLS adaptativo; uploads directos cliente→blob; lazy-load del player.                   |
+| **Costos de almacenamiento cloud**           | Media | Medio   | Cuotas de storage por plan (`PlanLimits`); video con expiración/archivado; R2 (sin egress) para escala; monitoreo de uso por institución.                        |
+| **Deuda técnica en la base de datos**        | Media | Alto    | Sólo migraciones aditivas (`pnpm db:migrate`, nunca SQL manual); FK nullable; índices desde el día 1; no tocar tablas existentes; revisión de schema en cada PR. |
+| **Romper producción (motor de exámenes)**    | Baja  | Crítico | El LMS **consume** el motor vía `examId`, no lo modifica; tests E2E (Playwright) del flujo de examen como regresión; feature-flag por institución.               |
+| **Complejidad de auth cross-subdomain**      | Media | Medio   | Cookies con `domain: '.aulika.cl'` (§16.3); reutilizar NextAuth/Jose existentes sin bifurcar; probar SSO entre `www` y `aula`.                                   |
+| **Privacidad de datos (Mineduc/Ley 21.719)** | Media | Alto    | Consentimiento explícito; retención y borrado; el contenido del alumno es dato sensible; IA con supervisión humana (sin calificación automática).                |
+| **Proctoring/IA: falsos positivos y sesgo**  | Media | Medio   | IA asiste, humano decide; transparencia con el alumno; no bloquear automáticamente.                                                                              |
 
 ---
 
@@ -790,9 +802,9 @@ Aulika debe posicionarse como el **LMS chileno nativo para colegios y liceos**, 
 
 **Propuestas de eslogan:**
 
-- *"Aulika: del examen al aula completa. El LMS hecho en Chile, para Chile."*
-- *"Tu colegio en línea, con notas de 1 a 7 y la robustez que Google Classroom no tiene."*
-- *"Evaluar, enseñar y certificar. Todo en un solo lugar, en español y en CLP."*
+- _"Aulika: del examen al aula completa. El LMS hecho en Chile, para Chile."_
+- _"Tu colegio en línea, con notas de 1 a 7 y la robustez que Google Classroom no tiene."_
+- _"Evaluar, enseñar y certificar. Todo en un solo lugar, en español y en CLP."_
 
 ---
 

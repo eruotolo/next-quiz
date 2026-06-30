@@ -15,14 +15,26 @@ const CONFIG_ROUTES: Record<string, RouteConfig> = {
     '/config/students': { title: 'Todos los Estudiantes', breadcrumb: ['Sistema', 'Base Global'] },
     '/config/auditoria': { title: 'Auditoría', breadcrumb: ['Sistema', 'Auditoría'] },
     '/config/settings': { title: 'Configuración', breadcrumb: ['Sistema', 'Configuración'] },
-    '/config/payments': { title: 'Pagos', breadcrumb: ['Aulika · Plataforma', 'Panel Global', 'Pagos'] },
-    '/config/subscriptions': { title: 'Suscripciones y pagos', breadcrumb: ['Aulika · Plataforma', 'Panel Global', 'Suscripciones'] },
+    '/config/payments': {
+        title: 'Pagos',
+        breadcrumb: ['Aulika · Plataforma', 'Panel Global', 'Pagos'],
+    },
+    '/config/subscriptions': {
+        title: 'Suscripciones y pagos',
+        breadcrumb: ['Aulika · Plataforma', 'Panel Global', 'Suscripciones'],
+    },
     '/config/periods': { title: 'Períodos Académicos', breadcrumb: ['Sistema', 'Períodos'] },
-    '/config/plan-limits': { title: 'Límites de planes', breadcrumb: ['Aulika · Plataforma', 'Panel Global', 'Límites de planes'] },
+    '/config/plan-limits': {
+        title: 'Límites de planes',
+        breadcrumb: ['Aulika · Plataforma', 'Panel Global', 'Límites de planes'],
+    },
     '/config/groups': { title: 'Grupos / Cursos', breadcrumb: ['Sistema', 'Grupos'] },
     '/config/programs': { title: 'Programas / Carreras', breadcrumb: ['Sistema', 'Programas'] },
     '/config/exams': { title: 'Exámenes / Evaluaciones', breadcrumb: ['Sistema', 'Exámenes'] },
-    '/config/billing': { title: 'Facturación', breadcrumb: ['Aulika · Plataforma', 'Panel Global', 'Facturación'] },
+    '/config/billing': {
+        title: 'Facturación',
+        breadcrumb: ['Aulika · Plataforma', 'Panel Global', 'Facturación'],
+    },
 };
 
 function resolveRoute(pathname: string): RouteConfig {

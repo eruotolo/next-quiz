@@ -194,9 +194,7 @@ describe('syncExamGrade', () => {
 
 describe('validateGradebookWeights', () => {
     it('acepta una suma de pesos exactamente 1.0', () => {
-        expect(
-            validateGradebookWeights([{ weight: 0.4 }, { weight: 0.6 }]),
-        ).toBe(true);
+        expect(validateGradebookWeights([{ weight: 0.4 }, { weight: 0.6 }])).toBe(true);
     });
 
     it('acepta pesos con tolerancia de punto flotante', () => {
@@ -211,12 +209,7 @@ describe('validateGradebookWeights', () => {
     });
 
     it('rechaza suma de pesos mayor a 1.0', () => {
-        expect(
-            validateGradebookWeights([
-                { weight: 0.6 },
-                { weight: 0.6 },
-            ]),
-        ).toBe(false);
+        expect(validateGradebookWeights([{ weight: 0.6 }, { weight: 0.6 }])).toBe(false);
     });
 
     it('ignora items con peso 0 o negativo en la suma', () => {

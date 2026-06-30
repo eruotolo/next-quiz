@@ -191,99 +191,101 @@ function classifyUrgency(target: Date, now: number): 'critical' | 'warning' | 'n
     return 'normal';
 }
 
-export const getUpcomingFeed = cache(async (ctx: DashboardStudentContext): Promise<UpcomingFeed> => {
-    const now = Date.now();
-    const upcomingExams = await prisma.exam.findMany({
-        where: {
-            academicInstitutionId: ctx.institutionId,
-            groups: { some: { id: ctx.groupId } },
-            questions: { some: {} },
-            OR: [{ active: true }, { results: { some: { studentId: ctx.studentId } } }],
-            results: { none: { studentId: ctx.studentId } },
-        },
-        select: {
-            id: true,
-            title: true,
-            scheduledAt: true,
-            closesAt: true,
-        },
-    });
-
-    const exams: UpcomingExam[] = upcomingExams
-        .filter((e) => {
-            const opensAtMs = e.scheduledAt?.getTime() ?? null;
-            const closesAtMs = e.closesAt?.getTime() ?? null;
-            if (closesAtMs !== null && closesAtMs < now) return false;
-            return opensAtMs === null || opensAtMs >= now;
-        })
-        .map((e) => ({
-            id: e.id,
-            title: e.title,
-            scheduledAt: e.scheduledAt ?? new Date(),
-            closesAt: e.closesAt,
-            urgency: classifyUrgency(e.scheduledAt ?? e.closesAt ?? new Date(), now),
-        }))
-        .sort((a, b) => a.scheduledAt.getTime() - b.scheduledAt.getTime())
-        .slice(0, 5);
-
-    let assignments: UpcomingAssignment[] = [];
-    if (ctx.hasLms) {
-        const submissions = await prisma.lmsSubmission.findMany({
-            where: { studentId: ctx.studentId },
-            select: { assignmentId: true },
+export const getUpcomingFeed = cache(
+    async (ctx: DashboardStudentContext): Promise<UpcomingFeed> => {
+        const now = Date.now();
+        const upcomingExams = await prisma.exam.findMany({
+            where: {
+                academicInstitutionId: ctx.institutionId,
+                groups: { some: { id: ctx.groupId } },
+                questions: { some: {} },
+                OR: [{ active: true }, { results: { some: { studentId: ctx.studentId } } }],
+                results: { none: { studentId: ctx.studentId } },
+            },
+            select: {
+                id: true,
+                title: true,
+                scheduledAt: true,
+                closesAt: true,
+            },
         });
-        const submittedIds = new Set(submissions.map((s) => s.assignmentId));
 
-        const activeEnrollments = await prisma.lmsEnrollment.findMany({
-            where: { userId: ctx.studentId, status: 'ACTIVO' },
-            select: { courseId: true },
-        });
-        const courseIds = activeEnrollments.map((e) => e.courseId);
+        const exams: UpcomingExam[] = upcomingExams
+            .filter((e) => {
+                const opensAtMs = e.scheduledAt?.getTime() ?? null;
+                const closesAtMs = e.closesAt?.getTime() ?? null;
+                if (closesAtMs !== null && closesAtMs < now) return false;
+                return opensAtMs === null || opensAtMs >= now;
+            })
+            .map((e) => ({
+                id: e.id,
+                title: e.title,
+                scheduledAt: e.scheduledAt ?? new Date(),
+                closesAt: e.closesAt,
+                urgency: classifyUrgency(e.scheduledAt ?? e.closesAt ?? new Date(), now),
+            }))
+            .sort((a, b) => a.scheduledAt.getTime() - b.scheduledAt.getTime())
+            .slice(0, 5);
 
-        if (courseIds.length > 0) {
-            const dueAssignments = await prisma.lmsAssignment.findMany({
-                where: {
-                    dueAt: { not: null, gte: new Date() },
-                    lesson: {
-                        module: { courseId: { in: courseIds } },
-                    },
-                },
-                select: {
-                    id: true,
-                    lessonId: true,
-                    lesson: {
-                        select: {
-                            module: {
-                                select: { courseId: true, course: { select: { title: true } } },
-                            },
-                            title: true,
+        let assignments: UpcomingAssignment[] = [];
+        if (ctx.hasLms) {
+            const submissions = await prisma.lmsSubmission.findMany({
+                where: { studentId: ctx.studentId },
+                select: { assignmentId: true },
+            });
+            const submittedIds = new Set(submissions.map((s) => s.assignmentId));
+
+            const activeEnrollments = await prisma.lmsEnrollment.findMany({
+                where: { userId: ctx.studentId, status: 'ACTIVO' },
+                select: { courseId: true },
+            });
+            const courseIds = activeEnrollments.map((e) => e.courseId);
+
+            if (courseIds.length > 0) {
+                const dueAssignments = await prisma.lmsAssignment.findMany({
+                    where: {
+                        dueAt: { not: null, gte: new Date() },
+                        lesson: {
+                            module: { courseId: { in: courseIds } },
                         },
                     },
-                    dueAt: true,
-                },
-                orderBy: { dueAt: 'asc' },
-                take: 5,
-            });
-
-            assignments = dueAssignments
-                .filter((a) => !submittedIds.has(a.id) && a.dueAt !== null)
-                .map((a) => {
-                    const dueAt = a.dueAt as Date;
-                    return {
-                        id: a.id,
-                        lessonId: a.lessonId,
-                        courseId: a.lesson.module.courseId,
-                        title: a.lesson.title,
-                        courseTitle: a.lesson.module.course.title,
-                        dueAt,
-                        urgency: classifyUrgency(dueAt, now),
-                    };
+                    select: {
+                        id: true,
+                        lessonId: true,
+                        lesson: {
+                            select: {
+                                module: {
+                                    select: { courseId: true, course: { select: { title: true } } },
+                                },
+                                title: true,
+                            },
+                        },
+                        dueAt: true,
+                    },
+                    orderBy: { dueAt: 'asc' },
+                    take: 5,
                 });
-        }
-    }
 
-    return { exams, assignments, hasItems: exams.length > 0 || assignments.length > 0 };
-});
+                assignments = dueAssignments
+                    .filter((a) => !submittedIds.has(a.id) && a.dueAt !== null)
+                    .map((a) => {
+                        const dueAt = a.dueAt as Date;
+                        return {
+                            id: a.id,
+                            lessonId: a.lessonId,
+                            courseId: a.lesson.module.courseId,
+                            title: a.lesson.title,
+                            courseTitle: a.lesson.module.course.title,
+                            dueAt,
+                            urgency: classifyUrgency(dueAt, now),
+                        };
+                    });
+            }
+        }
+
+        return { exams, assignments, hasItems: exams.length > 0 || assignments.length > 0 };
+    },
+);
 
 export interface CourseProgressCard {
     id: string;
@@ -292,54 +294,52 @@ export interface CourseProgressCard {
     averageGrade: number | null;
 }
 
-export const getMyCoursesCards = cache(
-    async (studentId: string): Promise<CourseProgressCard[]> => {
-        const enrollments = await prisma.lmsEnrollment.findMany({
-            where: { userId: studentId, status: 'ACTIVO' },
-            select: {
-                progressPct: true,
-                courseId: true,
-                course: {
-                    select: { id: true, title: true, gradebookItems: { select: { id: true } } },
-                },
+export const getMyCoursesCards = cache(async (studentId: string): Promise<CourseProgressCard[]> => {
+    const enrollments = await prisma.lmsEnrollment.findMany({
+        where: { userId: studentId, status: 'ACTIVO' },
+        select: {
+            progressPct: true,
+            courseId: true,
+            course: {
+                select: { id: true, title: true, gradebookItems: { select: { id: true } } },
             },
-            orderBy: { enrolledAt: 'desc' },
-            take: 3,
-        });
+        },
+        orderBy: { enrolledAt: 'desc' },
+        take: 3,
+    });
 
-        if (enrollments.length === 0) return [];
+    if (enrollments.length === 0) return [];
 
-        const cards: CourseProgressCard[] = [];
-        for (const enrollment of enrollments) {
-            const itemIds = enrollment.course.gradebookItems.map((i) => i.id);
-            const grades = itemIds.length
-                ? await prisma.lmsGrade.findMany({
-                      where: { studentId, gradebookItemId: { in: itemIds } },
-                      select: { score: true, gradebookItem: { select: { weight: true } } },
-                  })
-                : [];
-            let weightedSum = 0;
-            let totalWeight = 0;
-            for (const g of grades) {
-                if (g.score === null || g.score === undefined) continue;
-                const w = Number(g.gradebookItem.weight);
-                if (!Number.isFinite(w) || w <= 0) continue;
-                const clipped = Math.min(7, Math.max(1, g.score));
-                weightedSum += clipped * w;
-                totalWeight += w;
-            }
-            const average =
-                totalWeight === 0 ? null : Math.round((weightedSum / totalWeight) * 100) / 100;
-            cards.push({
-                id: enrollment.course.id,
-                title: enrollment.course.title,
-                progressPct: enrollment.progressPct,
-                averageGrade: average,
-            });
+    const cards: CourseProgressCard[] = [];
+    for (const enrollment of enrollments) {
+        const itemIds = enrollment.course.gradebookItems.map((i) => i.id);
+        const grades = itemIds.length
+            ? await prisma.lmsGrade.findMany({
+                  where: { studentId, gradebookItemId: { in: itemIds } },
+                  select: { score: true, gradebookItem: { select: { weight: true } } },
+              })
+            : [];
+        let weightedSum = 0;
+        let totalWeight = 0;
+        for (const g of grades) {
+            if (g.score === null || g.score === undefined) continue;
+            const w = Number(g.gradebookItem.weight);
+            if (!Number.isFinite(w) || w <= 0) continue;
+            const clipped = Math.min(7, Math.max(1, g.score));
+            weightedSum += clipped * w;
+            totalWeight += w;
         }
-        return cards;
-    },
-);
+        const average =
+            totalWeight === 0 ? null : Math.round((weightedSum / totalWeight) * 100) / 100;
+        cards.push({
+            id: enrollment.course.id,
+            title: enrollment.course.title,
+            progressPct: enrollment.progressPct,
+            averageGrade: average,
+        });
+    }
+    return cards;
+});
 
 export interface RecentGrade {
     resultId: string;
@@ -477,67 +477,65 @@ export interface LmsCourseHistory {
     totalItems: number;
 }
 
-export const getLmsCourseHistory = cache(
-    async (studentId: string): Promise<LmsCourseHistory[]> => {
-        const enrollments = await prisma.lmsEnrollment.findMany({
-            where: { userId: studentId },
-            select: {
-                courseId: true,
-                course: {
-                    select: {
-                        id: true,
-                        title: true,
-                        gradebookItems: {
-                            select: {
-                                id: true,
-                                title: true,
-                                weight: true,
-                                grades: {
-                                    where: { studentId },
-                                    select: { score: true },
-                                    take: 1,
-                                },
+export const getLmsCourseHistory = cache(async (studentId: string): Promise<LmsCourseHistory[]> => {
+    const enrollments = await prisma.lmsEnrollment.findMany({
+        where: { userId: studentId },
+        select: {
+            courseId: true,
+            course: {
+                select: {
+                    id: true,
+                    title: true,
+                    gradebookItems: {
+                        select: {
+                            id: true,
+                            title: true,
+                            weight: true,
+                            grades: {
+                                where: { studentId },
+                                select: { score: true },
+                                take: 1,
                             },
                         },
                     },
                 },
             },
-        });
+        },
+    });
 
-        const history: LmsCourseHistory[] = [];
-        for (const enrollment of enrollments) {
-            const items = enrollment.course.gradebookItems.map((it) => ({
-                id: it.id,
-                title: it.title,
-                weight: it.weight,
-                score: it.grades[0]?.score ?? null,
-            }));
-            let weightedSum = 0;
-            let totalWeight = 0;
-            for (const it of items) {
-                if (it.score === null) continue;
-                const w = Number(it.weight);
-                if (!Number.isFinite(w) || w <= 0) continue;
-                weightedSum += Math.min(7, Math.max(1, it.score)) * w;
-                totalWeight += w;
-            }
-            const average =
-                totalWeight === 0 ? null : Math.round((weightedSum / totalWeight) * 100) / 100;
-            const passed = average === null ? null : average >= 4.0;
-            const completedItems = items.filter((i) => i.score !== null).length;
-            history.push({
-                courseId: enrollment.course.id,
-                title: enrollment.course.title,
-                items,
-                average,
-                passed,
-                completedItems,
-                totalItems: items.length,
-            });
+    const history: LmsCourseHistory[] = [];
+    for (const enrollment of enrollments) {
+        const items = enrollment.course.gradebookItems.map((it) => ({
+            id: it.id,
+            title: it.title,
+            weight: it.weight,
+            score: it.grades[0]?.score ?? null,
+        }));
+        let weightedSum = 0;
+        let totalWeight = 0;
+        for (const it of items) {
+            if (it.score === null) continue;
+            const w = Number(it.weight);
+            if (!Number.isFinite(w) || w <= 0) continue;
+            weightedSum += Math.min(7, Math.max(1, it.score)) * w;
+            totalWeight += w;
         }
-        return history;
-    },
-);
+        const average =
+            totalWeight === 0 ? null : Math.round((weightedSum / totalWeight) * 100) / 100;
+        const passed = average === null ? null : average >= 4.0;
+        const completedItems = items.filter((i) => i.score !== null).length;
+        history.push({
+            courseId: enrollment.course.id,
+            title: enrollment.course.title,
+            items,
+            average,
+            passed,
+            completedItems,
+            totalItems: items.length,
+        });
+    }
+    return history;
+});
 
 export interface CalendarEvent {
     id: string;
@@ -548,11 +546,7 @@ export interface CalendarEvent {
 }
 
 export const getMonthlyCalendarEvents = cache(
-    async (
-        ctx: DashboardStudentContext,
-        year: number,
-        month: number,
-    ): Promise<CalendarEvent[]> => {
+    async (ctx: DashboardStudentContext, year: number, month: number): Promise<CalendarEvent[]> => {
         const start = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0));
         const end = new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
         const events: CalendarEvent[] = [];

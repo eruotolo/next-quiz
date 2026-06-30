@@ -30,7 +30,7 @@ export default async function NewLiveSessionPage({ params }: PageProps) {
         <div className="flex flex-col gap-6 p-6">
             <header>
                 <h1 className="text-2xl font-semibold">Nueva sesión en vivo</h1>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                     Curso: <strong>{course.title}</strong>
                 </p>
             </header>

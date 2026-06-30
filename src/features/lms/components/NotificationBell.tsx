@@ -46,9 +46,7 @@ export function NotificationBell({ initialNotifications, initialUnreadCount }: P
     const handleMarkRead = (id: string) => {
         startTransition(async () => {
             await markNotificationRead(id);
-            setNotifications((prev) =>
-                prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
-            );
+            setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
             setUnreadCount((c) => Math.max(0, c - 1));
         });
     };
@@ -81,7 +79,7 @@ export function NotificationBell({ initialNotifications, initialUnreadCount }: P
             </button>
 
             {open && (
-                <div className="border-border absolute right-0 top-10 z-50 w-80 rounded-2xl border bg-white shadow-xl">
+                <div className="border-border absolute top-10 right-0 z-50 w-80 rounded-2xl border bg-white shadow-xl">
                     {/* Header */}
                     <div className="flex items-center justify-between border-b px-4 py-3">
                         <span className="text-ink text-sm font-semibold">Notificaciones</span>
@@ -124,8 +122,15 @@ export function NotificationBell({ initialNotifications, initialUnreadCount }: P
                                             !n.read ? 'bg-primary/5' : 'hover:bg-paper',
                                         )}
                                     >
-                                        <div className="mt-1 flex-1 min-w-0">
-                                            <p className={cn('text-sm leading-snug', !n.read ? 'text-ink font-medium' : 'text-ink-dim')}>
+                                        <div className="mt-1 min-w-0 flex-1">
+                                            <p
+                                                className={cn(
+                                                    'text-sm leading-snug',
+                                                    !n.read
+                                                        ? 'text-ink font-medium'
+                                                        : 'text-ink-dim',
+                                                )}
+                                            >
                                                 {n.message}
                                             </p>
                                             <p className="text-mute mt-0.5 text-[11px]">

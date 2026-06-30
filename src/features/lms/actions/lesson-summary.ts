@@ -43,7 +43,11 @@ export async function generateLessonSummary(
         const parsed = lessonIdSchema.safeParse(lessonId);
         if (!parsed.success) return fail('ID de lección inválido.');
 
-        const ctx = await requireInstitutionAccess(slug, [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.PROFESOR]);
+        const ctx = await requireInstitutionAccess(slug, [
+            USER_ROLE.ADMIN,
+            USER_ROLE.SUPER_ADMIN,
+            USER_ROLE.PROFESOR,
+        ]);
 
         const lesson = await prisma.lmsLesson.findUnique({
             where: { id: lessonId },
@@ -54,7 +58,11 @@ export async function generateLessonSummary(
                 module: {
                     select: {
                         course: {
-                            select: { id: true, aiSummaryEnabled: true, academicInstitutionId: true },
+                            select: {
+                                id: true,
+                                aiSummaryEnabled: true,
+                                academicInstitutionId: true,
+                            },
                         },
                     },
                 },
@@ -62,7 +70,10 @@ export async function generateLessonSummary(
         });
 
         if (!lesson) return fail('Lección no encontrada.');
-        if (lesson.module.course.academicInstitutionId !== ctx.institutionId && ctx.userRole !== USER_ROLE.SUPER_ADMIN) {
+        if (
+            lesson.module.course.academicInstitutionId !== ctx.institutionId &&
+            ctx.userRole !== USER_ROLE.SUPER_ADMIN
+        ) {
             return fail('La lección no pertenece a esta institución.');
         }
         if (!lesson.module.course.aiSummaryEnabled) {
@@ -119,7 +130,9 @@ export async function getLessonSummary(
         if (!lesson) return fail('Lección no encontrada.');
 
         const enrollment = await prisma.lmsEnrollment.findUnique({
-            where: { userId_courseId: { userId: session.studentId, courseId: lesson.module.course.id } },
+            where: {
+                userId_courseId: { userId: session.studentId, courseId: lesson.module.course.id },
+            },
             select: { id: true, status: true },
         });
         if (!enrollment || enrollment.status === 'RETIRADO') {
@@ -138,7 +151,11 @@ export async function clearLessonSummary(
     lessonId: string,
 ): Promise<ActionResult<void>> {
     try {
-        const ctx = await requireInstitutionAccess(slug, [USER_ROLE.ADMIN, USER_ROLE.SUPER_ADMIN, USER_ROLE.PROFESOR]);
+        const ctx = await requireInstitutionAccess(slug, [
+            USER_ROLE.ADMIN,
+            USER_ROLE.SUPER_ADMIN,
+            USER_ROLE.PROFESOR,
+        ]);
 
         const lesson = await prisma.lmsLesson.findUnique({
             where: { id: lessonId },
@@ -150,7 +167,11 @@ export async function clearLessonSummary(
                 },
             },
         });
-        if (!lesson || (lesson.module.course.academicInstitutionId !== ctx.institutionId && ctx.userRole !== USER_ROLE.SUPER_ADMIN)) {
+        if (
+            !lesson ||
+            (lesson.module.course.academicInstitutionId !== ctx.institutionId &&
+                ctx.userRole !== USER_ROLE.SUPER_ADMIN)
+        ) {
             return fail('Lección no encontrada.');
         }
 

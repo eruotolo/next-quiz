@@ -53,7 +53,12 @@ export interface AttendanceRow {
 }
 
 export function summarizeAttendance(
-    rows: ReadonlyArray<{ userId: string; durationSec: number | null; joinedAt: Date; leftAt: Date | null }>,
+    rows: ReadonlyArray<{
+        userId: string;
+        durationSec: number | null;
+        joinedAt: Date;
+        leftAt: Date | null;
+    }>,
     sessionDurationMin: number,
 ): AttendanceRow[] {
     const byUser = new Map<string, AttendanceRow>();
@@ -68,7 +73,7 @@ export function summarizeAttendance(
                 lastJoinedAt: row.joinedAt,
                 lastLeftAt: row.leftAt,
                 isPresent: row.leftAt === null,
-                attendancePct: clampPct(((row.durationSec ?? 0) / 60) / sessionDurationMin * 100),
+                attendancePct: clampPct(((row.durationSec ?? 0) / 60 / sessionDurationMin) * 100),
             });
             continue;
         }
@@ -83,7 +88,7 @@ export function summarizeAttendance(
         }
         if (row.leftAt === null) existing.isPresent = true;
         existing.attendancePct = clampPct(
-            (existing.totalDurationSec / 60) / sessionDurationMin * 100,
+            (existing.totalDurationSec / 60 / sessionDurationMin) * 100,
         );
     }
 

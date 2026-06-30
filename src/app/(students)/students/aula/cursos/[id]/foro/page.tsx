@@ -33,7 +33,11 @@ export default async function StudentAulaForoPage({ params }: PageProps) {
                     title: true,
                     description: true,
                     threads: {
-                        orderBy: [{ pinned: 'desc' }, { lastPostAt: 'desc' }, { createdAt: 'desc' }],
+                        orderBy: [
+                            { pinned: 'desc' },
+                            { lastPostAt: 'desc' },
+                            { createdAt: 'desc' },
+                        ],
                         select: {
                             id: true,
                             title: true,

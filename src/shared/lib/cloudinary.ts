@@ -107,10 +107,7 @@ export async function uploadCertificatePdf(
     }
 }
 
-export async function uploadWhiteboardPng(
-    buffer: Buffer,
-    publicId: string,
-): Promise<UploadResult> {
+export async function uploadWhiteboardPng(buffer: Buffer, publicId: string): Promise<UploadResult> {
     try {
         const config = await getCloudinaryConfig();
         if (!config) {
@@ -132,7 +129,9 @@ export async function uploadWhiteboardPng(
     }
 }
 
-export async function deleteCertificatePdf(publicId: string): Promise<{ deleted: boolean; error?: string }> {
+export async function deleteCertificatePdf(
+    publicId: string,
+): Promise<{ deleted: boolean; error?: string }> {
     try {
         const config = await getCloudinaryConfig();
         if (!config) {

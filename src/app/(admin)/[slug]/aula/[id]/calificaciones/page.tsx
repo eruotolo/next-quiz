@@ -87,12 +87,7 @@ export default async function AulaCalificacionesPage({ params }: PageProps) {
                 <p className="text-mute mt-1 text-sm">Libro de calificaciones del curso</p>
             </div>
 
-            <LmsGradebookClient
-                slug={slug}
-                courseId={courseId}
-                items={items}
-                rows={rows}
-            />
+            <LmsGradebookClient slug={slug} courseId={courseId} items={items} rows={rows} />
         </main>
     );
 }

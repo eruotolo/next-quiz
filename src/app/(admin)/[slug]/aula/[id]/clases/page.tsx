@@ -36,8 +36,7 @@ export default async function LiveSessionsIndexPage({ params }: PageProps) {
         include: { _count: { select: { attendances: true } } },
     });
 
-    const canStart =
-        isSuperAdmin || userRole === USER_ROLE.ADMIN || (isProfesor && isOwnerTeacher);
+    const canStart = isSuperAdmin || userRole === USER_ROLE.ADMIN || (isProfesor && isOwnerTeacher);
     const canCreate = canStart;
 
     const now = new Date();
@@ -47,14 +46,15 @@ export default async function LiveSessionsIndexPage({ params }: PageProps) {
             durationMin: s.durationMin,
             now,
         });
-        const live = s.status === 'LIVE' || (win.isLive && s.status !== 'ENDED' && s.status !== 'CANCELED');
+        const live =
+            s.status === 'LIVE' || (win.isLive && s.status !== 'ENDED' && s.status !== 'CANCELED');
         return {
             id: s.id,
             title: s.title,
             description: s.description,
             scheduledAt: s.scheduledAt.toISOString(),
             durationMin: s.durationMin,
-            status: live && s.status === 'SCHEDULED' ? 'LIVE' as const : s.status,
+            status: live && s.status === 'SCHEDULED' ? ('LIVE' as const) : s.status,
             recordingStatus: s.recordingStatus,
             recordingUrl: s.recordingUrl,
             attendeeCount: s._count.attendances,
@@ -65,7 +65,7 @@ export default async function LiveSessionsIndexPage({ params }: PageProps) {
         <div className="flex flex-col gap-6 p-6">
             <header className="flex flex-col gap-1">
                 <h1 className="text-2xl font-semibold">Aulas sincrónicas</h1>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                     Sesiones en vivo del curso <strong>{course.title}</strong>.
                 </p>
             </header>
