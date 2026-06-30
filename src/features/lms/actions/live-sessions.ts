@@ -23,6 +23,7 @@ import {
     computeJoinWindow,
     isValidDailyRoomName,
 } from '@/features/lms/lib/live-session-state';
+import { notifyLiveSessionScheduledBackground } from '@/features/lms/lib/live-notifications';
 import {
     createDailyMeetingToken,
     createDailyRoom,
@@ -191,6 +192,10 @@ export async function createLiveSession(
             entity: 'LmsLiveSession',
             entityId: session.id,
             metadata: { title: session.title, scheduledAt: session.scheduledAt.toISOString() },
+        });
+        notifyLiveSessionScheduledBackground({
+            sessionId: session.id,
+            courseId: data.courseId,
         });
         revalidatePath(`/${slug}/aula/${data.courseId}/clases`);
         return ok({ id: session.id });

@@ -110,5 +110,17 @@ export async function validateStudent(
     });
 
     await createStudentAuthSession({ studentId: student.id, groupId: student.groupId });
-    redirect('/examen/seleccion');
+
+    // Si la institución tiene Aula Virtual habilitada (≥1 curso LMS publicado),
+    // derivamos al selector dual. Si no, vamos directo al panel de exámenes.
+    const hasLms = student.academicInstitutionId
+        ? (await prisma.lmsCourse.count({
+              where: {
+                  academicInstitutionId: student.academicInstitutionId,
+                  published: true,
+              },
+          })) > 0
+        : false;
+
+    redirect('/students/dashboard');
 }

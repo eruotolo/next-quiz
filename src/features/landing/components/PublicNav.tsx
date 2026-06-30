@@ -57,7 +57,7 @@ export function PublicNav() {
                         asChild
                         className="hidden text-[13px] font-bold sm:inline-flex"
                     >
-                        <Link href="/examen/login">Acceso alumnos</Link>
+                        <Link href="/students/examen/login">Acceso alumnos</Link>
                     </Button>
                     <Button
                         variant="ink"

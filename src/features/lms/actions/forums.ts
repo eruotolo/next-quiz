@@ -30,7 +30,7 @@ const defaultSiteUrlProvider: SiteUrlProvider = {
 
 let siteUrlProvider: SiteUrlProvider = defaultSiteUrlProvider;
 
-export function configureForumSiteUrl(provider: SiteUrlProvider): void {
+export async function configureForumSiteUrl(provider: SiteUrlProvider): Promise<void> {
     siteUrlProvider = provider;
 }
 

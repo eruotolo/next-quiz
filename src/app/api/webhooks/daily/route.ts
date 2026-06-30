@@ -6,6 +6,7 @@ import {
     parseDailyWebhookPayload,
     verifyDailyWebhookSignature,
 } from '@/shared/lib/daily';
+import { uploadDailyRecordingToMux } from '@/features/lms/lib/mux-recording';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -165,6 +166,37 @@ async function onRecordingReady(
         entityId: sessionId,
         metadata: { recordingId: recording.id },
     });
+
+    void uploadRecordingToMuxBackground(sessionId, recording.download_url);
+}
+
+async function uploadRecordingToMuxBackground(
+    sessionId: string,
+    downloadUrl: string,
+): Promise<void> {
+    try {
+        const result = await uploadDailyRecordingToMux(downloadUrl);
+        if (!result.ok || !result.assetId) return;
+
+        const updateData: { recordingMuxAssetId: string; recordingUrl?: string } = {
+            recordingMuxAssetId: result.assetId,
+        };
+        if (result.playbackId) {
+            updateData.recordingUrl = `https://stream.mux.com/${result.playbackId}.m3u8`;
+        }
+        await prisma.lmsLiveSession.update({
+            where: { id: sessionId },
+            data: updateData,
+        });
+        await logAudit({
+            action: AUDIT_ACTION.LMS_LIVE_SESSION_RECORDING_READY,
+            entity: 'LmsLiveSession',
+            entityId: sessionId,
+            metadata: { muxAssetId: result.assetId, muxPlaybackId: result.playbackId },
+        });
+    } catch (err) {
+        console.error('[Daily webhook] Mux upload background failed:', err);
+    }
 }
 
 async function onRecordingFailed(sessionId: string): Promise<void> {

@@ -137,7 +137,7 @@ export function L3Footer() {
                         >
                             Términos
                         </Link>
-                        <Link href="/examen/login" className="hover:text-ink transition-colors">
+                        <Link href="/students/examen/login" className="hover:text-ink transition-colors">
                             Acceso alumnos
                         </Link>
                         <Link href="/login" className="hover:text-ink transition-colors">

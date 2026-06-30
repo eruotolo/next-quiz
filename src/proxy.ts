@@ -9,7 +9,6 @@ const PUBLIC_PREFIXES = [
     '/_next',
     '/api',
     '/favicon.ico',
-    '/examen',
     '/demo',
     '/login',
     '/paes',
@@ -24,33 +23,42 @@ export default auth((req: NextAuthRequest) => {
     const { pathname } = req.nextUrl;
     const session = req.auth;
 
+    // Propagate pathname to server components so layouts can detect exam routes
+    const reqHeaders = new Headers(req.headers);
+    reqHeaders.set('x-pathname', pathname);
+
+    function next(): NextResponse {
+        return NextResponse.next({ request: { headers: reqHeaders } });
+    }
+    function redirect(url: string): NextResponse {
+        return NextResponse.redirect(new URL(url, req.url));
+    }
+
     if (pathname === '/' || PUBLIC_PREFIXES.some((p) => pathname.startsWith(p))) {
-        return NextResponse.next();
+        return next();
     }
 
     // All protected routes must not be indexed by search engines
-    const protectedResponse = NextResponse.next();
+    const protectedResponse = next();
     protectedResponse.headers.set('X-Robots-Tag', 'noindex, nofollow');
 
     if (pathname.startsWith('/config')) {
-        if (!session) return NextResponse.redirect(new URL('/login', req.url));
+        if (!session) return redirect('/login');
         if (session.user.userRoleName !== USER_ROLE.SUPER_ADMIN) {
-            return NextResponse.redirect(new URL('/login', req.url));
+            return redirect('/login');
         }
         return protectedResponse;
     }
 
-    // El Aula Virtual del estudiante se sirve bajo /aula/* y valida la sesión
-    // de estudiante (cookie jose) en su propio layout. No debe ser bloqueada
-    // por el chequeo de NextAuth que sigue a continuación.
-    if (pathname.startsWith('/aula')) {
+    // Portal del estudiante (/students/*): sesión jose validada en el layout
+    if (pathname.startsWith('/students')) {
         return protectedResponse;
     }
 
-    if (!session) return NextResponse.redirect(new URL('/login', req.url));
+    if (!session) return redirect('/login');
 
     if (session.user.userRoleName === USER_ROLE.STUDENT) {
-        return NextResponse.redirect(new URL('/examen/login', req.url));
+        return redirect('/examen/login');
     }
 
     if (pathname.startsWith('/perfil')) {
@@ -65,7 +73,7 @@ export default auth((req: NextAuthRequest) => {
 
     if (!session.user.institutionSlug || session.user.institutionSlug !== slug) {
         const target = session.user.institutionSlug ? `/${session.user.institutionSlug}` : '/login';
-        return NextResponse.redirect(new URL(target, req.url));
+        return redirect(target);
     }
 
     return protectedResponse;

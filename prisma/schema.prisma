@@ -1128,6 +1128,9 @@ model LmsLiveSession {
   createdBy            User                 @relation("LmsLiveSessionCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
   startedAt            DateTime?
   endedAt              DateTime?
+  // Marca temporal del recordatorio 1h antes enviado vía Brevo. Permite
+  // re-ejecuciones idempotentes del cron `/api/cron/live-reminders`.
+  reminderSentAt       DateTime?
   // Grabación subida post-sesión (auto-fetch vía Daily webhook).
   recordingMuxAssetId  String?
   recordingUrl         String?

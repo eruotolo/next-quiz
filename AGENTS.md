@@ -679,22 +679,35 @@ Videollamadas reales (Daily.co) + pizarra + chat + registro de asistencia. Chat 
 - `shared/lib/sanitize.ts` — `sanitizeChatText` (NFKC + elimina tags HTML completas + `<`/`>` sueltos + control chars + javascript/data schemes).
 
 ### Server actions
-- `src/features/lms/actions/live-sessions.ts` — `createLiveSession`, `updateLiveSession`, `cancelLiveSession` (borra room), `startLiveSession` (genera token isOwner:true), `endLiveSession`, `joinLiveSession` (genera token estudiante + valida access), `leaveLiveSession`, `getLiveSessionById`. Todas usan `requireInstitutionAccess(slug, roles[])` + `assertSessionEditableByManager` anti-IDOR.
+- `src/features/lms/actions/live-sessions.ts` — `createLiveSession` (notifica in-app + Brevo best-effort vía `notifyLiveSessionScheduledBackground`), `updateLiveSession`, `cancelLiveSession` (borra room), `startLiveSession` (genera token isOwner:true), `endLiveSession`, `joinLiveSession` (genera token estudiante + valida access), `leaveLiveSession`, `getLiveSessionById`, `toggleLiveSessionRecording` (start/stop Daily recording). Todas usan `requireInstitutionAccess(slug, roles[])` + `assertSessionEditableByManager` anti-IDOR.
 - `src/features/lms/actions/live-chat.ts` — rate limit in-memory (`Map<string, RateLimitState>` TTL 30min) + `listLiveChatMessages({since})` para polling 3s.
 - `src/features/lms/actions/whiteboard.ts` — `saveWhiteboardSnapshot` Zod (200-8000px), sube PNG via `uploadWhiteboardPng` (Cloudinary `resource_type:'image'`, folder `lms/whiteboard`).
 
+### Notificaciones in-app + Brevo
+- `src/features/lms/lib/live-notifications.ts` — `buildLiveSessionScheduledEmail` (template HTML responsive), `notifyLiveSessionScheduled({sessionId, courseId})` (crea `LmsNotification` por estudiante activo + fan-out Brevo), `notifyLiveSessionScheduledBackground` (fire-and-forget con cache try/catch). Patrón `siteUrlProvider` con default `process.env.AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? 'https://aulika.cl'`.
+
+### Cron recordatorio 1h antes
+- `src/app/api/cron/live-reminders/route.ts` — GET, protegido con `CRON_SECRET` (Bearer), corre cada 15 minutos (`*/15 * * * *` en `vercel.json`). Query: `LmsLiveSession` con `status=SCHEDULED`, `reminderSentAt=null`, `scheduledAt` entre now+55min y now+65min. Envía Brevo a cada estudiante con `LmsEnrollment.status='ACTIVO'`. Marca `reminderSentAt` para idempotencia.
+- Campo `reminderSentAt: DateTime?` agregado a `LmsLiveSession` (migración `20260630003208_lms_live_session_reminder_sent_at`).
+
+### Grabación → Mux (opcional)
+- `src/features/lms/lib/mux-recording.ts` — `uploadDailyRecordingToMux(downloadUrl)` descarga el archivo firmado de Daily y lo sube vía `createMuxDirectUpload` + PUT + polling `getMuxAssetFromUpload`. Si falla, fallback transparente a URL externa de Daily.
+- Webhook Daily `recording.ready-to-download` extendido: invoca `uploadRecordingToMuxBackground(sessionId, downloadUrl)` fire-and-forget que actualiza `recordingMuxAssetId` + `recordingUrl` con playback HLS de Mux si hay credenciales.
+
 ### Webhook `src/app/api/webhooks/daily/route.ts`
-- HMAC verify → switch por `payload.type`: `meeting.ended` (status ENDED + cierra attendances), `participant.joined`/`left` (upsert + delta duration), `recording.ready-to-download` (recordingUrl + audit), `recording.failed`.
+- HMAC verify → switch por `payload.type`: `meeting.ended` (status ENDED + cierra attendances), `participant.joined`/`left` (upsert + delta duration), `recording.ready-to-download` (recordingUrl + fire-and-forget upload Mux + audit), `recording.failed`.
 
 ### UI nueva
 - **Páginas**:
-  - `/[slug]/aula/[courseId]/clases` (admin/prof listado).
-  - `/[slug]/aula/[courseId]/clases/nueva` (form).
-  - `/[slug]/aula/[courseId]/clases/[sessionId]` (host — videollamada + tabs).
-  - `/[slug]/aula/[courseId]/clases/[sessionId]/asistencia` (registro).
-  - `/aula/cursos/[courseId]/clases` (estudiante listado).
+  - `/[slug]/aula/[id]/clases` (admin/prof listado).
+  - `/[slug]/aula/[id]/clases/nueva` (form).
+  - `/[slug]/aula/[id]/clases/[sessionId]` (host — videollamada + tabs).
+  - `/[slug]/aula/[id]/clases/[sessionId]/asistencia` (registro).
+  - `/aula/cursos/[id]/clases` (estudiante listado por curso).
+  - `/aula/clases` (estudiante — listado global de todas las sesiones de cursos activos).
   - `/aula/clases/[sessionId]` (sala estudiante).
 - **Componentes** (`src/features/lms/components/live/`): `DailyCallFrame` (iframe + listener left-meeting), `LiveChat` (polling 3s + rate limit), `Whiteboard` (canvas 1280×720 + snapshot PNG), `LiveSessionListClient`, `LiveSessionForm`, `LiveSessionRoomClient`, `StudentRoomClient`.
+- **Nota sobre slug dinámico**: las rutas `[courseId]` originales fueron renombradas a `[id]` para coincidir con el resto del LMS (Next.js 16.2 no permite nombres diferentes para el mismo dynamic path).
 
 ### Configuración via `/config/settings` (SuperAdmin)
 - `APP_CONFIG_KEY` extendido con `DAILY_API_KEY`, `DAILY_WEBHOOK_SECRET` (passwords).
@@ -703,8 +716,20 @@ Videollamadas reales (Daily.co) + pizarra + chat + registro de asistencia. Chat 
 ### Auditoría
 - `lms.live_session.{create,update,start,end,cancel,join,leave,recording_ready}` agregadas a `AUDIT_ACTION`.
 
-### Tests (70 nuevos — total suite: 253/253 pasando)
+### Tests E2E (Playwright — 3 nuevos)
+- `tests/e2e/admin/lms-phase4-gamification.spec.ts` — ranking admin + logros estudiante.
+- `tests/e2e/admin/lms-phase5.spec.ts` — analytics, certificados, verificación pública.
+- `tests/e2e/admin/lms-phase6-live.spec.ts` — listado clases admin, formulario nueva, listado estudiante.
+
+### Tests unitarios (70 nuevos — total suite: 253/253 pasando)
 - `live-session-state.test.ts` (25), `live-attendance.test.ts` (12), `live-chat.test.ts` (14), `sanitize-chat.test.ts` (9), `daily.test.ts` (10).
+
+### Seeder de testing (`pnpm db:seed:aula`)
+- Cubre Fases 1-6 (institución `lms-testing` / UNIVERSIDAD / INSTITUCIONAL).
+- 5 estudiantes + Patricia Sánchez (profesora) + admin.
+- 2 cursos: Introducción a la Programación (3 módulos, examen embebido, tarea con gradebook) y Base de Datos (2 módulos, tarea, foro activo).
+- Gamificación: 6 insignias catalogadas, streaks reales, leaderboard con opt-out de Sofía, 25+ puntos distribuidos.
+- **Fase 6**: 3 `LmsLiveSession` (1 ENDED con attendance + chat + whiteboard, 1 SCHEDULED para dentro de 2 días, 1 LIVE con chat activo).
 
 ### Limitaciones
 1. **Pizarra NO multi-cursor real-time** — cada participante ve su propio canvas. Para colaboración, profesor usa Daily screen-share. Plan original (Liveblocks) no se implementó para evitar dependencia externa de pago.
@@ -714,9 +739,10 @@ Videollamadas reales (Daily.co) + pizarra + chat + registro de asistencia. Chat 
 5. **Webhook no idempotente 100%**: `participant.joined` con mismo `dailyParticipantId` puede duplicar si Daily reenvía.
 
 ### Verificación
-- `pnpm type-check` ✅ (1 fix de no-assertion en `testing-aula-seed.ts` pre-existente).
+- `pnpm type-check` ✅ 0 errores.
 - `pnpm test:run` ✅ 253/253.
 - `pnpm devBuild` ✅ 6 rutas nuevas compiladas.
+- `pnpm db:seed:aula` ✅ ejecuta idempotente; valida con `curl` que todas las rutas (`/lms-testing/aula`, `/lms-testing/aula/[id]/clases`, `/lms-testing/aula/[id]/ranking`, etc.) responden 200 con datos reales.
 
 ## Variables de entorno requeridas
 **Flujo completo de examen del estudiante:** Los tests en `student/exam-flow.spec.ts` se saltean automáticamente si no hay un examen activo asignado al grupo del estudiante. Para activar estos tests: crear un examen publicado y asignarlo al grupo de Juan Pérez.
