@@ -23,6 +23,7 @@ import {
     deleteLmsModule,
     reorderLmsModules,
     toggleLmsCourseSetting,
+    updateLmsCoursePrice,
 } from '@/features/lms/actions/courses';
 import { generateLessonSummary } from '@/features/lms/actions/lesson-summary';
 import { Button } from '@/shared/components/ui/button';
@@ -44,6 +45,7 @@ import {
     Award,
     Sparkles,
     Loader2,
+    Globe,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -64,6 +66,8 @@ interface Props {
     modules: ModuleWithLessons[];
     certificateEnabled: boolean;
     aiSummaryEnabled: boolean;
+    isPublic: boolean;
+    price: number | null;
 }
 
 const LESSON_TYPE_LABEL: Record<LessonType, string> = {
@@ -221,6 +225,8 @@ export function LmsCourseEditorClient({
     modules,
     certificateEnabled,
     aiSummaryEnabled,
+    isPublic,
+    price,
 }: Props) {
     const router = useRouter();
     const [items, setItems] = useState<ModuleWithLessons[]>(modules);
@@ -230,6 +236,9 @@ export function LmsCourseEditorClient({
     const [isPending, startTransition] = useTransition();
     const [certEnabled, setCertEnabled] = useState(certificateEnabled);
     const [aiEnabled, setAiEnabled] = useState(aiSummaryEnabled);
+    const [publicEnabled, setPublicEnabled] = useState(isPublic);
+    const [priceInput, setPriceInput] = useState(price !== null ? String(price) : '');
+    const [isPriceSaving, setIsPriceSaving] = useState(false);
     const [summaryLoadingId, setSummaryLoadingId] = useState<string | null>(null);
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -352,6 +361,40 @@ export function LmsCourseEditorClient({
         });
     };
 
+    const handleTogglePublic = (value: boolean) => {
+        setPublicEnabled(value);
+        startTransition(async () => {
+            const result = await toggleLmsCourseSetting(slug, courseId, 'isPublic', value);
+            if (result.error) {
+                toast.error(result.error);
+                setPublicEnabled(!value);
+            } else {
+                toast.success(value ? 'Curso publicado en el catálogo B2C' : 'Curso ocultado del catálogo B2C');
+                router.refresh();
+            }
+        });
+    };
+
+    const handleSavePrice = () => {
+        const trimmed = priceInput.trim();
+        const parsedPrice = trimmed === '' ? null : Number(trimmed);
+        if (parsedPrice !== null && (Number.isNaN(parsedPrice) || parsedPrice < 0)) {
+            toast.error('Ingresá un precio válido.');
+            return;
+        }
+        setIsPriceSaving(true);
+        startTransition(async () => {
+            const result = await updateLmsCoursePrice(slug, courseId, parsedPrice);
+            setIsPriceSaving(false);
+            if (result.error) {
+                toast.error(result.error);
+                return;
+            }
+            toast.success('Precio actualizado');
+            router.refresh();
+        });
+    };
+
     const handleGenerateSummary = async (lessonId: string) => {
         setSummaryLoadingId(lessonId);
         try {
@@ -410,6 +453,54 @@ export function LmsCourseEditorClient({
                         disabled={isPending}
                         aria-label="Habilitar resúmenes IA"
                     />
+                </div>
+                <div className="flex items-center justify-between px-5 py-4">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                            <Globe size={15} />
+                        </div>
+                        <div>
+                            <p className="text-ink text-sm font-semibold">Curso Público (B2C)</p>
+                            <p className="text-mute text-xs">
+                                Lo lista en el catálogo público de la institución para venta
+                                directa.
+                            </p>
+                        </div>
+                    </div>
+                    <Switch
+                        checked={publicEnabled}
+                        onCheckedChange={handleTogglePublic}
+                        disabled={isPending}
+                        aria-label="Habilitar curso público"
+                    />
+                </div>
+                <div className="flex items-center justify-between gap-4 px-5 py-4">
+                    <div>
+                        <p className="text-ink text-sm font-semibold">Precio del curso (CLP)</p>
+                        <p className="text-mute text-xs">
+                            Dejar vacío para que el curso sea gratuito.
+                        </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                        <Input
+                            type="number"
+                            min={0}
+                            step={1}
+                            value={priceInput}
+                            onChange={(e) => setPriceInput(e.target.value)}
+                            placeholder="Gratis"
+                            className="border-border h-9 w-32"
+                        />
+                        <Button
+                            size="sm"
+                            variant="ink"
+                            onClick={handleSavePrice}
+                            disabled={isPriceSaving}
+                        >
+                            {isPriceSaving && <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />}
+                            Guardar
+                        </Button>
+                    </div>
                 </div>
             </Card>
 

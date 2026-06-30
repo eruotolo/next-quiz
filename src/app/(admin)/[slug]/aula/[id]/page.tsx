@@ -20,6 +20,8 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
             published: true,
             certificateEnabled: true,
             aiSummaryEnabled: true,
+            isPublic: true,
+            price: true,
         },
     });
     if (!course) notFound();
@@ -81,6 +83,8 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
                 modules={modules}
                 certificateEnabled={course.certificateEnabled}
                 aiSummaryEnabled={course.aiSummaryEnabled}
+                isPublic={course.isPublic}
+                price={course.price}
             />
         </main>
     );

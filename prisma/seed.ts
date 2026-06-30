@@ -1,6 +1,7 @@
 import { type Plan } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { createSeedClient } from './lib/client';
+import { seedAulikaOnline } from './seeders/aulika-online';
 import { seedGamificationBadges } from './seeders/gamification-badges';
 import { seedPlanCodes } from './seeders/plan-codes';
 
@@ -136,6 +137,11 @@ async function main(): Promise<void> {
     const planResult = await seedPlanCodes(prisma);
     console.log(
         `PlanCodes: ${planResult.upserted} packs upserted, ${planResult.backfilled} institutions backfilled.`,
+    );
+
+    const aulikaOnlineResult = await seedAulikaOnline(prisma);
+    console.log(
+        `AulikaOnline: institution + ${aulikaOnlineResult.courses} courses (bundle + PAES) upserted.`,
     );
 
     console.log('Seed completed.');

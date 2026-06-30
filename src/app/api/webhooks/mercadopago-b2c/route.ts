@@ -3,6 +3,7 @@ import { randomBytes } from 'node:crypto';
 import { prisma } from '@/shared/lib/prisma';
 import { verifyWebhookSignature } from '@/features/subscriptions/lib/mercadopago';
 import { USER_ROLE } from '@/shared/lib/roles';
+import { AULIKA_ONLINE_BUNDLE_COURSE_ID } from '@/features/lms/lib/aulika-online-bundle';
 import {
     buildStudentActivationEmail,
     sendEmail,
@@ -41,13 +42,16 @@ interface FulfillmentResult {
     studentEmail: string;
     courseTitle: string;
     activationToken: string;
+    bundleEnrollments: number;
 }
 
 /**
  * Procesa un pago aprobado de un curso B2C. Ejecuta la matriculación atómica:
  * upsert del `User` (con token de activación, sin password), upsert del
- * `LmsEnrollment` (ACTIVO) y aprobación de la `LmsOrder`. Idempotente: si la
- * orden ya está APROBADO, no hace nada.
+ * `LmsEnrollment` (ACTIVO) y aprobación de la `LmsOrder`. Si el curso es
+ * el Pack Completo de Aulika Online, además inscribe al alumno en todos los
+ * cursos PAES individuales de la misma institución. Idempotente: si la orden
+ * ya está APROBADO, no hace nada.
  */
 async function fulfillB2cOrder(orderId: string, mpPaymentId: string): Promise<FulfillmentResult | null> {
     const tokenWindow = 24 * 60 * 60 * 1000;
@@ -109,6 +113,31 @@ async function fulfillB2cOrder(orderId: string, mpPaymentId: string): Promise<Fu
             select: { id: true },
         });
 
+        // Si la compra es del Pack Completo de Aulika Online, autoinscribe
+        // al alumno en todos los demás cursos públicos publicados de la
+        // misma institución (los 7 cursos PAES individuales). Se hace dentro
+        // de la misma transacción para garantizar atomicidad.
+        let bundleEnrollments = 0;
+        if (order.courseId === AULIKA_ONLINE_BUNDLE_COURSE_ID) {
+            const siblingCourses = await tx.lmsCourse.findMany({
+                where: {
+                    academicInstitutionId: course.academicInstitutionId,
+                    isPublic: true,
+                    published: true,
+                    id: { not: order.courseId },
+                },
+                select: { id: true },
+            });
+            for (const sibling of siblingCourses) {
+                await tx.lmsEnrollment.upsert({
+                    where: { userId_courseId: { userId: user.id, courseId: sibling.id } },
+                    update: { status: 'ACTIVO' },
+                    create: { userId: user.id, courseId: sibling.id, status: 'ACTIVO' },
+                });
+                bundleEnrollments += 1;
+            }
+        }
+
         await tx.lmsOrder.update({
             where: { id: orderId },
             data: {
@@ -124,6 +153,7 @@ async function fulfillB2cOrder(orderId: string, mpPaymentId: string): Promise<Fu
             studentEmail: order.studentEmail,
             courseTitle: course.title,
             activationToken,
+            bundleEnrollments,
         };
     });
 }

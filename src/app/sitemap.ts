@@ -20,6 +20,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.95,
         },
 
+        // Cursos — vitrina B2C de Aulika Online (preuniversitario PAES)
+        {
+            url: `${baseUrl}/cursos`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.9,
+        },
+
         // Audiencias — páginas de producto con alta intención comercial
         {
             url: `${baseUrl}/audiencias/colegios`,

@@ -235,6 +235,7 @@ function InstitutionForm({
             country: 'Chile',
             type: 'OTRO',
             active: true,
+            lmsEnabled: false,
             ...defaultValues,
         },
     });
@@ -366,6 +367,27 @@ function InstitutionForm({
                     />
                 </div>
             </div>
+            <Controller
+                name="lmsEnabled"
+                control={control}
+                render={({ field }) => (
+                    <div className="border-border bg-paper-warm/40 flex items-start justify-between gap-4 rounded-[10px] border p-3.5">
+                        <div className="flex flex-col gap-0.5">
+                            <span className="text-ink text-[13px] font-bold">Aula Virtual</span>
+                            <p className="text-mute text-[11.5px] leading-snug">
+                                Habilita el módulo LMS para esta institución. Si activás o
+                                desactivás este switch, los usuarios deben cerrar sesión y volver
+                                a ingresar para refrescar sus credenciales.
+                            </p>
+                        </div>
+                        <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="mt-0.5 shrink-0"
+                        />
+                    </div>
+                )}
+            />
             <div className="mt-4 flex justify-end gap-2">
                 <Button type="submit" disabled={isPending} variant="ink" size="md">
                     {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

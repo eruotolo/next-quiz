@@ -13,6 +13,7 @@ import { L3Comparison } from '@/features/landing/components/L3Comparison';
 import { L3Segments } from '@/features/landing/components/L3Segments';
 import { L3Security } from '@/features/landing/components/L3Security';
 import { L3Stats } from '@/features/landing/components/L3Stats';
+import { L3PreuPDV } from '@/features/landing/components/L3PreuPDV';
 import { L3Pricing } from '@/features/landing/components/L3Pricing';
 import { L3FAQ } from '@/features/landing/components/L3FAQ';
 import { FAQS } from '@/features/landing/lib/faq-data';
@@ -61,6 +62,7 @@ export default function MarketingPage() {
             <L3Security />
             <L3Stats />
             {/*<L3Testimonials />*/}
+            <L3PreuPDV />
             <L3Pricing />
             <L3FAQ faqs={FAQS} />
             <L3CTA />

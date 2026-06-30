@@ -116,4 +116,14 @@ describe('seedPlanCodes', () => {
         expect(result.upserted).toBe(6);
         expect(result.backfilled).toBe(17);
     });
+
+    it('filtra el backfill con `lmsPlanCode: null` para no pisar toggles manuales', async () => {
+        await seedPlanCodes(makeFakePrisma() as never);
+        const whereFilters = prismaInstitutionUpdateManyMock.mock.calls.map(
+            (c) => (c[0] as { where: { plan: string; lmsPlanCode: string | null } }).where,
+        );
+        for (const where of whereFilters) {
+            expect(where.lmsPlanCode).toBeNull();
+        }
+    });
 });

@@ -440,7 +440,7 @@ export async function reorderLmsLessons(slug: string, data: unknown): Promise<Ac
 export async function toggleLmsCourseSetting(
     slug: string,
     courseId: string,
-    setting: 'certificateEnabled' | 'aiSummaryEnabled',
+    setting: 'certificateEnabled' | 'aiSummaryEnabled' | 'isPublic',
     value: boolean,
 ): Promise<ActionResult> {
     try {
@@ -458,5 +458,31 @@ export async function toggleLmsCourseSetting(
         return ok(null);
     } catch (err) {
         return fail(toActionError(err, 'Error al actualizar la configuración.'));
+    }
+}
+
+export async function updateLmsCoursePrice(
+    slug: string,
+    courseId: string,
+    price: number | null,
+): Promise<ActionResult> {
+    try {
+        if (price !== null && (Number.isNaN(price) || price < 0)) {
+            return fail('El precio debe ser un número positivo.');
+        }
+        const ctx = await requireInstitutionAccess(slug, [
+            USER_ROLE.ADMIN,
+            USER_ROLE.SUPER_ADMIN,
+            USER_ROLE.PROFESOR,
+        ]);
+        const res = await prisma.lmsCourse.updateMany({
+            where: { id: courseId, academicInstitutionId: ctx.institutionId },
+            data: { price },
+        });
+        if (res.count === 0) return fail('Curso no encontrado.');
+        revalidatePath(`/${slug}/aula/${courseId}`);
+        return ok(null);
+    } catch (err) {
+        return fail(toActionError(err, 'Error al actualizar el precio.'));
     }
 }

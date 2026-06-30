@@ -156,8 +156,13 @@ export async function seedPlanCodes(prisma: PrismaClient): Promise<{
 
     let backfilled = 0;
     for (const rule of INSTITUTION_BACKFILL) {
+        // Solo backfill de instituciones que aún no tienen `lmsPlanCode` seteado.
+        // Esto protege los toggles manuales del SuperAdmin: una vez que la
+        // institución fue tocada por el seeder, los siguientes deploys ya no
+        // pisan `lmsEnabled` ni `lmsPlanCode`. La asignación de packs queda
+        // bajo responsabilidad del flujo de signup/compra o del toggle manual.
         const result = await prisma.academicInstitution.updateMany({
-            where: { plan: rule.plan },
+            where: { plan: rule.plan, lmsPlanCode: null },
             data: {
                 examsPlanCode: rule.examsPlanCode,
                 lmsEnabled: rule.lmsEnabled,
