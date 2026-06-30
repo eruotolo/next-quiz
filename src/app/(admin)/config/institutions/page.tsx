@@ -1,6 +1,5 @@
 import { getInstitutions } from '@/features/institutions/actions/queries';
 import { InstitutionsClient } from '@/features/institutions/components/InstitutionsClient';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { prisma } from '@/shared/lib/prisma';
 
 interface PageProps {
@@ -18,14 +17,5 @@ export default async function InstitutionsPage({ searchParams }: PageProps) {
         prisma.academicInstitution.count(),
     ]);
 
-    return (
-        <>
-            <AdminTopBar
-                title="Instituciones"
-                breadcrumb={['Sistema', 'Instituciones']}
-                subtitle={`${count} entidades educativas registradas en la plataforma`}
-            />
-            <InstitutionsClient result={result} q={q} customPlans={customPlans} />
-        </>
-    );
+    return <InstitutionsClient result={result} q={q} customPlans={customPlans} />;
 }

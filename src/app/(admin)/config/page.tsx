@@ -1,7 +1,6 @@
 import type { CSSProperties } from 'react';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Tag } from '@/shared/components/ui/badge';
@@ -167,23 +166,17 @@ export default async function ConfigPage() {
     ];
 
     return (
-        <>
-            <AdminTopBar
-                breadcrumb={['Aulika · Plataforma', 'Panel Global']}
-                title="Panel SuperAdmin"
-                subtitle={`${activeInstitutions} instituciones activas · ${totalStudents} estudiantes · ${totalAdmins + totalProfessors} docentes`}
-                actions={
-                    <Button variant="ink" size="md" asChild className="gap-2">
-                        <Link href="/config/institutions">
-                            <Building2 size={16} />
-                            Crear institución
-                        </Link>
-                    </Button>
-                }
-            />
+        <main className="flex-1 space-y-8 overflow-auto p-8">
+            <div className="flex justify-end">
+                <Button variant="ink" size="md" asChild className="gap-2">
+                    <Link href="/config/institutions">
+                        <Building2 size={16} />
+                        Crear institución
+                    </Link>
+                </Button>
+            </div>
 
-            <main className="flex-1 space-y-8 overflow-auto p-8">
-                {/* Stats */}
+            {/* Stats */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     {stats.map((s) => (
                         <Card key={s.label} className="border-border bg-white p-6 shadow-sm">
@@ -290,7 +283,6 @@ export default async function ConfigPage() {
                         </div>
                     </Card>
                 </div>
-            </main>
-        </>
+        </main>
     );
 }

@@ -1,6 +1,5 @@
 import { getAdminUsers } from '@/features/admin-users/actions/queries';
 import { AdminUsersClient } from '@/features/admin-users/components/AdminUsersClient';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 
@@ -27,18 +26,11 @@ export default async function AdminsPage({ searchParams }: PageProps) {
     ]);
 
     return (
-        <>
-            <AdminTopBar
-                title="Gestión de Accesos"
-                breadcrumb={['Sistema', 'Administradores']}
-                subtitle={`${count} usuarios con privilegios de gestión en la plataforma`}
-            />
-            <AdminUsersClient
-                result={result}
-                institutions={institutions}
-                q={q}
-                institutionId={institutionId}
-            />
-        </>
+        <AdminUsersClient
+            result={result}
+            institutions={institutions}
+            q={q}
+            institutionId={institutionId}
+        />
     );
 }

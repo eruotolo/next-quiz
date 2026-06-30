@@ -1,6 +1,5 @@
 import { getStudentsGlobal } from '@/features/students/actions/global';
 import { GlobalStudentsClient } from '@/features/students/components/GlobalStudentsClient';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 
@@ -25,18 +24,11 @@ export default async function StudentsGlobalPage({ searchParams }: PageProps) {
     ]);
 
     return (
-        <>
-            <AdminTopBar
-                title="Todos los Estudiantes"
-                breadcrumb={['Sistema', 'Base Global']}
-                subtitle={`${total} alumnos registrados en la red Aulika`}
-            />
-            <GlobalStudentsClient
-                result={result}
-                institutions={institutions}
-                q={q}
-                institutionId={institutionId}
-            />
-        </>
+        <GlobalStudentsClient
+            result={result}
+            institutions={institutions}
+            q={q}
+            institutionId={institutionId}
+        />
     );
 }

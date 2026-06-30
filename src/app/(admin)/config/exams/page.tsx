@@ -1,4 +1,3 @@
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { ConfigExamsClient } from '@/features/config/components/ConfigExamsClient';
 import { prisma } from '@/shared/lib/prisma';
 
@@ -22,14 +21,5 @@ export default async function ConfigExamsPage() {
             e.academicInstitution !== null,
     );
 
-    return (
-        <>
-            <AdminTopBar
-                title="Exámenes / Evaluaciones"
-                breadcrumb={['Sistema', 'Exámenes']}
-                subtitle={`${count} exámenes registrados en todas las instituciones`}
-            />
-            <ConfigExamsClient exams={exams} />
-        </>
-    );
+    return <ConfigExamsClient exams={exams} />;
 }

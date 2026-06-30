@@ -1,6 +1,4 @@
 import type { Metadata } from 'next';
-import { CreditCard } from 'lucide-react';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { BillingDashboardClient } from '@/features/admin-plan/components/BillingDashboardClient';
 import { getBillingStats } from '@/features/admin-plan/actions/mutations';
 
@@ -23,16 +21,8 @@ export default async function BillingPage() {
     };
 
     return (
-        <>
-            <AdminTopBar
-                breadcrumb={['Aulika · Plataforma', 'Panel Global', 'Facturación']}
-                title="Facturación"
-                subtitle="Métricas de ingresos y suscripciones activas"
-                icon={<CreditCard size={18} />}
-            />
-            <main className="flex-1 p-8">
-                <BillingDashboardClient stats={stats} />
-            </main>
-        </>
+        <main className="flex-1 p-8">
+            <BillingDashboardClient stats={stats} />
+        </main>
     );
 }
