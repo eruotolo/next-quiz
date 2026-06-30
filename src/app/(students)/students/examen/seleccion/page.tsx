@@ -4,7 +4,6 @@ import { startSelectedExam, viewMyResult } from '@/features/exam-session/actions
 import { calcGrade } from '@/shared/lib/grade';
 import { Button } from '@/shared/components/ui/button';
 import { Avatar } from '@/shared/components/ui/avatar';
-import { StudentTopBar } from '@/features/exam-session/components/StudentTopBar';
 import { ExamCloseCountdown } from '@/features/exam-session/components/ExamCloseCountdown';
 import { cn } from '@/shared/lib/utils';
 import {
@@ -120,7 +119,6 @@ export default async function ExamSelectionPage() {
     const fullName = `${student.name} ${student.lastname}`;
     const groupName = student.group?.name ?? null;
     const institutionName = student.academicInstitution?.name ?? null;
-    const topbarLabel = [institutionName, 'Mis exámenes'].filter(Boolean).join(' · ');
 
     function examContextLabel(exam: ExamRow): string {
         const cs = exam.courseSection;
@@ -135,341 +133,326 @@ export default async function ExamSelectionPage() {
         .slice(0, 6);
 
     return (
-        <div className="bg-paper flex min-h-screen flex-col">
-            <StudentTopBar
-                topbarLabel={topbarLabel}
-                fullName={fullName}
-                groupName={groupName}
-                showLogout
-            />
+        <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+            {/* Main column */}
+            <div className="min-w-0">
+                <span className="text-mute font-mono text-[11px] tracking-[0.1em] uppercase">
+                    Mis exámenes
+                </span>
+                <h1 className="font-display text-ink mt-2 text-[40px] leading-none font-semibold tracking-[-0.03em]">
+                    Hola, {student.name}.
+                </h1>
+                <p className="text-ink-dim mt-3 max-w-xl text-[14px] leading-relaxed">
+                    {available.length > 0
+                        ? `Tienes ${available.length} examen${available.length !== 1 ? 'es' : ''} disponible${available.length !== 1 ? 's' : ''} ahora`
+                        : 'No tienes exámenes disponibles ahora'}
+                    {upcoming.length > 0 &&
+                        ` y ${upcoming.length} programado${upcoming.length !== 1 ? 's' : ''}`}
+                    . Cuando estés en un lugar tranquilo, abre el que toca.
+                </p>
 
-            <main className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 lg:grid-cols-[1fr_320px]">
-                {/* Main column */}
-                <div className="min-w-0">
-                    <span className="text-mute font-mono text-[11px] tracking-[0.1em] uppercase">
-                        Mis exámenes
-                    </span>
-                    <h1 className="font-display text-ink mt-2 text-[40px] leading-none font-semibold tracking-[-0.03em]">
-                        Hola, {student.name}.
-                    </h1>
-                    <p className="text-ink-dim mt-3 max-w-xl text-[14px] leading-relaxed">
-                        {available.length > 0
-                            ? `Tienes ${available.length} examen${available.length !== 1 ? 'es' : ''} disponible${available.length !== 1 ? 's' : ''} ahora`
-                            : 'No tienes exámenes disponibles ahora'}
-                        {upcoming.length > 0 &&
-                            ` y ${upcoming.length} programado${upcoming.length !== 1 ? 's' : ''}`}
-                        . Cuando estés en un lugar tranquilo, abre el que toca.
-                    </p>
-
-                    {/* Disponible ahora */}
-                    {available.length > 0 && (
-                        <section className="mt-8">
-                            <div className="mb-3 flex items-center gap-2">
-                                <span className="text-ink font-mono text-[11px] tracking-[0.1em] uppercase">
-                                    Disponible ahora
-                                </span>
-                                <span className="bg-primary inline-flex size-4 items-center justify-center rounded-full font-mono text-[9px] font-bold text-white">
-                                    {available.length}
-                                </span>
-                            </div>
-                            <div className="flex flex-col gap-3">
-                                {available.map((exam) => {
-                                    const teacher = exam.createdBy
-                                        ? `${exam.createdBy.name} ${exam.createdBy.lastname}`
-                                        : null;
-                                    const closeSeconds = exam.closesAt
-                                        ? Math.max(
-                                              0,
-                                              Math.ceil((exam.closesAt.getTime() - nowMs) / 1000),
-                                          )
-                                        : null;
-                                    return (
-                                        <div
-                                            key={exam.id}
-                                            className="border-primary/40 grid gap-5 rounded-[16px] border-2 bg-white p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-6"
-                                        >
-                                            <div className="min-w-0">
-                                                <div className="mb-2 flex flex-wrap items-center gap-2">
-                                                    {examContextLabel(exam) && (
-                                                        <span className="bg-primary-wash text-primary rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold tracking-[0.08em] uppercase">
-                                                            {examContextLabel(exam)}
-                                                        </span>
-                                                    )}
-                                                    {exam.closesAt && (
-                                                        <span className="text-warning font-mono text-[10px] font-semibold">
-                                                            {closesLabel(exam.closesAt, now)}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <p className="font-display text-ink text-[22px] leading-tight font-semibold tracking-[-0.02em]">
-                                                    {exam.title}
-                                                </p>
-                                                <div className="text-mute mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5">
-                                                    <span className="flex items-center gap-1.5 font-mono text-[11px]">
-                                                        <BookOpen size={12} />
-                                                        {exam._count.questions} preguntas
-                                                    </span>
-                                                    <span className="flex items-center gap-1.5 font-mono text-[11px]">
-                                                        <Clock size={12} />
-                                                        {exam.timeLimit} min
-                                                    </span>
-                                                    {teacher && (
-                                                        <span className="flex items-center gap-1.5 font-mono text-[11px]">
-                                                            <UserRound size={12} />
-                                                            {teacher}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            <div className="flex flex-col items-start gap-3 sm:items-end">
-                                                {closeSeconds !== null && (
-                                                    <div className="text-right">
-                                                        <p className="text-mute font-mono text-[9px] tracking-[0.1em] uppercase">
-                                                            Tiempo restante
-                                                        </p>
-                                                        <p className="font-display text-ink text-[28px] leading-none font-semibold tracking-[-0.02em]">
-                                                            <ExamCloseCountdown
-                                                                initialSeconds={closeSeconds}
-                                                            />
-                                                        </p>
-                                                    </div>
-                                                )}
-                                                <form
-                                                    action={startSelectedExam.bind(null, exam.id)}
-                                                >
-                                                    <Button
-                                                        variant="primary"
-                                                        size="lg"
-                                                        type="submit"
-                                                    >
-                                                        Comenzar
-                                                        <ArrowRight className="size-4" />
-                                                    </Button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </section>
-                    )}
-
-                    {/* Próximos */}
-                    {upcoming.length > 0 && (
-                        <section className="mt-8">
-                            <div className="mb-3 flex items-center gap-2">
-                                <span className="text-ink font-mono text-[11px] tracking-[0.1em] uppercase">
-                                    Próximos
-                                </span>
-                                <span className="bg-ink inline-flex size-4 items-center justify-center rounded-full font-mono text-[9px] font-bold text-white">
-                                    {upcoming.length}
-                                </span>
-                            </div>
-                            <div className="grid gap-3 sm:grid-cols-2">
-                                {upcoming.map((exam) => (
+                {/* Disponible ahora */}
+                {available.length > 0 && (
+                    <section className="mt-8">
+                        <div className="mb-3 flex items-center gap-2">
+                            <span className="text-ink font-mono text-[11px] tracking-[0.1em] uppercase">
+                                Disponible ahora
+                            </span>
+                            <span className="bg-primary inline-flex size-4 items-center justify-center rounded-full font-mono text-[9px] font-bold text-white">
+                                {available.length}
+                            </span>
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            {available.map((exam) => {
+                                const teacher = exam.createdBy
+                                    ? `${exam.createdBy.name} ${exam.createdBy.lastname}`
+                                    : null;
+                                const closeSeconds = exam.closesAt
+                                    ? Math.max(
+                                          0,
+                                          Math.ceil((exam.closesAt.getTime() - nowMs) / 1000),
+                                      )
+                                    : null;
+                                return (
                                     <div
                                         key={exam.id}
-                                        className="border-border border-l-primary rounded-[14px] border border-l-[3px] bg-white p-5"
+                                        className="border-primary/40 grid gap-5 rounded-[16px] border-2 bg-white p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-6"
                                     >
-                                        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                            {examContextLabel(exam) && (
-                                                <span className="text-mute font-mono text-[10px] tracking-[0.08em] uppercase">
-                                                    {examContextLabel(exam)}
-                                                </span>
-                                            )}
-                                            {exam.scheduledAt && (
-                                                <span className="bg-paper-warm text-ink-dim rounded-full px-2 py-0.5 font-mono text-[9px] font-semibold tracking-[0.06em] uppercase">
-                                                    {dayLabel(exam.scheduledAt, now)}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <p className="font-display text-ink text-[17px] leading-tight font-semibold tracking-[-0.01em]">
-                                            {exam.title}
-                                        </p>
-                                        <div className="text-mute mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-                                            <span className="flex items-center gap-1 font-mono text-[11px]">
-                                                <BookOpen size={11} />
-                                                {exam._count.questions} preg.
-                                            </span>
-                                            <span className="flex items-center gap-1 font-mono text-[11px]">
-                                                <Clock size={11} />
-                                                {exam.timeLimit} min
-                                            </span>
-                                        </div>
-                                        {exam.scheduledAt && (
-                                            <p className="text-ink-dim border-border mt-3 border-t pt-2.5 font-mono text-[11px]">
-                                                {opensLabel(exam.scheduledAt, now)}
-                                            </p>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    )}
-
-                    {/* Ya rendidos */}
-                    {taken.length > 0 && (
-                        <section className="mt-8">
-                            <div className="mb-3 flex items-center gap-2">
-                                <span className="text-ink font-mono text-[11px] tracking-[0.1em] uppercase">
-                                    Ya rendidos
-                                </span>
-                                <span className="bg-success inline-flex size-4 items-center justify-center rounded-full font-mono text-[9px] font-bold text-white">
-                                    {taken.length}
-                                </span>
-                            </div>
-                            <div className="flex flex-col gap-3">
-                                {taken.map((exam) => {
-                                    const r = exam.results[0];
-                                    if (!r) return null;
-                                    const grade = calcGrade(
-                                        r.score,
-                                        r.maxScore,
-                                        exam.maxGrade,
-                                        exam.passingGrade,
-                                        exam.passingPercentage,
-                                    );
-                                    const passing = grade >= exam.passingGrade;
-                                    return (
-                                        <div
-                                            key={exam.id}
-                                            className="border-border border-l-success grid gap-4 rounded-[14px] border border-l-[3px] bg-white p-5 sm:grid-cols-[1fr_auto] sm:items-center"
-                                        >
-                                            <div className="min-w-0">
-                                                <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                                                    {examContextLabel(exam) && (
-                                                        <span className="text-mute font-mono text-[10px] tracking-[0.08em] uppercase">
-                                                            {examContextLabel(exam)}
-                                                        </span>
-                                                    )}
-                                                    <span className="text-success font-mono text-[10px] font-semibold">
-                                                        Entregado ·{' '}
-                                                        {completedFormatter.format(r.completedAt)}
+                                        <div className="min-w-0">
+                                            <div className="mb-2 flex flex-wrap items-center gap-2">
+                                                {examContextLabel(exam) && (
+                                                    <span className="bg-primary-wash text-primary rounded-full px-2.5 py-0.5 font-mono text-[10px] font-semibold tracking-[0.08em] uppercase">
+                                                        {examContextLabel(exam)}
                                                     </span>
-                                                </div>
-                                                <p className="text-ink text-[15px] leading-tight font-semibold">
-                                                    {exam.title}
-                                                </p>
+                                                )}
+                                                {exam.closesAt && (
+                                                    <span className="text-warning font-mono text-[10px] font-semibold">
+                                                        {closesLabel(exam.closesAt, now)}
+                                                    </span>
+                                                )}
                                             </div>
-                                            <div className="flex items-center gap-4">
+                                            <p className="font-display text-ink text-[22px] leading-tight font-semibold tracking-[-0.02em]">
+                                                {exam.title}
+                                            </p>
+                                            <div className="text-mute mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                                                <span className="flex items-center gap-1.5 font-mono text-[11px]">
+                                                    <BookOpen size={12} />
+                                                    {exam._count.questions} preguntas
+                                                </span>
+                                                <span className="flex items-center gap-1.5 font-mono text-[11px]">
+                                                    <Clock size={12} />
+                                                    {exam.timeLimit} min
+                                                </span>
+                                                {teacher && (
+                                                    <span className="flex items-center gap-1.5 font-mono text-[11px]">
+                                                        <UserRound size={12} />
+                                                        {teacher}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col items-start gap-3 sm:items-end">
+                                            {closeSeconds !== null && (
                                                 <div className="text-right">
                                                     <p className="text-mute font-mono text-[9px] tracking-[0.1em] uppercase">
-                                                        Nota
+                                                        Tiempo restante
                                                     </p>
-                                                    <p
-                                                        className={cn(
-                                                            'font-display text-[24px] leading-none font-semibold',
-                                                            passing
-                                                                ? 'text-success'
-                                                                : 'text-destructive',
-                                                        )}
-                                                    >
-                                                        {grade.toFixed(1)}
+                                                    <p className="font-display text-ink text-[28px] leading-none font-semibold tracking-[-0.02em]">
+                                                        <ExamCloseCountdown
+                                                            initialSeconds={closeSeconds}
+                                                        />
                                                     </p>
                                                 </div>
-                                                <form action={viewMyResult.bind(null, r.id)}>
-                                                    <Button variant="ghost" size="sm" type="submit">
-                                                        Ver resultado
-                                                        <ArrowRight className="size-3.5" />
-                                                    </Button>
-                                                </form>
-                                            </div>
+                                            )}
+                                            <form action={startSelectedExam.bind(null, exam.id)}>
+                                                <Button variant="primary" size="lg" type="submit">
+                                                    Comenzar
+                                                    <ArrowRight className="size-4" />
+                                                </Button>
+                                            </form>
                                         </div>
-                                    );
-                                })}
-                            </div>
-                        </section>
-                    )}
-
-                    {available.length === 0 && upcoming.length === 0 && taken.length === 0 && (
-                        <div className="border-border mt-8 rounded-[16px] border border-dashed bg-white p-10 text-center">
-                            <p className="text-ink text-[15px] font-semibold">
-                                No tienes exámenes asignados todavía
-                            </p>
-                            <p className="text-mute mt-1 text-[13px]">
-                                Cuando tu profesor publique uno, va a aparecer acá.
-                            </p>
+                                    </div>
+                                );
+                            })}
                         </div>
-                    )}
-                </div>
+                    </section>
+                )}
 
-                {/* Sidebar */}
-                <aside className="flex flex-col gap-4">
-                    {/* Student card — ink */}
-                    <div className="bg-ink rounded-[16px] p-5 text-white">
-                        <div className="flex items-center gap-3">
-                            <Avatar name={fullName} size={40} />
-                            <div className="min-w-0 leading-tight">
-                                <p className="truncate text-[14px] font-semibold">{fullName}</p>
-                                <p className="truncate text-[11px] text-white/50">
-                                    {[groupName, institutionName].filter(Boolean).join(' · ')}
-                                </p>
-                            </div>
+                {/* Próximos */}
+                {upcoming.length > 0 && (
+                    <section className="mt-8">
+                        <div className="mb-3 flex items-center gap-2">
+                            <span className="text-ink font-mono text-[11px] tracking-[0.1em] uppercase">
+                                Próximos
+                            </span>
+                            <span className="bg-ink inline-flex size-4 items-center justify-center rounded-full font-mono text-[9px] font-bold text-white">
+                                {upcoming.length}
+                            </span>
                         </div>
-                        <div className="border-border/10 mt-5 grid grid-cols-3 gap-2 border-t border-white/10 pt-4">
-                            {[
-                                { value: pendingCount, label: 'Pendientes' },
-                                { value: thisWeekCount, label: 'Esta semana' },
-                                { value: average ?? '—', label: 'Promedio' },
-                            ].map((stat) => (
-                                <div key={stat.label}>
-                                    <p className="font-display text-[24px] leading-none font-semibold">
-                                        {stat.value}
+                        <div className="grid gap-3 sm:grid-cols-2">
+                            {upcoming.map((exam) => (
+                                <div
+                                    key={exam.id}
+                                    className="border-border border-l-primary rounded-[14px] border border-l-[3px] bg-white p-5"
+                                >
+                                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                                        {examContextLabel(exam) && (
+                                            <span className="text-mute font-mono text-[10px] tracking-[0.08em] uppercase">
+                                                {examContextLabel(exam)}
+                                            </span>
+                                        )}
+                                        {exam.scheduledAt && (
+                                            <span className="bg-paper-warm text-ink-dim rounded-full px-2 py-0.5 font-mono text-[9px] font-semibold tracking-[0.06em] uppercase">
+                                                {dayLabel(exam.scheduledAt, now)}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="font-display text-ink text-[17px] leading-tight font-semibold tracking-[-0.01em]">
+                                        {exam.title}
                                     </p>
-                                    <p className="mt-1 font-mono text-[9px] tracking-[0.06em] text-white/40 uppercase">
-                                        {stat.label}
-                                    </p>
+                                    <div className="text-mute mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                                        <span className="flex items-center gap-1 font-mono text-[11px]">
+                                            <BookOpen size={11} />
+                                            {exam._count.questions} preg.
+                                        </span>
+                                        <span className="flex items-center gap-1 font-mono text-[11px]">
+                                            <Clock size={11} />
+                                            {exam.timeLimit} min
+                                        </span>
+                                    </div>
+                                    {exam.scheduledAt && (
+                                        <p className="text-ink-dim border-border mt-3 border-t pt-2.5 font-mono text-[11px]">
+                                            {opensLabel(exam.scheduledAt, now)}
+                                        </p>
+                                    )}
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </section>
+                )}
 
-                    {/* Esta semana — agenda */}
-                    {agenda.length > 0 && (
-                        <div className="border-border rounded-[16px] border bg-white p-5">
-                            <p className="text-mute mb-3 font-mono text-[10px] tracking-[0.1em] uppercase">
-                                Esta semana
-                            </p>
-                            <div className="flex flex-col gap-3">
-                                {agenda.map(({ exam, ref }) => {
-                                    const isAvailable = available.includes(exam);
-                                    return (
-                                        <div key={exam.id} className="flex items-center gap-3">
-                                            <span className="text-mute w-8 shrink-0 font-mono text-[10px] font-semibold tracking-[0.06em] uppercase">
-                                                {dayLabel(ref, now)}
-                                            </span>
-                                            <span className="text-ink-dim min-w-0 flex-1 truncate text-[12px]">
-                                                {examContextLabel(exam) || exam.title}
-                                            </span>
-                                            <span
-                                                className={cn(
-                                                    'size-1.5 shrink-0 rounded-full',
-                                                    isAvailable ? 'bg-lime' : 'bg-primary',
-                                                )}
-                                            />
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                {/* Ya rendidos */}
+                {taken.length > 0 && (
+                    <section className="mt-8">
+                        <div className="mb-3 flex items-center gap-2">
+                            <span className="text-ink font-mono text-[11px] tracking-[0.1em] uppercase">
+                                Ya rendidos
+                            </span>
+                            <span className="bg-success inline-flex size-4 items-center justify-center rounded-full font-mono text-[9px] font-bold text-white">
+                                {taken.length}
+                            </span>
                         </div>
-                    )}
+                        <div className="flex flex-col gap-3">
+                            {taken.map((exam) => {
+                                const r = exam.results[0];
+                                if (!r) return null;
+                                const grade = calcGrade(
+                                    r.score,
+                                    r.maxScore,
+                                    exam.maxGrade,
+                                    exam.passingGrade,
+                                    exam.passingPercentage,
+                                );
+                                const passing = grade >= exam.passingGrade;
+                                return (
+                                    <div
+                                        key={exam.id}
+                                        className="border-border border-l-success grid gap-4 rounded-[14px] border border-l-[3px] bg-white p-5 sm:grid-cols-[1fr_auto] sm:items-center"
+                                    >
+                                        <div className="min-w-0">
+                                            <div className="mb-1.5 flex flex-wrap items-center gap-2">
+                                                {examContextLabel(exam) && (
+                                                    <span className="text-mute font-mono text-[10px] tracking-[0.08em] uppercase">
+                                                        {examContextLabel(exam)}
+                                                    </span>
+                                                )}
+                                                <span className="text-success font-mono text-[10px] font-semibold">
+                                                    Entregado ·{' '}
+                                                    {completedFormatter.format(r.completedAt)}
+                                                </span>
+                                            </div>
+                                            <p className="text-ink text-[15px] leading-tight font-semibold">
+                                                {exam.title}
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="text-right">
+                                                <p className="text-mute font-mono text-[9px] tracking-[0.1em] uppercase">
+                                                    Nota
+                                                </p>
+                                                <p
+                                                    className={cn(
+                                                        'font-display text-[24px] leading-none font-semibold',
+                                                        passing
+                                                            ? 'text-success'
+                                                            : 'text-destructive',
+                                                    )}
+                                                >
+                                                    {grade.toFixed(1)}
+                                                </p>
+                                            </div>
+                                            <form action={viewMyResult.bind(null, r.id)}>
+                                                <Button variant="ghost" size="sm" type="submit">
+                                                    Ver resultado
+                                                    <ArrowRight className="size-3.5" />
+                                                </Button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </section>
+                )}
 
-                    {/* Sesión */}
-                    <div className="bg-primary-wash/50 rounded-[16px] p-5">
-                        <p className="text-primary mb-1.5 text-[13px] font-semibold">
-                            Tu sesión es solo tuya
+                {available.length === 0 && upcoming.length === 0 && taken.length === 0 && (
+                    <div className="border-border mt-8 rounded-[16px] border border-dashed bg-white p-10 text-center">
+                        <p className="text-ink text-[15px] font-semibold">
+                            No tienes exámenes asignados todavía
                         </p>
-                        <p className="text-ink-dim text-[12px] leading-relaxed">
-                            Ingresaste con tu RUT. Si te desconectas, retomas el examen donde
-                            quedaste. ¿Dudas?{' '}
-                            <a href="mailto:hola@aulika.cl" className="text-primary underline">
-                                hola@aulika.cl
-                            </a>
+                        <p className="text-mute mt-1 text-[13px]">
+                            Cuando tu profesor publique uno, va a aparecer acá.
                         </p>
                     </div>
-                </aside>
-            </main>
+                )}
+            </div>
+
+            {/* Sidebar */}
+            <aside className="flex flex-col gap-4">
+                {/* Student card — ink */}
+                <div className="bg-ink rounded-[16px] p-5 text-white">
+                    <div className="flex items-center gap-3">
+                        <Avatar name={fullName} size={40} />
+                        <div className="min-w-0 leading-tight">
+                            <p className="truncate text-[14px] font-semibold">{fullName}</p>
+                            <p className="truncate text-[11px] text-white/50">
+                                {[groupName, institutionName].filter(Boolean).join(' · ')}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="border-border/10 mt-5 grid grid-cols-3 gap-2 border-t border-white/10 pt-4">
+                        {[
+                            { value: pendingCount, label: 'Pendientes' },
+                            { value: thisWeekCount, label: 'Esta semana' },
+                            { value: average ?? '—', label: 'Promedio' },
+                        ].map((stat) => (
+                            <div key={stat.label}>
+                                <p className="font-display text-[24px] leading-none font-semibold">
+                                    {stat.value}
+                                </p>
+                                <p className="mt-1 font-mono text-[9px] tracking-[0.06em] text-white/40 uppercase">
+                                    {stat.label}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Esta semana — agenda */}
+                {agenda.length > 0 && (
+                    <div className="border-border rounded-[16px] border bg-white p-5">
+                        <p className="text-mute mb-3 font-mono text-[10px] tracking-[0.1em] uppercase">
+                            Esta semana
+                        </p>
+                        <div className="flex flex-col gap-3">
+                            {agenda.map(({ exam, ref }) => {
+                                const isAvailable = available.includes(exam);
+                                return (
+                                    <div key={exam.id} className="flex items-center gap-3">
+                                        <span className="text-mute w-8 shrink-0 font-mono text-[10px] font-semibold tracking-[0.06em] uppercase">
+                                            {dayLabel(ref, now)}
+                                        </span>
+                                        <span className="text-ink-dim min-w-0 flex-1 truncate text-[12px]">
+                                            {examContextLabel(exam) || exam.title}
+                                        </span>
+                                        <span
+                                            className={cn(
+                                                'size-1.5 shrink-0 rounded-full',
+                                                isAvailable ? 'bg-lime' : 'bg-primary',
+                                            )}
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                {/* Sesión */}
+                <div className="bg-primary-wash/50 rounded-[16px] p-5">
+                    <p className="text-primary mb-1.5 text-[13px] font-semibold">
+                        Tu sesión es solo tuya
+                    </p>
+                    <p className="text-ink-dim text-[12px] leading-relaxed">
+                        Ingresaste con tu RUT. Si te desconectas, retomas el examen donde quedaste.
+                        ¿Dudas?{' '}
+                        <a href="mailto:hola@aulika.cl" className="text-primary underline">
+                            hola@aulika.cl
+                        </a>
+                    </p>
+                </div>
+            </aside>
         </div>
     );
 }

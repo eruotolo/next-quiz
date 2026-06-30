@@ -1,13 +1,7 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import {
-    ArrowUpRight,
-    BookOpen,
-    CheckCircle2,
-    GraduationCap,
-    XCircle,
-} from 'lucide-react';
+import { ArrowUpRight, BookOpen, CheckCircle2, GraduationCap, XCircle } from 'lucide-react';
 import { getStudentAuthSession } from '@/features/exam-session/lib/session';
 import {
     getDashboardContext,
@@ -124,7 +118,7 @@ async function LmsCoursesSection({ studentId }: { studentId: string }) {
                         <summary className="hover:bg-paper-warm flex cursor-pointer items-center gap-3 rounded-[14px] px-4 py-3 [&::-webkit-details-marker]:hidden">
                             <span
                                 className={cn(
-                                    'inline-flex size-9 shrink-0 items-center justify-center rounded-full font-display text-[13px] font-semibold',
+                                    'font-display inline-flex size-9 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold',
                                     course.average === null
                                         ? 'bg-paper-warm text-mute'
                                         : course.passed
@@ -144,7 +138,7 @@ async function LmsCoursesSection({ studentId }: { studentId: string }) {
                                     {course.passed === false && ' · Reprobado'}
                                 </p>
                             </div>
-                            <span className="text-mute group-open:rotate-180 transition-transform">
+                            <span className="text-mute transition-transform group-open:rotate-180">
                                 ▾
                             </span>
                         </summary>
@@ -204,7 +198,7 @@ export default async function MisMateriasPage() {
     const hasLms = ctx?.hasLms ?? false;
 
     return (
-        <div className="flex flex-col gap-8 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+        <div className="flex flex-col gap-8">
             <div>
                 <p className="text-mute mb-2 font-mono text-[10px] font-bold tracking-[0.12em] uppercase">
                     Historial académico

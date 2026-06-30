@@ -63,10 +63,10 @@ export default async function StudentLiveSessionPage({ params }: PageProps) {
     const isLive = live.status === 'LIVE' || (win.isLive && live.status === 'SCHEDULED');
 
     return (
-        <div className="flex flex-col gap-4 p-4">
+        <div className="flex flex-col gap-4">
             <header>
                 <h1 className="text-xl font-semibold">{live.title}</h1>
-                <p className="text-xs text-muted-foreground">Aula sincrónica</p>
+                <p className="text-muted-foreground text-xs">Aula sincrónica</p>
             </header>
             <StudentRoomClient
                 sessionId={live.id}

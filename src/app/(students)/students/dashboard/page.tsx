@@ -29,8 +29,7 @@ async function WelcomeHeader({ studentId }: { studentId: string }) {
 
     const firstName = student.name?.split(' ')[0] ?? 'Estudiante';
     const hour = new Date().getHours();
-    const greeting =
-        hour < 12 ? 'Buenos días' : hour < 19 ? 'Buenas tardes' : 'Buenas noches';
+    const greeting = hour < 12 ? 'Buenos días' : hour < 19 ? 'Buenas tardes' : 'Buenas noches';
 
     return (
         <div className="mb-8">
@@ -38,7 +37,7 @@ async function WelcomeHeader({ studentId }: { studentId: string }) {
                 {student.academicInstitution?.name ?? 'Aulika'}
                 {student.group?.name ? ` · ${student.group.name}` : ''}
             </p>
-            <h1 className="font-display text-ink text-[28px] font-semibold leading-tight tracking-[-0.02em] sm:text-[34px]">
+            <h1 className="font-display text-ink text-[28px] leading-tight font-semibold tracking-[-0.02em] sm:text-[34px]">
                 {greeting}, {firstName}
             </h1>
         </div>
@@ -154,7 +153,7 @@ export default async function DashboardPage() {
     if (!session) redirect('/students/examen/login');
 
     return (
-        <div className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+        <>
             {/* Welcome header */}
             <Suspense fallback={<WelcomeHeaderSkeleton />}>
                 <WelcomeHeader studentId={session.studentId} />
@@ -199,9 +198,7 @@ export default async function DashboardPage() {
                         <h2 className="text-ink mb-4 text-[14px] font-semibold">
                             Próximas actividades
                         </h2>
-                        <p className="text-mute text-[13px]">
-                            Sin pendientes por esta semana ✓
-                        </p>
+                        <p className="text-mute text-[13px]">Sin pendientes por esta semana ✓</p>
                     </div>
                 </Suspense>
 
@@ -225,6 +222,6 @@ export default async function DashboardPage() {
             <Suspense fallback={<RecentActivityWidgetSkeleton />}>
                 {/* TODO (MiniMax): <RecentActivityWidget studentId={session.studentId} /> */}
             </Suspense>
-        </div>
+        </>
     );
 }

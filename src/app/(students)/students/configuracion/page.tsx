@@ -1,7 +1,10 @@
 import { redirect } from 'next/navigation';
 import { LogOut, Mail, School, ShieldCheck, User as UserIcon } from 'lucide-react';
 import { Avatar } from '@/shared/components/ui/avatar';
-import { getDashboardContext, getDashboardIdentity } from '@/features/students/lib/dashboard-queries';
+import {
+    getDashboardContext,
+    getDashboardIdentity,
+} from '@/features/students/lib/dashboard-queries';
 import { logoutStudent } from '@/features/exam-session/actions/mutations';
 import { prisma } from '@/shared/lib/prisma';
 
@@ -34,7 +37,7 @@ export default async function ConfiguracionPage() {
     const fullName = `${identity.name ?? ''} ${identity.lastname ?? ''}`.trim() || 'Estudiante';
 
     return (
-        <div className="mx-auto flex max-w-xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+        <div className="mx-auto flex max-w-xl flex-col gap-6">
             <header>
                 <p className="text-mute mb-2 font-mono text-[10px] font-bold tracking-[0.12em] uppercase">
                     Tu cuenta
@@ -62,16 +65,16 @@ export default async function ConfiguracionPage() {
                 </div>
             </section>
 
-            <dl className="bg-surface border-border divide-border rounded-[16px] border divide-y">
+            <dl className="bg-surface border-border divide-border divide-y rounded-[16px] border">
                 <Row icon={UserIcon} label="Nombre completo" value={fullName} />
                 <Row icon={ShieldCheck} label="RUT" value={maskRut(fullUser?.rut ?? null)} />
                 <Row icon={Mail} label="Email" value={fullUser?.email ?? '—'} />
-                <Row icon={School} label="Grupo" value={identity.groupName ?? 'Sin grupo asignado'} />
                 <Row
                     icon={School}
-                    label="Institución"
-                    value={identity.institutionName}
+                    label="Grupo"
+                    value={identity.groupName ?? 'Sin grupo asignado'}
                 />
+                <Row icon={School} label="Institución" value={identity.institutionName} />
             </dl>
 
             <form action={logoutStudent} className="pt-2">
@@ -97,16 +100,16 @@ function Row({
     value: string;
 }) {
     return (
-    <div className="flex items-center gap-3 px-5 py-4">
-        <span className="bg-paper-warm text-ink-dim flex size-9 shrink-0 items-center justify-center rounded-full">
-            <Icon className="size-4" aria-hidden="true" />
-        </span>
-        <div className="min-w-0 flex-1">
-            <dt className="text-mute font-mono text-[10px] font-bold tracking-[0.08em] uppercase">
-                {label}
-            </dt>
-            <dd className="text-ink mt-0.5 truncate text-[14px]">{value}</dd>
+        <div className="flex items-center gap-3 px-5 py-4">
+            <span className="bg-paper-warm text-ink-dim flex size-9 shrink-0 items-center justify-center rounded-full">
+                <Icon className="size-4" aria-hidden="true" />
+            </span>
+            <div className="min-w-0 flex-1">
+                <dt className="text-mute font-mono text-[10px] font-bold tracking-[0.08em] uppercase">
+                    {label}
+                </dt>
+                <dd className="text-ink mt-0.5 truncate text-[14px]">{value}</dd>
+            </div>
         </div>
-    </div>
     );
 }

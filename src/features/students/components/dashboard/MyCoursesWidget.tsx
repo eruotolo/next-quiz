@@ -72,10 +72,7 @@ export async function MyCoursesWidget({ studentId }: MyCoursesWidgetProps) {
                                 {course.title}
                             </p>
                             <div className="mt-auto">
-                                <div
-                                    className="text-mute mb-1 flex items-center justify-between font-mono text-[10px] font-bold tracking-wider uppercase"
-                                    aria-label={`Progreso ${course.progressPct}%`}
-                                >
+                                <div className="text-mute mb-1 flex items-center justify-between font-mono text-[10px] font-bold tracking-wider uppercase">
                                     <span>Progreso</span>
                                     <span className="text-ink">{course.progressPct}%</span>
                                 </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -10,14 +10,11 @@ import {
     GraduationCap,
     LayoutDashboard,
     LogOut,
-    Menu,
     MonitorPlay,
     Settings,
-    X,
 } from 'lucide-react';
 import { Avatar } from '@/shared/components/ui/avatar';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/shared/components/ui/sheet';
-import { LogoLockup } from '@/shared/components/branding/logo';
 import { logoutStudent } from '@/features/exam-session/actions/mutations';
 import { cn } from '@/shared/lib/utils';
 
@@ -132,12 +129,10 @@ function SidebarFooter({
             <div className="flex items-center gap-3">
                 <Avatar name={studentName} size={34} />
                 <div className="min-w-0 flex-1">
-                    <p className="text-ink truncate text-[13px] font-semibold leading-tight">
+                    <p className="text-ink truncate text-[13px] leading-tight font-semibold">
                         {studentName}
                     </p>
-                    {groupName && (
-                        <p className="text-mute truncate text-[11px]">{groupName}</p>
-                    )}
+                    {groupName && <p className="text-mute truncate text-[11px]">{groupName}</p>}
                 </div>
                 <form action={logoutStudent}>
                     <button
@@ -156,7 +151,6 @@ function SidebarFooter({
 function SidebarInner({
     studentName,
     groupName,
-    institutionName,
     notificationCount,
     hasLms,
     pathname,
@@ -166,16 +160,6 @@ function SidebarInner({
 
     return (
         <div className="flex h-full flex-col">
-            {/* Header: logo + institution */}
-            <div className="border-border border-b px-4 py-4">
-                <Link href="/students/dashboard" onClick={onNavClick} className="flex items-center gap-2">
-                    <LogoLockup size={26} />
-                </Link>
-                <p className="text-mute mt-1.5 truncate font-mono text-[10px] font-bold tracking-widest uppercase">
-                    {institutionName}
-                </p>
-            </div>
-
             {/* Nav */}
             <div className="flex-1 overflow-y-auto py-3">
                 <nav className="flex flex-col gap-0.5 px-3">
@@ -202,50 +186,43 @@ function SidebarInner({
     );
 }
 
+interface StudentSidebarContextValue {
+    mobileOpen: boolean;
+    setMobileOpen: (open: boolean) => void;
+    openMobile: () => void;
+}
+
+const StudentSidebarContext = createContext<StudentSidebarContextValue | null>(null);
+
+export function StudentSidebarProvider({ children }: { children: ReactNode }) {
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const value = useMemo<StudentSidebarContextValue>(
+        () => ({ mobileOpen, setMobileOpen, openMobile: () => setMobileOpen(true) }),
+        [mobileOpen],
+    );
+    return (
+        <StudentSidebarContext.Provider value={value}>{children}</StudentSidebarContext.Provider>
+    );
+}
+
+export function useStudentSidebar(): StudentSidebarContextValue {
+    const ctx = useContext(StudentSidebarContext);
+    if (!ctx) throw new Error('useStudentSidebar must be used within StudentSidebarProvider');
+    return ctx;
+}
+
 export function StudentSidebar(props: StudentSidebarProps) {
     const pathname = usePathname();
-    const [mobileOpen, setMobileOpen] = useState(false);
+    const { mobileOpen, setMobileOpen } = useStudentSidebar();
 
     return (
         <>
-            {/* ── Desktop: fixed left panel ─────────────────────────── */}
-            <aside className="border-border fixed top-0 left-0 hidden h-screen w-60 border-r bg-white xl:w-70 lg:flex lg:flex-col">
+            {/* ── Desktop: sticky left panel under the header ─────────── */}
+            <aside className="border-border sticky top-16 hidden h-[calc(100dvh-4rem)] w-60 shrink-0 overflow-y-auto border-r bg-white lg:flex lg:flex-col xl:w-70">
                 <SidebarInner {...props} pathname={pathname} />
             </aside>
 
-            {/* ── Mobile: top bar + Sheet drawer ───────────────────── */}
-            <div className="border-border bg-white/95 fixed top-0 right-0 left-0 z-40 flex h-14 items-center justify-between border-b px-4 backdrop-blur-sm lg:hidden">
-                {/* Hamburger */}
-                <button
-                    type="button"
-                    onClick={() => setMobileOpen(true)}
-                    className="text-ink-dim hover:text-ink flex items-center justify-center rounded-lg p-2 transition-colors"
-                    aria-label="Abrir menú"
-                >
-                    <Menu className="size-5" />
-                </button>
-
-                {/* Logo centrado */}
-                <Link href="/students/dashboard">
-                    <LogoLockup size={22} />
-                </Link>
-
-                {/* Bell con badge */}
-                <Link
-                    href="/students/notificaciones"
-                    className="text-ink-dim hover:text-ink relative flex items-center justify-center rounded-lg p-2 transition-colors"
-                    aria-label="Notificaciones"
-                >
-                    <Bell className="size-5" />
-                    {props.notificationCount > 0 && (
-                        <span className="bg-coral absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 font-mono text-[9px] font-bold text-white">
-                            {props.notificationCount > 99 ? '99+' : props.notificationCount}
-                        </span>
-                    )}
-                </Link>
-            </div>
-
-            {/* Sheet Drawer (mobile) */}
+            {/* ── Mobile: drawer (opened from StudentTopBar) ───────────── */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                 <SheetContent side="left" className="w-72 p-0">
                     <SheetHeader className="sr-only">

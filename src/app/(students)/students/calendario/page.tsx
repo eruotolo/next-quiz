@@ -104,7 +104,7 @@ export default async function CalendarioPage({ searchParams }: CalendarPageProps
     const monthName = MONTHS_ES[month - 1] ?? '';
 
     return (
-        <div className="flex flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+        <div className="flex flex-col gap-6">
             <header>
                 <p className="text-mute mb-2 font-mono text-[10px] font-bold tracking-[0.12em] uppercase">
                     Cronograma
@@ -120,7 +120,9 @@ export default async function CalendarioPage({ searchParams }: CalendarPageProps
             <div className="bg-surface border-border rounded-[16px] border p-5">
                 <div className="mb-4 flex items-center justify-between">
                     <Link
-                        href={`/calendario?mes=${formatMonthKey(prev.year, prev.month)}` as `/${string}`}
+                        href={
+                            `/calendario?mes=${formatMonthKey(prev.year, prev.month)}` as `/${string}`
+                        }
                         className="border-border hover:bg-paper-warm inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[12px] font-medium"
                         aria-label="Mes anterior"
                     >
@@ -131,7 +133,9 @@ export default async function CalendarioPage({ searchParams }: CalendarPageProps
                         {monthName} {year}
                     </h2>
                     <Link
-                        href={`/calendario?mes=${formatMonthKey(next.year, next.month)}` as `/${string}`}
+                        href={
+                            `/calendario?mes=${formatMonthKey(next.year, next.month)}` as `/${string}`
+                        }
                         className="border-border hover:bg-paper-warm inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[12px] font-medium"
                         aria-label="Mes siguiente"
                     >
@@ -167,7 +171,10 @@ export default async function CalendarioPage({ searchParams }: CalendarPageProps
                                     {dayEvents.slice(0, 4).map((ev) => (
                                         <span
                                             key={ev.id}
-                                            className={cn('size-1.5 rounded-full', COLOR_DOT[ev.color])}
+                                            className={cn(
+                                                'size-1.5 rounded-full',
+                                                COLOR_DOT[ev.color],
+                                            )}
                                             role="img"
                                             aria-label={`${KIND_LABEL[ev.kind]}: ${ev.title}`}
                                             title={ev.title}
@@ -238,7 +245,11 @@ export default async function CalendarioPage({ searchParams }: CalendarPageProps
                                                 day: '2-digit',
                                                 month: 'short',
                                             })}{' '}
-                                            · {ev.date.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}
+                                            ·{' '}
+                                            {ev.date.toLocaleTimeString('es-CL', {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            })}
                                         </p>
                                     </div>
                                 </li>
