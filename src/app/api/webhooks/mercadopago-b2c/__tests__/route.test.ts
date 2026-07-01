@@ -7,6 +7,7 @@ const {
     prismaLmsOrderUpdateMock,
     prismaLmsOrderUpdateManyMock,
     prismaLmsCourseFindUniqueMock,
+    prismaLmsCourseFindManyMock,
     prismaUserRoleFindUniqueOrThrowMock,
     prismaUserUpsertMock,
     prismaLmsEnrollmentUpsertMock,
@@ -21,6 +22,7 @@ const {
     prismaLmsOrderUpdateMock: vi.fn(),
     prismaLmsOrderUpdateManyMock: vi.fn(),
     prismaLmsCourseFindUniqueMock: vi.fn(),
+    prismaLmsCourseFindManyMock: vi.fn(),
     prismaUserRoleFindUniqueOrThrowMock: vi.fn(),
     prismaUserUpsertMock: vi.fn(),
     prismaLmsEnrollmentUpsertMock: vi.fn(),
@@ -43,6 +45,7 @@ vi.mock('@/shared/lib/prisma', () => ({
         },
         lmsCourse: {
             findUnique: prismaLmsCourseFindUniqueMock,
+            findMany: prismaLmsCourseFindManyMock,
         },
         userRole: {
             findUniqueOrThrow: prismaUserRoleFindUniqueOrThrowMock,
@@ -86,7 +89,11 @@ function makeRequest(body: unknown, signatureOk = true): NextRequest {
 
 describe('webhook /api/webhooks/mercadopago-b2c', () => {
     beforeEach(() => {
-        vi.clearAllMocks();
+        // resetAllMocks (no clearAllMocks) para vaciar también la cola de
+        // implementaciones `mockResolvedValueOnce` entre tests. Sin esto, los
+        // tests nuevos al final del archivo consumen mocks leftovers de tests
+        // anteriores y fallan con datos cruzados.
+        vi.resetAllMocks();
         process.env.MP_ACCESS_TOKEN = 'test-token';
         process.env.AUTH_URL = 'https://aulika.cl';
         // $transaction ejecuta la callback con el `prisma` mockeado.
@@ -96,7 +103,10 @@ describe('webhook /api/webhooks/mercadopago-b2c', () => {
                     findUnique: prismaLmsOrderFindUniqueMock,
                     update: prismaLmsOrderUpdateMock,
                 },
-                lmsCourse: { findUnique: prismaLmsCourseFindUniqueMock },
+                lmsCourse: {
+                    findUnique: prismaLmsCourseFindUniqueMock,
+                    findMany: prismaLmsCourseFindManyMock,
+                },
                 userRole: { findUniqueOrThrow: prismaUserRoleFindUniqueOrThrowMock },
                 user: { upsert: prismaUserUpsertMock },
                 lmsEnrollment: { upsert: prismaLmsEnrollmentUpsertMock },
@@ -169,18 +179,18 @@ describe('webhook /api/webhooks/mercadopago-b2c', () => {
                 preference_id: 'pref-1',
             }),
         });
-        prismaLmsOrderFindUniqueMock.mockResolvedValueOnce({
+        prismaLmsOrderFindUniqueMock.mockResolvedValue({
             id: 'order-1',
             status: 'PENDIENTE',
             courseId: 'c-1',
+            categoryId: null,
+            kind: 'COURSE',
+            course: { title: 'Curso Test', academicInstitutionId: 'inst-aulika-online', academicInstitution: { slug: 'aulika-online' } },
+            category: null,
             studentRut: '123456785',
             studentName: 'Juan',
             studentLastname: 'Pérez',
             studentEmail: 'j@test.cl',
-        });
-        prismaLmsCourseFindUniqueMock.mockResolvedValueOnce({
-            title: 'Curso Test',
-            academicInstitutionId: 'inst-1',
         });
 
         const req = makeRequest({ type: 'payment', data: { id: 'mp-1' } });
@@ -242,6 +252,10 @@ describe('webhook /api/webhooks/mercadopago-b2c', () => {
             id: 'order-1',
             status: 'APROBADO',
             courseId: 'c-1',
+            categoryId: null,
+            kind: 'COURSE',
+            course: { title: 'Curso Test', academicInstitutionId: 'inst-aulika-online', academicInstitution: { slug: 'aulika-online' } },
+            category: null,
             studentRut: '123456785',
             studentName: 'Juan',
             studentLastname: 'Pérez',
@@ -317,18 +331,18 @@ describe('webhook /api/webhooks/mercadopago-b2c', () => {
                 external_reference: 'order-1',
             }),
         });
-        prismaLmsOrderFindUniqueMock.mockResolvedValueOnce({
+        prismaLmsOrderFindUniqueMock.mockResolvedValue({
             id: 'order-1',
             status: 'PENDIENTE',
             courseId: 'c-1',
+            categoryId: null,
+            kind: 'COURSE',
+            course: { title: 'Curso Test', academicInstitutionId: 'inst-aulika-online', academicInstitution: { slug: 'aulika-online' } },
+            category: null,
             studentRut: '123456785',
             studentName: 'Juan',
             studentLastname: 'Pérez',
             studentEmail: 'j@test.cl',
-        });
-        prismaLmsCourseFindUniqueMock.mockResolvedValueOnce({
-            title: 'Curso Test',
-            academicInstitutionId: 'inst-1',
         });
         prisma$transactionMock.mockImplementationOnce(async () => {
             throw new Error('DB timeout');
@@ -354,6 +368,90 @@ describe('webhook /api/webhooks/mercadopago-b2c', () => {
         expect(prismaUserUpsertMock).not.toHaveBeenCalled();
     });
 
+    it('compra del Pack Completo PAES: autoinscribe al alumno en los 7 cursos individuales', async () => {
+        (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({
+                status: 'approved',
+                external_reference: 'order-bundle',
+                preference_id: 'pref-bundle',
+            }),
+        });
+        prismaLmsOrderFindUniqueMock.mockResolvedValue({
+            id: 'order-bundle',
+            status: 'PENDIENTE',
+            kind: 'CATEGORY_BUNDLE',
+            courseId: null,
+            categoryId: 'cat-paes',
+            course: null,
+            category: {
+                name: 'PAES',
+                academicInstitutionId: 'inst-aulika-online',
+                academicInstitution: { slug: 'aulika-online' },
+                courses: [
+                    { courseId: 'f47ac10b-58cc-4372-a567-0e02b2c3d479' },
+                    { courseId: 'e6c7104f-9e4a-4e2e-8d8a-6b45a278fb6e' },
+                    { courseId: 'd3b07384-d113-4ec2-a53b-e10bde486c91' },
+                ],
+            },
+            studentRut: '123456785',
+            studentName: 'Juan',
+            studentLastname: 'Pérez',
+            studentEmail: 'j@test.cl',
+        });
+
+        const req = makeRequest({ type: 'payment', data: { id: 'mp-bundle' } });
+        const res = await POST(req);
+        expect(res.status).toBe(200);
+
+        // La inscripción primaria es al primer curso del bundle (mocks retornan 3,
+        // el primero es la "primary" según la implementación).
+        expect(prismaLmsEnrollmentUpsertMock).toHaveBeenCalledWith(
+            expect.objectContaining({
+                where: {
+                    userId_courseId: {
+                        userId: 'user-1',
+                        courseId: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+                    },
+                },
+            }),
+        );
+
+        // Se autoinscribió en cada uno de los 3 cursos PAES (mocks retornan 3):
+        // 1 inscripción primaria + 2 siblings = 3 upserts totales.
+        expect(prismaLmsEnrollmentUpsertMock).toHaveBeenCalledTimes(3);
+    });
+
+    it('compra de curso individual: NO autoinscribe en otros cursos (findMany no se llama)', async () => {
+        (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({
+                status: 'approved',
+                external_reference: 'order-individual',
+                preference_id: 'pref-individual',
+            }),
+        });
+        prismaLmsOrderFindUniqueMock.mockResolvedValue({
+            id: 'order-individual',
+            status: 'PENDIENTE',
+            courseId: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+            categoryId: null,
+            kind: 'COURSE',
+            course: { title: 'Curso Test', academicInstitutionId: 'inst-aulika-online', academicInstitution: { slug: 'aulika-online' } },
+            category: null,
+            studentRut: '123456785',
+            studentName: 'Juan',
+            studentLastname: 'Pérez',
+            studentEmail: 'j@test.cl',
+        });
+
+        const req = makeRequest({ type: 'payment', data: { id: 'mp-individual' } });
+        const res = await POST(req);
+        expect(res.status).toBe(200);
+        expect(prismaLmsCourseFindManyMock).not.toHaveBeenCalled();
+        expect(prismaLmsEnrollmentUpsertMock).toHaveBeenCalledTimes(1);
+    });
+
     it('brevo email failure no rompe el webhook (best-effort)', async () => {
         (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
             ok: true,
@@ -362,18 +460,18 @@ describe('webhook /api/webhooks/mercadopago-b2c', () => {
                 external_reference: 'order-1',
             }),
         });
-        prismaLmsOrderFindUniqueMock.mockResolvedValueOnce({
+        prismaLmsOrderFindUniqueMock.mockResolvedValue({
             id: 'order-1',
             status: 'PENDIENTE',
             courseId: 'c-1',
+            categoryId: null,
+            kind: 'COURSE',
+            course: { title: 'Curso Test', academicInstitutionId: 'inst-aulika-online', academicInstitution: { slug: 'aulika-online' } },
+            category: null,
             studentRut: '123456785',
             studentName: 'Juan',
             studentLastname: 'Pérez',
             studentEmail: 'j@test.cl',
-        });
-        prismaLmsCourseFindUniqueMock.mockResolvedValueOnce({
-            title: 'Curso Test',
-            academicInstitutionId: 'inst-1',
         });
         // sendEmail retorna una Promise rejected; el void + .catch la absorbe.
         sendEmailMock.mockImplementationOnce(() => Promise.reject(new Error('Brevo 500')));

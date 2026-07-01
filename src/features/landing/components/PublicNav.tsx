@@ -42,6 +42,12 @@ export function PublicNav() {
                         </Link>
                     ))}
                     <Link
+                        href="/aulika-online/cursos"
+                        className="text-ink-dim hover:text-ink text-[14px] font-medium transition-colors"
+                    >
+                        Cursos
+                    </Link>
+                    <Link
                         href="/demo"
                         className="text-primary hover:text-primary/80 text-[14px] font-semibold transition-colors"
                     >

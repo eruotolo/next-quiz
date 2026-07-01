@@ -1,4 +1,4 @@
-import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
+import { requireLmsAccess } from '@/features/auth/lib/auth-guard';
 import { LmsSubmissionsClient } from '@/features/lms/components/LmsSubmissionsClient';
 import { prisma } from '@/shared/lib/prisma';
 import { notFound } from 'next/navigation';
@@ -9,7 +9,7 @@ interface PageProps {
 
 export default async function AulaTaskSubmissionsPage({ params }: PageProps) {
     const { slug, id: courseId, lessonId } = await params;
-    const { institutionId } = await requireInstitutionPageAccess(slug);
+    const { institutionId } = await requireLmsAccess(slug);
 
     const lesson = await prisma.lmsLesson.findFirst({
         where: {

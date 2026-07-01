@@ -1,4 +1,4 @@
-import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
+import { requireLmsAccess } from '@/features/auth/lib/auth-guard';
 import { LmsCoursesListClient } from '@/features/lms/components/LmsCoursesListClient';
 import { prisma } from '@/shared/lib/prisma';
 
@@ -8,7 +8,7 @@ interface PageProps {
 
 export default async function AulaPage({ params }: PageProps) {
     const { slug } = await params;
-    const { institutionId } = await requireInstitutionPageAccess(slug);
+    const { institutionId } = await requireLmsAccess(slug);
 
     const [courses, courseSections] = await Promise.all([
         prisma.lmsCourse.findMany({

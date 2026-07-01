@@ -1,5 +1,5 @@
 import { redirect, notFound } from 'next/navigation';
-import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
+import { requireLmsAccess } from '@/features/auth/lib/auth-guard';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 import {
@@ -22,7 +22,7 @@ interface PageProps {
 
 export default async function AttendancePage({ params }: PageProps) {
     const { slug, id, sessionId } = await params;
-    const access = await requireInstitutionPageAccess(slug);
+    const access = await requireLmsAccess(slug);
     const { userId, userRole } = access;
 
     const live = await prisma.lmsLiveSession.findUnique({

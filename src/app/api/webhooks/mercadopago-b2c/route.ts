@@ -1,9 +1,10 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { randomBytes } from 'node:crypto';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '@/shared/lib/prisma';
 import { verifyWebhookSignature } from '@/features/subscriptions/lib/mercadopago';
 import { USER_ROLE } from '@/shared/lib/roles';
-import { AULIKA_ONLINE_BUNDLE_COURSE_ID } from '@/features/lms/lib/aulika-online-bundle';
+import { AULIKA_ONLINE_INSTITUTION_SLUG } from '@/features/lms/lib/aulika-online-bundle';
 import {
     buildStudentActivationEmail,
     sendEmail,
@@ -46,6 +47,72 @@ interface FulfillmentResult {
 }
 
 /**
+ * Resuelve el producto comprado por la orden: devuelve el título a mostrar y el
+ * ID de la institución a la que pertenece (para crear el User). Para
+ * `kind=CATEGORY_BUNDLE` consulta todos los cursos de la categoría y verifica
+ * que la categoría sea vendible por la tienda de Aulika.
+ */
+async function resolveOrderProduct(
+    tx: Prisma.TransactionClient,
+    orderId: string,
+): Promise<{
+    productTitle: string;
+    institutionId: string;
+    institutionSlug: string;
+    courseIds: string[];
+} | null> {
+    const order = await tx.lmsOrder.findUnique({
+        where: { id: orderId },
+        select: {
+            kind: true,
+            courseId: true,
+            categoryId: true,
+            course: {
+                select: {
+                    title: true,
+                    academicInstitutionId: true,
+                    academicInstitution: { select: { slug: true } },
+                },
+            },
+            category: {
+                select: {
+                    name: true,
+                    academicInstitutionId: true,
+                    academicInstitution: { select: { slug: true } },
+                    courses: { select: { courseId: true } },
+                },
+            },
+        },
+    });
+    if (!order) return null;
+
+    if (order.kind === 'CATEGORY_BUNDLE') {
+        if (!order.category || !order.category.academicInstitution) return null;
+        return {
+            productTitle: `Pack Completo: ${order.category.name}`,
+            institutionId: order.category.academicInstitutionId,
+            institutionSlug: order.category.academicInstitution.slug,
+            courseIds: order.category.courses.map((c) => c.courseId),
+        };
+    }
+
+    if (
+        !order.course ||
+        !order.course.academicInstitution ||
+        !order.courseId ||
+        !order.course.academicInstitutionId
+    ) {
+        return null;
+    }
+    return {
+        productTitle: order.course.title,
+        institutionId: order.course.academicInstitutionId,
+        institutionSlug: order.course.academicInstitution.slug,
+        courseIds: [order.courseId],
+    };
+}
+
+/**
  * Procesa un pago aprobado de un curso B2C. Ejecuta la matriculación atómica:
  * upsert del `User` (con token de activación, sin password), upsert del
  * `LmsEnrollment` (ACTIVO) y aprobación de la `LmsOrder`. Si el curso es
@@ -62,7 +129,9 @@ async function fulfillB2cOrder(orderId: string, mpPaymentId: string): Promise<Fu
             select: {
                 id: true,
                 status: true,
+                kind: true,
                 courseId: true,
+                categoryId: true,
                 studentRut: true,
                 studentName: true,
                 studentLastname: true,
@@ -71,12 +140,17 @@ async function fulfillB2cOrder(orderId: string, mpPaymentId: string): Promise<Fu
         });
         if (!order || order.status === 'APROBADO') return null;
 
-        const course = await tx.lmsCourse.findUnique({
-            where: { id: order.courseId },
-            select: { title: true, academicInstitutionId: true },
-        });
-        if (!course?.academicInstitutionId) {
-            throw new Error('Curso sin institución asociada');
+        const product = await resolveOrderProduct(tx, orderId);
+        if (!product || product.courseIds.length === 0) {
+            throw new Error('Producto sin cursos asociados');
+        }
+
+        // Defensa en profundidad: solo la tienda oficial de Aulika vende cursos
+        // B2C. Si llega un pago de otra institución, lo rechazamos.
+        if (product.institutionSlug !== AULIKA_ONLINE_INSTITUTION_SLUG) {
+            throw new Error(
+                `Pago B2C rechazado: la institución "${product.institutionSlug}" no vende cursos en el catálogo público`,
+            );
         }
 
         const studentRole = await tx.userRole.findUniqueOrThrow({
@@ -99,40 +173,30 @@ async function fulfillB2cOrder(orderId: string, mpPaymentId: string): Promise<Fu
                 rut: order.studentRut,
                 password: null,
                 userRoleId: studentRole.id,
-                academicInstitutionId: course.academicInstitutionId,
+                academicInstitutionId: product.institutionId,
                 activationToken,
                 activationTokenExp,
             },
             select: { id: true },
         });
 
+        // Inscribir al alumno en todos los cursos asociados al producto.
+        // Para COURSE = 1 curso; para CATEGORY_BUNDLE = N cursos.
+        const primaryCourseId = product.courseIds[0] ?? '';
         const enrollment = await tx.lmsEnrollment.upsert({
-            where: { userId_courseId: { userId: user.id, courseId: order.courseId } },
+            where: { userId_courseId: { userId: user.id, courseId: primaryCourseId } },
             update: { status: 'ACTIVO' },
-            create: { userId: user.id, courseId: order.courseId, status: 'ACTIVO' },
+            create: { userId: user.id, courseId: primaryCourseId, status: 'ACTIVO' },
             select: { id: true },
         });
 
-        // Si la compra es del Pack Completo de Aulika Online, autoinscribe
-        // al alumno en todos los demás cursos públicos publicados de la
-        // misma institución (los 7 cursos PAES individuales). Se hace dentro
-        // de la misma transacción para garantizar atomicidad.
         let bundleEnrollments = 0;
-        if (order.courseId === AULIKA_ONLINE_BUNDLE_COURSE_ID) {
-            const siblingCourses = await tx.lmsCourse.findMany({
-                where: {
-                    academicInstitutionId: course.academicInstitutionId,
-                    isPublic: true,
-                    published: true,
-                    id: { not: order.courseId },
-                },
-                select: { id: true },
-            });
-            for (const sibling of siblingCourses) {
+        if (product.courseIds.length > 1) {
+            for (const cid of product.courseIds.slice(1)) {
                 await tx.lmsEnrollment.upsert({
-                    where: { userId_courseId: { userId: user.id, courseId: sibling.id } },
+                    where: { userId_courseId: { userId: user.id, courseId: cid } },
                     update: { status: 'ACTIVO' },
-                    create: { userId: user.id, courseId: sibling.id, status: 'ACTIVO' },
+                    create: { userId: user.id, courseId: cid, status: 'ACTIVO' },
                 });
                 bundleEnrollments += 1;
             }
@@ -151,7 +215,7 @@ async function fulfillB2cOrder(orderId: string, mpPaymentId: string): Promise<Fu
         return {
             studentName: order.studentName,
             studentEmail: order.studentEmail,
-            courseTitle: course.title,
+            courseTitle: product.productTitle,
             activationToken,
             bundleEnrollments,
         };

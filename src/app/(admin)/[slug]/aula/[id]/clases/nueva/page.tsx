@@ -1,6 +1,6 @@
 import { redirect, notFound } from 'next/navigation';
 import { Card } from '@/shared/components/ui/card';
-import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
+import { requireLmsAccess } from '@/features/auth/lib/auth-guard';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { LiveSessionForm } from '@/features/lms/components/live/LiveSessionForm';
@@ -11,7 +11,7 @@ interface PageProps {
 
 export default async function NewLiveSessionPage({ params }: PageProps) {
     const { slug, id } = await params;
-    const access = await requireInstitutionPageAccess(slug);
+    const access = await requireLmsAccess(slug);
     const { userId, userRole } = access;
 
     const course = await prisma.lmsCourse.findUnique({

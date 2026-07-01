@@ -30,6 +30,7 @@ import {
     Search,
     Settings,
     Sparkles,
+    Tag,
     UserCog,
     Users,
     Wallet,
@@ -83,6 +84,7 @@ const ADMIN_NAV: NavItem[] = [
     { path: '/liveresults', label: 'En vivo', icon: Activity, live: true },
     { path: '/aula', label: 'Aula Virtual', icon: MonitorPlay, requiresLms: true },
     { path: '/aula/clases', label: 'Clases en vivo', icon: Radio, requiresLms: true },
+    { path: '/aula/categorias', label: 'Categorías', icon: Tag, requiresLms: true },
     { path: '/programs', label: 'Programas', icon: Layers, section: 'academic' },
     { path: '/periods', label: 'Períodos', icon: CalendarRange, section: 'academic' },
     { path: '/courses', label: 'Materias', icon: BookMarked, section: 'academic' },
@@ -425,10 +427,10 @@ export function Sidebar({
     const profesorNav: NavItem[] = isCoordinator
         ? [{ path: '/programs', label: `Mi ${labels.program}`, icon: Layers }, ...profesorBaseNav]
         : profesorBaseNav;
-    // SuperAdmin ve todos los items siempre. Admin/Profesor: filtrar los
-    // marcados con `requiresLms` cuando la institución no tiene LMS activo.
-    const visibleLmsFilter = (item: NavItem) =>
-        isSuper || !item.requiresLms || lmsEnabled;
+    // Filtrar los items marcados con `requiresLms` cuando la institución no
+    // tiene LMS activo. Aplica por igual a SuperAdmin, Admin y Profesor: la UI
+    // no debe ofrecer lo que la página va a bloquear.
+    const visibleLmsFilter = (item: NavItem) => !item.requiresLms || lmsEnabled;
     const baseNav = isSuper ? SUPER_NAV : isProfesor ? profesorNav : adminNav;
     const navItems = baseNav.filter(visibleLmsFilter);
     const orgLabel = isSuper

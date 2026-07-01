@@ -1,4 +1,4 @@
-import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
+import { requireLmsAccess } from '@/features/auth/lib/auth-guard';
 import { prisma } from '@/shared/lib/prisma';
 import { notFound } from 'next/navigation';
 import { LmsAdminForumClient } from '@/features/lms/components/LmsAdminForumClient';
@@ -9,7 +9,7 @@ interface PageProps {
 
 export default async function AulaForoAdminPage({ params }: PageProps) {
     const { slug, id: courseId } = await params;
-    const { institutionId } = await requireInstitutionPageAccess(slug);
+    const { institutionId } = await requireLmsAccess(slug);
 
     const course = await prisma.lmsCourse.findFirst({
         where: { id: courseId, academicInstitutionId: institutionId },

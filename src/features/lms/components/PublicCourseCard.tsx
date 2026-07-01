@@ -1,16 +1,20 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { BookOpen, GraduationCap } from 'lucide-react';
+import { ArrowRight, BookOpen, GraduationCap } from 'lucide-react';
+import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
 
 interface PublicCourseCardProps {
-    href: string;
+    /** URL del checkout (sin single detail page). */
+    checkoutHref: string;
     title: string;
     description: string | null;
     coverImageUrl: string | null;
     modulesCount: number;
     priceClp: number | null;
     institutionName: string;
+    /** Categorías asignadas (badges). */
+    categoryNames?: string[];
 }
 
 function formatCLP(amount: number): string {
@@ -22,21 +26,20 @@ function formatCLP(amount: number): string {
 }
 
 export function PublicCourseCard({
-    href,
+    checkoutHref,
     title,
     description,
     coverImageUrl,
     modulesCount,
     priceClp,
     institutionName,
+    categoryNames,
 }: PublicCourseCardProps) {
     const isFree = priceClp === null || priceClp === 0;
+    const ctaLabel = isFree ? 'Inscribirme gratis' : 'Comprar curso';
 
     return (
-        <Link
-            href={href as `/${string}`}
-            className="group flex h-full flex-col overflow-hidden rounded-[18px] border border-border bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-        >
+        <article className="border-border group flex h-full flex-col overflow-hidden rounded-[18px] border bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
             <div className="border-border relative aspect-[16/9] w-full overflow-hidden border-b bg-paper-warm">
                 {coverImageUrl ? (
                     <Image
@@ -55,15 +58,14 @@ export function PublicCourseCard({
                     <span
                         className={cn(
                             'rounded-full px-2.5 py-1 font-mono text-[10.5px] font-bold tracking-wide uppercase shadow-sm backdrop-blur-sm',
-                            isFree
-                                ? 'bg-lime/90 text-ink'
-                                : 'bg-white/90 text-ink',
+                            isFree ? 'bg-lime/90 text-ink' : 'bg-white/90 text-ink',
                         )}
                     >
                         {isFree ? 'Gratis' : formatCLP(priceClp ?? 0)}
                     </span>
                 </div>
             </div>
+
             <div className="flex flex-1 flex-col gap-3 p-5">
                 <div>
                     <p className="text-mute mb-1 font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
@@ -78,6 +80,18 @@ export function PublicCourseCard({
                         {description}
                     </p>
                 )}
+                {categoryNames && categoryNames.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                        {categoryNames.map((name) => (
+                            <span
+                                key={name}
+                                className="border-border text-mute rounded-full border bg-paper-warm px-2 py-0.5 font-mono text-[10px] font-bold tracking-wide uppercase"
+                            >
+                                {name}Hola
+                            </span>
+                        ))}
+                    </div>
+                )}
                 <div className="text-mute mt-auto flex items-center gap-3 pt-2 text-[11.5px]">
                     <span className="flex items-center gap-1">
                         <BookOpen size={12} />
@@ -85,6 +99,20 @@ export function PublicCourseCard({
                     </span>
                 </div>
             </div>
-        </Link>
+
+            <div className="border-border border-t p-5 pt-4">
+                <Button
+                    asChild
+                    variant="primary"
+                    size="lg"
+                    className="w-full text-[14px] font-bold"
+                >
+                    <Link href={checkoutHref as `/${string}`}>
+                        {ctaLabel}
+                        {!isFree && <ArrowRight className="ml-2 size-4" />}
+                    </Link>
+                </Button>
+            </div>
+        </article>
     );
 }

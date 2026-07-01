@@ -1,5 +1,7 @@
-import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
+import { requireLmsAccess } from '@/features/auth/lib/auth-guard';
+import { EditLmsCourseDialog } from '@/features/lms/components/EditLmsCourseDialog';
 import { LmsCourseEditorClient } from '@/features/lms/components/LmsCourseEditorClient';
+import { canSellCourses } from '@/features/lms/lib/aulika-online-bundle';
 import { prisma } from '@/shared/lib/prisma';
 import { notFound } from 'next/navigation';
 
@@ -9,7 +11,8 @@ interface PageProps {
 
 export default async function AulaCourseEditPage({ params }: PageProps) {
     const { slug, id } = await params;
-    const { institutionId } = await requireInstitutionPageAccess(slug);
+    const ctx = await requireLmsAccess(slug);
+    const { institutionId } = ctx;
 
     const course = await prisma.lmsCourse.findFirst({
         where: { id, academicInstitutionId: institutionId },
@@ -61,6 +64,21 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
         },
     });
 
+    const [availableCategories, selectedCategories] = await Promise.all([
+        prisma.lmsCategory.findMany({
+            where: { academicInstitutionId: institutionId },
+            orderBy: [{ order: 'asc' }, { name: 'asc' }],
+            select: { id: true, name: true },
+        }),
+        prisma.lmsCourseCategory.findMany({
+            where: { courseId: id },
+            select: { categoryId: true },
+        }),
+    ]);
+
+    // Solo aulika-online (o SuperAdmin) puede vender cursos.
+    const canEditPrice = canSellCourses(slug, ctx.isSuperAdmin);
+
     return (
         <main className="flex-1 overflow-auto p-8">
             <div className="mb-6 flex items-start justify-between gap-3">
@@ -70,12 +88,22 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
                         <p className="text-mute mt-1 text-sm">{course.description}</p>
                     )}
                 </div>
-                <a
-                    href={`/${slug}/aula/${id}/clases` as `/${string}`}
-                    className="text-ink-dim hover:text-ink border-border hover:bg-paper rounded-md border bg-white px-3 py-1.5 text-sm font-medium"
-                >
-                    Clases en vivo
-                </a>
+                <div className="flex items-center gap-2">
+                    <EditLmsCourseDialog
+                        slug={slug}
+                        courseId={id}
+                        title={course.title}
+                        description={course.description}
+                        price={course.price}
+                        canEditPrice={canEditPrice}
+                    />
+                    <a
+                        href={`/${slug}/aula/${id}/clases` as `/${string}`}
+                        className="text-ink-dim hover:text-ink border-border hover:bg-paper rounded-md border bg-white px-3 py-1.5 text-sm font-medium"
+                    >
+                        Clases en vivo
+                    </a>
+                </div>
             </div>
             <LmsCourseEditorClient
                 slug={slug}
@@ -84,7 +112,9 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
                 certificateEnabled={course.certificateEnabled}
                 aiSummaryEnabled={course.aiSummaryEnabled}
                 isPublic={course.isPublic}
-                price={course.price}
+                canEditPrice={canEditPrice}
+                availableCategories={availableCategories}
+                initialSelectedCategoryIds={selectedCategories.map((c) => c.categoryId)}
             />
         </main>
     );

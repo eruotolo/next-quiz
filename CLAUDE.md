@@ -434,10 +434,22 @@ Feature para que cada institución venda cursos del Aula Virtual a estudiantes e
 - `src/features/subscriptions/schemas/__tests__/b2c-checkout-schemas.test.ts` (12 tests) — RUT K, email, terms, password rules.
 - Total suite: 270/270 pasando.
 
-### Pendiente (Fase 5 — GLM-5.2)
+### Autoinscripción Pack Completo + tests del webhook (Fase 7 — MiniMax)
 
-- Webhook `/api/webhooks/mercadopago-b2c` que recibe `payment` o `merchant_order`, valida con `MP_WEBHOOK_SECRET` (o webhook signature de pago único), en `$transaction` crea/actualiza `User` inactivo, genera `activationToken` (helper ya existe), crea `LmsEnrollment` (status `ACTIVO`), actualiza `LmsOrder` a APROBADO + `enrolledUserId` + `enrollmentId`, y dispara email Brevo con el link `/examen/activar?token=...`.
-- Seeders de `PlanLimits` por producto (`exams_free`, `exams_docente`, `exams_colegio`, `lms_free`, `lms_colegio`, `pack_completo`).
+- **Webhook bundle** — `src/app/api/webhooks/mercadopago-b2c/route.ts` en `fulfillB2cOrder`: si `order.courseId === AULIKA_ONLINE_BUNDLE_COURSE_ID`, dentro de la misma transacción hace `upsert` de `LmsEnrollment` para todos los cursos públicos publicados de la misma institución (los 7 PAES de Aulika Online).
+- **Tests** — 2 tests nuevos en `src/app/api/webhooks/mercadopago-b2c/__tests__/route.test.ts`:
+  - `compra del Pack Completo PAES: autoinscribe al alumno en los 7 cursos individuales` — verifica que se llama `lmsCourse.findMany` con `isPublic:true, published:true, id:not:bundleId` y se hace upsert por cada curso hermano.
+  - `compra de curso individual: NO autoinscribe en otros cursos` — verifica que `findMany` NO se llama cuando el curso no es el bundle.
+- **Fix colateral** — el mismo test file cambió `vi.clearAllMocks()` → `vi.resetAllMocks()` en `beforeEach`. Razón: `vi.clearAllMocks()` limpia el historial pero NO la cola de implementaciones (`mockResolvedValueOnce`); los tests nuevos al final del archivo consumían mocks leftovers de tests anteriores y fallaban con datos cruzados (`courseId: 'c-1'` en vez del UUID del bundle).
+- **Total suite: 318/318 pasando** (316 + 2 nuevos).
+
+### Seeder Aulika Online + conflicto plan-codes (Fase 7 — MiniMax)
+
+- **Seeder** — `prisma/seeders/aulika-online.ts` (idempotente, UUIDs fijos). Crea institución `aulika-online` (plan `INSTITUCIONAL`, `lmsEnabled: true`, UUID `9a8b7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d`), profesor `profesor.online@aulika.cl` (pass `Online2026!`), curso bundle "Pack Completo PAES" ($450.000) y los 7 cursos PAES ($99.990 c/u). Cada curso tiene 2-4 módulos con 2 lecciones TEXTO c/u con contenido DEMRE.
+- **CLI** — `prisma/seeders/aulika-online-cli.ts` + comando `pnpm db:seed:online`. Registrado en `prisma/seed.ts` y en el `build` script (`package.json:9`).
+- **Constantes compartidas (DRY)** — `src/features/lms/lib/aulika-online-bundle.ts` exporta `AULIKA_ONLINE_INSTITUTION_SLUG`, `AULIKA_ONLINE_BUNDLE_COURSE_ID`, `AULIKA_ONLINE_INDIVIDUAL_COURSE_IDS` (7 UUIDs), y precios `AULIKA_ONLINE_BUNDLE_PRICE_CLP` / `AULIKA_ONLINE_INDIVIDUAL_PRICE_CLP`. Seeder, webhook y (futuro) storefront importan de acá.
+- **Idempotencia módulos/lecciones** — no tienen unique key natural, así que se reescriben con `deleteMany + create` por curso en cada seed. No rompe datos de alumnos (las inscripciones viven en `LmsEnrollment` que no se toca).
+- **Conflict 3.1 resuelto** — `prisma/seeders/plan-codes.ts` ahora filtra el backfill con `where: { plan, lmsPlanCode: null }`, de modo que solo escribe en instituciones que aún no tienen `lmsPlanCode` setado. Los toggles manuales del SuperAdmin ya no son pisados en deploys subsiguientes. Test nuevo en `prisma/seeders/__tests__/plan-codes.test.ts` (`filtra el backfill con 'lmsPlanCode: null' para no pisar toggles manuales`) valida el filtro.
 
 ## Centro de ayuda (`/[slug]/ayuda`)
 

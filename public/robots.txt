@@ -1,6 +1,5 @@
 User-agent: *
 Allow: /
-Allow: /paes
 Allow: /demo
 Allow: /audiencias/
 Allow: /empresa/

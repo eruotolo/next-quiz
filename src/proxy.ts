@@ -11,7 +11,6 @@ const PUBLIC_PREFIXES = [
     '/favicon.ico',
     '/demo',
     '/login',
-    '/paes',
     '/audiencias',
     '/empresa',
     '/recursos',

@@ -1,4 +1,4 @@
-import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
+import { requireLmsAccess } from '@/features/auth/lib/auth-guard';
 import { LmsCourseTabs } from '@/features/lms/components/LmsCourseTabs';
 import { prisma } from '@/shared/lib/prisma';
 import { notFound } from 'next/navigation';
@@ -11,7 +11,7 @@ interface Props {
 
 export default async function AulaCourseLayout({ children, params }: Props) {
     const { slug, id } = await params;
-    const { institutionId } = await requireInstitutionPageAccess(slug);
+    const { institutionId } = await requireLmsAccess(slug);
 
     const course = await prisma.lmsCourse.findFirst({
         where: { id, academicInstitutionId: institutionId },

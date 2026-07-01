@@ -12,14 +12,32 @@ const rutField = z
     .min(1, 'El RUT es requerido')
     .refine(isValidRut, 'RUT inválido');
 
-export const b2cCheckoutSchema = z.object({
-    courseId: z.string().uuid('Curso inválido'),
-    studentRut: rutField,
-    studentName: z.string().min(2, 'Nombre requerido').max(100),
-    studentLastname: z.string().min(2, 'Apellido requerido').max(100),
-    studentEmail: z.string().email('Email inválido'),
-    acceptTerms: z.boolean().refine((v) => v, 'Debes aceptar los términos de uso'),
-});
+/**
+ * Schema del checkout B2C. El comprador elige un producto:
+ *  - `kind: 'COURSE'` + `courseId` → compra de un curso individual.
+ *  - `kind: 'CATEGORY_BUNDLE'` + `categoryId` → compra del Pack Completo de
+ *    una categoría (inscripción automática a todos los cursos asociados).
+ */
+export const b2cCheckoutSchema = z
+    .object({
+        kind: z.enum(['COURSE', 'CATEGORY_BUNDLE']),
+        courseId: z.string().uuid('Curso inválido').optional(),
+        categoryId: z.string().uuid('Categoría inválida').optional(),
+        studentRut: rutField,
+        studentName: z.string().min(2, 'Nombre requerido').max(100),
+        studentLastname: z.string().min(2, 'Apellido requerido').max(100),
+        studentEmail: z.string().email('Email inválido'),
+        acceptTerms: z.boolean().refine((v) => v, 'Debes aceptar los términos de uso'),
+    })
+    .refine(
+        (data) =>
+            (data.kind === 'COURSE' && !!data.courseId) ||
+            (data.kind === 'CATEGORY_BUNDLE' && !!data.categoryId),
+        {
+            message: 'Falta el identificador del producto.',
+            path: ['courseId'],
+        },
+    );
 
 export type B2cCheckoutInput = z.infer<typeof b2cCheckoutSchema>;
 

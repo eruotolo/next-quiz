@@ -5,7 +5,7 @@ const prisma = createSeedClient();
 
 async function main(): Promise<void> {
     const result = await seedAulikaOnline(prisma);
-    console.log(`AulikaOnline: institution upserted, ${result.courses} courses (1 bundle + 7 PAES).`);
+    console.log(`AulikaOnline: institution upserted, ${result.courses} courses + 1 pack category (PAES).`);
 }
 
 main()

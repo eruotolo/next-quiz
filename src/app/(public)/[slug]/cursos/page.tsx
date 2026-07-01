@@ -1,16 +1,33 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { GraduationCap, Search } from 'lucide-react';
+import { ArrowRight, BookOpen, GraduationCap, Layers, Search } from 'lucide-react';
 import { prisma } from '@/shared/lib/prisma';
+import { AULIKA_ONLINE_INSTITUTION_SLUG } from '@/features/lms/lib/aulika-online-bundle';
 import { PublicCourseCard } from '@/features/lms/components/PublicCourseCard';
+import { CategoryFilter } from '@/features/lms/components/CategoryFilter';
 import { JsonLd } from '@/shared/components/seo/JsonLd';
 import { courseSchema } from '@/shared/components/seo/schemas';
+import { Button } from '@/shared/components/ui/button';
+import { Tag } from '@/shared/components/ui/badge';
 
 interface PageProps {
     params: Promise<{ slug: string }>;
+    searchParams: Promise<{ category?: string }>;
 }
 
-async function loadPublicCourses(slug: string) {
+function formatCLP(amount: number): string {
+    return new Intl.NumberFormat('es-CL', {
+        style: 'currency',
+        currency: 'CLP',
+        minimumFractionDigits: 0,
+    }).format(amount);
+}
+
+async function loadPublicData(slug: string) {
+    // Solo Aulika vende cursos B2C.
+    if (slug !== AULIKA_ONLINE_INSTITUTION_SLUG) return null;
+
     const inst = await prisma.academicInstitution.findUnique({
         where: { slug },
         select: {
@@ -22,31 +39,72 @@ async function loadPublicCourses(slug: string) {
             seoKeywords: true,
         },
     });
-    if (!inst || !inst.active) return null;
+    if (!inst?.active) return null;
 
-    const courses = await prisma.lmsCourse.findMany({
-        where: {
-            academicInstitutionId: inst.id,
-            isPublic: true,
-            published: true,
-        },
-        orderBy: { createdAt: 'desc' },
-        select: {
-            id: true,
-            title: true,
-            description: true,
-            coverImageUrl: true,
-            price: true,
-            _count: { select: { modules: true } },
-        },
-    });
+    const [courses, categories] = await Promise.all([
+        prisma.lmsCourse.findMany({
+            where: {
+                academicInstitutionId: inst.id,
+                isPublic: true,
+                published: true,
+            },
+            orderBy: { createdAt: 'desc' },
+            select: {
+                id: true,
+                title: true,
+                description: true,
+                coverImageUrl: true,
+                price: true,
+                _count: { select: { modules: true } },
+                categories: {
+                    select: {
+                        category: {
+                            select: {
+                                id: true,
+                                name: true,
+                                slug: true,
+                            },
+                        },
+                    },
+                },
+            },
+        }),
+        prisma.lmsCategory.findMany({
+            where: {
+                academicInstitutionId: inst.id,
+                isPublic: true,
+            },
+            orderBy: [{ order: 'asc' }, { name: 'asc' }],
+            select: {
+                id: true,
+                name: true,
+                slug: true,
+                description: true,
+                isBundle: true,
+                bundlePrice: true,
+                _count: { select: { courses: true } },
+            },
+        }),
+    ]);
 
-    return { inst, courses };
+    // Si hay un pack bundle destacado, consultar los títulos de sus cursos
+    // para mostrarlos en la lista del banner.
+    const featuredBundle = categories.find((c) => c.isBundle && c.bundlePrice !== null);
+    let bundleCourseTitles: string[] = [];
+    if (featuredBundle) {
+        const bundleCourses = await prisma.lmsCourseCategory.findMany({
+            where: { categoryId: featuredBundle.id },
+            select: { course: { select: { title: true } } },
+        });
+        bundleCourseTitles = bundleCourses.map((bc) => bc.course.title);
+    }
+
+    return { inst, courses, categories, bundleCourseTitles };
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
-    const data = await loadPublicCourses(slug);
+    const data = await loadPublicData(slug);
     if (!data) return { title: 'Cursos' };
     const { inst } = data;
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.aulika.cl';
@@ -59,83 +117,189 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         alternates: { canonical: `${baseUrl}/${slug}/cursos` },
         openGraph: {
             title: `Cursos · ${inst.name}`,
-            description:
-                inst.seoDescription ??
-                `Catálogo de cursos del Aula Virtual de ${inst.name}.`,
+            description: inst.seoDescription ?? `Catálogo de cursos del Aula Virtual de ${inst.name}.`,
             url: `${baseUrl}/${slug}/cursos`,
             type: 'website',
         },
     };
 }
 
-export default async function PublicCoursesPage({ params }: PageProps) {
+export default async function PublicCoursesPage({ params, searchParams }: PageProps) {
     const { slug } = await params;
-    const data = await loadPublicCourses(slug);
+    const sp = await searchParams;
+    const data = await loadPublicData(slug);
     if (!data) notFound();
-    const { inst, courses } = data;
+    const { inst, courses, categories, bundleCourseTitles } = data;
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.aulika.cl';
 
+    // El pack completo: primera categoría con `isBundle=true`.
+    const featuredBundle = categories.find((c) => c.isBundle && c.bundlePrice !== null);
+
+    // Filtrado por categoría: si hay query `?category=slug`, mostrar solo cursos de esa categoría.
+    const activeCategorySlug = sp.category ?? null;
+    const filteredCourses = activeCategorySlug
+        ? courses.filter((c) => c.categories.some((cc) => cc.category.slug === activeCategorySlug))
+        : courses;
+
+    const coursesLd = courses.map((c, idx) => ({
+        ...courseSchema({
+            name: c.title,
+            description: c.description,
+            providerName: inst.name,
+            url: `${baseUrl}/${slug}/cursos`,
+            priceClp: c.price,
+            isFree: c.price === null || c.price === 0,
+        }),
+        position: idx + 1,
+    }));
+
     return (
-        <main className="mx-auto max-w-[1200px] px-5 py-12 sm:px-8 sm:py-16">
-            {/* Hero */}
-            <section className="mb-12">
-                <p className="text-mute mb-3 font-mono text-[11px] font-bold tracking-[0.1em] uppercase">
-                    Aula Virtual · {inst.name}
-                </p>
-                <h1 className="text-ink font-display text-[36px] leading-[1.05] font-bold tracking-[-0.02em] sm:text-[48px]">
-                    Cursos disponibles
-                </h1>
-                <p className="text-ink-dim mt-3 max-w-[640px] text-[16px] leading-relaxed">
-                    Comprá un curso y accedé al aula con tu RUT. Los cursos pagos
-                    incluyen certificado de aprobación.
-                </p>
-            </section>
-
-            {courses.length === 0 ? (
-                <div className="border-border flex flex-col items-center gap-3 rounded-[18px] border bg-white p-12 text-center">
-                    <Search className="text-mute/30 size-10" strokeWidth={1.5} />
-                    <p className="text-ink font-display text-lg font-bold">
-                        Aún no hay cursos publicados
+        <main
+            className="min-h-screen px-5 py-12 sm:px-8 sm:py-16"
+            style={{ backgroundColor: '#FAFAF7' }}
+        >
+            <div className="mx-auto max-w-[1200px]">
+                {/* Sub-header institucional */}
+                <header className="mb-12">
+                    <p className="text-mute mb-2 font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
+                        Aula Virtual · {inst.name}
                     </p>
-                    <p className="text-mute text-[14px]">
-                        Vuelve pronto — {inst.name} está preparando nuevos cursos.
-                    </p>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    {courses.map((c) => (
-                        <PublicCourseCard
-                            key={c.id}
-                            href={`/${slug}/cursos/${c.id}`}
-                            title={c.title}
-                            description={c.description}
-                            coverImageUrl={c.coverImageUrl}
-                            modulesCount={c._count.modules}
-                            priceClp={c.price}
-                            institutionName={inst.name}
-                        />
-                    ))}
-                </div>
-            )}
+                    <h1 className="text-ink font-display text-[36px] leading-[1.05] font-bold tracking-[-0.02em] sm:text-[48px]">
+                        Cursos disponibles
+                    </h1>
+                </header>
 
-            {/* JSON-LD: un ItemList con cada Course como ListItem (Course) */}
-            <JsonLd
-                data={{
-                    '@context': 'https://schema.org',
-                    '@type': 'ItemList',
-                    itemListElement: courses.map((c, idx) => ({
-                        ...courseSchema({
-                            name: c.title,
-                            description: c.description,
-                            providerName: inst.name,
-                            url: `${baseUrl}/${slug}/cursos/${c.id}`,
-                            priceClp: c.price,
-                            isFree: c.price === null || c.price === 0,
-                        }),
-                        position: idx + 1,
-                    })),
-                }}
-            />
+                {/* Banner del Pack Completo */}
+                {featuredBundle && featuredBundle.bundlePrice !== null && (
+                    <section className="mb-12">
+                        <div
+                            className="bg-ink relative overflow-hidden rounded-[28px] px-8 py-12 lg:px-14 lg:py-16"
+                            style={{
+                                backgroundImage:
+                                    'radial-gradient(circle at 85% 15%, rgba(214,255,31,0.18) 0%, transparent 55%), radial-gradient(circle at 5% 85%, rgba(31,46,255,0.35) 0%, transparent 55%)',
+                            }}
+                        >
+                            <div className="relative grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+                                <div>
+                                    <Tag tone="lime" size="sm" className="mb-4 font-bold">
+                                        <GraduationCap size={12} className="mr-1" />
+                                        AULIKA ONLINE · PACK COMPLETO
+                                    </Tag>
+                                    <h2 className="font-display text-[28px] leading-[1.05] font-bold tracking-[-0.02em] text-white sm:text-[36px]">
+                                        {featuredBundle.name}
+                                    </h2>
+                                    <p className="mt-3 max-w-[520px] text-[14.5px] leading-relaxed text-white/70">
+                                        {featuredBundle.description ??
+                                            `Acceso anual a los ${featuredBundle._count.courses} cursos del pack. Ahorra vs. compra individual.`}
+                                    </p>
+                                    <div className="mt-6">
+                                        <Button
+                                            asChild
+                                            variant="lime"
+                                            size="lg"
+                                            className="h-14 px-8 text-[16px] font-bold"
+                                        >
+                                            <Link
+                                                href={
+                                                    `/${slug}/checkout/category/${featuredBundle.id}` as `/${string}`
+                                                }
+                                            >
+                                                Comprar pack completo
+                                                <ArrowRight className="ml-2 size-5" />
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                <div className="relative rounded-[20px] bg-white p-6 shadow-xl">
+                                    <div className="flex items-center gap-2">
+                                        <Layers size={16} className="text-primary" />
+                                        <span className="text-ink text-[13px] font-bold">
+                                            Asignaturas incluidas
+                                        </span>
+                                    </div>
+                                    <ul className="mt-4 flex flex-col gap-2.5">
+                                        {bundleCourseTitles.map((title) => (
+                                            <li
+                                                key={title}
+                                                className="text-ink-dim flex items-center gap-2.5 text-[13.5px]"
+                                            >
+                                                <BookOpen
+                                                    size={13}
+                                                    className="text-mute shrink-0 opacity-70"
+                                                />
+                                                {title}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <div className="border-border mt-5 flex items-center justify-between border-t pt-4">
+                                        <span className="text-mute text-[11.5px] font-medium">
+                                            Pack Completo · todas las áreas
+                                        </span>
+                                        <span className="text-ink font-display text-[15px] font-bold">
+                                            {formatCLP(featuredBundle.bundlePrice)}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {/* Filtro por categoría + grid de cursos */}
+                <section>
+                    {categories.length > 0 && (
+                        <div className="mb-6">
+                            <CategoryFilter
+                                slug={slug}
+                                categories={categories.map((c) => ({
+                                    id: c.id,
+                                    name: c.name,
+                                    slug: c.slug,
+                                }))}
+                                activeSlug={activeCategorySlug}
+                            />
+                        </div>
+                    )}
+
+                    {filteredCourses.length === 0 ? (
+                        <div className="border-border flex flex-col items-center gap-3 rounded-[18px] border bg-white p-12 text-center">
+                            <Search className="text-mute/30 size-10" strokeWidth={1.5} />
+                            <p className="text-ink font-display text-lg font-bold">
+                                No hay cursos en esta categoría
+                            </p>
+                            <p className="text-mute text-[14px]">
+                                Probá con otra categoría o volvé al catálogo completo.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                            {filteredCourses.map((c) => (
+                                <PublicCourseCard
+                                    key={c.id}
+                                    checkoutHref={`/${slug}/checkout/${c.id}`}
+                                    title={c.title}
+                                    description={c.description}
+                                    coverImageUrl={c.coverImageUrl}
+                                    modulesCount={c._count.modules}
+                                    priceClp={c.price}
+                                    institutionName={inst.name}
+                                    categoryNames={c.categories.map((cc) => cc.category.name)}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </section>
+
+                {/* JSON-LD: ItemList con los cursos individuales visibles */}
+                <JsonLd
+                    data={{
+                        '@context': 'https://schema.org',
+                        '@type': 'ItemList',
+                        itemListElement: coursesLd,
+                    }}
+                />
+            </div>
         </main>
     );
 }

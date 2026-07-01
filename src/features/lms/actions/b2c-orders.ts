@@ -9,7 +9,6 @@ import {
 } from '@/features/subscriptions/schemas/b2c-checkout.schemas';
 import { logAudit } from '@/shared/lib/audit';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
-import { generateActivationToken } from '@/features/lms/lib/activation-token';
 
 interface CheckoutResult {
     initPoint: string | null;
@@ -21,6 +20,10 @@ interface CheckoutResult {
  * MercadoPago para redirigir al comprador. La matriculación real (crear
  * `User`, `LmsEnrollment`, token de activación, email) la dispara el
  * webhook `/api/webhooks/mercadopago-b2c` al confirmarse el pago.
+ *
+ * Acepta órdenes de curso individual (`kind=COURSE`) o de pack por categoría
+ * (`kind=CATEGORY_BUNDLE`). El backend solo valida; la UI de checkout es la
+ * responsable de elegir el `kind` correcto según el producto.
  */
 export async function createLmsCheckoutPreference(
     slug: string,
@@ -42,26 +45,75 @@ export async function createLmsCheckoutPreference(
         return { data: null, error: 'Institución no encontrada.' };
     }
 
-    const course = await prisma.lmsCourse.findFirst({
-        where: {
-            id: input.courseId,
-            academicInstitutionId: inst.id,
-            isPublic: true,
-            published: true,
-        },
-        select: { id: true, title: true, price: true },
-    });
-    if (!course) {
-        return { data: null, error: 'Curso no disponible para inscripción.' };
+    // Resolver el producto (curso o pack) y el monto a cobrar.
+    let productTitle: string;
+    let price: number;
+    let kind: 'COURSE' | 'CATEGORY_BUNDLE';
+    let courseId: string | null = null;
+    let categoryId: string | null = null;
+
+    if (input.kind === 'CATEGORY_BUNDLE') {
+        if (!input.categoryId) {
+            return { data: null, error: 'Falta el ID de categoría.' };
+        }
+        const category = await prisma.lmsCategory.findFirst({
+            where: {
+                id: input.categoryId,
+                academicInstitutionId: inst.id,
+                isBundle: true,
+                isPublic: true,
+                bundlePrice: { not: null },
+            },
+            select: {
+                id: true,
+                name: true,
+                bundlePrice: true,
+                _count: { select: { courses: true } },
+            },
+        });
+        if (!category || category.bundlePrice === null) {
+            return { data: null, error: 'Pack no disponible para inscripción.' };
+        }
+        if (category._count.courses === 0) {
+            return {
+                data: null,
+                error: 'Este pack no tiene cursos asociados. Contactá al administrador.',
+            };
+        }
+        productTitle = `Pack Completo: ${category.name}`;
+        price = category.bundlePrice;
+        kind = 'CATEGORY_BUNDLE';
+        categoryId = category.id;
+    } else {
+        if (!input.courseId) {
+            return { data: null, error: 'Falta el ID de curso.' };
+        }
+        const course = await prisma.lmsCourse.findFirst({
+            where: {
+                id: input.courseId,
+                academicInstitutionId: inst.id,
+                isPublic: true,
+                published: true,
+            },
+            select: { id: true, title: true, price: true },
+        });
+        if (!course) {
+            return { data: null, error: 'Curso no disponible para inscripción.' };
+        }
+        productTitle = course.title;
+        price = course.price ?? 0;
+        kind = 'COURSE';
+        courseId = course.id;
     }
 
-    const price = course.price ?? 0;
     if (price <= 0) {
-        return { data: null, error: 'Este curso es gratuito. Inscribite desde la página del curso.' };
+        return {
+            data: null,
+            error: 'Este producto es gratuito. Inscribite desde la página del curso.',
+        };
     }
 
-    // Anti-IDOR: el RUT/email no debe pertenecer a otra institución, ni a un
-    // admin/profesor de esta (el flujo B2C es exclusivo para estudiantes).
+    // Anti-IDOR: el RUT/email no debe pertenecer a otra institución.
     const existing = await prisma.user.findFirst({
         where: {
             OR: [{ rut }, { email }],
@@ -76,13 +128,11 @@ export async function createLmsCheckoutPreference(
         };
     }
 
-    // Si ya existe un user en esta institución pero no matriculado, dejamos
-    // pasar (el webhook lo vinculará al actualizar el user existente).
-    // Si ya compró este curso y está aprobado, error claro.
+    // Si ya compró este producto y está aprobado, error claro.
     const priorOrder = await prisma.lmsOrder.findFirst({
         where: {
             studentRut: rut,
-            courseId: course.id,
+            ...(kind === 'COURSE' ? { courseId } : { categoryId }),
             status: 'APROBADO',
         },
         select: { id: true },
@@ -90,7 +140,7 @@ export async function createLmsCheckoutPreference(
     if (priorOrder) {
         return {
             data: null,
-            error: 'Ya compraste este curso. Revisá tu email para activar la cuenta.',
+            error: 'Ya compraste este producto. Revisá tu email para activar la cuenta.',
         };
     }
 
@@ -100,20 +150,27 @@ export async function createLmsCheckoutPreference(
             studentName: input.studentName.trim(),
             studentLastname: input.studentLastname.trim(),
             studentEmail: email,
-            courseId: course.id,
+            kind,
+            courseId,
+            categoryId,
             amount: price,
             status: 'PENDIENTE',
         },
         select: { id: true },
     });
 
+    // BackURLs: distinguimos entre curso y pack para volver al lugar correcto.
     const backUrlBase = process.env.MP_BACK_URL_BASE ?? 'https://www.aulika.cl';
-    const backUrl = `${backUrlBase}/${slug}/checkout/${course.id}/exito?order=${order.id}`;
+    const backPath =
+        kind === 'COURSE' && courseId
+            ? `/checkout/${courseId}/exito?order=${order.id}`
+            : `/checkout/category/${categoryId}/exito?order=${order.id}`;
+    const backUrl = `${backUrlBase}/${slug}${backPath}`;
 
     try {
         const { initPoint, preferenceId } = await createPreference({
             item: {
-                title: `${course.title} · ${inst.name}`,
+                title: `${productTitle} · ${inst.name}`,
                 unitPrice: price,
             },
             payerEmail: email,
@@ -121,9 +178,9 @@ export async function createLmsCheckoutPreference(
             payerSurname: input.studentLastname.trim(),
             externalReference: order.id,
             backUrls: {
-                success: `${backUrl}?status=approved`,
-                pending: `${backUrl}?status=pending`,
-                failure: `${backUrl}?status=rejected`,
+                success: `${backUrl}&status=approved`,
+                pending: `${backUrl}&status=pending`,
+                failure: `${backUrl}&status=rejected`,
             },
         });
 
@@ -139,7 +196,7 @@ export async function createLmsCheckoutPreference(
             academicInstitutionId: inst.id,
             entity: 'LmsOrder',
             entityId: order.id,
-            metadata: { courseId: course.id, slug, source: 'b2c-checkout' },
+            metadata: { kind, courseId, categoryId, slug, source: 'b2c-checkout' },
         });
 
         return { data: { initPoint, orderId: order.id }, error: null };
@@ -162,8 +219,9 @@ export interface LmsOrderStatus {
     status: 'PENDIENTE' | 'APROBADO' | 'RECHAZADO';
     activationToken: string | null;
     activationTokenExp: Date | null;
-    courseTitle: string;
-    courseId: string;
+    productTitle: string;
+    courseId: string | null;
+    categoryId: string | null;
     studentEmail: string;
 }
 
@@ -175,15 +233,16 @@ export async function getLmsOrderStatus(
         select: {
             status: true,
             studentEmail: true,
+            kind: true,
             courseId: true,
+            categoryId: true,
             course: { select: { title: true } },
+            category: { select: { name: true } },
             enrolledUserId: true,
         },
     });
     if (!order) return { data: null, error: 'Orden no encontrada.' };
 
-    // Si la orden está aprobada y el webhook ya creó el User, exponemos el
-    // token de activación para que el cliente arme el link sin esperar el email.
     let activationToken: string | null = null;
     let activationTokenExp: Date | null = null;
     if (order.enrolledUserId) {
@@ -195,13 +254,21 @@ export async function getLmsOrderStatus(
         activationTokenExp = user?.activationTokenExp ?? null;
     }
 
+    const productTitle =
+        order.kind === 'CATEGORY_BUNDLE'
+            ? order.category
+                ? `Pack Completo: ${order.category.name}`
+                : 'Pack'
+            : (order.course?.title ?? 'Curso');
+
     return {
         data: {
             status: order.status,
             activationToken,
             activationTokenExp,
-            courseTitle: order.course.title,
+            productTitle,
             courseId: order.courseId,
+            categoryId: order.categoryId,
             studentEmail: order.studentEmail,
         },
         error: null,

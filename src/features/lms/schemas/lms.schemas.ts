@@ -10,6 +10,19 @@ export const lmsCourseSchema = z.object({
 
 export type LmsCourseInput = z.infer<typeof lmsCourseSchema>;
 
+/**
+ * Edición básica de un curso desde el modal "Editar Curso".
+ * El precio es opcional: si no se envía, no se toca.
+ * Si se envía null, el curso pasa a ser gratuito.
+ */
+export const lmsCourseBasicSchema = z.object({
+    title: z.string().min(1, 'El título es requerido').max(200),
+    description: z.string().max(2000).optional().nullable(),
+    price: z.number().min(0).nullable().optional(),
+});
+
+export type LmsCourseBasicInput = z.infer<typeof lmsCourseBasicSchema>;
+
 export const lmsModuleSchema = z.object({
     title: z.string().min(1, 'El título es requerido').max(200),
     description: z.string().max(2000).optional().nullable(),

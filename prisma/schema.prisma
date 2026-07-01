@@ -118,6 +118,7 @@ model AcademicInstitution {
   auditLogs           AuditLog[]
   bankQuestions       BankQuestion[]
   lmsCourses          LmsCourse[]
+  lmsCategories       LmsCategory[]
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
 
@@ -731,6 +732,7 @@ model LmsCourse {
   certificates          LmsCertificate[]
   liveSessions          LmsLiveSession[]
   lmsOrders             LmsOrder[]
+  categories            LmsCourseCategory[]
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
 
@@ -829,14 +831,21 @@ model LmsLessonProgress {
 // externo (pago único vía MercadoPago). La orden nace PENDIENTE al generar la
 // preferencia de pago y pasa a APROBADO al recibir el webhook de MercadoPago
 // (`/api/webhooks/mercadopago-b2c`), que dispara la matriculación atómica.
+//
+// Desde Fase 8 la orden puede ser de un curso individual (`kind=COURSE`) o de
+// un pack por categoría (`kind=CATEGORY_BUNDLE`, `categoryId` seteado). El
+// webhook valida que exactamente uno de los dos esté presente.
 model LmsOrder {
   id              String      @id @default(uuid()) @db.Uuid
   studentRut      String
   studentName     String
   studentLastname String
   studentEmail    String
-  courseId        String      @db.Uuid
-  course          LmsCourse   @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  kind            B2cOrderKind @default(COURSE)
+  courseId        String?     @db.Uuid
+  course          LmsCourse?  @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  categoryId      String?     @db.Uuid
+  category        LmsCategory? @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   amount          Float
   status          OrderStatus @default(PENDIENTE)
   mpPreferenceId  String?
@@ -847,9 +856,17 @@ model LmsOrder {
   updatedAt       DateTime    @updatedAt
 
   @@index([courseId])
+  @@index([categoryId])
   @@index([studentRut])
   @@index([status])
   @@index([createdAt])
+}
+
+// Tipo de orden B2C. COURSE = curso individual; CATEGORY_BUNDLE = pack completo
+// de una categoría (inscribe al alumno en todos los cursos asociados).
+enum B2cOrderKind {
+  COURSE
+  CATEGORY_BUNDLE
 }
 
 // ─── Fase 2: Tareas (Assignment/Submission) ──────────────────────────────────
@@ -1266,4 +1283,48 @@ model LmsWhiteboardSnapshot {
 
   @@index([sessionId, createdAt])
   @@index([userId])
+}
+
+// ─── Categorías LMS (N a N con LmsCourse) ───────────────────────────────────
+
+// Categoría de cursos. Cada institución administra sus categorías (CRUD admin
+// en /[slug]/aula/categorias). Una categoría puede venderse como "Pack Completo"
+// si `isBundle=true && bundlePrice != null && isPublic=true`: al comprarla el
+// estudiante se inscribe en TODOS los cursos asociados a la categoría.
+model LmsCategory {
+  id                    String             @id @default(uuid()) @db.Uuid
+  academicInstitutionId String             @db.Uuid
+  academicInstitution   AcademicInstitution @relation(fields: [academicInstitutionId], references: [id], onDelete: Cascade)
+  name                  String
+  slug                  String
+  description           String?
+  coverImageUrl         String?
+  order                 Int                @default(0)
+  // Venta como Pack Completo. Si true + bundlePrice != null + isPublic=true,
+  // aparece como item comprable en el catálogo público.
+  isBundle              Boolean            @default(false)
+  bundlePrice           Float?
+  // Visibilidad en el catálogo público (sin venta todavía).
+  isPublic              Boolean            @default(false)
+  courses               LmsCourseCategory[]
+  lmsOrders             LmsOrder[]
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  @@unique([academicInstitutionId, slug])
+  @@index([academicInstitutionId, order])
+  @@index([academicInstitutionId, isBundle])
+}
+
+// Tabla intermedia N a N entre LmsCourse y LmsCategory. Un curso puede estar
+// en varias categorías; una categoría puede tener varios cursos.
+model LmsCourseCategory {
+  courseId    String      @db.Uuid
+  course      LmsCourse   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  categoryId  String      @db.Uuid
+  category    LmsCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+
+  @@id([courseId, categoryId])
+  @@index([categoryId])
 }

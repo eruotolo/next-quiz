@@ -548,6 +548,7 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props) 
                                     <TableHead className="w-[150px]">Tipo</TableHead>
                                     <TableHead className="w-[160px]">Ubicación</TableHead>
                                     <TableHead className="w-[150px]">Plan</TableHead>
+                                    <TableHead className="w-[140px] text-center">Productos</TableHead>
                                     <TableHead className="w-[100px] text-center">
                                         Usuarios
                                     </TableHead>
@@ -632,6 +633,30 @@ export function InstitutionsClient({ result, q: initialQ, customPlans }: Props) 
                                                         )}
                                                     </>
                                                 )}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex flex-col items-center gap-1">
+                                                <Tag
+                                                    tone={row.lmsEnabled ? 'success' : 'outline'}
+                                                    className={
+                                                        row.lmsEnabled
+                                                            ? 'h-5 w-fit px-2 text-[10px] font-bold'
+                                                            : 'border-border text-mute h-5 w-fit bg-white px-2 text-[10px] font-bold'
+                                                    }
+                                                >
+                                                    {row.lmsEnabled ? 'Aula Virtual' : '—'}
+                                                </Tag>
+                                                <Tag
+                                                    tone={row.examsEnabled ? 'success' : 'outline'}
+                                                    className={
+                                                        row.examsEnabled
+                                                            ? 'h-5 w-fit px-2 text-[10px] font-bold'
+                                                            : 'border-border text-mute h-5 w-fit bg-white px-2 text-[10px] font-bold'
+                                                    }
+                                                >
+                                                    {row.examsEnabled ? 'Exámenes' : '—'}
+                                                </Tag>
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-ink-dim text-center font-mono text-[13px] font-bold">

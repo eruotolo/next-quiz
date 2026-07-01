@@ -1,4 +1,4 @@
-import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
+import { requireLmsAccess } from '@/features/auth/lib/auth-guard';
 import { listCourseCertificates } from '@/features/lms/actions/certificates';
 import { LmsCertificatesClient } from '@/features/lms/components/LmsCertificatesClient';
 import { prisma } from '@/shared/lib/prisma';
@@ -10,7 +10,7 @@ interface Props {
 
 export default async function CertificadosPage({ params }: Props) {
     const { slug, id: courseId } = await params;
-    const { institutionId, institutionName } = await requireInstitutionPageAccess(slug);
+    const { institutionId, institutionName } = await requireLmsAccess(slug);
 
     const course = await prisma.lmsCourse.findFirst({
         where: { id: courseId, academicInstitutionId: institutionId },

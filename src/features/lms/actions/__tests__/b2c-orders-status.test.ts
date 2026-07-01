@@ -39,7 +39,10 @@ describe('getLmsOrderStatus', () => {
             status: 'PENDIENTE',
             studentEmail: 'j@test.cl',
             courseId: 'c-1',
+            categoryId: null,
+            kind: 'COURSE',
             course: { title: 'Curso' },
+            category: null,
             enrolledUserId: null,
         });
         const res = await getLmsOrderStatus('order-1');
@@ -48,8 +51,9 @@ describe('getLmsOrderStatus', () => {
             status: 'PENDIENTE',
             activationToken: null,
             activationTokenExp: null,
-            courseTitle: 'Curso',
+            productTitle: 'Curso',
             courseId: 'c-1',
+            categoryId: null,
             studentEmail: 'j@test.cl',
         });
         expect(prismaUserFindUniqueMock).not.toHaveBeenCalled();
@@ -60,7 +64,10 @@ describe('getLmsOrderStatus', () => {
             status: 'APROBADO',
             studentEmail: 'j@test.cl',
             courseId: 'c-1',
+            categoryId: null,
+            kind: 'COURSE',
             course: { title: 'Curso' },
+            category: null,
             enrolledUserId: 'user-1',
         });
         prismaUserFindUniqueMock.mockResolvedValueOnce({
@@ -77,7 +84,10 @@ describe('getLmsOrderStatus', () => {
             status: 'APROBADO',
             studentEmail: 'j@test.cl',
             courseId: 'c-1',
+            categoryId: null,
+            kind: 'COURSE',
             course: { title: 'Curso' },
+            category: null,
             enrolledUserId: 'user-1',
         });
         prismaUserFindUniqueMock.mockResolvedValueOnce(null);
@@ -90,7 +100,10 @@ describe('getLmsOrderStatus', () => {
             status: 'RECHAZADO',
             studentEmail: 'j@test.cl',
             courseId: 'c-1',
+            categoryId: null,
+            kind: 'COURSE',
             course: { title: 'Curso' },
+            category: null,
             enrolledUserId: null,
         });
         const res = await getLmsOrderStatus('order-1');

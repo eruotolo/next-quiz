@@ -2,8 +2,10 @@
 
 import { requireInstitutionAccess } from '@/features/auth/lib/auth-guard';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
+import { assertCanSellCourses } from '@/features/lms/lib/aulika-online-bundle';
 import {
     lmsCourseSchema,
+    lmsCourseBasicSchema,
     lmsModuleSchema,
     lmsLessonSchema,
     reorderModulesSchema,
@@ -449,6 +451,12 @@ export async function toggleLmsCourseSetting(
             USER_ROLE.SUPER_ADMIN,
             USER_ROLE.PROFESOR,
         ]);
+        // Gating B2C: solo aulika-online (o SuperAdmin) puede publicar cursos
+        // para venta en el catálogo público.
+        if (setting === 'isPublic') {
+            const gate = assertCanSellCourses(ctx.slug, ctx.isSuperAdmin);
+            if (!gate.ok) return fail(gate.message);
+        }
         const res = await prisma.lmsCourse.updateMany({
             where: { id: courseId, academicInstitutionId: ctx.institutionId },
             data: { [setting]: value },
@@ -475,6 +483,9 @@ export async function updateLmsCoursePrice(
             USER_ROLE.SUPER_ADMIN,
             USER_ROLE.PROFESOR,
         ]);
+        // Gating B2C: el precio solo aplica a cursos que se venden.
+        const gate = assertCanSellCourses(ctx.slug, ctx.isSuperAdmin);
+        if (!gate.ok) return fail(gate.message);
         const res = await prisma.lmsCourse.updateMany({
             where: { id: courseId, academicInstitutionId: ctx.institutionId },
             data: { price },
@@ -484,5 +495,47 @@ export async function updateLmsCoursePrice(
         return ok(null);
     } catch (err) {
         return fail(toActionError(err, 'Error al actualizar el precio.'));
+    }
+}
+
+/**
+ * Edita la información básica del curso (título + descripción + precio).
+ * Usado por el modal "Editar Curso". El precio respeta el gating B2C.
+ */
+export async function updateLmsCourseBasicInfo(
+    slug: string,
+    courseId: string,
+    data: unknown,
+): Promise<ActionResult> {
+    try {
+        const parsed = lmsCourseBasicSchema.safeParse(data);
+        if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? 'Datos inválidos');
+
+        const ctx = await requireInstitutionAccess(slug, [
+            USER_ROLE.ADMIN,
+            USER_ROLE.SUPER_ADMIN,
+            USER_ROLE.PROFESOR,
+        ]);
+
+        if (parsed.data.price !== undefined) {
+            const gate = assertCanSellCourses(ctx.slug, ctx.isSuperAdmin);
+            if (!gate.ok) return fail(gate.message);
+        }
+
+        const res = await prisma.lmsCourse.updateMany({
+            where: { id: courseId, academicInstitutionId: ctx.institutionId },
+            data: {
+                title: parsed.data.title,
+                description: parsed.data.description ?? null,
+                ...(parsed.data.price !== undefined && { price: parsed.data.price }),
+            },
+        });
+        if (res.count === 0) return fail('Curso no encontrado.');
+
+        revalidatePath(`/${slug}/aula/${courseId}`);
+        revalidatePath(`/${slug}/aula`);
+        return ok(null);
+    } catch (err) {
+        return fail(toActionError(err, 'Error al actualizar el curso.'));
     }
 }

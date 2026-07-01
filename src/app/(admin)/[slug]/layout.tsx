@@ -97,11 +97,12 @@ export default async function InstitutionLayout({ children, params }: Props) {
     const showPlanPromo = institutionPlan === 'FREE' || institutionPlan === 'DOCENTE';
 
     // Gating LMS (Fase 3.3): el flag se lee con fallback por plan si la DB aún
-    // no tiene las columnas. El SuperAdmin ve todos los items siempre.
+    // no tiene las columnas. Para SuperAdmin se respeta el flag real de la
+    // institución visitada (no la de su sesión, que es null).
     const flags = institutionId
         ? await getInstitutionFlags(institutionId, institutionData?.plan ?? 'FREE')
         : { examsEnabled: true, lmsEnabled: false, examsPlanCode: null, lmsPlanCode: null };
-    const lmsEnabled = isSuperAdmin ? true : flags.lmsEnabled;
+    const lmsEnabled = flags.lmsEnabled;
 
     // Programas que coordina el usuario (Jefe de Carrera) — solo para Profesores.
     // Habilita el indicador de coordinación en el Sidebar (Fase 5). El JWT no lo

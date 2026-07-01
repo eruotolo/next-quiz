@@ -1,22 +1,27 @@
 /**
  * Seeder de la institución "Aulika Institution Online" y la oferta PAES 2026.
  *
- * Crea de forma idempotente la vitrina comercial de cursos individuales B2C
- * que Aulika vende de manera directa a estudiantes externos:
+ * Crea de forma idempotente la vitrina comercial B2C que Aulika vende de manera
+ * directa a estudiantes externos:
  *   - 1 institución `aulika-online` (plan INSTITUCIONAL, lmsEnabled=true)
  *   - 1 profesor de soporte (Online2026!)
- *   - 1 curso bundle "Pack Completo PAES" (CLP $450.000)
- *   - 7 cursos PAES individuales (CLP $99.990 c/u) con módulos y lecciones
+ *   - 1 categoría "PAES" (`isBundle=true`, bundlePrice=CLP $450.000) que
+ *     funciona como Pack Completo: la compra del pack inscribe al alumno en
+ *     los 7 cursos PAES individuales asociados vía `LmsCourseCategory`.
+ *   - 7 cursos PAES individuales (CLP $99.990 c/u) con módulos y lecciones,
+ *     todos vinculados a la categoría "PAES" para el bundle.
  *
  * El seeder usa UUIDs fijos y deterministas para que sea idempotente
  * (re-correrlo no duplica ni colisiona). Corre en `pnpm build` para que
  * la oferta esté disponible en local y producción.
  */
 import {
-    AULIKA_ONLINE_BUNDLE_COURSE_ID,
     AULIKA_ONLINE_BUNDLE_PRICE_CLP,
     AULIKA_ONLINE_INSTITUTION_SLUG,
     AULIKA_ONLINE_INDIVIDUAL_PRICE_CLP,
+    AULIKA_ONLINE_PAES_CATEGORY_ID,
+    AULIKA_ONLINE_PAES_CATEGORY_SLUG,
+    AULIKA_ONLINE_PLAN_CODE,
 } from '../../src/features/lms/lib/aulika-online-bundle';
 import bcrypt from 'bcryptjs';
 import { type PrismaClient } from '@prisma/client';
@@ -718,40 +723,6 @@ const COURSES: CourseSeed[] = [
     },
 ];
 
-const BUNDLE_COURSE: CourseSeed = {
-    id: AULIKA_ONLINE_BUNDLE_COURSE_ID,
-    title: 'Pack Completo PAES — Todas las Áreas',
-    description:
-        'Acceso anual a los 7 cursos PAES (Matemática M1, Matemática M2, Competencia Lectora, Biología, Química, Física, Historia y Ciencias Sociales). Ahorra un 35% vs. compra individual.',
-    modules: [
-        {
-            title: 'Bienvenida al Pack Completo',
-            description: 'Cómo aprovechar el programa completo durante todo el año.',
-            lessons: [
-                {
-                    title: 'Guía de uso del Pack Completo',
-                    type: 'TEXTO',
-                    durationSec: 1200,
-                    contentJson: {
-                        type: 'doc',
-                        content: [
-                            {
-                                type: 'paragraph',
-                                content: [
-                                    {
-                                        type: 'text',
-                                        text: 'Recomendaciones de estudio, planificación anual y acceso a los 7 cursos PAES de la oferta Aulika.',
-                                    },
-                                ],
-                            },
-                        ],
-                    },
-                },
-            ],
-        },
-    ],
-};
-
 async function upsertCourse(
     prisma: PrismaClient,
     institutionId: string,
@@ -824,6 +795,7 @@ export async function seedAulikaOnline(prisma: PrismaClient): Promise<{
             name: INSTITUTION_NAME,
             slug: AULIKA_ONLINE_INSTITUTION_SLUG,
             lmsEnabled: true,
+            lmsPlanCode: AULIKA_ONLINE_PLAN_CODE,
             plan: 'INSTITUCIONAL',
             type: 'OTRO',
             active: true,
@@ -837,6 +809,7 @@ export async function seedAulikaOnline(prisma: PrismaClient): Promise<{
             city: 'Santiago',
             country: 'Chile',
             lmsEnabled: true,
+            lmsPlanCode: AULIKA_ONLINE_PLAN_CODE,
             plan: 'INSTITUCIONAL',
             type: 'OTRO',
             active: true,
@@ -871,13 +844,57 @@ export async function seedAulikaOnline(prisma: PrismaClient): Promise<{
         select: { id: true },
     });
 
-    await upsertCourse(prisma, institucion.id, profesor.id, BUNDLE_COURSE, AULIKA_ONLINE_BUNDLE_PRICE_CLP);
+    // Categoría "PAES" (pack completo): el estudiante compra la categoría y se
+// inscribe automáticamente en todos los cursos asociados vía webhook.
+    const category = await prisma.lmsCategory.upsert({
+        where: { id: AULIKA_ONLINE_PAES_CATEGORY_ID },
+        update: {
+            name: 'PAES',
+            slug: AULIKA_ONLINE_PAES_CATEGORY_SLUG,
+            description:
+                'Acceso anual a los 7 cursos PAES (Matemática M1, Matemática M2, Competencia Lectora, Biología, Química, Física, Historia y Ciencias Sociales). Ahorra un 35% vs. compra individual.',
+            isBundle: true,
+            bundlePrice: AULIKA_ONLINE_BUNDLE_PRICE_CLP,
+            isPublic: true,
+            order: 0,
+        },
+        create: {
+            id: AULIKA_ONLINE_PAES_CATEGORY_ID,
+            academicInstitutionId: institucion.id,
+            name: 'PAES',
+            slug: AULIKA_ONLINE_PAES_CATEGORY_SLUG,
+            description:
+                'Acceso anual a los 7 cursos PAES (Matemática M1, Matemática M2, Competencia Lectora, Biología, Química, Física, Historia y Ciencias Sociales). Ahorra un 35% vs. compra individual.',
+            isBundle: true,
+            bundlePrice: AULIKA_ONLINE_BUNDLE_PRICE_CLP,
+            isPublic: true,
+            order: 0,
+        },
+        select: { id: true },
+    });
+
+    // Si existe el course bundle viejo (versión pre-categoría), lo despublicamos
+    // para que el catálogo muestre solo el pack por categoría. No lo borramos
+    // para no romper órdenes históricas que aún lo referencien.
+    await prisma.lmsCourse.updateMany({
+        where: { id: '99a07384-b113-4ec2-a53b-c10bde486c90' },
+        data: { isPublic: false, published: false },
+    });
+
+    // Cursos individuales.
     for (const course of COURSES) {
         await upsertCourse(prisma, institucion.id, profesor.id, course, AULIKA_ONLINE_INDIVIDUAL_PRICE_CLP);
     }
 
+    // Asocia los 7 cursos a la categoría PAES vía `LmsCourseCategory`. Borramos
+    // y recreamos para que sea idempotente (los cursos asociados son siempre los 7).
+    await prisma.lmsCourseCategory.deleteMany({ where: { categoryId: category.id } });
+    await prisma.lmsCourseCategory.createMany({
+        data: COURSES.map((c) => ({ courseId: c.id, categoryId: category.id })),
+    });
+
     return {
         institutionId: institucion.id,
-        courses: COURSES.length + 1,
+        courses: COURSES.length,
     };
 }

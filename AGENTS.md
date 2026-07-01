@@ -526,10 +526,44 @@ Feature para que cada institución venda cursos del Aula Virtual a estudiantes e
 - `src/features/subscriptions/schemas/__tests__/b2c-checkout-schemas.test.ts` (12 tests) — RUT K, email, terms, password rules.
 - Total suite: 270/270 pasando.
 
-### Pendiente (Fase 5 — GLM-5.2)
+### Aulika Online — Vitrina PAES y Pack Completo (Fase 7)
 
-- Webhook `/api/webhooks/mercadopago-b2c` que recibe `payment` o `merchant_order`, valida con `MP_WEBHOOK_SECRET` (o webhook signature de pago único), en `$transaction` crea/actualiza `User` inactivo, genera `activationToken` (helper ya existe), crea `LmsEnrollment` (status `ACTIVO`), actualiza `LmsOrder` a APROBADO + `enrolledUserId` + `enrollmentId`, y dispara email Brevo con el link `/examen/activar?token=...`.
-- Seeders de `PlanLimits` por producto (`exams_free`, `exams_docente`, `exams_colegio`, `lms_free`, `lms_colegio`, `pack_completo`).
+Habilita la comercialización directa de cursos B2C por parte de Aulika a través de la institución interna `aulika-online` (plan `INSTITUCIONAL`, `lmsEnabled=true`, `slug: aulika-online`, UUID fijo `9a8b7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d`).
+
+- **Constantes compartidas** — `src/features/lms/lib/aulika-online-bundle.ts` exporta `AULIKA_ONLINE_INSTITUTION_SLUG`, `AULIKA_ONLINE_PAES_CATEGORY_ID` (`8b1b1f8e-4f3d-4d2e-9f8a-7c6b5a4d3e2f`), `AULIKA_ONLINE_INDIVIDUAL_COURSE_IDS` (7 UUIDs) y los precios `AULIKA_ONLINE_BUNDLE_PRICE_CLP` (450.000) / `AULIKA_ONLINE_INDIVIDUAL_PRICE_CLP` (99.990). El seeder y el webhook importan de acá (DRY).
+- **Seeder** — `prisma/seeders/aulika-online.ts` (idempotente, UUIDs fijos). Crea la institución, 1 profesor (`profesor.online@aulika.cl` / `Online2026!`), la categoría `PAES` (con `isBundle=true`, `bundlePrice=450.000`, `isPublic=true`) y los 7 cursos PAES (Matemática M1, Matemática M2, Competencia Lectora, Biología, Química, Física, Historia y Ciencias Sociales) con módulos y lecciones reales (TEXTO) basadas en temario DEMRE. Los 7 cursos se asocian a la categoría PAES vía `LmsCourseCategory`. Módulos/lecciones se reescriben por `deleteMany + create` (no tienen unique key natural).
+- **CLI** — `prisma/seeders/aulika-online-cli.ts` y comando `pnpm db:seed:online`. Registrado en `prisma/seed.ts` y en el `build` script (`package.json:9`).
+- **Webhook bundle** — `src/app/api/webhooks/mercadopago-b2c/route.ts` en `fulfillB2cOrder` resuelve el producto vía `resolveOrderProduct(tx, orderId)` (lee `LmsOrder.kind`, `course` y `category` anidados). Si `kind=CATEGORY_BUNDLE`, autoinscribe al alumno en TODOS los `LmsCourseCategory.courseId` de la categoría. Si `kind=COURSE`, inscribe solo al course único. Todo dentro de la misma `$transaction`. Idempotente.
+- **Conflict 3.1 resuelto (seeder vs toggle manual)** — `prisma/seeders/plan-codes.ts` filtra el backfill con `where: { plan, lmsPlanCode: null }`, de modo que solo escribe en instituciones sin `lmsPlanCode` seteado. Los toggles manuales del SuperAdmin ya no son pisados.
+- **Edición de `isPublic` / `price` en LMS** — `src/features/lms/actions/courses.ts`: `toggleLmsCourseSetting` rechaza `isPublic` y `updateLmsCoursePrice` rechaza cambios de precio si la institución no es `aulika-online` (excepto SuperAdmin). Helper `assertCanSellCourses(slug, isSuperAdmin)` en `aulika-online-bundle.ts`. La UI en `LmsCourseEditorClient` oculta los controles B2C para instituciones distintas a `aulika-online`; el precio se edita solo desde el modal "Editar Curso".
+
+### Aulika Online — Categorías LMS y packs flexibles (Fase 8)
+
+- **CRUD de categorías** — `/[slug]/aula/categorias` (Admin). `LmsCategory { id, name, slug, isBundle, bundlePrice, isPublic, ... }` y `LmsCourseCategory` (junction N a N). Actions: `createLmsCategory`, `updateLmsCategory`, `deleteLmsCategory`, `setCourseCategories` (diff contra el set actual). UI en `LmsCategoriesListClient` + `LmsCategoryDialog`.
+- **Multi-select en editor de curso** — `CourseCategoriesPanel` (en `LmsCourseEditorClient`) lista las categorías disponibles con buscador y permite marcar/desmarcar; guarda vía `setCourseCategories` con diff atómico.
+- **Venta unificada (curso O pack, sin carrito)** — `LmsOrder.kind: 'COURSE' | 'CATEGORY_BUNDLE'`, `courseId` opcional, `categoryId` opcional. El checkout detecta según el producto: cursos individuales en `/[slug]/cursos/[courseId]`, packs en `/[slug]/checkout/category/[categoryId]`. Schema `b2cCheckoutSchema` con `discriminated union` (refine que valide presencia condicional). BackURLs distintas según `kind`.
+- **Catálogo público `/aulika-online/cursos`** — Banner arriba con el pack (`LmsCategory` con `isBundle=true`, `bundlePrice != null`, `isPublic=true`); filtro por categoría abajo (`CategoryFilter` con chips clickables que actualizan `?category=slug`); grid de `PublicCourseCard` con badges de categorías.
+- **Webhook con `kind`** — `resolveOrderProduct(tx, orderId)` resuelve el producto desde `LmsOrder` (no requiere 2 queries separadas); si `kind=CATEGORY_BUNDLE` lee `category.courses` (los `LmsCourseCategory.courseId`) y autoinscribe a todos en la misma transacción. Defensa en profundidad: si `product.institutionSlug !== 'aulika-online'` rechaza.
+- **Eliminación del "course bundle"** — Antes había un `LmsCourse` "Pack Completo PAES" (`99a07384-b113-4ec2-a53b-c10bde486c90`) que ahora se despublica vía el seeder (`isPublic=false, published=false`). El modelo correcto es la categoría como pack: cualquier curso futuro puede ser bundle simplemente creando una categoría con `isBundle=true`.
+
+### Catálogo público `/aulika-online/cursos`
+
+- Banner del Pack Completo arriba (lee `LmsCategory.isBundle=true`).
+- Filtro de categorías abajo (chips con `?category=slug`).
+- Cards con badges de categorías asignadas (`PublicCourseCard.categoryNames`).
+- Solo `slug === 'aulika-online'` puede exhibir cursos (gating server-side).
+
+### Sidebar — gating LMS unificado (Fase 8)
+
+- `src/proxy.ts`: el gating LMS corre también para SuperAdmin (JWT no tiene `lmsEnabled` para SuperAdmin → la regla se aplica por institución visitada).
+- `Sidebar.tsx`: `visibleLmsFilter = (item) => !item.requiresLms || lmsEnabled` (sin bypass de SuperAdmin).
+- `src/app/(admin)/[slug]/layout.tsx`: pasa `flags.lmsEnabled` de la institución visitada al Sidebar (sin hardcodear `true` para SuperAdmin).
+- `src/features/auth/lib/auth-guard.ts`: nueva función `requireLmsAccess(slug)` — defensa en profundidad: si la institución visitada NO tiene `lmsEnabled=true` (incluso para SuperAdmin), redirige a `/config?notice=lms_disabled`. Reemplaza `requireInstitutionPageAccess` en todas las páginas `/[slug]/aula/*`.
+
+### Columna "Productos" en `/config/institutions`
+
+- `getInstitutions` query incluye `lmsEnabled` y `examsEnabled`.
+- Nueva columna "Productos" en la tabla con badges "Aula Virtual" / "Exámenes" (success si activo, outline si no).
 
 ## Centro de ayuda (`/[slug]/ayuda`)
 

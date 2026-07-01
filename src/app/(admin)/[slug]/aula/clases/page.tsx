@@ -1,4 +1,4 @@
-import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
+import { requireLmsAccess } from '@/features/auth/lib/auth-guard';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { computeJoinWindow } from '@/features/lms/lib/live-session-state';
@@ -39,7 +39,7 @@ function formatDate(d: Date): string {
 export default async function AllLiveSessionsPage({ params }: PageProps) {
     const { slug } = await params;
     const { institutionId, institutionName, userId, userRole } =
-        await requireInstitutionPageAccess(slug);
+        await requireLmsAccess(slug);
 
     const isSuperAdmin = userRole === USER_ROLE.SUPER_ADMIN;
     const isProfesor = userRole === USER_ROLE.PROFESOR;

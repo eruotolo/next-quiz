@@ -6,6 +6,7 @@ import {
 
 describe('b2cCheckoutSchema', () => {
     const baseValid = {
+        kind: 'COURSE' as const,
         courseId: '11111111-1111-4111-8111-111111111111',
         studentRut: '12.345.678-5',
         studentName: 'Juan',
