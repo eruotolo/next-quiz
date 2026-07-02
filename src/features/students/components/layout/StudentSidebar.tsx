@@ -4,7 +4,6 @@ import { createContext, useContext, useMemo, useState, type ReactNode } from 're
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-    Bell,
     BookOpen,
     Calendar,
     GraduationCap,
@@ -28,7 +27,6 @@ export interface StudentSidebarProps {
     studentName: string;
     groupName: string | null;
     institutionName: string;
-    notificationCount: number;
     hasLms: boolean;
 }
 
@@ -69,38 +67,6 @@ function NavLink({
         >
             <Icon className="size-4 shrink-0" />
             {item.label}
-        </Link>
-    );
-}
-
-function NotificationLink({
-    count,
-    pathname,
-    onClick,
-}: {
-    count: number;
-    pathname: string;
-    onClick?: () => void;
-}) {
-    const isActive = pathname === '/students/notificaciones';
-    return (
-        <Link
-            href="/students/notificaciones"
-            onClick={onClick}
-            className={cn(
-                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-medium transition-colors',
-                isActive
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'text-ink-dim hover:bg-paper-warm hover:text-ink',
-            )}
-        >
-            <Bell className="size-4 shrink-0" />
-            Notificaciones
-            {count > 0 && (
-                <span className="bg-coral ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 font-mono text-[10px] font-bold text-white">
-                    {count > 99 ? '99+' : count}
-                </span>
-            )}
         </Link>
     );
 }
@@ -151,7 +117,6 @@ function SidebarFooter({
 function SidebarInner({
     studentName,
     groupName,
-    notificationCount,
     hasLms,
     pathname,
     onNavClick,
@@ -160,7 +125,6 @@ function SidebarInner({
 
     return (
         <div className="flex h-full flex-col">
-            {/* Nav */}
             <div className="flex-1 overflow-y-auto py-3">
                 <nav className="flex flex-col gap-0.5 px-3">
                     {navItems.map((item) => (
@@ -171,13 +135,6 @@ function SidebarInner({
                             onClick={onNavClick}
                         />
                     ))}
-                    {hasLms && (
-                        <NotificationLink
-                            count={notificationCount}
-                            pathname={pathname}
-                            onClick={onNavClick}
-                        />
-                    )}
                 </nav>
             </div>
 
@@ -217,12 +174,10 @@ export function StudentSidebar(props: StudentSidebarProps) {
 
     return (
         <>
-            {/* ── Desktop: sticky left panel under the header ─────────── */}
             <aside className="border-border sticky top-16 hidden h-[calc(100dvh-4rem)] w-60 shrink-0 overflow-y-auto border-r bg-white lg:flex lg:flex-col xl:w-70">
                 <SidebarInner {...props} pathname={pathname} />
             </aside>
 
-            {/* ── Mobile: drawer (opened from StudentTopBar) ───────────── */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                 <SheetContent side="left" className="w-72 p-0">
                     <SheetHeader className="sr-only">

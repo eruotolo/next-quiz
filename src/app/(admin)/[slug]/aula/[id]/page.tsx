@@ -47,8 +47,6 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
                     title: true,
                     type: true,
                     order: true,
-                    videoAssetId: true,
-                    videoUploadId: true,
                     fileUrl: true,
                     externalLink: true,
                     durationSec: true,
@@ -64,7 +62,7 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
         },
     });
 
-    const [availableCategories, selectedCategories] = await Promise.all([
+    const [availableCategories, selectedCategories, availableExams] = await Promise.all([
         prisma.lmsCategory.findMany({
             where: { academicInstitutionId: institutionId },
             orderBy: [{ order: 'asc' }, { name: 'asc' }],
@@ -73,6 +71,11 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
         prisma.lmsCourseCategory.findMany({
             where: { courseId: id },
             select: { categoryId: true },
+        }),
+        prisma.exam.findMany({
+            where: { academicInstitutionId: institutionId, demoSessionId: null },
+            orderBy: { title: 'asc' },
+            select: { id: true, title: true },
         }),
     ]);
 
@@ -97,12 +100,6 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
                         price={course.price}
                         canEditPrice={canEditPrice}
                     />
-                    <a
-                        href={`/${slug}/aula/${id}/clases` as `/${string}`}
-                        className="text-ink-dim hover:text-ink border-border hover:bg-paper rounded-md border bg-white px-3 py-1.5 text-sm font-medium"
-                    >
-                        Clases en vivo
-                    </a>
                 </div>
             </div>
             <LmsCourseEditorClient
@@ -115,6 +112,7 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
                 canEditPrice={canEditPrice}
                 availableCategories={availableCategories}
                 initialSelectedCategoryIds={selectedCategories.map((c) => c.categoryId)}
+                availableExams={availableExams}
             />
         </main>
     );

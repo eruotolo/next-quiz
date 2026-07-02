@@ -181,7 +181,7 @@ export function LmsTaskSubmissionForm({
                         <span className="text-primary font-display text-4xl font-bold">
                             {existingSubmission.score?.toFixed(1)}
                         </span>
-                        <span className="text-mute text-sm">/ 7.0</span>
+                        <span className="text-mute text-sm">/ {maxScore}</span>
                     </div>
                     {existingSubmission.feedback && (
                         <p className="text-ink border-border mt-3 border-t pt-3 text-sm leading-relaxed">

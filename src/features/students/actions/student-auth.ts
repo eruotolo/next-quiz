@@ -14,8 +14,7 @@ interface ActionState {
 
 /**
  * Valida la credencial del estudiante (RUT o email) y abre su sesión.
- * Siempre redirige al panel "Mis exámenes" (/examen/seleccion), que resuelve
- * qué mostrar (disponibles, próximos o rendidos) y desde dónde se elige rendir.
+ * Siempre redirige a /students/dashboard.
  */
 export async function validateStudent(
     _prevState: ActionState,
@@ -110,17 +109,6 @@ export async function validateStudent(
     });
 
     await createStudentAuthSession({ studentId: student.id, groupId: student.groupId });
-
-    // Si la institución tiene Aula Virtual habilitada (≥1 curso LMS publicado),
-    // derivamos al selector dual. Si no, vamos directo al panel de exámenes.
-    const hasLms = student.academicInstitutionId
-        ? (await prisma.lmsCourse.count({
-              where: {
-                  academicInstitutionId: student.academicInstitutionId,
-                  published: true,
-              },
-          })) > 0
-        : false;
 
     redirect('/students/dashboard');
 }

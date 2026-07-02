@@ -146,9 +146,9 @@ export default async function CertificadoVerificacionPage({ params }: Props) {
                                 </div>
                             </dl>
 
-                            {isValid && cert.pdfUrl && (
+                            {isValid && (
                                 <a
-                                    href={cert.pdfUrl}
+                                    href={cert.pdfUrl ?? `/certificado/${cert.verificationCode}/pdf`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     download

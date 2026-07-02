@@ -24,13 +24,11 @@ import {
     LogOut,
     Menu,
     MonitorPlay,
-    Radio,
     Receipt,
     ScrollText,
     Search,
     Settings,
     Sparkles,
-    Tag,
     UserCog,
     Users,
     Wallet,
@@ -47,6 +45,7 @@ import { USER_ROLE } from '@/shared/lib/roles';
 import { searchGlobal, type SearchResult } from '@/shared/lib/search';
 import { academicLabel } from '@/shared/lib/academic-labels';
 import type { InstitutionType } from '@/shared/lib/academic-labels';
+import { isItemActiveInGroup } from '@/features/dashboard/lib/nav-active';
 
 // ── Nav items ─────────────────────────────────────────────────────────────
 type NavSection = 'principal' | 'academic' | 'sistema';
@@ -54,14 +53,33 @@ type NavSection = 'principal' | 'academic' | 'sistema';
 interface NavItem {
     path: string;
     label: string;
-    icon: ComponentType<{ size?: number; className?: string }>;
+    /** Icono opcional: los hijos dentro de un NavGroup suelen no llevarlo
+     *  porque el icono del padre ya marca la sección. */
+    icon?: ComponentType<{ size?: number; className?: string }>;
     exact?: boolean;
     live?: boolean;
     countKey?: keyof SidebarCounts;
     /** Sección de agrupación visual. Por defecto 'principal' (sin heading). */
     section?: NavSection;
-    /** Si true, el item solo se muestra cuando la institución tiene lmsEnabled. */
+}
+
+export type { NavItem };
+
+interface NavGroup {
+    id: string;
+    label: string;
+    icon: ComponentType<{ size?: number; className?: string }>;
+    /** Si true, el grupo solo se muestra cuando la institución tiene lmsEnabled. */
     requiresLms?: boolean;
+    /** Sección de agrupación visual. Por defecto 'principal'. */
+    section?: NavSection;
+    children: NavItem[];
+}
+
+type NavEntry = NavItem | NavGroup;
+
+function isGroup(entry: NavEntry): entry is NavGroup {
+    return 'children' in entry;
 }
 
 /** Etiquetas legibles de cada sección del menú. */
@@ -73,7 +91,7 @@ const SECTION_LABELS: Record<NavSection, string> = {
 
 const NAV_SECTION_ORDER: NavSection[] = ['principal', 'academic', 'sistema'];
 
-const ADMIN_NAV: NavItem[] = [
+const ADMIN_NAV: NavEntry[] = [
     { path: '', label: 'Inicio', icon: Home, exact: true },
     { path: '/groups', label: 'Grupos', icon: Users, countKey: 'groups' },
     { path: '/students', label: 'Estudiantes', icon: GraduationCap, countKey: 'students' },
@@ -82,9 +100,16 @@ const ADMIN_NAV: NavItem[] = [
     { path: '/questions', label: 'Banco', icon: Library },
     { path: '/results', label: 'Resultados', icon: BarChart3 },
     { path: '/liveresults', label: 'En vivo', icon: Activity, live: true },
-    { path: '/aula', label: 'Aula Virtual', icon: MonitorPlay, requiresLms: true },
-    { path: '/aula/clases', label: 'Clases en vivo', icon: Radio, requiresLms: true },
-    { path: '/aula/categorias', label: 'Categorías', icon: Tag, requiresLms: true },
+    {
+        id: 'lms',
+        label: 'Aula Virtual',
+        icon: MonitorPlay,
+        requiresLms: true,
+        children: [
+            { path: '/aula', label: 'Aula' },
+            { path: '/aula/categorias', label: 'Categoría' },
+        ],
+    },
     { path: '/programs', label: 'Programas', icon: Layers, section: 'academic' },
     { path: '/periods', label: 'Períodos', icon: CalendarRange, section: 'academic' },
     { path: '/courses', label: 'Materias', icon: BookMarked, section: 'academic' },
@@ -94,17 +119,22 @@ const ADMIN_NAV: NavItem[] = [
 
 // Menú reducido del Profesor: sus materias, exámenes, resultados y seguimiento
 // en vivo. Los profesores no gestionan programas, períodos, grupos ni ajustes.
-const PROFESOR_NAV: NavItem[] = [
+const PROFESOR_NAV: NavEntry[] = [
     { path: '/courses', label: 'Mis Materias', icon: BookMarked },
     { path: '/exams', label: 'Exámenes', icon: BookOpen },
     { path: '/results', label: 'Resultados', icon: BarChart3 },
     { path: '/liveresults', label: 'En vivo', icon: Activity, live: true },
-    { path: '/aula', label: 'Aula Virtual', icon: MonitorPlay, requiresLms: true },
-    { path: '/aula/clases', label: 'Clases en vivo', icon: Radio, requiresLms: true },
+    {
+        id: 'lms',
+        label: 'Aula Virtual',
+        icon: MonitorPlay,
+        requiresLms: true,
+        children: [{ path: '/aula', label: 'Aula' }],
+    },
     { path: '/ayuda', label: 'Ayuda', icon: HelpCircle, section: 'sistema' },
 ];
 
-const SUPER_NAV: NavItem[] = [
+const SUPER_NAV: NavEntry[] = [
     { path: '/config', label: 'Panel', icon: Home, exact: true },
     {
         path: '/config/institutions',
@@ -136,15 +166,26 @@ function CommandPalette({
     open: boolean;
     onOpenChange: (v: boolean) => void;
     slug?: string;
-    items: NavItem[];
+    items: NavEntry[];
 }) {
     const router = useRouter();
     const base = slug ? `/${slug}` : '';
 
-    const ROUTES = items.map((item) => ({
-        label: item.label,
-        path: slug ? `${base}${item.path}` : item.path,
-    }));
+    // Aplana grupos e items para el buscador ⌘K: los hijos se listan como
+    // "Aula Virtual → Clases en vivo" para mantener la jerarquía visible.
+    const ROUTES: { label: string; path: string }[] = items.flatMap((entry) =>
+        isGroup(entry)
+            ? entry.children.map((child) => ({
+                  label: `${entry.label} → ${child.label}`,
+                  path: slug ? `${base}${child.path}` : child.path,
+              }))
+            : [
+                  {
+                      label: entry.label,
+                      path: slug ? `${base}${entry.path}` : entry.path,
+                  },
+              ],
+    );
 
     function run(path: string): void {
         router.push(path);
@@ -271,6 +312,87 @@ function CommandPalette({
     );
 }
 
+// Acordeón: renderiza un NavGroup como header desplegable con sus hijos
+// indentados debajo. El padre se ilumina cuando algún hijo está activo y
+// arranca auto-abierto si el pathname actual matchea un hijo.
+function NavGroupRow({
+    group,
+    base,
+    pathname,
+    counts,
+    open,
+    onToggle,
+}: {
+    group: NavGroup;
+    base: string;
+    pathname: string;
+    counts?: SidebarCounts;
+    open: boolean;
+    onToggle: () => void;
+}) {
+    const hasActiveChild = group.children.some((child) => {
+        const href = base ? `${base}${child.path}` : child.path;
+        return child.exact ? pathname === href : pathname.startsWith(href);
+    });
+    return (
+        <li>
+            <button
+                type="button"
+                onClick={onToggle}
+                aria-expanded={open}
+                className={cn(
+                    'group flex w-full items-center gap-2.5 rounded-[8px] px-3 py-2.5 text-[13px] font-medium transition-colors',
+                    hasActiveChild
+                        ? 'bg-primary-wash text-primary font-bold'
+                        : 'text-ink-dim hover:bg-paper-warm hover:text-ink',
+                )}
+            >
+                <group.icon
+                    size={18}
+                    className={cn(
+                        'shrink-0',
+                        hasActiveChild
+                            ? 'text-primary'
+                            : 'text-mute group-hover:text-ink-dim',
+                    )}
+                />
+                <span className="flex-1 text-left">{group.label}</span>
+                <ChevronDown
+                    size={14}
+                    className={cn(
+                        'text-mute shrink-0 transition-transform duration-200',
+                        open && 'rotate-180',
+                    )}
+                />
+            </button>
+            <div
+                className={cn(
+                    'grid transition-all duration-200 ease-out',
+                    open
+                        ? 'grid-rows-[1fr] opacity-100'
+                        : 'grid-rows-[0fr] opacity-0',
+                )}
+                aria-hidden={!open}
+            >
+                <div className="overflow-hidden">
+                    <ul className="mt-0.5 ml-4 space-y-0.5 border-l border-border pl-2">
+                        {group.children.map((child) => (
+                            <NavItemRow
+                                key={child.path}
+                                item={child}
+                                base={base}
+                                pathname={pathname}
+                                counts={counts}
+                                siblings={group.children}
+                            />
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        </li>
+    );
+}
+
 // ── Sidebar ────────────────────────────────────────────────────────────────
 export interface SidebarCounts {
     students?: number;
@@ -311,15 +433,23 @@ function NavItemRow({
     base,
     pathname,
     counts,
+    siblings,
 }: {
     item: NavItem;
     base: string;
     pathname: string;
     counts?: SidebarCounts;
+    /** Otros items al mismo nivel. Si se pasan, se aplica detección activa
+     *  con awareness de hermanos (evita doble highlight dentro de un grupo). */
+    siblings?: NavItem[];
 }) {
     const { path, label, icon: Icon, exact, live, countKey } = item;
     const href = base ? `${base}${path}` : path;
-    const isActive = exact ? pathname === href : pathname.startsWith(href);
+    const isActive = siblings
+        ? isItemActiveInGroup(item, siblings, pathname, base)
+        : exact
+          ? pathname === href
+          : pathname.startsWith(href);
     const badge = countKey != null ? counts?.[countKey] : undefined;
     return (
         <li>
@@ -332,13 +462,17 @@ function NavItemRow({
                         : 'text-ink-dim hover:bg-paper-warm hover:text-ink',
                 )}
             >
-                <Icon
-                    size={18}
-                    className={cn(
-                        'shrink-0',
-                        isActive ? 'text-primary' : 'text-mute group-hover:text-ink-dim',
-                    )}
-                />
+                {Icon ? (
+                    <Icon
+                        size={18}
+                        className={cn(
+                            'shrink-0',
+                            isActive ? 'text-primary' : 'text-mute group-hover:text-ink-dim',
+                        )}
+                    />
+                ) : (
+                    <span className="size-[18px] shrink-0" aria-hidden="true" />
+                )}
                 <span className="flex-1">{label}</span>
                 {badge != null && (
                     <span
@@ -415,24 +549,45 @@ export function Sidebar({
     const isProfesor = !isSuper && userRole === USER_ROLE.PROFESOR;
     const isCoordinator = isProfesor && (coordinatedProgramIds?.length ?? 0) > 0;
     const labels = academicLabel(institutionType ?? 'OTRO');
-    const adminNav: NavItem[] = ADMIN_NAV.map((item) => {
-        if (item.path === '/programs') return { ...item, label: labels.programPlural };
-        if (item.path === '/periods') return { ...item, label: labels.periodPlural };
-        if (item.path === '/courses') return { ...item, label: labels.coursePlural };
-        return item;
+    const adminNav: NavEntry[] = ADMIN_NAV.map((entry) => {
+        if (isGroup(entry)) return entry;
+        if (entry.path === '/programs') return { ...entry, label: labels.programPlural };
+        if (entry.path === '/periods') return { ...entry, label: labels.periodPlural };
+        if (entry.path === '/courses') return { ...entry, label: labels.coursePlural };
+        return entry;
     });
-    const profesorBaseNav: NavItem[] = PROFESOR_NAV.map((item) =>
-        item.path === '/courses' ? { ...item, label: `Mis ${labels.coursePlural}` } : item,
-    );
-    const profesorNav: NavItem[] = isCoordinator
+    const profesorBaseNav: NavEntry[] = PROFESOR_NAV.map((entry) => {
+        if (isGroup(entry)) return entry;
+        if (entry.path === '/courses') return { ...entry, label: `Mis ${labels.coursePlural}` };
+        return entry;
+    });
+    const profesorNav: NavEntry[] = isCoordinator
         ? [{ path: '/programs', label: `Mi ${labels.program}`, icon: Layers }, ...profesorBaseNav]
         : profesorBaseNav;
-    // Filtrar los items marcados con `requiresLms` cuando la institución no
+    // Filtrar los grupos marcados con `requiresLms` cuando la institución no
     // tiene LMS activo. Aplica por igual a SuperAdmin, Admin y Profesor: la UI
     // no debe ofrecer lo que la página va a bloquear.
-    const visibleLmsFilter = (item: NavItem) => !item.requiresLms || lmsEnabled;
+    const visibleLmsFilter = (entry: NavEntry): boolean => {
+        if (isGroup(entry)) return !entry.requiresLms || lmsEnabled;
+        return true;
+    };
     const baseNav = isSuper ? SUPER_NAV : isProfesor ? profesorNav : adminNav;
-    const navItems = baseNav.filter(visibleLmsFilter);
+    const navEntries = baseNav.filter(visibleLmsFilter);
+
+    // Auto-abrir el acordeón del LMS si el usuario ya está navegando una ruta
+    // hija (ej. entrar directo a /aula/categorias). Después lo maneja el usuario.
+    const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
+        const initial = new Set<string>();
+        for (const entry of navEntries) {
+            if (!isGroup(entry)) continue;
+            const hasActive = entry.children.some((child) => {
+                const href = base ? `${base}${child.path}` : child.path;
+                return child.exact ? pathname === href : pathname.startsWith(href);
+            });
+            if (hasActive) initial.add(entry.id);
+        }
+        return initial;
+    });
     const orgLabel = isSuper
         ? 'Aulika · Plataforma'
         : (slug ?? '').replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -598,10 +753,10 @@ export function Sidebar({
                 {/* Nav */}
                 <nav className="flex-1 overflow-y-auto px-3 py-2">
                     {NAV_SECTION_ORDER.map((section) => {
-                        const sectionItems = navItems.filter(
-                            (i) => (i.section ?? 'principal') === section,
+                        const sectionEntries = navEntries.filter(
+                            (e) => (e.section ?? 'principal') === section,
                         );
-                        if (sectionItems.length === 0) return null;
+                        if (sectionEntries.length === 0) return null;
                         return (
                             <div key={section} className={section !== 'principal' ? 'mt-4' : ''}>
                                 {section !== 'principal' && (
@@ -610,15 +765,37 @@ export function Sidebar({
                                     </p>
                                 )}
                                 <ul className="space-y-0.5">
-                                    {sectionItems.map((item) => (
-                                        <NavItemRow
-                                            key={item.path || 'home'}
-                                            item={item}
-                                            base={base}
-                                            pathname={pathname}
-                                            counts={counts}
-                                        />
-                                    ))}
+                                    {sectionEntries.map((entry) =>
+                                        isGroup(entry) ? (
+                                            <NavGroupRow
+                                                key={entry.id}
+                                                group={entry}
+                                                base={base}
+                                                pathname={pathname}
+                                                counts={counts}
+                                                open={openGroups.has(entry.id)}
+                                                onToggle={() =>
+                                                    setOpenGroups((prev) => {
+                                                        const next = new Set(prev);
+                                                        if (next.has(entry.id)) {
+                                                            next.delete(entry.id);
+                                                        } else {
+                                                            next.add(entry.id);
+                                                        }
+                                                        return next;
+                                                    })
+                                                }
+                                            />
+                                        ) : (
+                                            <NavItemRow
+                                                key={entry.path || 'home'}
+                                                item={entry}
+                                                base={base}
+                                                pathname={pathname}
+                                                counts={counts}
+                                            />
+                                        ),
+                                    )}
                                     {section === 'sistema' && !isSuper && slug && (
                                         <li>
                                             <button
@@ -722,7 +899,7 @@ export function Sidebar({
                 open={cmdOpen}
                 onOpenChange={setCmdOpen}
                 slug={isSuper ? undefined : slug}
-                items={navItems}
+                items={navEntries}
             />
 
             {/* Hamburger — mobile only */}

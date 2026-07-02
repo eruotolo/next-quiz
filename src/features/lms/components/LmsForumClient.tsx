@@ -58,7 +58,7 @@ export function LmsForumClient({ forums, courseId, isAdmin = false }: Props) {
             setTitle('');
             setBody('');
             setOpenForumId(null);
-            router.push(`/aula/cursos/${courseId}/foro/${result.data?.threadId}`);
+            router.push(`/students/aula/cursos/${courseId}/foro/${result.data?.threadId}`);
         });
     };
 
@@ -113,7 +113,7 @@ export function LmsForumClient({ forums, courseId, isAdmin = false }: Props) {
                                     href={
                                         isAdmin
                                             ? `#thread-${thread.id}`
-                                            : `/aula/cursos/${courseId}/foro/${thread.id}`
+                                            : `/students/aula/cursos/${courseId}/foro/${thread.id}`
                                     }
                                     className={cn(
                                         'hover:bg-paper flex items-start gap-4 px-5 py-4 transition-colors',

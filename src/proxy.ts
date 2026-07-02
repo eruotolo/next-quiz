@@ -82,7 +82,7 @@ export default auth((req: NextAuthRequest) => {
     if (!session) return redirect('/login');
 
     if (session.user.userRoleName === USER_ROLE.STUDENT) {
-        return redirect('/examen/login');
+        return redirect('/students/examen/login');
     }
 
     if (pathname.startsWith('/perfil')) {

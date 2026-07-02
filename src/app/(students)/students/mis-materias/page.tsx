@@ -44,7 +44,7 @@ async function ExamHistorySection({ studentId }: { studentId: string }) {
                 {exams.map((row) => (
                     <Link
                         key={row.resultId}
-                        href={`/examen/resultado/${row.resultId}` as `/${string}`}
+                        href={`/students/examen/resultado/${row.resultId}` as `/${string}`}
                         className="hover:bg-paper-warm flex items-center justify-between gap-4 px-5 py-4 transition-colors"
                     >
                         <div className="min-w-0 flex-1">

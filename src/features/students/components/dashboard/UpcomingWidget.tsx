@@ -38,7 +38,7 @@ function ExamRow({ exam }: { exam: UpcomingExam }) {
             </span>
             <div className="min-w-0 flex-1">
                 <Link
-                    href={`/examen/${exam.id}/intro` as `/${string}`}
+                    href={`/students/examen/${exam.id}/intro` as `/${string}`}
                     className="text-ink hover:text-primary block truncate text-[14px] font-medium"
                 >
                     {exam.title}

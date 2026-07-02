@@ -232,7 +232,7 @@ export function AdminLoginForm({ googleError }: AdminLoginFormProps) {
             <div className="bg-paper-warm rounded-[8px] px-4 py-3 text-center">
                 <p className="text-ink-dim text-[12px]">
                     ¿Sos alumno?{' '}
-                    <Link href="/examen/login" className="text-primary font-medium">
+                    <Link href="/students/examen/login" className="text-primary font-medium">
                         Accedé aquí →
                     </Link>
                 </p>

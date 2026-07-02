@@ -274,6 +274,34 @@ export async function gradeLmsSubmission(
             },
         });
 
+        // Sincroniza al Gradebook si el docente ya vinculó esta tarea a una
+        // unidad tipo TAREA (mismo patrón que syncExamGrades, pero automático
+        // porque el score de la entrega ya está en escala chilena 1.0–7.0).
+        const gradebookItem = await prisma.lmsGradebookItem.findFirst({
+            where: { assignmentId: submission.assignmentId, type: 'TAREA' },
+            select: { id: true },
+        });
+        if (gradebookItem) {
+            await prisma.lmsGrade.upsert({
+                where: {
+                    gradebookItemId_studentId: {
+                        gradebookItemId: gradebookItem.id,
+                        studentId: submission.studentId,
+                    },
+                },
+                create: {
+                    gradebookItemId: gradebookItem.id,
+                    studentId: submission.studentId,
+                    score: clippedScore,
+                    feedback: parsed.data.feedback ?? null,
+                },
+                update: {
+                    score: clippedScore,
+                    feedback: parsed.data.feedback ?? null,
+                },
+            });
+        }
+
         await logAudit({
             action: AUDIT_ACTION.COURSE_UPDATE,
             actorId: ctx.userId,

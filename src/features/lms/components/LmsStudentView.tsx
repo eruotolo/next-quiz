@@ -22,7 +22,7 @@ import { enrollInCourse } from '@/features/lms/actions/progress';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 
-interface Lesson extends LmsLesson {
+interface Lesson extends Omit<LmsLesson, 'videoAssetId' | 'videoUploadId'> {
     completed: boolean;
 }
 
@@ -184,16 +184,18 @@ export function LmsStudentView({
                                 >
                                     Ver certificado
                                 </a>
-                                {certificate.pdfUrl && (
-                                    <a
-                                        href={certificate.pdfUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="rounded-[8px] border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-amber-900 transition-colors hover:bg-amber-100"
-                                    >
-                                        Descargar PDF
-                                    </a>
-                                )}
+                                <a
+                                    href={
+                                        certificate.pdfUrl ??
+                                        `/certificado/${certificate.verificationCode}/pdf`
+                                    }
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    download
+                                    className="rounded-[8px] border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-amber-900 transition-colors hover:bg-amber-100"
+                                >
+                                    Descargar diploma
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -236,7 +238,7 @@ export function LmsStudentView({
                                                     href={
                                                         locked
                                                             ? '#'
-                                                            : `/aula/cursos/${courseId}/leccion/${l.id}`
+                                                            : `/students/aula/cursos/${courseId}/leccion/${l.id}`
                                                     }
                                                     aria-disabled={locked}
                                                     className={cn(

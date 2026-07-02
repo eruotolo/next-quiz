@@ -22,7 +22,6 @@ function resolveRoute(
     const labels = academicLabel(institutionType);
     const seg = pathname.split('/').filter(Boolean).slice(1); // skip slug segment
     const s0 = seg[0] ?? '';
-    const s1 = seg[1] ?? '';
     const s2 = seg[2] ?? '';
 
     // /exams/[id]/edit
@@ -31,13 +30,6 @@ function resolveRoute(
     }
 
     if (s0 === 'aula') {
-        // /aula/clases — global live sessions list
-        if (seg.length === 2 && s1 === 'clases') {
-            return {
-                title: 'Clases en vivo',
-                breadcrumb: [institutionName, 'Aula Virtual', 'Clases en vivo'],
-            };
-        }
         // /aula/[id] — course editor
         if (seg.length === 2) {
             return {

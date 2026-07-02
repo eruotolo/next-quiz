@@ -17,15 +17,6 @@ export default async function StudentLayout({ children }: { children: ReactNode 
     const headersList = await headers();
     const pathname = headersList.get('x-pathname') ?? '';
 
-    // Las rutas de examen (login, intro, examen, resultado) manejan su propia UI fullscreen.
-    // /students/examen/seleccion sí usa el layout estándar (header + sidebar).
-    const isExamFullscreen =
-        pathname.startsWith('/students/examen') &&
-        !pathname.startsWith('/students/examen/seleccion');
-    if (isExamFullscreen) {
-        return <>{children}</>;
-    }
-
     const session = await getStudentAuthSession();
     if (!session) redirect('/students/examen/login');
 
@@ -55,6 +46,13 @@ export default async function StudentLayout({ children }: { children: ReactNode 
           )
         : { examsEnabled: true, lmsEnabled: false, examsPlanCode: null, lmsPlanCode: null };
     const hasLms = flags.lmsEnabled;
+
+    // Gating LMS (defensa en profundidad): el sidebar ya oculta "Mis cursos"
+    // cuando lmsEnabled=false, pero eso no bloquea el acceso directo por URL.
+    if (!hasLms && pathname.startsWith('/students/aula')) {
+        redirect('/students/dashboard');
+    }
+
     const fullName = `${student.name ?? ''} ${student.lastname ?? ''}`.trim() || 'Estudiante';
 
     return (
@@ -65,14 +63,14 @@ export default async function StudentLayout({ children }: { children: ReactNode 
                         institutionName={student.academicInstitution?.name ?? 'Aulika'}
                         studentName={fullName}
                         groupName={student.group?.name ?? null}
-                        notificationCount={notifications.unreadCount}
+                        notifications={notifications.notifications}
+                        unreadCount={notifications.unreadCount}
                     />
                     <div className="flex flex-1">
                         <StudentSidebar
                             studentName={fullName}
                             groupName={student.group?.name ?? null}
                             institutionName={student.academicInstitution?.name ?? 'Aulika'}
-                            notificationCount={notifications.unreadCount}
                             hasLms={hasLms}
                         />
                         <main className="flex min-w-0 flex-1 flex-col px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">

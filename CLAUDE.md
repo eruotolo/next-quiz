@@ -407,23 +407,23 @@ Feature para que cada institución venda cursos del Aula Virtual a estudiantes e
 
 - **Helper**: `src/features/auth/lib/institution-flags.ts` — `getInstitutionFlags(institutionId, plan)` lee `examsEnabled`/`lmsEnabled` con fallback al heurístico `plan !== 'FREE'` (defensa si la migración no corrió).
 - **JWT/sesión**: `next-auth.d.ts` y `auth.ts` (callbacks `jwt` y `session`) propagan los flags. Carga via `getInstitutionFlags` en el `authorize` y en el callback `jwt` (rama google).
-- **Proxy** (`src/proxy.ts`): gating rápido en Edge runtime — si `/{slug}/aula/*` y `lmsEnabled=false` (excepto SuperAdmin) → redirect a `/{slug}/settings?notice=lms_disabled`. Rutas públicas por slug: `/{slug}/cursos/*` y `/{slug}/checkout/*` se identifican via `isPublicBySlugPath`. `/examen/activar` se agrega como excepción pública (token en query).
+- **Proxy** (`src/proxy.ts`): gating rápido en Edge runtime — si `/{slug}/aula/*` y `lmsEnabled=false` (excepto SuperAdmin) → redirect a `/{slug}/settings?notice=lms_disabled`. Rutas públicas planas: `/cursos/*`, `/checkout/*` y `/exito` (excluidas del gating). `/examen/activar` se agrega como excepción pública (token en query).
 - **Sidebar** (`src/features/dashboard/components/Sidebar.tsx`): items con `requiresLms: true` (`/aula`, `/aula/clases`) se filtran si `lmsEnabled=false`. SuperAdmin ve todo siempre.
 - **Layout estudiante** (`src/app/(students)/students/layout.tsx`): `hasLms` ahora lee `flags.lmsEnabled` en lugar del heurístico por `plan`.
 
 ### Catálogo y checkout B2C (Fase 4)
 
-- **Catálogo público** `/{slug}/cursos`: server component. Lista cursos con `isPublic=true && published=true`. `src/features/lms/components/PublicCourseCard.tsx` para el grid; `src/shared/components/seo/schemas.ts` agrega `courseSchema()` (schema.org/Course) y se inyecta como JSON-LD ItemList en la grilla y como Course individual en el detalle. `generateMetadata` con SEO institucional.
-- **Detalle curso** `/{slug}/cursos/[courseId]`: preview de módulos/lecciones, precio, CTA → checkout. JSON-LD Course.
-- **Layout público** `src/app/(public)/[slug]/layout.tsx`: header minimal con logo Aulika + nombre institución + link a cursos. `notFound()` si la institución está inactiva o no existe.
-- **Checkout** `/{slug}/checkout/[courseId]`: `CheckoutForm.tsx` (cliente, RHF + Zod) con `RutField` + nombre + apellido + email + acceptTerms. Llama a `createLmsCheckoutPreference(slug, data)` que valida Zod, anti-IDOR (RUT/email no en otra institución), crea `LmsOrder` en PENDIENTE y llama a `createPreference` (Checkout Pro). Redirige a `init_point` de MercadoPago.
-- **Éxito** `/{slug}/checkout/[courseId]/exito`: `OrderStatusPoller` (cliente) consulta `getLmsOrderStatus(orderId)` cada 3s, máx 20 intentos. Cuando la orden pasa a APROBADO y el webhook ya creó el `User`, expone el `activationToken` y muestra CTA directo a `/examen/activar?token=...`. Si el polling expira, muestra fallback "Ya recibí el email".
+- **Catálogo público** `/cursos`: server component único (sin scoping por institución). Lista cursos con `isPublic=true && published=true`. La única institución autorizada a vender es `aulika-online`, resuelta server-side vía `getB2cVendorInstitution()` en `src/features/lms/lib/aulika-online-bundle.ts`. `src/features/lms/components/PublicCourseCard.tsx` para el grid; `src/shared/components/seo/schemas.ts` agrega `courseSchema()` (schema.org/Course) y se inyecta como JSON-LD ItemList.
+- **Sin single-page de tienda** — el card linkea directo al checkout. No existe `/cursos/[courseId]` ni `/[slug]/cursos/[courseId]` (decisión de modelo: el catálogo es solo vitrina, no tienda navegable).
+- **Checkout** `/checkout/[courseId]` (curso individual): `CheckoutForm.tsx` (cliente, RHF + Zod) con `RutField` + nombre + apellido + email + acceptTerms. Llama a `createLmsCheckoutPreference(data)` que valida Zod, anti-IDOR (RUT/email no en otra institución), crea `LmsOrder` en PENDIENTE y llama a `createPreference` (Checkout Pro). Redirige a `init_point` de MercadoPago.
+- **Checkout pack** `/checkout/category/[categoryId]`: `CategoryCheckoutForm.tsx` para comprar un pack bundle (`LmsCategory.isBundle=true`). Mismo flujo pero con `kind=CATEGORY_BUNDLE` en `LmsOrder`.
+- **Éxito** `/checkout/[courseId]/exito` y `/checkout/category/[categoryId]/exito`: `OrderStatusPoller` (cliente) consulta `getLmsOrderStatus(orderId)` cada 3s, máx 20 intentos. Cuando la orden pasa a APROBADO y el webhook ya creó el `User`, expone el `activationToken` y muestra CTA directo a `/examen/activar?token=...`. Si el polling expira, muestra fallback "Ya recibí el email".
 - **Activación** `/examen/activar`: server component que valida `token` (presencia + `activationTokenExp > now`) + render de `ActivationForm` (RHF + Zod, password min 8 + mayusc + num + confirm). Action `activateB2cAccount` hashea password con bcrypt, actualiza `User` (limpia tokens), vincula `LmsOrder.enrolledUserId` huérfanos, abre sesión jose (`createStudentAuthSession`) y redirige a `/students/dashboard`.
 
 ### Schemas y actions nuevos
 
 - `src/features/subscriptions/schemas/b2c-checkout.schemas.ts` — `b2cCheckoutSchema` y `b2cActivatePasswordSchema`.
-- `src/features/lms/actions/b2c-orders.ts` — `createLmsCheckoutPreference(slug, data)` + `getLmsOrderStatus(orderId)`.
+- `src/features/lms/actions/b2c-orders.ts` — `createLmsCheckoutPreference(data)` + `getLmsOrderStatus(orderId)`. **Ya no recibe slug**: la institución vendedora se resuelve server-side.
 - `src/features/lms/actions/b2c-activation.ts` — `activateB2cAccount(data)`.
 - `src/features/lms/lib/activation-token.ts` — helper `generateActivationToken()` (random 32 bytes hex + TTL 24h), reutilizable por el webhook B2C.
 - `src/features/subscriptions/lib/mercadopago.ts` — agregada `createPreference()` para pago único (Checkout Pro B2C) con la firma completa `item/payerName/payerSurname/backUrls/notificationUrl`. NO TOCAR `createPreapproval` (Fase 2 B2B).
@@ -479,7 +479,7 @@ Institución de administración central **"Aulika Institution Online"** (slug `a
 - **Protección de backfill** — `prisma/seeders/plan-codes.ts` solo hace `updateMany` sobre instituciones con `lmsPlanCode: null`, para no pisar los toggles manuales de Aula Virtual que haga el SuperAdmin después del primer deploy.
 - **Toggle SuperAdmin** — `institutionSchema` (`src/features/institutions/schemas/institution.schemas.ts`) incluye `lmsEnabled`. `InstitutionsClient.tsx` expone un `<Switch>` "Aula Virtual" en el formulario de alta/edición, con aviso de que el cambio requiere cerrar sesión y volver a entrar para refrescar el JWT.
 - **Comercialización por curso** — `toggleLmsCourseSetting` (en `src/features/lms/actions/courses.ts`) acepta `'isPublic'` además de `'certificateEnabled' | 'aiSummaryEnabled'`. Nueva action `updateLmsCoursePrice(slug, courseId, price)`. UI en `LmsCourseEditorClient.tsx`: switch "Curso Público (B2C)" + input de precio CLP con botón guardar.
-- **Storefront global `/cursos`** (`src/app/(public)/cursos/page.tsx`) — vitrina premium 100% comercial: hero, banner del Pack Completo (CTA directo a `/aulika-online/checkout/{packId}`) y grid de las 7 asignaturas via `PublicCourseCard` (reuso del componente de Fase 4 B2C) enlazando al detalle existente `/aulika-online/cursos/{id}` (que ya trae módulos + botón de compra). Si la institución `aulika-online` aún no fue sembrada, muestra un estado vacío en vez de 404. JSON-LD `ItemList` de `Course`. Agregada a `src/app/sitemap.ts`.
+- **Storefront global `/cursos`** (`src/app/(public)/cursos/page.tsx`) — vitrina plana (sin scoping por slug). Banner del Pack Completo (CTA directo a `/checkout/category/{packId}`) y grid de las 7 asignaturas via `PublicCourseCard` enlazando directo a `/checkout/{courseId}` (sin single-page detail). Si la institución `aulika-online` aún no fue sembrada, muestra 404. JSON-LD `ItemList` de `Course`. Agregada a `src/app/sitemap.ts`.
 - **Sección en Home** — `src/features/landing/components/L3PreuPDV.tsx`, insertada en `src/app/(public)/page.tsx` entre `<L3Stats />` y `<L3Pricing />`. CTA "Ver catálogo de cursos" → `/cursos`.
 - **Autoinscripción del Pack Completo** — `fulfillB2cOrder` en `src/app/api/webhooks/mercadopago-b2c/route.ts`: si `order.courseId === AULIKA_ONLINE_BUNDLE_COURSE_ID`, dentro de la misma transacción inscribe (`LmsEnrollment.upsert`, status `ACTIVO`) al alumno en todos los cursos públicos publicados de `aulika-online` además del bundle.
 
@@ -811,115 +811,80 @@ Migraciones: `20260629203535_lms_gamification`, `20260629205142_lms_leaderboard_
 - `app/(aula)/aula/cursos/[id]/page.tsx` — agregados `summaryJson: l.summaryJson` al mapping manual y `summaryJson: true` al `select` de Prisma.
 - `app/(admin)/[slug]/aula/[id]/page.tsx` — agregado `summaryJson: true` al `select` de Prisma (la interface `LessonWithMeta extends LmsLesson` lo requiere).
 
-## Aula Virtual (LMS) — Fase 6: Aula Sincrónica
+## LMS — Lecciones basadas en enlaces (modelo vigente)
 
-Videollamadas reales (Daily.co), pizarra individual con snapshots a Cloudinary, chat en vivo con rate limit, y registro de asistencia automático vía webhook.
+Reemplaza las antiguas Fases 1 (video Mux) y 6 (aula sincrónica Daily.co) por un modelo **100 % basado en enlaces**. Los docentes suben contenido apuntando a servicios externos (YouTube, Vimeo, Google Meet, Zoom) en lugar de subir archivos a Aulika o transmitir clases dentro de la plataforma. Esto elimina la dependencia de servicios pagos (Mux, Daily.co) y reduce la superficie operativa a uploads de documentos + URLs validadas.
 
-### Stack y decisiones
+### Reglas por tipo de lección (`LmsLesson.type`)
 
-- **Daily.co** como motor de videollamadas (REST API + iframe daily-js embebido). Salas efímeras creadas/borradas por sesión via backend.
-- **Chat en vivo**: tabla con polling cada 3s (sin WebSocket — serverless puro), rate limit por usuario (≥800ms entre mensajes, ≤20/min), sanitización agresiva (HTML/tags eliminadas).
-- **Pizarra**: drawing canvas HTML5 por participante (uno por persona, no multi-cursor real-time). El profesor "comparte pizarra" vía Daily screen-share. Snapshots se guardan a Cloudinary como PNG con título opcional.
-- **Grabación**: Daily genera recordings automáticos; webhook `recording.ready-to-download` descarga + opcionalmente sube a Mux. Sin credenciales Mux, queda como URL externa de Daily.
-- **No agregamos Liveblocks/PartyKit**: la pizarra multi-cursor real-time requeriría servicio externo pago o servidor WebSocket (no viable en Vercel serverless).
+| Tipo | Antes | Ahora |
+| --- | --- | --- |
+| `TEXTO` | `<Textarea>` → JSON Tiptap minimal | Editor Tiptap completo (`TiptapEditor.tsx`): bold, italic, listas, headings, links, undo/redo. Output `JSONContent`. |
+| `TAREA` | `<Textarea>` para instrucciones | Editor Tiptap para instrucciones; `dueAt` + `maxScore` sin cambios. |
+| `DOCUMENTO` | `<Input type="file">` simple | Dropzone visual (`Dropzone.tsx`) con previsualización, MIME whitelist (PDF/DOC/DOCX/XLS/XLSX/PNG/JPG/WEBP), tope 25 MB. Sube via `uploadLessonDocument` (Vercel Blob). |
+| `VIDEO` | Aviso "subida no disponible" + Mux upload | `<Input type="url">` validado por dominio (`parseVideoEmbedUrl`). Visor: iframe 16:9 (`VideoEmbed.tsx`). |
+| `EN_VIVO` | Aviso "se programa desde Clases en vivo" + Daily.co | Selector Proveedor (Google Meet / Zoom) + `<Input type="url">` validado por dominio (`parseLiveSessionUrl`). Visor: tarjeta con botón "Unirme" + instrucciones (`LiveSessionLinkCard.tsx`). |
+| `ENLACE` | Sin cambios | Sin cambios. |
+| `EXAMEN` | Sin cambios | Sin cambios. |
 
-### Modelos Prisma nuevos
+### Validadores de URL (`src/features/lms/lib/lesson-url-validators.ts`)
 
-- `LmsLiveSession` (id, courseId, title, description, scheduledAt, durationMin, `dailyRoomName UNIQUE`, `dailyRoomUrl`, `dailyRoomExpiresAt`, maxParticipants?, status [SCHEDULED|LIVE|ENDED|CANCELED], createdById, startedAt?, endedAt?, recordingMuxAssetId?, recordingUrl?, recordingDurationSec?, recordingStatus [NONE|PENDING|READY|FAILED]). `@@index([courseId, status, scheduledAt, createdById])`.
-- `LmsLiveAttendance` (sessionId, userId, role [TEACHER|STUDENT|GUEST|ASSISTANT], displayName, joinedAt, leftAt?, durationSec?, `dailyParticipantId?`). Una fila por join (varias si entra/sale).
-- `LmsLiveChatMessage` (sessionId, userId, content, sentAt, deletedAt?). Soft-delete.
-- `LmsWhiteboardSnapshot` (sessionId, userId, pngUrl, width, height, title?). Imágenes en Cloudinary.
-- 3 enums nuevos: `LiveSessionStatus`, `LiveAttendanceRole`, `LiveRecordingStatus`.
-- Migración: `20260629223637_lms_phase6_live_sessions`.
+Funciones puras sin DB, testeables:
 
-### Wrapper Daily.co (`src/shared/lib/daily.ts`)
+- `parseVideoEmbedUrl(url): { kind: 'youtube' \| 'vimeo', embedUrl: string } \| null`
+    - YouTube: acepta `youtube.com/watch?v=ID`, `youtu.be/ID`, `youtube.com/embed/ID`, `m.youtube.com/*`. Devuelve `https://www.youtube.com/embed/ID`.
+    - Vimeo: acepta `vimeo.com/ID`, `player.vimeo.com/video/ID`. Devuelve `https://player.vimeo.com/video/ID`. Solo IDs numéricos.
+- `parseLiveSessionUrl(url): { provider: 'google_meet' \| 'zoom' } \| null`
+    - Google Meet: `meet.google.com`.
+    - Zoom: `zoom.us`, `*.zoom.us`, `zoom.com`.
+- `isValidExternalLinkForType(type, url): boolean` — wrapper que une los dos validadores anteriores según `LessonType`. Para `ENLACE` acepta cualquier URL válida.
 
-- Cache lazy de credenciales (`AppConfig`) con TTL 60s para no hacer Prisma en cada request.
-- Funciones: `createDailyRoom`, `getDailyRoom`, `deleteDailyRoom`, `createDailyMeetingToken({isOwner})`.
-- `verifyDailyWebhookSignature(rawBody, signatureHeader)` HMAC SHA-256 via Web Crypto API. Sin credenciales o sin firma → rechaza con `reason`.
-- `parseDailyWebhookPayload(rawBody)` → `{type, payload}` con type guard contra JSON malformado.
-- Sin credenciales configuradas: cada función retorna `{ok:false, error:'Daily.co no está configurado…'}` sin tirar 401.
+El schema Zod (`lmsLessonSchema`) usa `.superRefine()` para validar `externalLink` por tipo: si `type ∈ {VIDEO, ENLACE, EN_VIVO}`, el link es obligatorio y debe pasar `isValidExternalLinkForType`.
 
-### Libs puras (testeables sin DB)
+### Schema Zod y server actions
 
-- **`live-session-state.ts`**: state machine con `LIVE_SESSION_TRANSITIONS` (SCHEDULED→LIVE/CANCELED, LIVE→ENDED/CANCELED, resto denegado). `computeJoinWindow({scheduledAt, durationMin, now, openMinutesBefore=10})` devuelve `{isJoinable, isLive, isPast, secondsUntilStart, secondsUntilEnd, remainingSec}`. `deriveStatusFromSchedule` calcula estado desde schedule respetando override manual. `buildDailyRoomName` genera nombre `aulika-YYYYMMDD-XXXXXXXX-suffix` ≤60 chars y regex `[a-z0-9-]{3,64}`. `isValidDailyRoomName` valida.
-- **`live-attendance.ts`**: `computeAttendanceDurationSec`, `isWithinAttendanceWindow({openMinutesBefore=10, closeMinutesAfter=30})`, `summarizeAttendance(rows, durationMin)` agrega `totalDurationSec`, `joinCount`, `isPresent`, `attendancePct` (clamp 0-100), ordena por total desc.
-- **`live-chat.ts`**: `cleanChatContent` (trim + sanitiza + maxLength check), `evaluateChatRateLimit(state, nowMs)` (≥800ms, ≤20/min), `buildChatPollWindow` (filtra por `since` + cutoff 60min).
-- **`sanitizeChatText`** agregado a `src/shared/lib/sanitize.ts`: NFKC + elimina tags HTML `<[^>]*>` + chars `<`/`>` sueltos + control chars + `javascript|data|vbscript|file:` schemes. Más estricto que el sanitizer de foros porque chat debe ser texto plano.
+- `src/features/lms/schemas/lms.schemas.ts` — `lmsLessonSchema` con `superRefine` por tipo. Sin campos Mux (`videoAssetId`/`videoUploadId` fueron dropeados de Prisma).
+- `src/features/lms/actions/courses.ts` — `buildLessonPayload` arma el payload Prisma sin campos Mux; `externalLink` se persiste según `LINK_TYPES = ['VIDEO', 'ENLACE', 'EN_VIVO']`.
+- `src/features/lms/actions/uploads.ts` — solo `uploadLessonDocument` (Vercel Blob). Las antiguas `requestMuxUpload` / `finalizeMuxUpload` fueron eliminadas.
 
-### Server actions (`src/features/lms/actions/`)
+### Migración Prisma
 
-- **`live-sessions.ts`**: `createLiveSession`, `updateLiveSession`, `cancelLiveSession`, `startLiveSession` (genera token con `isOwner:true`), `endLiveSession` (borra room + cierra attendances abiertas), `joinLiveSession` (genera token estudiante + valida access por enrollment/institución/rol), `leaveLiveSession`, `getLiveSessionById`. Todas usan `requireInstitutionAccess(slug, roles[])` y `assertSessionEditableByManager` para anti-IDOR.
-- **`live-chat.ts`**: `sendLiveChatMessage` con rate limit por usuario (`Map<string, RateLimitState>` con TTL 30min) + sanitización obligatoria. `listLiveChatMessages({sessionId, since})` retorna `PublicLiveChatMessage[]` + `nextCursor`. Polling cada 3s cliente.
-- **`whiteboard.ts`**: `saveWhiteboardSnapshot` con Zod 200-8000px, sube PNG a Cloudinary (`uploadWhiteboardPng`, `resource_type: 'image'`, folder `lms/whiteboard`). Modo degradado: sin Cloudinary persiste `data:image/png;base64,…` in-place (recomendable cambiar después).
+- `prisma/migrations/20260702000000_drop_lms_mux_and_phase6_models/migration.sql`:
+    - Drop columnas `LmsLesson.videoAssetId` y `videoUploadId`.
+    - Drop modelos `LmsLiveSession`, `LmsLiveAttendance`, `LmsLiveChatMessage`, `LmsWhiteboardSnapshot`.
+    - Drop enums `LiveSessionStatus`, `LiveAttendanceRole`, `LiveRecordingStatus`.
+    - Drop relaciones inversas en `User` y `LmsCourse`.
 
-### Webhook handler `src/app/api/webhooks/daily/route.ts`
+### Variables de entorno deprecadas
 
-- `dynamic = 'force-dynamic'`, `runtime = 'nodejs'`.
-- HMAC verify primero (rechaza 401 sin auth).
-- Switch por `payload.type`:
-    - `meeting.ended` → status ENDED + cierra attendances.
-    - `participant.joined` → upsert attendance con `dailyParticipantId`.
-    - `participant.left` → actualiza leftAt + compute durationSec.
-    - `recording.ready-to-download` → flip status READY + guarda `recordingUrl` + audit.
-    - `recording.failed` → flip status FAILED.
-
-### UI (todo client+server)
-
-- **Páginas**:
-    - `/[slug]/aula/[courseId]/clases` — listado admin/profesor con cards + status badge + acciones (start/cancel/asistencia/grabación). Header "Clases en vivo" agregado al editor del curso (`/[slug]/aula/[id]/page.tsx`).
-    - `/[slug]/aula/[courseId]/clases/nueva` — form con `LiveSessionForm` (title 3-120 chars, datetime-local, duration 10-480 min, maxParticipants opcional).
-    - `/[slug]/aula/[courseId]/clases/[sessionId]` — host view con `DailyCallFrame` (iframe con token), tabs videollamada/pizarra, chat side panel, botón "Finalizar" (admin/prof owner).
-    - `/[slug]/aula/[courseId]/clases/[sessionId]/asistencia` — tabla con métricas (participantes únicos, conectados, asistencia promedio) + lista por usuario (nombre/RUT/rol/ingresos/tiempo/asistencia %).
-    - `/aula/cursos/[courseId]/clases` — listado estudiante con countdown + estado + link "Unirme" cuando joinable.
-    - `/aula/clases/[sessionId]` — sala estudiante con join-on-click (requiere NextAuth session + enrollment activo o jose session + enrollment). Falta tiempo → countdown.
-- **Componentes** (`src/features/lms/components/live/`):
-    - `DailyCallFrame.tsx` — iframe para `roomUrl?t={token}` con `allow="camera; microphone; display-capture; autoplay; clipboard-write"` + listener `message` para `left-meeting`.
-    - `LiveChat.tsx` — polling 3s, render con `userName`, hora, contenido sanitizado. Input con Enter envía. `maxLength={500}` server side vía Zod + sanitizer client-side.
-    - `Whiteboard.tsx` — canvas 1280×720 con stylus (`pointer` events), botones "Limpiar" y "Guardar snapshot". ToDataURL PNG → base64 → action.
-    - `LiveSessionListClient.tsx` — listado interactivo con transitions + router.refresh + confirms.
-    - `LiveSessionForm.tsx` — form controlado + validación HTML5.
-    - `LiveSessionRoomClient.tsx` — orquesta videollamada/pizarra/chat con tabs + end-session.
-    - `StudentRoomClient.tsx` — countdown pre-sesión + onJoin → guarda attendanceId para cleanup.
-
-### Configuración via `/config/settings` (SuperAdmin)
-
-- `APP_CONFIG_KEY` extendido con `DAILY_API_KEY`, `DAILY_WEBHOOK_SECRET`.
-- `AppSettingsClient` reemplazó "Cloudinary — Almacenamiento de certificados" con ambos cards (Cloudinary + Daily.co). Daily.co card tiene inputs `type="password"` + descripción.
-- Validación Zod en `saveSchema` enum extendido.
-
-### Tests (70 nuevos — total suite: 253/253 pasando)
-
-- `live-session-state.test.ts` — 25 tests: state machine, join window (border cases), derive status, buildDailyRoomName, isValidDailyRoomName, minutesToSeconds.
-- `live-attendance.test.ts` — 12 tests: computeDuration, withinWindow, summarize (agregación, marcaje present, clamp pct, sort).
-- `live-chat.test.ts` — 14 tests: cleanChatContent (empty, too long, sanitización, javascript scheme, emojis), rate limit (first, too fast, burst, dentro de límite, reset ventana), poll window (since, cutoff 60min, nextCursor).
-- `sanitize-chat.test.ts` — 9 tests: tags completas (incluyendo contenido atributos peligrosos), `<`/`>` sueltos, chars control, NFKC, trim.
-- `daily.test.ts` — 10 tests: isConfigured, createDailyRoom (configurado, 401, no-config), deleteDailyRoom (404 OK, 500 fail), getDailyRoom, createMeetingToken, parseWebhookPayload, verifyWebhookSignature (sin header, sin secret, válida, inválida).
+- `DAILY_API_KEY` y `DAILY_WEBHOOK_SECRET` — eliminadas de `APP_CONFIG_KEY` y `app-config.ts`. Si quedaron registradas en la tabla `AppConfig` (DB), son inertes (no se consumen). Limpieza opcional.
+- `MUX_TOKEN_ID` y `MUX_TOKEN_SECRET` — ya no se usan en código (`src/shared/lib/mux.ts` fue eliminado). Las dependencias `@mux/mux-node` y `@mux/mux-player-react` en `package.json` quedaron como código muerto pero no rompen el build. Limpieza opcional.
+- Cron `/api/cron/live-reminders` y webhook `/api/webhooks/daily` eliminados (rutas completas + entries en `vercel.json`).
 
 ### Auditoría
 
-- 7 nuevas acciones: `lms.live_session.{create,update,start,end,cancel}`, `lms.live_session.{join,leave}`, `lms.live_session.recording_ready`. Cada `logAudit` con `entity='LmsLiveSession'`, `entityId` y metadata contextual.
+Las acciones `lms.live_session.{create,update,start,end,cancel,join,leave,recording_ready}` fueron removidas de `AUDIT_ACTION` (`src/features/audit/lib/actions.ts`).
 
-### Verificación de cierre
+### Tests
 
-- `pnpm type-check` ✅ (con fix mínimo no-assertion en `testing-aula-seed.ts` para `badgeMap[code]!.id` — pre-existente de Fase 5).
-- `pnpm test:run` ✅ 323/323.
-- `pnpm devBuild` ✅ Compiled successfully, 6 rutas nuevas generadas:
-    - `ƒ /[slug]/aula/[courseId]/clases`
-    - `ƒ /[slug]/aula/[courseId]/clases/[sessionId]`
-    - `ƒ /[slug]/aula/[courseId]/clases/[sessionId]/asistencia`
-    - `ƒ /[slug]/aula/[courseId]/clases/nueva`
-    - `ƒ /aula/clases/[sessionId]`
-    - `ƒ /aula/cursos/[courseId]/clases`
+- `src/features/lms/lib/__tests__/lesson-url-validators.test.ts` (17 tests): YouTube (3 formatos + rechazos), Vimeo (2 formatos), Google Meet (2 formatos), Zoom (2 formatos + rechazos), `isValidExternalLinkForType` por tipo.
+- Total suite: **297/297 pasando** (los ~70 tests de Fase 6 fueron eliminados con el código).
 
-### Limitaciones explícitas
+### Seeder de testing (`pnpm db:seed:aula`)
 
-1. **Pizarra NO multi-cursor real-time** — cada participante ve su propio canvas. Para compartir pizarra, profesor usa Daily.co screen-share. Plan original de Fase 6 de Sonnet (Liveblocks) no se implementó por evitar dependencia externa de pago.
-2. **Grabación → Mux opcional**: si no hay credenciales Mux, la grabación queda como URL de Daily (los hosts pueden descargarla manualmente).
-3. **Webhook no es idempotente 100%**: `participant.joined` con el mismo `dailyParticipantId` puede duplicar si Daily reenvía. Aceptable para piloto.
-4. **Chat polling**: si un usuario tiene conexión inestable y se pierden polls, debe refrescar la página. Costo: una query cada 3s por sala activa.
-5. **No hay rate-limit distribuido**: si Aulika se ejecuta en múltiples instancias Vercel (múltiples regiones), el rate-limit in-memory en `live-chat.ts` NO se sincroniza entre instancias. Para piloto es OK; para producción real usar Redis/Upstash.
-6. **Daily.co requiere API key real**: el superadmin debe crearla en https://dashboard.daily.co y cargarla en `/config/settings` antes de habilitar sesiones. La integración queda no-op si no se configura.
+- Cubre LMS basado en enlaces. El bloque de Fase 6 (3 `LmsLiveSession` + attendances + chat + whiteboard) fue removido. La lección "Introducción a Python (video)" usa `externalLink: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'` en lugar de `videoAssetId`.
+
+### Limitaciones conocidas
+
+1. **Datos históricos irrecuperables**: lecciones que tenían `videoAssetId` apuntando a assets Mux previos dejan de funcionar. Los docentes deben re-pegar manualmente las URLs de YouTube/Vimeo. No hay script de migración de assets.
+2. **Sin live nativo**: las clases sincrónicas dependen de Google Meet/Zoom (externos). Aulika no aporta chat, pizarra, ni grabación para estas sesiones — todo eso vive en el proveedor elegido.
+
+### Verificación
+
+- `pnpm type-check` ✅ 0 errores.
+- `pnpm lint` ✅ 0 errores nuevos (los 6 errors + 77 warnings son pre-existentes en otros archivos).
+- `pnpm test:run` ✅ 297/297.
+- `pnpm build` ✅ todas las rutas `/aula/*` y `/students/aula/*` siguen compilando; las rutas de live y los cron/webhooks de Fase 6 ya no aparecen.
 
 ### UI — Fase 4 (Sonnet)
 
@@ -1017,6 +982,23 @@ Feature en `src/features/demo/`. Institución `slug = 'aulika-demo'`, `isDemo = 
 - **Limpieza** (tres mecanismos): (1) `signOut` borra exámenes del `demoSessionId`; (2) cada deploy ejecuta `prisma/seeders/demo.ts` que purga todos los exámenes de la institución demo; (3) cron diario `GET /api/cron/demo-reset` (`0 6 * * *` UTC, protegido con `CRON_SECRET`).
 - **Producción** — seed corre en el build (`prisma migrate deploy && tsx prisma/seeders/demo.ts && next build`). `demo.ts` **no** está en `.vercelignore`.
 
+## Aula Virtual (LMS) — UI de autoría de lecciones (post-QA)
+
+La creación/edición de lecciones desde el panel admin/profesor ya no usa `window.prompt()`. `src/features/lms/components/LessonFormDialog.tsx` es un modal con selector de los 7 tipos (`LESSON_TYPE_OPTIONS` en `src/features/lms/lib/lesson-types.ts`) y campos específicos por tipo, reutilizado tanto para crear como para editar (click en el título de la lección en `LmsCourseEditorClient.tsx`):
+
+- **TEXTO** — textarea; se persiste como doc Tiptap mínimo (un párrafo, un text node por línea) compatible con `RichTextContent` del viewer.
+- **ENLACE** — input URL.
+- **EXAMEN** — select con los exámenes reales de la institución (`availableExams`, query nueva en `aula/[id]/page.tsx`).
+- **TAREA** — instructions/dueAt/maxScore vía `upsertLmsAssignment` (ya existía, estaba desconectada de la UI).
+- **DOCUMENTO** — input file vía `uploadLessonDocument` (Vercel Blob, ya existía).
+- **EN_VIVO** — sin campos propios; el viewer del estudiante linkea a `/students/aula/cursos/{id}/clases`.
+- **VIDEO** — **no implementado**: la subida directa a Mux requiere protocolo TUS (no un PUT simple), lo que implicaría agregar la dependencia `tus-js-client`. Decisión de producto (no técnica): el diálogo muestra un aviso y el equipo debe vincular el asset manualmente por fuera de la plataforma hasta que se decida agregar la dependencia.
+
+**Otros fixes relacionados (QA 2026-07-01):**
+- `gradeLmsSubmission` (`src/features/lms/actions/assignments.ts`) ahora sincroniza automáticamente al `LmsGradebookItem` tipo TAREA vinculado (si existe), igual que `syncExamGrades` para exámenes. No es retroactivo.
+- Panel admin del foro: cada hilo en `LmsAdminForumClient.tsx` linkea a `src/app/(admin)/[slug]/aula/[id]/foro/[threadId]/page.tsx`, que reutiliza `LmsForumPostTree` con la prop `adminSlug` para responder como staff vía `createLmsForumPostAdmin`.
+- `/students/notificaciones` (`NotificationsListClient.tsx`) — listado completo con paginación local, antes daba 404.
+
 ## Seed
 
 - **`pnpm db:seed`** (`prisma/seed.ts`) — 4 roles + SuperAdministrador. Credenciales desde `ADMIN_*` env vars.
@@ -1047,6 +1029,84 @@ tests/e2e/
 **Prerrequisito:** `pnpm db:seed:local` debe haber corrido antes de ejecutar los tests.
 
 **Flujo completo de examen del estudiante:** Los tests en `student/exam-flow.spec.ts` se saltean automáticamente si no hay un examen activo asignado al grupo del estudiante. Para activar estos tests: crear un examen publicado y asignarlo al grupo de Juan Pérez.
+
+## Notificaciones in-app del estudiante (campanita + 3 triggers)
+
+Reemplaza el item "Notificaciones" del sidebar del estudiante por una **campanita desplegable en el `StudentTopBar`** (justo antes del avatar). El menú es un dropdown sin links: cada item solo se puede **marcar como leída** o **eliminar** (cruz a la derecha). Página `/students/notificaciones` y componente `NotificationsListClient` fueron eliminados.
+
+### Migración
+
+- `prisma/migrations/20260701093000_lms_notification_updated_at/migration.sql` — agrega `updatedAt @updatedAt` y `dedupeKey String?` (indexado) a `LmsNotification`. `updatedAt` se actualiza automáticamente cuando el estudiante marca leída (patrón `@updatedAt`); `dedupeKey` permite deduplicar entre runs del cron.
+
+### Schema
+
+- `LmsNotification.updatedAt: DateTime @updatedAt` — sustenta el cron de limpieza "24h después de marcar leída".
+- `LmsNotification.dedupeKey: String?` + `@@index([dedupeKey])` — clave para deduplicar entre ejecuciones del cron. Convención: `<TYPE>:<scopeId>` (ej: `ASSIGNMENT_DUE_SOON:<assignmentId>:<userId>`).
+
+### UI (`StudentTopBar` + `NotificationBell`)
+
+- **`src/shared/components/layout/StudentTopBar.tsx`**: reemplaza el `<Link href="/students/notificaciones">` por `<NotificationBell initialNotifications={...} initialUnreadCount={...} />`. Cambia prop `notificationCount: number` por `notifications: LmsNotificationItem[]` + `unreadCount: number`. Quita la rama `/students/notificaciones` de `resolvePageTitle`.
+- **`src/features/lms/components/NotificationBell.tsx`**: dropdown con header (título + "Leer todo" + cerrar), lista scrolleable (`max-h-96`), cada item con mensaje + `timeAgo` + botón "Marcar leída" (solo si no leída) + botón "X" para eliminar. Cierra al click-outside.
+- **`src/features/students/components/layout/StudentSidebar.tsx`**: quita `NotificationLink` y prop `notificationCount`. El sidebar ya no muestra ningún item de notificaciones.
+
+### Server actions (`src/features/lms/actions/notifications.ts`)
+
+- **`markNotificationRead(id)`** — sin cambios. Set `read=true`, dispara `updatedAt = now` automáticamente.
+- **`markAllNotificationsRead()`** — sin cambios.
+- **`deleteNotification(id)`** (nuevo) — `deleteMany` filtrado por `id` + `userId` (anti-IDOR).
+- ~~`getStudentNotifications`~~ — eliminado (era huérfano tras quitar la página).
+
+### 3 tipos de notificación
+
+- **Constantes y formatters** en `src/features/lms/lib/notification-events.ts` (lib pura testeable):
+  - `NOTIFICATION_TYPE.LMS_PLAN_EXPIRING` → "Tu plan del Aula Virtual vence el {fecha larga}."
+  - `NOTIFICATION_TYPE.COURSE_NEW_ITEM` → "{docente} agregó '{lección}' a {curso}." (fallback "Un docente" si no hay nombre)
+  - `NOTIFICATION_TYPE.ASSIGNMENT_DUE_SOON` → "La tarea '{assignment}' de {curso} vence el {fecha corta}."
+- **Fan-out** en `src/features/lms/lib/notification-fanout.ts`: 3 funciones fire-and-forget (`void .catch(console.error)`) que crean `LmsNotification` con `dedupeKey` cuando aplica.
+
+### Triggers
+
+- **`COURSE_NEW_ITEM`** — en `src/features/lms/actions/courses.ts` → `createLmsLesson`:
+  - Inmediatamente después de `prisma.lmsLesson.create`, dispara `void notifyCourseNewItem({...})` con `teacherUserId = ctx.userId`, `lessonTitle`, `courseId`, `courseTitle`.
+  - Fan-out a todos los `LmsEnrollment` con `status='ACTIVO'` del curso.
+  - Una vez por lección creada (sin dedupe, porque la inserción ocurre 1 sola vez por lección).
+
+- **`LMS_PLAN_EXPIRING`** + **`ASSIGNMENT_DUE_SOON`** — cron diario `/api/cron/student-notifications`:
+  - **`LMS_PLAN_EXPIRING`**: ventana `lmsPlanExpiresAt` entre hoy+6d y hoy+8d. `dedupeKey = LMS_PLAN_EXPIRING:<institutionId>`. Por cada institución, si ya existe la dedupeKey, skip; si no, fan-out a enrollados activos del LMS.
+  - **`ASSIGNMENT_DUE_SOON`**: ventana `LmsAssignment.dueAt` entre hoy+12h y hoy+30h. Filtra assignments donde el estudiante ya entregó. `dedupeKey = ASSIGNMENT_DUE_SOON:<assignmentId>:<userId>`. Cron diario a las 9am UTC (`0 9 * * *`) asegura 1 sola captura por tarea gracias a la ventana fija.
+  - Idempotente vía `dedupeKey` + check `findFirst` antes del insert.
+
+### Cron de limpieza (`/api/cron/cleanup-read-notifications`)
+
+- **Job**: `deleteMany where: { read: true, updatedAt: { lt: now - 24h } }`.
+- **Schedule**: `0 5 * * *` (5am UTC).
+- **Usa `updatedAt`** (no `createdAt`) para garantizar el contrato "24h después de marcar como leída", no "24h después de creada".
+
+### `vercel.json`
+
+```json
+{ "path": "/api/cron/cleanup-read-notifications", "schedule": "0 5 * * *" },
+{ "path": "/api/cron/student-notifications",        "schedule": "0 9 * * *" }
+```
+
+### Tests (`src/features/lms/lib/__tests__/notification-events.test.ts`)
+
+- 6 tests puros: constantes de `NOTIFICATION_TYPE`, formato de fechas, fallback `Un docente` para `teacherName` null/vacío.
+- Total suite: 324/324 pasando (incremento +6 desde 270 — los demás tests existentes siguen pasando).
+
+### Verificación
+
+- `pnpm type-check` ✅ 0 errores.
+- `pnpm lint` ✅ 0 errores en archivos tocados (los 4 warnings pre-existentes siguen iguales).
+- `pnpm test:run` ✅ 324/324.
+- `pnpm exec next build` ✅ compiló correctamente. La ruta `/students/notificaciones` ya no aparece en el build output.
+
+### Notas operacionales
+
+- **No romper** los tipos existentes (`BADGE_ACK`, `LIVE_SESSION_SCHEDULED`) — siguen funcionando, ahora sin link y con opción de eliminar.
+- Para el fan-out en `createLmsLesson` se hace una query extra (`prisma.lmsModule.findUnique` con `course.title`) — evita una llamada adicional `prisma.user.findUnique` pasando el `teacherName` como argumento al action.
+- Los crones son best-effort. Si Vercel pierde una corrida, la siguiente ventana los captura (con dedupe, no se duplica).
+- **No commitear sin pedido explícito de Edgardo.**
 
 ## Variables de entorno requeridas
 

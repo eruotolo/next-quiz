@@ -64,7 +64,7 @@ export default async function StudentAulaForoPage({ params }: PageProps) {
                     Mis cursos
                 </Link>
                 <span>/</span>
-                <Link href={`/aula/cursos/${courseId}`} className="hover:text-ink">
+                <Link href={`/students/aula/cursos/${courseId}`} className="hover:text-ink">
                     {course.title}
                 </Link>
                 <span>/</span>

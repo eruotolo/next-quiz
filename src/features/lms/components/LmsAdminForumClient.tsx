@@ -22,17 +22,19 @@ import { MessageSquare, Pin, Lock, Plus, Loader2, Unlock } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface ThreadRowProps {
     thread: ForumThread;
     isLast: boolean;
     slug: string;
+    courseId: string;
     isPending: boolean;
     onPin: (id: string, pinned: boolean) => void;
     onLock: (id: string, locked: boolean) => void;
 }
 
-function ThreadRow({ thread, isLast, isPending, onPin, onLock }: ThreadRowProps) {
+function ThreadRow({ thread, isLast, slug, courseId, isPending, onPin, onLock }: ThreadRowProps) {
     return (
         <div
             id={`thread-${thread.id}`}
@@ -47,10 +49,12 @@ function ThreadRow({ thread, isLast, isPending, onPin, onLock }: ThreadRowProps)
                 {thread.locked ? <Lock size={14} /> : <MessageSquare size={14} />}
             </div>
 
-            <div className="min-w-0 flex-1">
+            <Link href={`/${slug}/aula/${courseId}/foro/${thread.id}`} className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                     {thread.pinned && <Pin size={12} className="shrink-0 text-amber-500" />}
-                    <p className="text-ink truncate font-semibold">{thread.title}</p>
+                    <p className="text-ink hover:text-primary truncate font-semibold">
+                        {thread.title}
+                    </p>
                     {thread.locked && (
                         <Badge variant="outline" className="shrink-0 text-[10px]">
                             Cerrado
@@ -62,7 +66,7 @@ function ThreadRow({ thread, isLast, isPending, onPin, onLock }: ThreadRowProps)
                     {' · '}
                     {thread._count.posts} respuestas
                 </p>
-            </div>
+            </Link>
 
             <div className="flex shrink-0 items-center gap-2">
                 <button
@@ -101,12 +105,13 @@ function ThreadRow({ thread, isLast, isPending, onPin, onLock }: ThreadRowProps)
 interface ForumSectionProps {
     forum: ForumWithThreads;
     slug: string;
+    courseId: string;
     isPending: boolean;
     onPin: (id: string, pinned: boolean) => void;
     onLock: (id: string, locked: boolean) => void;
 }
 
-function ForumSection({ forum, slug, isPending, onPin, onLock }: ForumSectionProps) {
+function ForumSection({ forum, slug, courseId, isPending, onPin, onLock }: ForumSectionProps) {
     return (
         <section>
             <div className="mb-3">
@@ -131,6 +136,7 @@ function ForumSection({ forum, slug, isPending, onPin, onLock }: ForumSectionPro
                             thread={thread}
                             isLast={idx === forum.threads.length - 1}
                             slug={slug}
+                            courseId={courseId}
                             isPending={isPending}
                             onPin={onPin}
                             onLock={onLock}
@@ -214,6 +220,7 @@ export function LmsAdminForumClient({ slug, courseId, forums: initialForums }: P
                         key={forum.id}
                         forum={forum}
                         slug={slug}
+                        courseId={courseId}
                         isPending={isPending}
                         onPin={handlePin}
                         onLock={handleLock}

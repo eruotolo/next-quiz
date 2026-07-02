@@ -10,16 +10,19 @@ interface CategoryOption {
 }
 
 interface Props {
-    slug: string;
     categories: CategoryOption[];
     activeSlug: string | null;
 }
 
-export function CategoryFilter({ slug, categories, activeSlug }: Props) {
+/**
+ * Filtro de chips para `/cursos` (catálogo público plano). Mantiene la URL
+ * `?category=slug` para mantener el filtro al recargar/compartir.
+ */
+export function CategoryFilter({ categories, activeSlug }: Props) {
     return (
         <div className="flex flex-wrap items-center gap-2">
             <Link
-                href={`/${slug}/cursos` as `/${string}`}
+                href="/cursos"
                 className={cn(
                     'rounded-full px-4 py-1.5 text-[13px] font-medium transition-colors',
                     activeSlug === null
@@ -32,7 +35,7 @@ export function CategoryFilter({ slug, categories, activeSlug }: Props) {
             {categories.map((c) => (
                 <Link
                     key={c.id}
-                    href={`/${slug}/cursos?category=${c.slug}` as `/${string}`}
+                    href={`/cursos?category=${c.slug}` as `/${string}`}
                     className={cn(
                         'rounded-full px-4 py-1.5 text-[13px] font-medium transition-colors',
                         activeSlug === c.slug

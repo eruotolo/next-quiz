@@ -16,6 +16,7 @@ import {
 } from '@/features/exam-session/schemas/exam-session.schemas';
 import { calcGrade } from '@/shared/lib/grade';
 import { buildExamResultEmail, sendEmail } from '@/shared/lib/email';
+import { markLessonCompletionForExam } from '@/features/lms/actions/progress';
 
 /**
  * Inicia (o reanuda) el intento de un examen elegido en la página de selección.
@@ -301,6 +302,10 @@ async function gradeAttempt(
             exam.passingGrade,
             exam.passingPercentage,
         );
+
+        // Si este examen está embebido como lección EXAMEN en algún curso LMS,
+        // marca esa lección como completada automáticamente (fire-and-forget).
+        void markLessonCompletionForExam(studentId, examId).catch(console.error);
 
         return result.id;
     } catch (err: unknown) {

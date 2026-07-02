@@ -7,15 +7,16 @@ import {
     FileText,
     Link2,
     ClipboardList,
-    Radio,
     PlayCircle,
     Sparkles,
+    Lock,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Card } from '@/shared/components/ui/card';
 import { Button } from '@/shared/components/ui/button';
-import { VideoPlayer } from '@/features/lms/components/VideoPlayer';
-import { DocumentViewer } from '@/features/lms/components/DocumentViewer';
+import { VideoEmbed } from '@/features/lms/components/VideoEmbed';
+import { LiveSessionLinkCard } from '@/features/lms/components/LiveSessionLinkCard';
+import { renderLessonHtml } from '@/features/lms/components/TiptapEditor';
 import { markLessonProgress } from '@/features/lms/actions/progress';
 import { LmsTaskSubmissionForm } from '@/features/lms/components/LmsTaskSubmissionForm';
 import { useRouter } from 'next/navigation';
@@ -48,28 +49,50 @@ interface Props {
         type: LessonType;
         contentJson: unknown | null;
         summaryJson: unknown | null;
-        videoAssetId: string | null;
         fileUrl: string | null;
         externalLink: string | null;
-        durationSec: number | null;
         examId: string | null;
     };
-    playbackId: string | null;
     completed: boolean;
-    initialLastSeenSec: number | null;
+    examCompleted?: boolean;
     nextLessonId: string | null;
     prevLessonId: string | null;
     assignment?: Assignment | null;
     mySubmission?: Submission | null;
 }
 
+function DocumentPreview({ fileUrl, title }: { fileUrl: string; title: string }) {
+    const isPdf = /\.pdf(\?|$)/i.test(fileUrl);
+    if (isPdf) {
+        return (
+            <div className="border-border overflow-hidden rounded-[12px] border bg-white shadow-sm">
+                <iframe src={`${fileUrl}#toolbar=0`} title={title} className="h-[70vh] w-full" />
+            </div>
+        );
+    }
+    return (
+        <Card className="border-border flex flex-col items-center gap-3 bg-white p-8 text-center">
+            <FileText size={28} className="text-primary" />
+            <p className="text-ink font-display text-lg font-bold">{title}</p>
+            <a
+                href={fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-primary text-primary-foreground rounded-[10px] px-5 py-2.5 text-sm font-bold shadow-sm transition-opacity hover:opacity-90"
+            >
+                Abrir documento
+            </a>
+        </Card>
+    );
+}
+
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: switch de 7 tipos de lección, dividirlo perjudica la lectura
 export function LmsLessonViewer({
     institutionSlug,
     courseId,
     lesson,
-    playbackId,
     completed: initialCompleted,
-    initialLastSeenSec,
+    examCompleted = false,
     nextLessonId,
     prevLessonId,
     assignment = null,
@@ -100,7 +123,7 @@ export function LmsLessonViewer({
         <div className="flex flex-col gap-6">
             <div className="flex items-center gap-3">
                 <Button asChild variant="ghost" size="sm">
-                    <Link href={`/aula/cursos/${courseId}`}>
+                    <Link href={`/students/aula/cursos/${courseId}`}>
                         <ArrowLeft size={14} className="mr-1" /> Volver al curso
                     </Link>
                 </Button>
@@ -116,43 +139,29 @@ export function LmsLessonViewer({
                             {lesson.title}
                         </h1>
                     </div>
-                    <Button
-                        variant={completed ? 'ghost' : 'primary'}
-                        size="md"
-                        onClick={() => handleComplete(!completed)}
-                        disabled={isPending}
-                    >
-                        <CheckCircle2 size={16} className="mr-1" />
-                        {completed ? 'Completada' : 'Marcar como vista'}
-                    </Button>
+                    {lesson.type === 'EXAMEN' && !completed && !examCompleted ? (
+                        <Button variant="ghost" size="md" disabled>
+                            <Lock size={16} className="mr-1" />
+                            Rendí el examen primero
+                        </Button>
+                    ) : (
+                        <Button
+                            variant={completed ? 'ghost' : 'primary'}
+                            size="md"
+                            onClick={() => handleComplete(!completed)}
+                            disabled={isPending}
+                        >
+                            <CheckCircle2 size={16} className="mr-1" />
+                            {completed ? 'Completada' : 'Marcar como vista'}
+                        </Button>
+                    )}
                 </div>
 
                 <div className="p-6">
-                    {lesson.type === 'VIDEO' && playbackId && (
-                        <VideoPlayer
-                            playbackId={playbackId}
-                            title={lesson.title}
-                            startTime={initialLastSeenSec ?? undefined}
-                            onTimeUpdate={(sec) => {
-                                if (sec > 0 && sec % 15 === 0 && !completed) {
-                                    void markLessonProgress(institutionSlug, courseId, {
-                                        lessonId: lesson.id,
-                                        completed: false,
-                                        lastSeenSec: sec,
-                                    });
-                                }
-                            }}
-                        />
-                    )}
-
-                    {lesson.type === 'VIDEO' && !playbackId && (
-                        <p className="text-mute py-12 text-center text-sm">
-                            El video aún se está procesando. Vuelve en unos minutos.
-                        </p>
-                    )}
+                    {lesson.type === 'VIDEO' && <VideoEmbed externalLink={lesson.externalLink} />}
 
                     {lesson.type === 'DOCUMENTO' && lesson.fileUrl && (
-                        <DocumentViewer fileUrl={lesson.fileUrl} title={lesson.title} />
+                        <DocumentPreview fileUrl={lesson.fileUrl} title={lesson.title} />
                     )}
 
                     {lesson.type === 'TEXTO' && (
@@ -192,7 +201,7 @@ export function LmsLessonViewer({
                             </p>
                             {lesson.examId && (
                                 <Button asChild variant="primary" size="md">
-                                    <Link href={`/examen/seleccion?lmsLessonId=${lesson.id}`}>
+                                    <Link href={`/students/examen/seleccion?lmsLessonId=${lesson.id}`}>
                                         Ir al examen
                                     </Link>
                                 </Button>
@@ -224,15 +233,7 @@ export function LmsLessonViewer({
                     )}
 
                     {lesson.type === 'EN_VIVO' && (
-                        <Card className="border-border flex flex-col items-center gap-3 bg-white p-8 text-center">
-                            <Radio size={28} className="text-primary" />
-                            <p className="text-ink font-display text-lg font-bold">
-                                Clase en vivo (Fase 6)
-                            </p>
-                            <p className="text-mute text-sm">
-                                Las clases sincrónicas se habilitarán en la Fase 6.
-                            </p>
-                        </Card>
+                        <LiveSessionLinkCard externalLink={lesson.externalLink} />
                     )}
                 </div>
             </Card>
@@ -240,7 +241,7 @@ export function LmsLessonViewer({
             <div className="flex items-center justify-between">
                 {prevLessonId ? (
                     <Button asChild variant="ghost" size="sm">
-                        <Link href={`/aula/cursos/${courseId}/leccion/${prevLessonId}`}>
+                        <Link href={`/students/aula/cursos/${courseId}/leccion/${prevLessonId}`}>
                             <ArrowLeft size={14} className="mr-1" /> Lección anterior
                         </Link>
                     </Button>
@@ -249,7 +250,7 @@ export function LmsLessonViewer({
                 )}
                 {nextLessonId ? (
                     <Button asChild variant="primary" size="sm">
-                        <Link href={`/aula/cursos/${courseId}/leccion/${nextLessonId}`}>
+                        <Link href={`/students/aula/cursos/${courseId}/leccion/${nextLessonId}`}>
                             Siguiente lección <PlayCircle size={14} className="ml-1" />
                         </Link>
                     </Button>
@@ -269,26 +270,16 @@ function RichTextContent({ contentJson }: { contentJson: unknown | null }) {
             </p>
         );
     }
-    const text = extractText(contentJson);
-    return (
-        <div className="prose prose-sm max-w-none">
-            {text.split('\n').map((p, i) => (
-                <p key={i} className="text-ink leading-relaxed">
-                    {p}
-                </p>
-            ))}
-        </div>
-    );
-}
-
-function extractText(node: unknown): string {
-    if (!node || typeof node !== 'object') return '';
-    const n = node as { type?: string; text?: string; content?: unknown[] };
-    if (n.text) return n.text;
-    if (Array.isArray(n.content)) {
-        return n.content.map((c) => extractText(c)).join(n.type === 'paragraph' ? '\n' : '');
+    const html = renderLessonHtml(contentJson);
+    if (!html) {
+        return (
+            <p className="text-mute py-12 text-center text-sm">
+                Esta lección no tiene contenido de texto todavía.
+            </p>
+        );
     }
-    return '';
+    // biome-ignore lint/security/noDangerouslySetInnerHtml: HTML generado por el schema cerrado de Tiptap (sin scripts ni nodos crudos)
+    return <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
 interface LessonSummaryData {

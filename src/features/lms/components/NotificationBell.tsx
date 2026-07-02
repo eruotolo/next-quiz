@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useTransition, useEffect, useRef } from 'react';
-import { Bell, CheckCheck, X } from 'lucide-react';
-import Link from 'next/link';
+import { useEffect, useRef, useState, useTransition } from 'react';
+import { Bell, CheckCheck, X as XIcon } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import {
     type LmsNotificationItem,
+    deleteNotification,
     markNotificationRead,
     markAllNotificationsRead,
 } from '@/features/lms/actions/notifications';
@@ -34,6 +34,7 @@ export function NotificationBell({ initialNotifications, initialUnreadCount }: P
     const ref = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        if (!open) return;
         const handler = (e: MouseEvent) => {
             if (ref.current && !ref.current.contains(e.target as Node)) {
                 setOpen(false);
@@ -41,7 +42,7 @@ export function NotificationBell({ initialNotifications, initialUnreadCount }: P
         };
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
-    }, []);
+    }, [open]);
 
     const handleMarkRead = (id: string) => {
         startTransition(async () => {
@@ -59,6 +60,17 @@ export function NotificationBell({ initialNotifications, initialUnreadCount }: P
         });
     };
 
+    const handleDelete = (id: string) => {
+        startTransition(async () => {
+            const target = notifications.find((n) => n.id === id);
+            await deleteNotification(id);
+            setNotifications((prev) => prev.filter((n) => n.id !== id));
+            if (target && !target.read) {
+                setUnreadCount((c) => Math.max(0, c - 1));
+            }
+        });
+    };
+
     return (
         <div ref={ref} className="relative">
             <button
@@ -72,24 +84,23 @@ export function NotificationBell({ initialNotifications, initialUnreadCount }: P
             >
                 <Bell size={18} />
                 {unreadCount > 0 && (
-                    <span className="bg-primary absolute -top-0.5 -right-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full px-0.5 font-mono text-[10px] text-white">
+                    <span className="bg-primary absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full px-1 font-mono text-[11px] leading-none font-semibold text-white">
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                 )}
             </button>
 
             {open && (
-                <div className="border-border absolute top-10 right-0 z-50 w-80 rounded-2xl border bg-white shadow-xl">
-                    {/* Header */}
-                    <div className="flex items-center justify-between border-b px-4 py-3">
+                <div className="border-border absolute top-10 right-0 z-50 w-80 overflow-hidden rounded-lg border bg-white shadow-lg">
+                    <div className="flex items-center justify-between border-b px-4 py-2.5">
                         <span className="text-ink text-sm font-semibold">Notificaciones</span>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                             {unreadCount > 0 && (
                                 <button
                                     type="button"
                                     onClick={handleMarkAll}
                                     disabled={isPending}
-                                    className="text-mute hover:text-primary flex items-center gap-1 text-xs transition-colors"
+                                    className="text-mute hover:text-primary flex items-center gap-1 rounded px-1.5 py-0.5 text-xs transition-colors"
                                     title="Marcar todas como leídas"
                                 >
                                     <CheckCheck size={13} /> Leer todo
@@ -98,77 +109,68 @@ export function NotificationBell({ initialNotifications, initialUnreadCount }: P
                             <button
                                 type="button"
                                 onClick={() => setOpen(false)}
-                                className="text-mute hover:text-ink"
+                                className="text-mute hover:text-ink rounded p-1"
+                                aria-label="Cerrar"
                             >
-                                <X size={14} />
+                                <XIcon size={13} />
                             </button>
                         </div>
                     </div>
 
-                    {/* List */}
-                    <div className="max-h-80 overflow-y-auto">
+                    <div className="max-h-96 overflow-y-auto">
                         {notifications.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-10">
                                 <Bell size={28} className="text-mute/30 mb-2" />
                                 <p className="text-mute text-sm">Sin notificaciones</p>
                             </div>
                         ) : (
-                            // biome-ignore-start lint/correctness/useJsxKeyInIterable: key is on the outer Link/div wrapper
-                            notifications.map((n) => {
-                                const inner = (
-                                    <div
-                                        className={cn(
-                                            'flex items-start gap-3 px-4 py-3 transition-colors',
-                                            !n.read ? 'bg-primary/5' : 'hover:bg-paper',
-                                        )}
-                                    >
-                                        <div className="mt-1 min-w-0 flex-1">
-                                            <p
-                                                className={cn(
-                                                    'text-sm leading-snug',
-                                                    !n.read
-                                                        ? 'text-ink font-medium'
-                                                        : 'text-ink-dim',
-                                                )}
-                                            >
-                                                {n.message}
-                                            </p>
-                                            <p className="text-mute mt-0.5 text-[11px]">
-                                                {timeAgo(n.createdAt)}
-                                            </p>
+                            notifications.map((n) => (
+                                <div
+                                    key={n.id}
+                                    className={cn(
+                                        'group flex items-start gap-2 px-4 py-2.5 transition-colors',
+                                        !n.read
+                                            ? 'bg-primary/5 hover:bg-primary/10'
+                                            : 'hover:bg-paper',
+                                    )}
+                                >
+                                    <div className="min-w-0 flex-1">
+                                        <p
+                                            className={cn(
+                                                'text-sm leading-snug',
+                                                !n.read
+                                                    ? 'text-ink font-medium'
+                                                    : 'text-ink-dim',
+                                            )}
+                                        >
+                                            {n.message}
+                                        </p>
+                                        <div className="text-mute mt-1 flex items-center gap-3 text-[11px]">
+                                            <span>{timeAgo(n.createdAt)}</span>
+                                            {!n.read && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleMarkRead(n.id)}
+                                                    disabled={isPending}
+                                                    className="text-primary hover:underline"
+                                                >
+                                                    Marcar leída
+                                                </button>
+                                            )}
                                         </div>
-                                        {!n.read && (
-                                            <button
-                                                type="button"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    handleMarkRead(n.id);
-                                                }}
-                                                className="text-primary mt-0.5 shrink-0 text-[11px] hover:underline"
-                                            >
-                                                Leer
-                                            </button>
-                                        )}
                                     </div>
-                                );
-
-                                return n.link ? (
-                                    <Link
-                                        key={n.id}
-                                        href={n.link}
-                                        onClick={() => !n.read && handleMarkRead(n.id)}
-                                        className="block border-b last:border-0"
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDelete(n.id)}
+                                        disabled={isPending}
+                                        className="text-mute hover:text-destructive shrink-0 rounded p-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
+                                        aria-label="Eliminar notificación"
+                                        title="Eliminar"
                                     >
-                                        {inner}
-                                    </Link>
-                                ) : (
-                                    <div key={n.id} className="border-b last:border-0">
-                                        {inner}
-                                    </div>
-                                );
-                            })
-                            // biome-ignore-end lint/correctness/useJsxKeyInIterable: key is on the outer Link/div wrapper
+                                        <XIcon size={14} />
+                                    </button>
+                                </div>
+                            ))
                         )}
                     </div>
                 </div>

@@ -3,6 +3,7 @@
 import { requireInstitutionAccess } from '@/features/auth/lib/auth-guard';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
 import { assertCanSellCourses } from '@/features/lms/lib/aulika-online-bundle';
+import { notifyCourseNewItem } from '@/features/lms/lib/notification-fanout';
 import {
     lmsCourseSchema,
     lmsCourseBasicSchema,
@@ -312,8 +313,6 @@ export async function createLmsLesson(
                 type: parsed.data.type,
                 order: parsed.data.order ?? nextOrder,
                 contentJson: parsed.data.contentJson ?? undefined,
-                videoAssetId: parsed.data.videoAssetId ?? null,
-                videoUploadId: parsed.data.videoUploadId ?? null,
                 fileUrl: parsed.data.fileUrl ?? null,
                 externalLink: parsed.data.externalLink ?? null,
                 durationSec: parsed.data.durationSec ?? null,
@@ -321,6 +320,20 @@ export async function createLmsLesson(
             },
             select: { id: true },
         });
+
+        const moduleCourse = await prisma.lmsModule.findUnique({
+            where: { id: parsed.data.moduleId },
+            select: { courseId: true, course: { select: { title: true } } },
+        });
+        if (moduleCourse) {
+            void notifyCourseNewItem({
+                lessonId: lesson.id,
+                lessonTitle: parsed.data.title,
+                courseId: moduleCourse.courseId,
+                courseTitle: moduleCourse.course.title,
+                teacherUserId: ctx.userId,
+            });
+        }
 
         revalidatePath(`/${slug}/aula`);
         return ok({ id: lesson.id });
@@ -363,8 +376,6 @@ export async function updateLmsLesson(
                 title: parsed.data.title,
                 type: parsed.data.type,
                 contentJson: parsed.data.contentJson ?? undefined,
-                videoAssetId: parsed.data.videoAssetId ?? null,
-                videoUploadId: parsed.data.videoUploadId ?? null,
                 fileUrl: parsed.data.fileUrl ?? null,
                 externalLink: parsed.data.externalLink ?? null,
                 durationSec: parsed.data.durationSec ?? null,
@@ -492,6 +503,7 @@ export async function updateLmsCoursePrice(
         });
         if (res.count === 0) return fail('Curso no encontrado.');
         revalidatePath(`/${slug}/aula/${courseId}`);
+        revalidatePath(`/${slug}/aula`);
         return ok(null);
     } catch (err) {
         return fail(toActionError(err, 'Error al actualizar el precio.'));

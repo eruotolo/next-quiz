@@ -147,7 +147,7 @@ function StudentRow({ student, slug, courseId, onRefresh }: RowProps) {
                         <>
                             <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs" asChild>
                                 <a
-                                    href={`/certificado/${cert!.verificationCode}`}
+                                    href={`/certificado/${cert?.verificationCode}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
@@ -155,24 +155,16 @@ function StudentRow({ student, slug, courseId, onRefresh }: RowProps) {
                                     Ver
                                 </a>
                             </Button>
-                            {cert?.pdfUrl && (
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-7 gap-1 text-xs"
-                                    asChild
+                            <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs" asChild>
+                                <a
+                                    href={cert?.pdfUrl ?? `/certificado/${cert?.verificationCode}/pdf`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                 >
-                                    <a
-                                        href={cert.pdfUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        download
-                                    >
-                                        <Download size={12} />
-                                        PDF
-                                    </a>
-                                </Button>
-                            )}
+                                    <Download size={12} />
+                                    Ver diploma
+                                </a>
+                            </Button>
                             <Button
                                 variant="outline"
                                 size="sm"

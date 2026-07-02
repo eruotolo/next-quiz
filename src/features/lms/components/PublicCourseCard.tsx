@@ -87,7 +87,7 @@ export function PublicCourseCard({
                                 key={name}
                                 className="border-border text-mute rounded-full border bg-paper-warm px-2 py-0.5 font-mono text-[10px] font-bold tracking-wide uppercase"
                             >
-                                {name}Hola
+                                {name}
                             </span>
                         ))}
                     </div>

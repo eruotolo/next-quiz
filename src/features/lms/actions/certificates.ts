@@ -227,6 +227,61 @@ export async function verifyCertificate(code: string): Promise<ActionResult<Publ
     }
 }
 
+export interface StudentPublicCertificates {
+    student: { name: string; lastname: string };
+    certificates: PublicCertificate[];
+}
+
+export async function listStudentCertificates(
+    studentId: string,
+): Promise<ActionResult<StudentPublicCertificates>> {
+    try {
+        const student = await prisma.user.findUnique({
+            where: { id: studentId },
+            select: { name: true, lastname: true },
+        });
+        if (!student) return fail('Estudiante no encontrado.');
+
+        const certs = await prisma.lmsCertificate.findMany({
+            where: { userId: studentId, revokedAt: null },
+            orderBy: { issuedAt: 'desc' },
+            select: {
+                id: true,
+                verificationCode: true,
+                finalGrade: true,
+                issuedAt: true,
+                revokedAt: true,
+                pdfUrl: true,
+                course: {
+                    select: {
+                        title: true,
+                        academicInstitution: { select: { name: true } },
+                    },
+                },
+            },
+        });
+
+        return ok({
+            student: { name: student.name, lastname: student.lastname },
+            certificates: certs.map((cert) => ({
+                id: cert.id,
+                verificationCode: cert.verificationCode,
+                finalGrade: cert.finalGrade ? Number(cert.finalGrade) : null,
+                issuedAt: cert.issuedAt.toISOString(),
+                revokedAt: cert.revokedAt?.toISOString() ?? null,
+                pdfUrl: cert.pdfUrl,
+                student: { name: student.name, lastname: student.lastname },
+                course: {
+                    title: cert.course.title,
+                    institution: cert.course.academicInstitution?.name ?? 'Institución',
+                },
+            })),
+        });
+    } catch {
+        return fail('Error al cargar los certificados del estudiante.');
+    }
+}
+
 export async function getMyCourseCertificate(
     courseId: string,
 ): Promise<ActionResult<PublicCertificate | null>> {

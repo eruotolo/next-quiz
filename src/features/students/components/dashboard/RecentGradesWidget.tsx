@@ -46,7 +46,7 @@ export async function RecentGradesWidget({ studentId }: RecentGradesWidgetProps)
                 {grades.map((grade) => (
                     <li key={grade.resultId}>
                         <Link
-                            href={`/examen/resultado/${grade.resultId}` as `/${string}`}
+                            href={`/students/examen/resultado/${grade.resultId}` as `/${string}`}
                             className="hover:bg-paper-warm -mx-2 flex items-center gap-3 rounded-[10px] px-2 py-2.5"
                         >
                             <span

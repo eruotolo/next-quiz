@@ -9,6 +9,7 @@ import {
 } from '@/features/subscriptions/schemas/b2c-checkout.schemas';
 import { logAudit } from '@/shared/lib/audit';
 import { AUDIT_ACTION } from '@/features/audit/lib/actions';
+import { getB2cVendorInstitution } from '@/features/lms/lib/aulika-online-bundle';
 
 interface CheckoutResult {
     initPoint: string | null;
@@ -24,9 +25,11 @@ interface CheckoutResult {
  * Acepta órdenes de curso individual (`kind=COURSE`) o de pack por categoría
  * (`kind=CATEGORY_BUNDLE`). El backend solo valida; la UI de checkout es la
  * responsable de elegir el `kind` correcto según el producto.
+ *
+ * No recibe slug: la única institución autorizada a vender B2C es
+ * `aulika-online` y se resuelve internamente vía `getB2cVendorInstitution()`.
  */
 export async function createLmsCheckoutPreference(
-    slug: string,
     data: unknown,
 ): Promise<{ data: CheckoutResult | null; error: string | null }> {
     const parsed = b2cCheckoutSchema.safeParse(data);
@@ -37,12 +40,9 @@ export async function createLmsCheckoutPreference(
     const rut = normalizeRut(input.studentRut);
     const email = input.studentEmail.toLowerCase();
 
-    const inst = await prisma.academicInstitution.findUnique({
-        where: { slug },
-        select: { id: true, name: true, active: true },
-    });
-    if (!inst || !inst.active) {
-        return { data: null, error: 'Institución no encontrada.' };
+    const inst = await getB2cVendorInstitution();
+    if (!inst?.active) {
+        return { data: null, error: 'El catálogo B2C no está disponible.' };
     }
 
     // Resolver el producto (curso o pack) y el monto a cobrar.
@@ -160,12 +160,13 @@ export async function createLmsCheckoutPreference(
     });
 
     // BackURLs: distinguimos entre curso y pack para volver al lugar correcto.
+    // Las rutas son planas (no llevan slug).
     const backUrlBase = process.env.MP_BACK_URL_BASE ?? 'https://www.aulika.cl';
     const backPath =
         kind === 'COURSE' && courseId
             ? `/checkout/${courseId}/exito?order=${order.id}`
             : `/checkout/category/${categoryId}/exito?order=${order.id}`;
-    const backUrl = `${backUrlBase}/${slug}${backPath}`;
+    const backUrl = `${backUrlBase}${backPath}`;
 
     try {
         const { initPoint, preferenceId } = await createPreference({
@@ -196,7 +197,7 @@ export async function createLmsCheckoutPreference(
             academicInstitutionId: inst.id,
             entity: 'LmsOrder',
             entityId: order.id,
-            metadata: { kind, courseId, categoryId, slug, source: 'b2c-checkout' },
+            metadata: { kind, courseId, categoryId, source: 'b2c-checkout' },
         });
 
         return { data: { initPoint, orderId: order.id }, error: null };

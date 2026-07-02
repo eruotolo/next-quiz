@@ -19,7 +19,7 @@ export default async function StudentAulaCoursePage({ params }: PageProps) {
     if (!student?.academicInstitutionId) redirect('/students/examen/login');
 
     const course = await prisma.lmsCourse.findFirst({
-        where: { id, academicInstitutionId: student.academicInstitutionId },
+        where: { id, academicInstitutionId: student.academicInstitutionId, published: true },
         select: {
             id: true,
             title: true,
@@ -38,9 +38,6 @@ export default async function StudentAulaCoursePage({ params }: PageProps) {
                     updatedAt: true,
                     lessons: {
                         orderBy: { order: 'asc' },
-                        where: {
-                            type: { in: ['VIDEO', 'DOCUMENTO', 'TEXTO', 'ENLACE', 'EXAMEN'] },
-                        },
                         select: {
                             id: true,
                             title: true,
@@ -48,8 +45,6 @@ export default async function StudentAulaCoursePage({ params }: PageProps) {
                             order: true,
                             contentJson: true,
                             summaryJson: true,
-                            videoAssetId: true,
-                            videoUploadId: true,
                             fileUrl: true,
                             externalLink: true,
                             durationSec: true,
@@ -100,8 +95,6 @@ export default async function StudentAulaCoursePage({ params }: PageProps) {
             type: l.type,
             order: l.order,
             contentJson: l.contentJson,
-            videoAssetId: l.videoAssetId,
-            videoUploadId: l.videoUploadId,
             fileUrl: l.fileUrl,
             externalLink: l.externalLink,
             durationSec: l.durationSec,

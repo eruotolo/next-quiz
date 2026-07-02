@@ -372,30 +372,4 @@ function renderInline(input: string): string {
     return escaped;
 }
 
-/**
- * Limpia texto plano de chat en vivo. A diferencia de `sanitizeForumMarkdown`,
- * elimina todo HTML/markdown y deja solo texto con caracteres seguros. Esto es
- * lo correcto para un chat donde se renderiza como `<div>{content}</div>` sin
- * escape (React sí escapa por defecto, pero queremos una capa adicional de
- * defensa en profundidad contra payloads con embeds invisibles).
- */
-export function sanitizeChatText(input: string): string {
-    if (!input) return '';
 
-    const stripped = input
-        .replace(/\r\n?/g, '\n')
-        .normalize('NFKC')
-        // Para chat en vivo el contenido debe ser texto plano. Eliminamos
-        // cualquier caracter de apertura de tag XML/HTML y su cierre asociado,
-        // además de `<` y `>` sueltos. Esto neutraliza payloads como
-        // "<img src=x onerror=alert(1)>", "<script", "<unfinished tag" o
-        // "<<X>>>>>".
-        .replace(/<[^>]*>/g, '')
-        .replace(/<>/g, '')
-        .replace(/[<>]/g, '')
-        // biome-ignore lint/suspicious/noControlCharactersInRegex: explícito
-        .replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, '')
-        .replace(/(?:javascript|data|vbscript|file):/gi, '');
-
-    return stripped.trim();
-}

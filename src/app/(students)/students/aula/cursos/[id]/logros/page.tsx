@@ -34,7 +34,7 @@ export default async function CourseLogrosPage({ params }: Props) {
         <div className="flex flex-col gap-6">
             {/* Back */}
             <Link
-                href={`/aula/cursos/${courseId}`}
+                href={`/students/aula/cursos/${courseId}`}
                 className="text-mute hover:text-ink flex items-center gap-1.5 text-sm transition-colors"
             >
                 <ArrowLeft size={14} /> Volver al curso

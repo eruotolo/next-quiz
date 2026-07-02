@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import type { ForumPost } from '@/features/lms/actions/forums';
-import { createLmsPost } from '@/features/lms/actions/forums';
+import { createLmsForumPostAdmin, createLmsPost } from '@/features/lms/actions/forums';
 import { Button } from '@/shared/components/ui/button';
 import { Textarea } from '@/shared/components/ui/textarea';
 import { Loader2, CornerDownRight } from 'lucide-react';
@@ -28,9 +28,11 @@ interface ReplyFormProps {
     parentPostId: string | null;
     locked: boolean;
     onDone: () => void;
+    /** Si se pasa, la respuesta se envía como staff (admin/profesor) vía createLmsForumPostAdmin. */
+    adminSlug?: string;
 }
 
-function ReplyForm({ threadId, parentPostId, locked, onDone }: ReplyFormProps) {
+function ReplyForm({ threadId, parentPostId, locked, onDone, adminSlug }: ReplyFormProps) {
     const router = useRouter();
     const [body, setBody] = useState('');
     const [isPending, startTransition] = useTransition();
@@ -38,7 +40,13 @@ function ReplyForm({ threadId, parentPostId, locked, onDone }: ReplyFormProps) {
     const handleSubmit = () => {
         if (!body.trim()) return;
         startTransition(async () => {
-            const result = await createLmsPost({ threadId, parentPostId, body: body.trim() });
+            const result = adminSlug
+                ? await createLmsForumPostAdmin(adminSlug, {
+                      threadId,
+                      parentPostId,
+                      body: body.trim(),
+                  })
+                : await createLmsPost({ threadId, parentPostId, body: body.trim() });
             if (result.error) {
                 toast.error(result.error);
                 return;
@@ -86,9 +94,18 @@ interface PostNodeProps {
     locked: boolean;
     depth: number;
     currentStudentId?: string;
+    adminSlug?: string;
 }
 
-function PostNode({ post, allPosts, threadId, locked, depth, currentStudentId }: PostNodeProps) {
+function PostNode({
+    post,
+    allPosts,
+    threadId,
+    locked,
+    depth,
+    currentStudentId,
+    adminSlug,
+}: PostNodeProps) {
     const [replying, setReplying] = useState(false);
     const replies = allPosts.filter((p) => p.parentPostId === post.id);
     const isOwn = currentStudentId === post.authorId;
@@ -117,8 +134,12 @@ function PostNode({ post, allPosts, threadId, locked, depth, currentStudentId }:
                     )}
                 </div>
 
-                {/* Body */}
-                <p className="text-ink text-sm leading-relaxed whitespace-pre-wrap">{post.body}</p>
+                {/* Body — post.body ya viene sanitizado (allowlist) por sanitizeForumMarkdown */}
+                <div
+                    className="text-ink prose-sm text-sm leading-relaxed"
+                    // biome-ignore lint/security/noDangerouslySetInnerHtml: body sanitizado server-side vía sanitizeForumMarkdown
+                    dangerouslySetInnerHTML={{ __html: post.body }}
+                />
 
                 {/* Reply button */}
                 {!locked && !replying && (
@@ -137,6 +158,7 @@ function PostNode({ post, allPosts, threadId, locked, depth, currentStudentId }:
                         parentPostId={post.id}
                         locked={locked}
                         onDone={() => setReplying(false)}
+                        adminSlug={adminSlug}
                     />
                 )}
 
@@ -152,6 +174,7 @@ function PostNode({ post, allPosts, threadId, locked, depth, currentStudentId }:
                                 locked={locked}
                                 depth={depth + 1}
                                 currentStudentId={currentStudentId}
+                                adminSlug={adminSlug}
                             />
                         ))}
                     </div>
@@ -166,9 +189,11 @@ interface Props {
     threadId: string;
     locked: boolean;
     currentStudentId?: string;
+    /** Si se pasa, las respuestas se envían como staff (admin/profesor) vía createLmsForumPostAdmin. */
+    adminSlug?: string;
 }
 
-export function LmsForumPostTree({ posts, threadId, locked, currentStudentId }: Props) {
+export function LmsForumPostTree({ posts, threadId, locked, currentStudentId, adminSlug }: Props) {
     // Render only root posts (no parentPostId); nested replies are rendered recursively
     const rootPosts = posts.filter((p) => p.parentPostId === null);
 
@@ -183,6 +208,7 @@ export function LmsForumPostTree({ posts, threadId, locked, currentStudentId }: 
                     locked={locked}
                     depth={0}
                     currentStudentId={currentStudentId}
+                    adminSlug={adminSlug}
                 />
             ))}
         </div>

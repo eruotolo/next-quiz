@@ -57,6 +57,7 @@ import { studentSchema } from '@/features/students/schemas/student.schemas';
 import type { Group, User } from '@prisma/client';
 import {
     AlertTriangle,
+    Award,
     BookOpen,
     CheckCircle2,
     Download,
@@ -837,6 +838,18 @@ export function StudentsClient({
                                                         disabled={isDemo}
                                                     >
                                                         <Edit2 size={14} /> Editar
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        asChild
+                                                        className="cursor-pointer gap-2 py-2"
+                                                    >
+                                                        <a
+                                                            href={`/certificados/estudiante/${s.id}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                        >
+                                                            <Award size={14} /> Certificados
+                                                        </a>
                                                     </DropdownMenuItem>
                                                     {canToggleActive && (
                                                         <DropdownMenuItem

@@ -76,7 +76,7 @@ export function ExamCarousel({
             try {
                 const res = mode === 'auto' ? await autoSubmit() : await finishExam();
                 sessionStorage.removeItem(strikesKey);
-                router.replace(`/examen/resultado/${res.resultId}`);
+                router.replace(`/students/examen/resultado/${res.resultId}`);
             } catch (err) {
                 submittedRef.current = false;
                 toast.error('Error al enviar', {

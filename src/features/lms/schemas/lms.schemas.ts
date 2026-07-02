@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isValidExternalLinkForType } from '@/features/lms/lib/lesson-url-validators';
 
 export const lmsCourseSchema = z.object({
     title: z.string().min(1, 'El título es requerido').max(200),
@@ -29,19 +30,44 @@ export const lmsModuleSchema = z.object({
     order: z.number().int().min(0).default(0),
 });
 
-export const lmsLessonSchema = z.object({
-    moduleId: z.string().uuid('Módulo inválido'),
-    title: z.string().min(1, 'El título es requerido').max(200),
-    type: z.enum(['VIDEO', 'DOCUMENTO', 'TEXTO', 'ENLACE', 'EXAMEN', 'TAREA', 'EN_VIVO']),
-    order: z.number().int().min(0).default(0),
-    contentJson: z.unknown().optional().nullable(),
-    videoAssetId: z.string().optional().nullable(),
-    videoUploadId: z.string().optional().nullable(),
-    fileUrl: z.string().url().optional().nullable(),
-    externalLink: z.string().url().optional().nullable(),
-    durationSec: z.number().int().min(0).optional().nullable(),
-    examId: z.string().uuid().optional().nullable(),
-});
+const LINK_TYPES = ['VIDEO', 'ENLACE', 'EN_VIVO'] as const;
+
+export const lmsLessonSchema = z
+    .object({
+        moduleId: z.string().uuid('Módulo inválido'),
+        title: z.string().min(1, 'El título es requerido').max(200),
+        type: z.enum(['VIDEO', 'DOCUMENTO', 'TEXTO', 'ENLACE', 'EXAMEN', 'TAREA', 'EN_VIVO']),
+        order: z.number().int().min(0).default(0),
+        contentJson: z.unknown().optional().nullable(),
+        fileUrl: z.string().url().optional().nullable(),
+        externalLink: z.string().url().optional().nullable(),
+        durationSec: z.number().int().min(0).optional().nullable(),
+        examId: z.string().uuid().optional().nullable(),
+    })
+    .superRefine((data, ctx) => {
+        if (LINK_TYPES.includes(data.type as (typeof LINK_TYPES)[number])) {
+            if (!data.externalLink) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ['externalLink'],
+                    message: 'Este tipo de lección requiere un enlace.',
+                });
+                return;
+            }
+            if (!isValidExternalLinkForType(data.type, data.externalLink)) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ['externalLink'],
+                    message:
+                        data.type === 'VIDEO'
+                            ? 'La URL debe ser de YouTube o Vimeo.'
+                            : data.type === 'EN_VIVO'
+                              ? 'La URL debe ser de Google Meet o Zoom.'
+                              : 'La URL no es válida.',
+                });
+            }
+        }
+    });
 
 export const reorderModulesSchema = z.object({
     courseId: z.string().uuid(),

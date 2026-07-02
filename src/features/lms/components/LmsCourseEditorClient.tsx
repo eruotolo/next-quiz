@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import {
     DndContext,
     KeyboardSensor,
@@ -51,8 +51,10 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/shared/lib/utils';
 import type { LmsLesson, LmsModule, LessonType } from '@prisma/client';
 import { CourseCategoriesPanel } from './CourseCategoriesPanel';
+import { LessonFormDialog } from './LessonFormDialog';
+import { LESSON_TYPE_LABEL } from '@/features/lms/lib/lesson-types';
 
-interface LessonWithMeta extends LmsLesson {
+interface LessonWithMeta extends Omit<LmsLesson, 'videoAssetId' | 'videoUploadId'> {
     _count: { progress: number };
 }
 
@@ -77,17 +79,9 @@ interface Props {
     availableCategories: Array<{ id: string; name: string }>;
     /** Categorías ya asignadas al curso. */
     initialSelectedCategoryIds: string[];
+    /** Exámenes disponibles en la institución, para lecciones tipo EXAMEN. */
+    availableExams: Array<{ id: string; title: string }>;
 }
-
-const LESSON_TYPE_LABEL: Record<LessonType, string> = {
-    VIDEO: 'Video',
-    DOCUMENTO: 'Documento',
-    TEXTO: 'Texto',
-    ENLACE: 'Enlace',
-    EXAMEN: 'Examen Aulika',
-    TAREA: 'Tarea',
-    EN_VIVO: 'En vivo',
-};
 
 const LESSON_TYPE_ICON: Record<LessonType, React.ComponentType<{ size?: number }>> = {
     VIDEO: Video,
@@ -104,6 +98,7 @@ function SortableModuleRow({
     onToggleExpand,
     expanded,
     onAddLesson,
+    onEditLesson,
     onDeleteLesson,
     onDeleteModule,
     onGenerateSummary,
@@ -114,6 +109,7 @@ function SortableModuleRow({
     onToggleExpand: (id: string) => void;
     expanded: boolean;
     onAddLesson: (moduleId: string) => void;
+    onEditLesson: (lesson: LessonWithMeta) => void;
     onDeleteLesson: (lessonId: string, title: string) => void;
     onDeleteModule: (moduleId: string, title: string) => void;
     onGenerateSummary: (lessonId: string) => void;
@@ -187,9 +183,18 @@ function SortableModuleRow({
                         module.lessons.map((l) => {
                             const Icon = LESSON_TYPE_ICON[l.type];
                             return (
-                                <div key={l.id} className="flex items-center gap-3 px-12 py-2.5">
+                                <div
+                                    key={l.id}
+                                    className="hover:bg-paper flex items-center gap-3 px-12 py-2.5"
+                                >
                                     <Icon size={14} />
-                                    <p className="text-ink flex-1 text-sm font-medium">{l.title}</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => onEditLesson(l)}
+                                        className="text-ink hover:text-primary flex-1 truncate text-left text-sm font-medium"
+                                    >
+                                        {l.title}
+                                    </button>
                                     <span className="text-mute font-mono text-[10px] tracking-wider uppercase">
                                         {LESSON_TYPE_LABEL[l.type]}
                                     </span>
@@ -238,10 +243,23 @@ export function LmsCourseEditorClient({
     canEditPrice,
     availableCategories,
     initialSelectedCategoryIds,
+    availableExams,
 }: Props) {
     const router = useRouter();
     const [items, setItems] = useState<ModuleWithLessons[]>(modules);
     const [expanded, setExpanded] = useState<Set<string>>(new Set(modules.map((m) => m.id)));
+    const [lessonDialog, setLessonDialog] = useState<{
+        moduleId: string;
+        lesson: LessonWithMeta | null;
+    } | null>(null);
+
+    // router.refresh() vuelve a renderizar el Server Component y trae `modules`
+    // actualizado, pero useState solo lee su argumento en el mount inicial —
+    // sin este efecto, crear/eliminar módulos o lecciones no se reflejaba en
+    // la UI hasta recargar la página manualmente (los datos sí persistían).
+    useEffect(() => {
+        setItems(modules);
+    }, [modules]);
     const [newTitle, setNewTitle] = useState('');
     const [showNew, setShowNew] = useState(false);
     const [isPending, startTransition] = useTransition();
@@ -307,22 +325,11 @@ export function LmsCourseEditorClient({
     };
 
     const handleAddLesson = (moduleId: string) => {
-        const title = window.prompt('Título de la lección:');
-        if (!title) return;
-        startTransition(async () => {
-            const { createLmsLesson } = await import('@/features/lms/actions/courses');
-            const result = await createLmsLesson(slug, {
-                moduleId,
-                title,
-                type: 'TEXTO',
-            });
-            if (result.error) {
-                toast.error(result.error);
-                return;
-            }
-            toast.success('Lección creada');
-            router.refresh();
-        });
+        setLessonDialog({ moduleId, lesson: null });
+    };
+
+    const handleEditLesson = (lesson: LessonWithMeta) => {
+        setLessonDialog({ moduleId: lesson.moduleId, lesson });
     };
 
     const handleDeleteLesson = (lessonId: string, title: string) => {
@@ -547,6 +554,7 @@ export function LmsCourseEditorClient({
                     </p>
                 ) : (
                     <DndContext
+                        id="lms-course-modules"
                         sensors={sensors}
                         collisionDetection={closestCenter}
                         onDragEnd={handleDragEnd}
@@ -570,6 +578,7 @@ export function LmsCourseEditorClient({
                                             })
                                         }
                                         onAddLesson={handleAddLesson}
+                                        onEditLesson={handleEditLesson}
                                         onDeleteLesson={handleDeleteLesson}
                                         onDeleteModule={handleDeleteModule}
                                         onGenerateSummary={handleGenerateSummary}
@@ -582,6 +591,23 @@ export function LmsCourseEditorClient({
                     </DndContext>
                 )}
             </Card>
+
+            {lessonDialog && (
+                <LessonFormDialog
+                    slug={slug}
+                    moduleId={lessonDialog.moduleId}
+                    lesson={lessonDialog.lesson}
+                    availableExams={availableExams}
+                    open={!!lessonDialog}
+                    onOpenChange={(open) => {
+                        if (!open) setLessonDialog(null);
+                    }}
+                    onSaved={() => {
+                        setLessonDialog(null);
+                        router.refresh();
+                    }}
+                />
+            )}
         </div>
     );
 }

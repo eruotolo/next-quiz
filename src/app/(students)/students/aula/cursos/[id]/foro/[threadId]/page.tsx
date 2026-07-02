@@ -67,12 +67,12 @@ export default async function StudentAulaThreadPage({ params }: PageProps) {
                     Mis cursos
                 </Link>
                 <span>/</span>
-                <Link href={`/aula/cursos/${courseId}`} className="hover:text-ink">
+                <Link href={`/students/aula/cursos/${courseId}`} className="hover:text-ink">
                     {thread.forum.course.title}
                 </Link>
                 <span>/</span>
                 <Link
-                    href={`/aula/cursos/${courseId}/foro`}
+                    href={`/students/aula/cursos/${courseId}/foro`}
                     className="hover:text-ink flex items-center gap-1"
                 >
                     <MessageSquare size={13} /> Foro

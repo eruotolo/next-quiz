@@ -2,7 +2,6 @@
 
 import { requireInstitutionAccess } from '@/features/auth/lib/auth-guard';
 import { uploadLmsFile } from '@/shared/lib/blob';
-import { createMuxDirectUpload, getMuxAssetFromUpload } from '@/shared/lib/mux';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { type ActionResult, fail, ok, toActionError } from '@/shared/types/action';
@@ -61,47 +60,5 @@ export async function uploadLessonDocument(
         return ok({ url: result.url, pathname: result.pathname });
     } catch (err) {
         return fail(toActionError(err, 'Error al subir el documento.'));
-    }
-}
-
-export async function requestMuxUpload(
-    slug: string,
-    lessonId: string,
-): Promise<ActionResult<{ uploadId: string; uploadUrl: string }>> {
-    try {
-        const { courseId } = await assertLessonEditable(slug, lessonId);
-        const upload = await createMuxDirectUpload();
-
-        await prisma.lmsLesson.update({
-            where: { id: lessonId },
-            data: { videoUploadId: upload.uploadId, type: 'VIDEO' },
-        });
-
-        revalidatePath(`/${slug}/aula/${courseId}`);
-        return ok({ uploadId: upload.uploadId, uploadUrl: upload.uploadUrl });
-    } catch (err) {
-        return fail(toActionError(err, 'Error al preparar la subida de video.'));
-    }
-}
-
-export async function finalizeMuxUpload(
-    slug: string,
-    lessonId: string,
-    uploadId: string,
-): Promise<ActionResult<{ assetId: string }>> {
-    try {
-        const { courseId } = await assertLessonEditable(slug, lessonId);
-        const assetId = await getMuxAssetFromUpload(uploadId);
-        if (!assetId) return fail('El asset aún no está listo. Esperá unos segundos.');
-
-        await prisma.lmsLesson.update({
-            where: { id: lessonId },
-            data: { videoAssetId: assetId, videoUploadId: null },
-        });
-
-        revalidatePath(`/${slug}/aula/${courseId}`);
-        return ok({ assetId });
-    } catch (err) {
-        return fail(toActionError(err, 'Error al finalizar la subida de video.'));
     }
 }

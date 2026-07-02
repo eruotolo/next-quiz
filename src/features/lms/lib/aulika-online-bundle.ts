@@ -8,6 +8,8 @@
  * slug distinto de `AULIKA_ONLINE_INSTITUTION_SLUG`.
  */
 
+import { prisma } from '@/shared/lib/prisma';
+
 export const AULIKA_ONLINE_INSTITUTION_SLUG = 'aulika-online';
 
 export const AULIKA_ONLINE_BUNDLE_COURSE_ID = '99a07384-b113-4ec2-a53b-c10bde486c90';
@@ -60,4 +62,22 @@ export function assertCanSellCourses(
         message:
             'La venta de cursos B2C solo está disponible para la tienda oficial de Aulika.',
     };
+}
+
+export interface B2cVendorInstitution {
+    id: string;
+    name: string;
+    active: boolean;
+}
+
+/**
+ * Resuelve la única institución autorizada a vender cursos B2C. Las rutas
+ * públicas del catálogo y los server actions de checkout ya no reciben slug
+ * por URL: este helper devuelve la institución canónica en server-side.
+ */
+export async function getB2cVendorInstitution(): Promise<B2cVendorInstitution | null> {
+    return prisma.academicInstitution.findUnique({
+        where: { slug: AULIKA_ONLINE_INSTITUTION_SLUG },
+        select: { id: true, name: true, active: true },
+    });
 }

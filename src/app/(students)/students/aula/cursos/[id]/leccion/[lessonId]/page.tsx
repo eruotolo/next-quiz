@@ -2,7 +2,6 @@ import { getStudentAuthSession } from '@/features/exam-session/lib/session';
 import { prisma } from '@/shared/lib/prisma';
 import { redirect, notFound } from 'next/navigation';
 import { LmsLessonViewer } from '@/features/lms/components/LmsLessonViewer';
-import { muxPlaybackId } from '@/shared/lib/mux';
 
 interface PageProps {
     params: Promise<{ id: string; lessonId: string }>;
@@ -24,7 +23,7 @@ export default async function StudentAulaLessonPage({ params }: PageProps) {
         where: { userId_courseId: { userId: student.id, courseId } },
         select: { id: true },
     });
-    if (!enrollment) redirect(`/aula/cursos/${courseId}`);
+    if (!enrollment) redirect(`/students/aula/cursos/${courseId}`);
 
     const lesson = await prisma.lmsLesson.findFirst({
         where: {
@@ -40,10 +39,8 @@ export default async function StudentAulaLessonPage({ params }: PageProps) {
             type: true,
             contentJson: true,
             summaryJson: true,
-            videoAssetId: true,
             fileUrl: true,
             externalLink: true,
-            durationSec: true,
             examId: true,
             module: {
                 select: {
@@ -56,7 +53,7 @@ export default async function StudentAulaLessonPage({ params }: PageProps) {
             },
             progress: {
                 where: { userId: student.id },
-                select: { completed: true, lastSeenSec: true },
+                select: { completed: true },
             },
         },
     });
@@ -76,15 +73,6 @@ export default async function StudentAulaLessonPage({ params }: PageProps) {
             ? (lessonIds[currentIndex + 1] ?? null)
             : null;
 
-    let playbackId: string | null = null;
-    if (lesson.videoAssetId) {
-        try {
-            playbackId = await muxPlaybackId(lesson.videoAssetId);
-        } catch {
-            playbackId = null;
-        }
-    }
-
     let assignment: {
         id: string;
         instructions: string | null;
@@ -100,6 +88,15 @@ export default async function StudentAulaLessonPage({ params }: PageProps) {
         feedback: string | null;
         submittedAt: Date | null;
     } | null = null;
+
+    let examCompleted = false;
+    if (lesson.type === 'EXAMEN' && lesson.examId) {
+        const result = await prisma.result.findUnique({
+            where: { studentId_examId: { studentId: student.id, examId: lesson.examId } },
+            select: { id: true },
+        });
+        examCompleted = !!result;
+    }
 
     if (lesson.type === 'TAREA') {
         const asg = await prisma.lmsAssignment.findUnique({
@@ -135,15 +132,12 @@ export default async function StudentAulaLessonPage({ params }: PageProps) {
                 type: lesson.type,
                 contentJson: lesson.contentJson,
                 summaryJson: lesson.summaryJson,
-                videoAssetId: lesson.videoAssetId,
                 fileUrl: lesson.fileUrl,
                 externalLink: lesson.externalLink,
-                durationSec: lesson.durationSec,
                 examId: lesson.examId,
             }}
-            playbackId={playbackId}
             completed={lesson.progress[0]?.completed ?? false}
-            initialLastSeenSec={lesson.progress[0]?.lastSeenSec ?? null}
+            examCompleted={examCompleted}
             nextLessonId={nextLessonId}
             prevLessonId={prevLessonId}
             assignment={assignment}

@@ -166,28 +166,6 @@ export function AppSettingsClient({ config }: Props) {
                         />
                     </CardContent>
                 </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-base">Daily.co — Aulas sincrónicas</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-col gap-6">
-                        <SettingField
-                            label="API Key"
-                            description="Clave de Daily.co (Dashboard → Developers → API keys)."
-                            configKey={APP_CONFIG_KEY.DAILY_API_KEY}
-                            value={config[APP_CONFIG_KEY.DAILY_API_KEY]}
-                            type="password"
-                        />
-                        <SettingField
-                            label="Webhook Signing Secret"
-                            description="Secreto para validar la firma HMAC de webhooks (Dashboard → Webhooks)."
-                            configKey={APP_CONFIG_KEY.DAILY_WEBHOOK_SECRET}
-                            value={config[APP_CONFIG_KEY.DAILY_WEBHOOK_SECRET]}
-                            type="password"
-                        />
-                    </CardContent>
-                </Card>
             </div>
         </main>
     );

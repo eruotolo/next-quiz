@@ -11,9 +11,6 @@ export const APP_CONFIG_KEY = {
     CLOUDINARY_CLOUD_NAME: 'CLOUDINARY_CLOUD_NAME',
     CLOUDINARY_API_KEY: 'CLOUDINARY_API_KEY',
     CLOUDINARY_API_SECRET: 'CLOUDINARY_API_SECRET',
-    // Fase 6: Daily.co para aulas sincrónicas
-    DAILY_API_KEY: 'DAILY_API_KEY',
-    DAILY_WEBHOOK_SECRET: 'DAILY_WEBHOOK_SECRET',
-} as const;
+    } as const;
 
 export type AppConfigKey = (typeof APP_CONFIG_KEY)[keyof typeof APP_CONFIG_KEY];

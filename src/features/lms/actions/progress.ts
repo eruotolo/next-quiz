@@ -1,6 +1,6 @@
 'use server';
 
-import { auth } from '@/features/auth/auth';
+import { getStudentAuthSession } from '@/features/exam-session/lib/session';
 import { markLessonProgressSchema } from '@/features/lms/schemas/lms.schemas';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE, type UserRoleName } from '@/shared/lib/roles';
@@ -8,9 +8,9 @@ import { type ActionResult, fail, ok, toActionError } from '@/shared/types/actio
 import { revalidatePath } from 'next/cache';
 
 async function requireStudentContext(): Promise<{ userId: string; role: UserRoleName }> {
-    const session = await auth();
-    if (!session?.user) throw new Error('No autorizado');
-    return { userId: session.user.id, role: session.user.userRoleName as UserRoleName };
+    const session = await getStudentAuthSession();
+    if (!session) throw new Error('No autorizado');
+    return { userId: session.studentId, role: USER_ROLE.STUDENT };
 }
 
 export async function markLessonProgress(
@@ -33,7 +33,7 @@ export async function markLessonProgress(
 
         const lesson = await prisma.lmsLesson.findFirst({
             where: { id: parsed.data.lessonId, module: { courseId } },
-            select: { id: true },
+            select: { id: true, type: true, examId: true },
         });
         if (!lesson) return fail('Lección no encontrada.');
 
@@ -43,6 +43,14 @@ export async function markLessonProgress(
                 select: { id: true },
             });
             if (!enrollment) return fail('No estás inscripto en este curso.');
+        }
+
+        if (lesson.type === 'EXAMEN' && parsed.data.completed && lesson.examId) {
+            const result = await prisma.result.findUnique({
+                where: { studentId_examId: { studentId: ctx.userId, examId: lesson.examId } },
+                select: { id: true },
+            });
+            if (!result) return fail('Debes rendir el examen antes de completar esta lección.');
         }
 
         await prisma.lmsLessonProgress.upsert({
@@ -90,6 +98,35 @@ async function recomputeEnrollmentProgress(userId: string, courseId: string): Pr
             completedAt: pct >= 100 ? new Date() : null,
         },
     });
+}
+
+export async function markLessonCompletionForExam(studentId: string, examId: string): Promise<void> {
+    const lessons = await prisma.lmsLesson.findMany({
+        where: { examId },
+        select: { id: true, module: { select: { courseId: true } } },
+    });
+
+    for (const lesson of lessons) {
+        const courseId = lesson.module.courseId;
+        const enrollment = await prisma.lmsEnrollment.findUnique({
+            where: { userId_courseId: { userId: studentId, courseId } },
+            select: { id: true },
+        });
+        if (!enrollment) continue;
+
+        await prisma.lmsLessonProgress.upsert({
+            where: { userId_lessonId: { userId: studentId, lessonId: lesson.id } },
+            create: {
+                userId: studentId,
+                lessonId: lesson.id,
+                completed: true,
+                completedAt: new Date(),
+            },
+            update: { completed: true, completedAt: new Date() },
+        });
+
+        await recomputeEnrollmentProgress(studentId, courseId);
+    }
 }
 
 export async function enrollInCourse(

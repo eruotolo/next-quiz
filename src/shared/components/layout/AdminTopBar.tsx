@@ -29,7 +29,8 @@ export function AdminTopBar({
                 {breadcrumb && breadcrumb.length > 0 && (
                     <nav className="text-mute mb-2 flex items-center gap-1.5 font-mono text-[10px] font-medium tracking-[0.04em] uppercase">
                         {breadcrumb.map((item, i) => (
-                            <div key={item} className="flex items-center gap-1.5">
+                            // biome-ignore lint/suspicious/noArrayIndexKey: breadcrumb es estático por render, el índice desambigua textos repetidos (ej. "Aula Virtual")
+                            <div key={`${item}-${i}`} className="flex items-center gap-1.5">
                                 {i > 0 && <span className="opacity-40">/</span>}
                                 <span
                                     className={cn(

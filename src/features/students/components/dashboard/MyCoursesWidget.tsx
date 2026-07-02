@@ -46,7 +46,7 @@ export async function MyCoursesWidget({ studentId }: MyCoursesWidgetProps) {
                 {courses.map((course) => (
                     <li key={course.id}>
                         <Link
-                            href={`/aula/cursos/${course.id}` as `/${string}`}
+                            href={`/students/aula/cursos/${course.id}` as `/${string}`}
                             className="bg-paper-warm border-border hover:border-primary/30 group flex h-full flex-col gap-3 rounded-[12px] border p-4 transition-colors"
                         >
                             <div className="flex items-start justify-between gap-2">

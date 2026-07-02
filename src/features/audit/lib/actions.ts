@@ -61,15 +61,6 @@
 
     COORDINATOR_ASSIGN: 'coordinator.assign',
     COORDINATOR_REMOVE: 'coordinator.remove',
-
-    LMS_LIVE_SESSION_CREATE: 'lms.live_session.create',
-    LMS_LIVE_SESSION_UPDATE: 'lms.live_session.update',
-    LMS_LIVE_SESSION_START: 'lms.live_session.start',
-    LMS_LIVE_SESSION_END: 'lms.live_session.end',
-    LMS_LIVE_SESSION_CANCEL: 'lms.live_session.cancel',
-    LMS_LIVE_SESSION_JOIN: 'lms.live_session.join',
-    LMS_LIVE_SESSION_LEAVE: 'lms.live_session.leave',
-    LMS_LIVE_SESSION_RECORDING_READY: 'lms.live_session.recording_ready',
 } as const;
 
 export type AuditActionKey = (typeof AUDIT_ACTION)[keyof typeof AUDIT_ACTION];
@@ -122,12 +113,4 @@ export const AUDIT_ACTION_LABEL: Record<AuditActionKey, string> = {
     'course.delete': 'Materia eliminada',
     'coordinator.assign': 'Jefe de Carrera asignado',
     'coordinator.remove': 'Jefe de Carrera removido',
-    'lms.live_session.create': 'Aula sincrónica creada',
-    'lms.live_session.update': 'Aula sincrónica editada',
-    'lms.live_session.start': 'Aula sincrónica iniciada',
-    'lms.live_session.end': 'Aula sincrónica finalizada',
-    'lms.live_session.cancel': 'Aula sincrónica cancelada',
-    'lms.live_session.join': 'Participante se unió a aula sincrónica',
-    'lms.live_session.leave': 'Participante abandonó aula sincrónica',
-    'lms.live_session.recording_ready': 'Grabación de aula sincrónica lista',
 };

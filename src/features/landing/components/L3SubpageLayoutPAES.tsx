@@ -2,13 +2,10 @@ import { Tag } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import {
-    AULIKA_ONLINE_INSTITUTION_SLUG,
-    AULIKA_ONLINE_PAES_CATEGORY_ID,
-} from '@/features/lms/lib/aulika-online-bundle';
+import { AULIKA_ONLINE_PAES_CATEGORY_ID } from '@/features/lms/lib/aulika-online-bundle';
 
 const PAES_BUNDLE_CHECKOUT_HREF =
-    `/${AULIKA_ONLINE_INSTITUTION_SLUG}/checkout/category/${AULIKA_ONLINE_PAES_CATEGORY_ID}` as const;
+    `/checkout/category/${AULIKA_ONLINE_PAES_CATEGORY_ID}` as const;
 
 interface L3SubpageLayoutPAESProps {
     tag: string;

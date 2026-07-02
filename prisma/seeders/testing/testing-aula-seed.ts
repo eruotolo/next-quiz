@@ -278,10 +278,6 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
             title: 'Evaluación Final — Introducción a la Programación',
         },
     });
-    // Fase 6: live sessions en cascada borran attendances, chat, whiteboard
-    await prisma.lmsLiveSession.deleteMany({
-        where: { course: { academicInstitutionId: institution.id } },
-    });
     // Gamificación (no cae en cascada del curso)
     await prisma.lmsStreak.deleteMany({ where: { userId: { in: studentIds } } });
     await prisma.lmsUserBadge.deleteMany({ where: { userId: { in: studentIds } } });
@@ -372,7 +368,7 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
             type: 'VIDEO',
             order: 2,
             moduleId: m1.id,
-            videoAssetId: 'fake-mux-asset-id-intro-python',
+            externalLink: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
             durationSec: 720,
         },
     });
@@ -1216,196 +1212,9 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
 
     console.log('  ✓ Gamificación: rachas, insignias, puntos, opt-out');
 
-    // ═════════════════════════════════════════════════════════════════════════
-    // FASE 6 — AULA SINCRÓNICA
-    // ═════════════════════════════════════════════════════════════════════════
+    // (Fase 6 — Aula sincrónica: removida. Las clases en vivo ahora se gestionan
+    // con un único campo `LmsLesson.externalLink` apuntando a Google Meet o Zoom.)
 
-    // Sesión ENDS — Course 1 (clase de la semana pasada con attendance + chat)
-    const sessionEnded = await prisma.lmsLiveSession.create({
-        data: {
-            courseId: course1.id,
-            title: '🔴 Clase de repaso: Estructuras de control',
-            description: 'Repaso general de condicionales y bucles antes del examen.',
-            scheduledAt: daysAgo(7),
-            durationMin: 60,
-            dailyRoomName: `lms-testing-${course1.id.slice(0, 8)}-ended`,
-            dailyRoomUrl: 'https://aulika.daily.co/lms-testing-ended',
-            dailyRoomExpiresAt: daysAgo(6),
-            maxParticipants: 50,
-            status: 'ENDED',
-            createdById: profesor.id,
-            startedAt: daysAgo(7),
-            endedAt: new Date(daysAgo(7).getTime() + 55 * 60_000),
-            recordingStatus: 'READY',
-            recordingUrl: 'https://example.daily.co/recordings/ended-recording.mp4',
-            recordingDurationSec: 3300,
-        },
-    });
-
-    // Attendances — 4 estudiantes + la profesora
-    const endedAttendances = [
-        { userId: valentina.id, role: 'STUDENT' as const, minutes: 52 },
-        { userId: ana.id, role: 'STUDENT' as const, minutes: 50 },
-        { userId: carlos.id, role: 'STUDENT' as const, minutes: 28 },
-        { userId: sofia.id, role: 'STUDENT' as const, minutes: 45 },
-        { userId: profesor.id, role: 'TEACHER' as const, minutes: 55 },
-    ];
-    for (const att of endedAttendances) {
-        const joinedAt = daysAgo(7);
-        const leftAt = new Date(joinedAt.getTime() + att.minutes * 60_000);
-        await prisma.lmsLiveAttendance.create({
-            data: {
-                sessionId: sessionEnded.id,
-                userId: att.userId,
-                role: att.role,
-                displayName:
-                    att.userId === valentina.id
-                        ? 'Valentina Cruz'
-                        : att.userId === ana.id
-                          ? 'Ana García'
-                          : att.userId === carlos.id
-                            ? 'Carlos Muñoz'
-                            : att.userId === sofia.id
-                              ? 'Sofía Herrera'
-                              : 'Patricia Sánchez',
-                joinedAt,
-                leftAt,
-                durationSec: att.minutes * 60,
-            },
-        });
-    }
-
-    // Chat messages de la sesión ENDED
-    await prisma.lmsLiveChatMessage.createMany({
-        data: [
-            {
-                sessionId: sessionEnded.id,
-                userId: profesor.id,
-                content: '¡Bienvenidos! Hoy repasamos condicionales y bucles.',
-                sentAt: daysAgo(7),
-            },
-            {
-                sessionId: sessionEnded.id,
-                userId: valentina.id,
-                content: 'Profe, ¿podría repetir el ejemplo del while?',
-                sentAt: new Date(daysAgo(7).getTime() + 5 * 60_000),
-            },
-            {
-                sessionId: sessionEnded.id,
-                userId: profesor.id,
-                content: '¡Claro! El while repite el bloque MIENTRAS la condición sea verdadera.',
-                sentAt: new Date(daysAgo(7).getTime() + 6 * 60_000),
-            },
-            {
-                sessionId: sessionEnded.id,
-                userId: ana.id,
-                content: 'Gracias, quedó clarísimo 💪',
-                sentAt: new Date(daysAgo(7).getTime() + 50 * 60_000),
-            },
-        ],
-    });
-
-    // Whiteboard snapshot
-    await prisma.lmsWhiteboardSnapshot.create({
-        data: {
-            sessionId: sessionEnded.id,
-            userId: profesor.id,
-            pngUrl: 'https://res.cloudinary.com/lms-testing/image/upload/v1/whiteboards/ended-board.png',
-            width: 1280,
-            height: 720,
-            title: 'Diagrama de flujo — Bucles while',
-        },
-    });
-
-    // Sesión SCHEDULED — Course 1 (clase en 2 días para que el cron 1h antes dispare al correrlo cerca)
-    const sessionUpcoming = await prisma.lmsLiveSession.create({
-        data: {
-            courseId: course1.id,
-            title: '🎯 Taller práctico: Resolución de problemas',
-            description: 'Vamos a resolver ejercicios en vivo. ¡Traigan sus laptops!',
-            scheduledAt: daysFromNow(2),
-            durationMin: 90,
-            dailyRoomName: `lms-testing-${course1.id.slice(0, 8)}-upcoming`,
-            dailyRoomUrl: 'https://aulika.daily.co/lms-testing-upcoming',
-            dailyRoomExpiresAt: daysFromNow(3),
-            maxParticipants: 30,
-            status: 'SCHEDULED',
-            createdById: profesor.id,
-        },
-    });
-
-    // Sesión LIVE — Course 2 (clase pasando ahora mismo)
-    const sessionLive = await prisma.lmsLiveSession.create({
-        data: {
-            courseId: course2.id,
-            title: '⚡ SQL en vivo: Práctica de JOINs',
-            description: 'Ejercicios prácticos de INNER/LEFT/RIGHT JOIN sobre la BD del curso.',
-            scheduledAt: new Date(Date.now() - 5 * 60_000),
-            durationMin: 60,
-            dailyRoomName: `lms-testing-${course2.id.slice(0, 8)}-live`,
-            dailyRoomUrl: 'https://aulika.daily.co/lms-testing-live',
-            dailyRoomExpiresAt: new Date(Date.now() + 90 * 60_000),
-            maxParticipants: 25,
-            status: 'LIVE',
-            createdById: profesor.id,
-            startedAt: new Date(Date.now() - 5 * 60_000),
-        },
-    });
-
-    // Attendance activa en la sesión LIVE
-    await prisma.lmsLiveAttendance.createMany({
-        data: [
-            {
-                sessionId: sessionLive.id,
-                userId: ana.id,
-                role: 'STUDENT',
-                displayName: 'Ana García',
-                joinedAt: new Date(Date.now() - 5 * 60_000),
-            },
-            {
-                sessionId: sessionLive.id,
-                userId: carlos.id,
-                role: 'STUDENT',
-                displayName: 'Carlos Muñoz',
-                joinedAt: new Date(Date.now() - 4 * 60_000),
-            },
-            {
-                sessionId: sessionLive.id,
-                userId: profesor.id,
-                role: 'TEACHER',
-                displayName: 'Patricia Sánchez',
-                joinedAt: new Date(Date.now() - 6 * 60_000),
-            },
-        ],
-    });
-
-    // Chat en vivo
-    await prisma.lmsLiveChatMessage.createMany({
-        data: [
-            {
-                sessionId: sessionLive.id,
-                userId: profesor.id,
-                content: 'Empezamos. Abran su editor SQL favorito.',
-                sentAt: new Date(Date.now() - 4 * 60_000),
-            },
-            {
-                sessionId: sessionLive.id,
-                userId: ana.id,
-                content: 'Listo, ya estoy conectada 🚀',
-                sentAt: new Date(Date.now() - 3 * 60_000),
-            },
-            {
-                sessionId: sessionLive.id,
-                userId: carlos.id,
-                content: 'Profe, ¿puede compartir el script de la BD?',
-                sentAt: new Date(Date.now() - 2 * 60_000),
-            },
-        ],
-    });
-
-    console.log(
-        '  ✓ Fase 6: live sessions (1 ENDED + 1 SCHEDULED + 1 LIVE) + attendances + chat + whiteboard',
-    );
     console.log('🎓 LMS seed — completo');
     console.log('');
     console.log('  Institución:  lms-testing');

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { LogOut, Mail, School, ShieldCheck, User as UserIcon } from 'lucide-react';
+import { LogOut, School, ShieldCheck, User as UserIcon } from 'lucide-react';
 import { Avatar } from '@/shared/components/ui/avatar';
 import {
     getDashboardContext,
@@ -7,6 +7,7 @@ import {
 } from '@/features/students/lib/dashboard-queries';
 import { logoutStudent } from '@/features/exam-session/actions/mutations';
 import { prisma } from '@/shared/lib/prisma';
+import { StudentProfileForm } from '@/features/students/components/StudentProfileForm';
 
 export const metadata = {
     title: 'Configuración · Aulika',
@@ -28,7 +29,7 @@ export default async function ConfiguracionPage() {
         getDashboardIdentity(ctx.studentId),
         prisma.user.findUnique({
             where: { id: ctx.studentId },
-            select: { email: true, rut: true },
+            select: { email: true, rut: true, phone: true },
         }),
     ]);
 
@@ -37,7 +38,7 @@ export default async function ConfiguracionPage() {
     const fullName = `${identity.name ?? ''} ${identity.lastname ?? ''}`.trim() || 'Estudiante';
 
     return (
-        <div className="mx-auto flex max-w-xl flex-col gap-6">
+        <div className="mx-auto flex max-w-2xl flex-col gap-6">
             <header>
                 <p className="text-mute mb-2 font-mono text-[10px] font-bold tracking-[0.12em] uppercase">
                     Tu cuenta
@@ -46,36 +47,65 @@ export default async function ConfiguracionPage() {
                     Configuración
                 </h1>
                 <p className="text-ink-dim mt-2 text-[14px]">
-                    Datos de tu cuenta de estudiante. Para modificar el nombre o el grupo, contactá
-                    a tu profesor.
+                    Actualizá tus datos personales. RUT, grupo e institución los maneja tu institución.
                 </p>
             </header>
 
-            <section className="bg-surface border-border rounded-[16px] border p-6">
-                <div className="flex items-center gap-4">
-                    <Avatar name={fullName} size={56} />
-                    <div>
-                        <p className="font-display text-ink text-[18px] font-semibold tracking-[-0.01em]">
-                            {fullName}
-                        </p>
-                        <p className="text-mute font-mono text-[11px] tracking-wide uppercase">
-                            Estudiante
-                        </p>
-                    </div>
+            <section className="bg-surface border-border flex items-center gap-4 rounded-[16px] border p-6">
+                <Avatar name={fullName} size={56} />
+                <div>
+                    <p className="font-display text-ink text-[18px] font-semibold tracking-[-0.01em]">
+                        {fullName}
+                    </p>
+                    <p className="text-mute font-mono text-[11px] tracking-wide uppercase">
+                        Estudiante
+                    </p>
                 </div>
             </section>
 
-            <dl className="bg-surface border-border divide-border divide-y rounded-[16px] border">
-                <Row icon={UserIcon} label="Nombre completo" value={fullName} />
-                <Row icon={ShieldCheck} label="RUT" value={maskRut(fullUser?.rut ?? null)} />
-                <Row icon={Mail} label="Email" value={fullUser?.email ?? '—'} />
-                <Row
-                    icon={School}
-                    label="Grupo"
-                    value={identity.groupName ?? 'Sin grupo asignado'}
+            <section className="bg-surface border-border rounded-[16px] border p-6">
+                <header className="mb-5 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-ink text-[15px] font-semibold">Datos personales</h2>
+                        <p className="text-mute text-[12px]">
+                            Lo que ven tus profesores y aparece en tus certificados.
+                        </p>
+                    </div>
+                </header>
+                <StudentProfileForm
+                    name={identity.name}
+                    lastname={identity.lastname}
+                    email={fullUser?.email ?? ''}
+                    phone={fullUser?.phone ?? null}
                 />
-                <Row icon={School} label="Institución" value={identity.institutionName} />
-            </dl>
+            </section>
+
+            <section className="bg-surface border-border rounded-[16px] border">
+                <header className="border-border border-b px-5 py-3">
+                    <h2 className="text-ink text-[15px] font-semibold">Información de cuenta</h2>
+                    <p className="text-mute text-[12px]">
+                        Datos que administra tu institución. No se pueden modificar desde aquí.
+                    </p>
+                </header>
+                <dl className="divide-border divide-y">
+                    <Row icon={UserIcon} label="Nombre completo" value={fullName} />
+                    <Row
+                        icon={ShieldCheck}
+                        label="RUT"
+                        value={maskRut(fullUser?.rut ?? null)}
+                    />
+                    <Row
+                        icon={School}
+                        label="Grupo"
+                        value={identity.groupName ?? 'Sin grupo asignado'}
+                    />
+                    <Row
+                        icon={School}
+                        label="Institución"
+                        value={identity.institutionName}
+                    />
+                </dl>
+            </section>
 
             <form action={logoutStudent} className="pt-2">
                 <button

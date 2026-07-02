@@ -6,7 +6,7 @@ import type { LmsNotification } from '@prisma/client';
 
 type NotificationSelect = Pick<
     LmsNotification,
-    'id' | 'type' | 'message' | 'link' | 'read' | 'createdAt'
+    'id' | 'type' | 'message' | 'link' | 'read' | 'createdAt' | 'updatedAt'
 >;
 
 export interface NotificationsFeed {
@@ -19,7 +19,7 @@ export async function getNotificationsFeed(userId: string): Promise<Notification
         prisma.lmsNotification.findMany({
             where: { userId, type: { not: 'BADGE_ACK' } },
             orderBy: { createdAt: 'desc' },
-            take: 20,
+            take: 50,
             select: {
                 id: true,
                 type: true,
@@ -27,6 +27,7 @@ export async function getNotificationsFeed(userId: string): Promise<Notification
                 link: true,
                 read: true,
                 createdAt: true,
+                updatedAt: true,
             },
         }),
         prisma.lmsNotification.count({
@@ -627,31 +628,192 @@ export const getMonthlyCalendarEvents = cache(
                     });
                 }
             }
-
-            const liveSessions = await prisma.lmsLiveSession.findMany({
-                where: {
-                    courseId: { in: courseIds },
-                    status: { in: ['SCHEDULED', 'LIVE'] },
-                    scheduledAt: { gte: start, lt: end },
-                },
-                select: {
-                    id: true,
-                    title: true,
-                    scheduledAt: true,
-                    course: { select: { title: true } },
-                },
-            });
-            for (const ls of liveSessions) {
-                events.push({
-                    id: `live-${ls.id}`,
-                    kind: 'live_session',
-                    title: `${ls.title} (${ls.course.title})`,
-                    date: ls.scheduledAt,
-                    color: 'blue',
-                });
-            }
         }
 
         return events.sort((a, b) => a.date.getTime() - b.date.getTime());
+    },
+);
+
+// ─── Charts ──────────────────────────────────────────────────────────────────
+
+export interface GradeTrendPoint {
+    id: string;
+    examTitle: string;
+    grade: number;
+    maxGrade: number;
+    completedAt: Date;
+    passed: boolean;
+}
+
+export const getRecentGradesForChart = cache(
+    async (studentId: string, limit = 8): Promise<GradeTrendPoint[]> => {
+        const results = await prisma.result.findMany({
+            where: { studentId },
+            orderBy: { completedAt: 'desc' },
+            take: limit,
+            select: {
+                id: true,
+                score: true,
+                maxScore: true,
+                completedAt: true,
+                exam: {
+                    select: {
+                        title: true,
+                        maxGrade: true,
+                        passingGrade: true,
+                        passingPercentage: true,
+                    },
+                },
+            },
+        });
+        return results.map((r) => {
+            const grade = calcGrade(
+                r.score,
+                r.maxScore,
+                r.exam.maxGrade,
+                r.exam.passingGrade,
+                r.exam.passingPercentage,
+            );
+            return {
+                id: r.id,
+                examTitle: r.exam.title,
+                grade,
+                maxGrade: r.exam.maxGrade,
+                completedAt: r.completedAt,
+                passed: grade >= r.exam.passingGrade,
+            };
+        });
+    },
+);
+
+export interface CourseProgressBar {
+    id: string;
+    courseId: string;
+    title: string;
+    progressPct: number;
+    averageGrade: number | null;
+}
+
+export const getCourseProgressBars = cache(
+    async (studentId: string, limit = 5): Promise<CourseProgressBar[]> => {
+        const enrollments = await prisma.lmsEnrollment.findMany({
+            where: { userId: studentId, status: 'ACTIVO' },
+            select: {
+                id: true,
+                progressPct: true,
+                course: { select: { id: true, title: true, gradebookItems: { select: { id: true } } } },
+            },
+            orderBy: { progressPct: 'desc' },
+            take: limit,
+        });
+
+        const out: CourseProgressBar[] = [];
+        for (const e of enrollments) {
+            const itemIds = e.course.gradebookItems.map((g) => g.id);
+            const grades = itemIds.length
+                ? await prisma.lmsGrade.findMany({
+                      where: { studentId, gradebookItemId: { in: itemIds } },
+                      select: { score: true, gradebookItem: { select: { weight: true } } },
+                  })
+                : [];
+            let weightedSum = 0;
+            let totalWeight = 0;
+            for (const g of grades) {
+                if (g.score === null || g.score === undefined) continue;
+                const w = Number(g.gradebookItem.weight);
+                if (!Number.isFinite(w) || w <= 0) continue;
+                const clipped = Math.min(7, Math.max(1, g.score));
+                weightedSum += clipped * w;
+                totalWeight += w;
+            }
+            out.push({
+                id: e.id,
+                courseId: e.course.id,
+                title: e.course.title,
+                progressPct: e.progressPct,
+                averageGrade:
+                    totalWeight === 0 ? null : Math.round((weightedSum / totalWeight) * 100) / 100,
+            });
+        }
+        return out;
+    },
+);
+
+export interface HeatmapCell {
+    count: number;
+    total: number;
+}
+
+export interface HeatmapWeek {
+    weekStart: Date;
+    days: HeatmapCell[];
+}
+
+export const getWeeklyActivityHeatmap = cache(
+    async (studentId: string, weeks = 8): Promise<HeatmapWeek[]> => {
+        const now = new Date();
+        const todayUtcMidnight = new Date(
+            Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+        );
+        const currentDayOfWeek = todayUtcMidnight.getUTCDay();
+        const startUtc = new Date(todayUtcMidnight);
+        startUtc.setUTCDate(startUtc.getUTCDate() - 7 * (weeks - 1) - currentDayOfWeek);
+
+        const events = await prisma.lmsPointEvent.findMany({
+            where: {
+                userId: studentId,
+                createdAt: { gte: startUtc },
+            },
+            select: { createdAt: true, amount: true },
+        });
+
+        const result: HeatmapWeek[] = [];
+        for (let w = 0; w < weeks; w++) {
+            const weekStart = new Date(startUtc);
+            weekStart.setUTCDate(weekStart.getUTCDate() + w * 7);
+            const days: HeatmapCell[] = [];
+            for (let d = 0; d < 7; d++) {
+                const dayStart = new Date(weekStart);
+                dayStart.setUTCDate(dayStart.getUTCDate() + d);
+                const dayEnd = new Date(dayStart);
+                dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
+                const dayEvents = events.filter(
+                    (e) => e.createdAt >= dayStart && e.createdAt < dayEnd,
+                );
+                days.push({
+                    count: dayEvents.length,
+                    total: dayEvents.reduce((s, e) => s + e.amount, 0),
+                });
+            }
+            result.push({ weekStart, days });
+        }
+        return result;
+    },
+);
+
+export interface DashboardSummaryCounts {
+    upcomingExams: number;
+    upcomingAssignments: number;
+    criticalExams: number;
+    todayItems: number;
+}
+
+export const getDashboardSummaryCounts = cache(
+    async (ctx: DashboardStudentContext): Promise<DashboardSummaryCounts> => {
+        const now = Date.now();
+        const todayEnd = new Date(now);
+        todayEnd.setUTCHours(23, 59, 59, 999);
+        const feed = await getUpcomingFeed(ctx);
+        const exams = feed.exams;
+        const assignments = feed.assignments;
+        const todayItems =
+            exams.filter((e) => e.scheduledAt.getTime() <= todayEnd.getTime()).length +
+            assignments.filter((a) => a.dueAt.getTime() <= todayEnd.getTime()).length;
+        return {
+            upcomingExams: exams.length,
+            upcomingAssignments: assignments.length,
+            criticalExams: exams.filter((e) => e.urgency === 'critical').length,
+            todayItems,
+        };
     },
 );

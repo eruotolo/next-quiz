@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card } from '@/shared/components/ui/card';
-import { BookOpen, CheckCircle2, Lock } from 'lucide-react';
+import { Award, BookOpen, CheckCircle2, Download, Lock } from 'lucide-react';
 import type { EnrollmentStatus } from '@prisma/client';
 
 export default async function StudentAulaPage() {
@@ -45,6 +45,16 @@ export default async function StudentAulaPage() {
         },
     });
 
+    const certificates = await prisma.lmsCertificate.findMany({
+        where: {
+            userId: student.id,
+            revokedAt: null,
+            courseId: { in: enrollments.map((e) => e.course.id) },
+        },
+        select: { courseId: true, verificationCode: true, pdfUrl: true },
+    });
+    const certificateByCourseId = new Map(certificates.map((c) => [c.courseId, c]));
+
     const allCourses = await prisma.lmsCourse.findMany({
         where: {
             academicInstitutionId: student.academicInstitutionId,
@@ -63,6 +73,9 @@ export default async function StudentAulaPage() {
     const enrolledIds = new Set(enrollments.map((e) => e.course.id));
     const available = allCourses.filter((c) => !enrolledIds.has(c.id));
 
+    const activeEnrollments = enrollments.filter((e) => e.status === 'ACTIVO');
+    const completedEnrollments = enrollments.filter((e) => e.status === 'COMPLETADO');
+
     return (
         <div className="flex flex-col gap-8">
             <div>
@@ -72,22 +85,23 @@ export default async function StudentAulaPage() {
                 </p>
             </div>
 
-            {enrollments.length > 0 && (
+            {activeEnrollments.length > 0 && (
                 <section>
                     <h2 className="text-ink-dim mb-3 font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
                         En curso
                     </h2>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {enrollments.map((e) => (
+                        {activeEnrollments.map((e) => (
                             <CourseCard
                                 key={e.id}
-                                href={`/aula/cursos/${e.course.id}`}
+                                href={`/students/aula/cursos/${e.course.id}`}
                                 title={e.course.title}
                                 description={e.course.description}
                                 coverImageUrl={e.course.coverImageUrl}
                                 modules={e.course._count.modules}
                                 progressPct={e.progressPct}
                                 status={e.status}
+                                certificate={certificateByCourseId.get(e.course.id) ?? null}
                                 enrolled
                             />
                         ))}
@@ -104,12 +118,36 @@ export default async function StudentAulaPage() {
                         {available.map((c) => (
                             <CourseCard
                                 key={c.id}
-                                href={`/aula/cursos/${c.id}`}
+                                href={`/students/aula/cursos/${c.id}`}
                                 title={c.title}
                                 description={c.description}
                                 coverImageUrl={c.coverImageUrl}
                                 modules={c._count.modules}
                                 enrolled={false}
+                            />
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            {completedEnrollments.length > 0 && (
+                <section>
+                    <h2 className="text-ink-dim mb-3 font-mono text-[10px] font-bold tracking-[0.1em] uppercase">
+                        Culminados
+                    </h2>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        {completedEnrollments.map((e) => (
+                            <CourseCard
+                                key={e.id}
+                                href={`/students/aula/cursos/${e.course.id}`}
+                                title={e.course.title}
+                                description={e.course.description}
+                                coverImageUrl={e.course.coverImageUrl}
+                                modules={e.course._count.modules}
+                                progressPct={e.progressPct}
+                                status={e.status}
+                                certificate={certificateByCourseId.get(e.course.id) ?? null}
+                                enrolled
                             />
                         ))}
                     </div>
@@ -139,11 +177,14 @@ function CourseCard(props: {
     modules: number;
     progressPct?: number;
     status?: EnrollmentStatus;
+    certificate?: { verificationCode: string; pdfUrl: string | null } | null;
     enrolled: boolean;
 }) {
+    const showCertificateActions = props.enrolled && props.progressPct === 100 && props.certificate;
+
     return (
-        <Link href={props.href}>
-            <Card className="border-border h-full overflow-hidden bg-white shadow-sm transition-shadow hover:shadow-md">
+        <Card className="border-border h-full overflow-hidden bg-white shadow-sm transition-shadow hover:shadow-md">
+            <Link href={props.href}>
                 {props.coverImageUrl && (
                     <div className="border-border relative aspect-[16/9] w-full overflow-hidden border-b">
                         <Image
@@ -181,7 +222,33 @@ function CourseCard(props: {
                         </div>
                     )}
                 </div>
-            </Card>
-        </Link>
+            </Link>
+            {showCertificateActions && props.certificate && (
+                <div className="border-border flex flex-wrap gap-2 border-t p-4 pt-3">
+                    <a
+                        href={
+                            props.certificate.pdfUrl ??
+                            `/certificado/${props.certificate.verificationCode}/pdf`
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download
+                        className="border-border text-ink flex items-center gap-1.5 rounded-[8px] border bg-white px-2.5 py-1.5 text-[11px] font-medium transition-colors hover:bg-gray-50"
+                    >
+                        <Download size={12} />
+                        Descargar diploma
+                    </a>
+                    <a
+                        href={`/certificado/${props.certificate.verificationCode}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="border-border text-ink flex items-center gap-1.5 rounded-[8px] border bg-white px-2.5 py-1.5 text-[11px] font-medium transition-colors hover:bg-gray-50"
+                    >
+                        <Award size={12} />
+                        Ver certificado
+                    </a>
+                </div>
+            )}
+        </Card>
     );
 }
