@@ -53,6 +53,8 @@ export default async function AulaCourseEditPage({ params }: PageProps) {
                     examId: true,
                     contentJson: true,
                     summaryJson: true,
+                    lastAiUpdateAt: true,
+                    aiUpdateSource: true,
                     moduleId: true,
                     createdAt: true,
                     updatedAt: true,

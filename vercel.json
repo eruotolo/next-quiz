@@ -20,6 +20,10 @@
         {
             "path": "/api/cron/student-notifications",
             "schedule": "0 9 * * *"
+        },
+        {
+            "path": "/api/cron/update-aulika-online-courses",
+            "schedule": "0 3 1 * *"
         }
     ]
 }

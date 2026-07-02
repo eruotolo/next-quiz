@@ -531,11 +531,32 @@ Feature para que cada institución venda cursos del Aula Virtual a estudiantes e
 Habilita la comercialización directa de cursos B2C por parte de Aulika a través de la institución interna `aulika-online` (plan `INSTITUCIONAL`, `lmsEnabled=true`, `slug: aulika-online`, UUID fijo `9a8b7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d`).
 
 - **Constantes compartidas** — `src/features/lms/lib/aulika-online-bundle.ts` exporta `AULIKA_ONLINE_INSTITUTION_SLUG`, `AULIKA_ONLINE_PAES_CATEGORY_ID` (`8b1b1f8e-4f3d-4d2e-9f8a-7c6b5a4d3e2f`), `AULIKA_ONLINE_INDIVIDUAL_COURSE_IDS` (7 UUIDs) y los precios `AULIKA_ONLINE_BUNDLE_PRICE_CLP` (450.000) / `AULIKA_ONLINE_INDIVIDUAL_PRICE_CLP` (99.990). El seeder y el webhook importan de acá (DRY).
-- **Seeder** — `prisma/seeders/aulika-online.ts` (idempotente, UUIDs fijos). Crea la institución, 1 profesor (`profesor.online@aulika.cl` / `Online2026!`), la categoría `PAES` (con `isBundle=true`, `bundlePrice=450.000`, `isPublic=true`) y los 7 cursos PAES (Matemática M1, Matemática M2, Competencia Lectora, Biología, Química, Física, Historia y Ciencias Sociales) con módulos y lecciones reales (TEXTO) basadas en temario DEMRE. Los 7 cursos se asocian a la categoría PAES vía `LmsCourseCategory`. Módulos/lecciones se reescriben por `deleteMany + create` (no tienen unique key natural).
+- **Seeder** — `prisma/seeders/aulika-online.ts` (idempotente, UUIDs fijos). Crea la institución, 1 profesor (`profesor.online@aulika.cl` / `Online2026!`), la categoría `PAES` (con `isBundle=true`, `bundlePrice=450.000`, `isPublic=true`) y los 7 cursos PAES (Matemática M1, Matemática M2, Competencia Lectora, Biología, Química, Física, Historia y Ciencias Sociales). Módulos y lecciones se persisten con **upsert por título** (no `deleteMany + create`) para preservar las lecciones agregadas entre deploys por la IA actualizadora. Ver "Contenido pedagógico PAES Chile y actualizador IA" más abajo.
 - **CLI** — `prisma/seeders/aulika-online-cli.ts` y comando `pnpm db:seed:online`. Registrado en `prisma/seed.ts` y en el `build` script (`package.json:9`).
 - **Webhook bundle** — `src/app/api/webhooks/mercadopago-b2c/route.ts` en `fulfillB2cOrder` resuelve el producto vía `resolveOrderProduct(tx, orderId)` (lee `LmsOrder.kind`, `course` y `category` anidados). Si `kind=CATEGORY_BUNDLE`, autoinscribe al alumno en TODOS los `LmsCourseCategory.courseId` de la categoría. Si `kind=COURSE`, inscribe solo al course único. Todo dentro de la misma `$transaction`. Idempotente.
 - **Conflict 3.1 resuelto (seeder vs toggle manual)** — `prisma/seeders/plan-codes.ts` filtra el backfill con `where: { plan, lmsPlanCode: null }`, de modo que solo escribe en instituciones sin `lmsPlanCode` seteado. Los toggles manuales del SuperAdmin ya no son pisados.
 - **Edición de `isPublic` / `price` en LMS** — `src/features/lms/actions/courses.ts`: `toggleLmsCourseSetting` rechaza `isPublic` y `updateLmsCoursePrice` rechaza cambios de precio si la institución no es `aulika-online` (excepto SuperAdmin). Helper `assertCanSellCourses(slug, isSuperAdmin)` en `aulika-online-bundle.ts`. La UI en `LmsCourseEditorClient` oculta los controles B2C para instituciones distintas a `aulika-online`; el precio se edita solo desde el modal "Editar Curso".
+
+### Aulika Online — Contenido pedagógico PAES Chile y actualizador IA
+
+Contenido pedagógico serio basado en el temario oficial DEMRE Chile publicado el 19-03-2026 para Admisión 2027, con un actualizador IA mensual que expande y actualiza los cursos sin pisar las lecciones existentes.
+
+- **Estructura modular del seeder** — `prisma/seeders/aulika-online-courses/`:
+    - `_types.ts` — interfaces `LessonSeed`, `ModuleSeed`, `CourseSeed`.
+    - `_tiptap.ts` — helpers `t()`, `p()`, `pText()`, `h()`, `bullet()`, `callout()`, `codeBlock()`, `doc()`, `paesExample()` para construir JSON Tiptap legible.
+    - `m1.ts`, `m2.ts`, `competencia-lectora.ts`, `biologia.ts`, `quimica.ts`, `fisica.ts`, `historia.ts` — un archivo por materia con todo el contenido pedagógico.
+- **Tamaño** — 7 cursos × 4 módulos × 3 lecciones = **84 lecciones** con JSON Tiptap real (~500 palabras cada una: definición, propiedades, ejemplo resuelto, ejercicio PAES tipo, resumen). Cada lección ocupa un módulo coherente del temario DEMRE.
+- **Upsert por título** — el orquestador `prisma/seeders/aulika-online.ts` usa `upsert` por título tanto para módulos como para lecciones. Esto preserva las lecciones agregadas entre deploys por la IA actualizadora (no se borran en cada build).
+- **Actualizador IA mensual (Gemini 2.5 Flash)**:
+    - Endpoint: `src/app/api/cron/update-aulika-online-courses/route.ts` (protegido con `CRON_SECRET`).
+    - Schedule: `vercel.json` `"0 3 1 * *"` (3:00 UTC del día 1 de cada mes).
+    - Lógica: `src/features/lms/lib/aulika-online-ai-updater.ts`. `updateAulikaOnlineCourses(prisma)` recorre los cursos publicados de `aulika-online`, consulta a Gemini con `SUGGEST_LESSONS_PROMPT`, parsea el output JSON con `extractJson`, valida con `validateSuggestions` (rechaza entradas con `bodyMarkdown < 400` chars; máximo 2 por curso), convierte Markdown → Tiptap con `markdownToTiptapJson` y persiste como `LmsLesson` con `lastAiUpdateAt = now` y `aiUpdateSource = "google:gemini-2.5-flash"`.
+    - **Nunca pisa lecciones existentes**. Solo agrega al final del último módulo de cada curso.
+    - Detección de duplicados por título antes de insertar.
+    - Tokens Gemini 2.5 Flash: ~1–2M tokens/mes (~$0.10–0.25 USD) por corrida mensual.
+    - Flag `AULIKA_ONLINE_AUTO_UPDATE_ENABLED` en `AppConfig` (default `false`; pendiente UI en `/config/settings`).
+- **Migración** — `prisma/migrations/20260702120000_lms_lesson_ai_update_fields/`: agrega `LmsLesson.lastAiUpdateAt: DateTime?` (indexado) y `LmsLesson.aiUpdateSource: String?`.
+- **Tests** — `src/features/lms/lib/__tests__/aulika-online-ai-updater.test.ts` (13 tests): `markdownToTiptapJson` con párrafos, headings, listas, code blocks, líneas vacías, input vacío; `validateSuggestions` con null, array, body corto, campos no-string, máximo 2 entradas, truncado de longitudes.
 
 ### Aulika Online — Categorías LMS y packs flexibles (Fase 8)
 

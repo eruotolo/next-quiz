@@ -483,6 +483,37 @@ Institución de administración central **"Aulika Institution Online"** (slug `a
 - **Sección en Home** — `src/features/landing/components/L3PreuPDV.tsx`, insertada en `src/app/(public)/page.tsx` entre `<L3Stats />` y `<L3Pricing />`. CTA "Ver catálogo de cursos" → `/cursos`.
 - **Autoinscripción del Pack Completo** — `fulfillB2cOrder` en `src/app/api/webhooks/mercadopago-b2c/route.ts`: si `order.courseId === AULIKA_ONLINE_BUNDLE_COURSE_ID`, dentro de la misma transacción inscribe (`LmsEnrollment.upsert`, status `ACTIVO`) al alumno en todos los cursos públicos publicados de `aulika-online` además del bundle.
 
+### Contenido pedagógico PAES Chile (temario DEMRE 2027)
+
+Cada curso se siembra con contenido pedagógico serio basado en el temario oficial DEMRE Chile publicado el 19-03-2026 para Admisión 2027.
+
+- **Estructura** — `prisma/seeders/aulika-online-courses/` (un archivo por materia: `m1.ts`, `m2.ts`, `competencia-lectora.ts`, `biologia.ts`, `quimica.ts`, `fisica.ts`, `historia.ts`). El orquestador `prisma/seeders/aulika-online.ts` los importa y los persiste con UUIDs fijos.
+- **Tamaño** — 7 cursos × 4 módulos × 3 lecciones = **84 lecciones** con contenido JSON Tiptap real (~500 palabras por lección: definición, propiedades, ejemplo resuelto paso a paso, ejercicio PAES tipo, resumen). Cada curso tiene además una descripción del temario DEMRE.
+- **Helpers Tiptap** — `prisma/seeders/aulika-online-courses/_tiptap.ts` exporta `t()`, `p()`, `pText()`, `h()`, `bullet()`, `callout()`, `codeBlock()`, `doc()`, `paesExample()` para construir JSON Tiptap legible sin repetir estructura.
+- **Upsert idempotente** — el orquestador usa `upsert` por título tanto para módulos como para lecciones. Las lecciones agregadas entre deploys por la IA actualizadora se preservan (ver siguiente sección).
+
+### Actualizador IA mensual (Gemini 2.5 Flash)
+
+Una vez al mes, un cron de Vercel consulta a Gemini 2.5 Flash para agregar contenido pedagógico actualizado (basado en el temario DEMRE Chile) a los cursos de Aulika Online.
+
+- **Endpoint** — `src/app/api/cron/update-aulika-online-courses/route.ts`. Protegido con `CRON_SECRET` (Vercel Cron → `Authorization: Bearer <secret>`).
+- **Schedule** — `vercel.json`: `"0 3 1 * *"` (3:00 UTC del día 1 de cada mes). El temario PAES cambia ~1 vez al año, así que una corrida mensual es suficiente.
+- **Lógica** — `src/features/lms/lib/aulika-online-ai-updater.ts`:
+    - `updateAulikaOnlineCourses(prisma)` recorre los 7 cursos publicados de `aulika-online`.
+    - Para cada curso, `suggestLessonsForCourse` consulta a Gemini con el prompt `SUGGEST_LESSONS_PROMPT` (instrucciones + lecciones existentes del último módulo).
+    - **Solo agrega** lecciones nuevas al final del último módulo. **NUNCA pisa ni borra** lecciones existentes (preserva progreso del estudiante).
+    - **Máximo 2 lecciones nuevas por curso por ciclo** (controla tokens Gemini ~1–2M tokens/mes ≈ $0.10–0.25 USD).
+    - Marca cada lección con `lastAiUpdateAt` (DateTime) y `aiUpdateSource` (`"google:gemini-2.5-flash"`).
+    - Detección de duplicados por título antes de insertar.
+- **Migración** — `prisma/migrations/20260702120000_lms_lesson_ai_update_fields/`: agrega `LmsLesson.lastAiUpdateAt: DateTime?` (indexado) y `LmsLesson.aiUpdateSource: String?`.
+- **Conversor Markdown → Tiptap** — función interna `markdownToTiptapJson` parsea el output Markdown de Gemini a JSON Tiptap (headings, listas, código, párrafos).
+- **Validación** — `validateSuggestions(parsed)` rechaza entries sin campos válidos o con `bodyMarkdown` < 400 chars. Máximo 2 lecciones válidas retornadas por curso.
+- **Tests** — `src/features/lms/lib/__tests__/aulika-online-ai-updater.test.ts` (13 tests: `markdownToTiptapJson` con párrafos, headings, listas, code blocks, líneas vacías, input vacío; `validateSuggestions` con null, array, body corto, campos no-string, máximo 2 entradas, truncado de longitudes).
+
+### Activation flag (pendiente)
+
+El flag `AULIKA_ONLINE_AUTO_UPDATE_ENABLED` en `AppConfig` no está aún agregado a la UI de `/config/settings`. La función `isAutoUpdateEnabled` en el actualizador consulta esta key; si está en `false` o no existe, el cron no hace nada. Próximo PR: agregar la card de configuración en `AppSettingsClient` con default `false` hasta que se valide el output de Gemini en producción.
+
 ## InstitutionType y jerarquía académica
 
 `AcademicInstitution.type` (`InstitutionType`: COLEGIO · LICEO_TECNICO · PREUNIVERSITARIO · UNIVERSIDAD · INSTITUTO_PROFESIONAL · CFT · OTRO) define las etiquetas de cara al usuario para `Program`, `CourseSection` y `AcademicPeriod`. Default `OTRO` para datos previos (no requiere backfill).

@@ -235,37 +235,37 @@ model Group {
 }
 
 model User {
-  id                    String                  @id @default(uuid()) @db.Uuid
+  id                    String                 @id @default(uuid()) @db.Uuid
   name                  String
   lastname              String
-  email                 String                  @unique
-  rut                   String                  @unique
+  email                 String                 @unique
+  rut                   String                 @unique
   phone                 String?
   password              String?
   // B2C: token de activación de cuenta (flujo de primer ingreso). El estudiante
   // compra un curso, se crea este usuario inactivo, y se le envía por email un
   // enlace `/examen/activar?token=...` para que defina su contraseña. La fecha
   // de expiración (`activationTokenExp`) vence a las 24h de emitido el token.
-  activationToken       String?                 @unique
+  activationToken       String?                @unique
   activationTokenExp    DateTime?
-  userRoleId            String?                 @db.Uuid
-  userRole              UserRole?               @relation(fields: [userRoleId], references: [id], onDelete: SetNull)
-  academicInstitutionId String?                 @db.Uuid
-  academicInstitution   AcademicInstitution?    @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
-  groupId               String?                 @db.Uuid
-  group                 Group?                  @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  professorGroups       Group[]                 @relation("ProfessorGroups")
-  tutorOfGroups         Group[]                 @relation("GroupTutor")
-  taughtSections        CourseSection[]         @relation("CourseSectionTeachers")
+  userRoleId            String?                @db.Uuid
+  userRole              UserRole?              @relation(fields: [userRoleId], references: [id], onDelete: SetNull)
+  academicInstitutionId String?                @db.Uuid
+  academicInstitution   AcademicInstitution?   @relation(fields: [academicInstitutionId], references: [id], onDelete: SetNull)
+  groupId               String?                @db.Uuid
+  group                 Group?                 @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  professorGroups       Group[]                @relation("ProfessorGroups")
+  tutorOfGroups         Group[]                @relation("GroupTutor")
+  taughtSections        CourseSection[]        @relation("CourseSectionTeachers")
   coordinatedPrograms   ProgramCoordinator[]
-  active                Boolean                 @default(true)
+  active                Boolean                @default(true)
   results               Result[]
   answers               Answer[]
   examAttempts          ExamAttempt[]
-  createdExams          Exam[]                  @relation("ExamCreatedBy")
+  createdExams          Exam[]                 @relation("ExamCreatedBy")
   auditLogs             AuditLog[]
-  createdBankQuestions  BankQuestion[]          @relation("BankQuestionCreatedBy")
-  createdLmsCourses     LmsCourse[]             @relation("LmsCourseCreatedBy")
+  createdBankQuestions  BankQuestion[]         @relation("BankQuestionCreatedBy")
+  createdLmsCourses     LmsCourse[]            @relation("LmsCourseCreatedBy")
   lmsEnrollments        LmsEnrollment[]
   lmsLessonProgress     LmsLessonProgress[]
   lmsSubmissions        LmsSubmission[]
@@ -278,8 +278,8 @@ model User {
   lmsPointEvents        LmsPointEvent[]
   leaderboardOptOuts    LmsLeaderboardOptOut[]
   lmsCertificates       LmsCertificate[]
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
 
   @@index([userRoleId])
   @@index([academicInstitutionId])
@@ -756,30 +756,36 @@ model LmsModule {
 // documento (Vercel Blob / PDF), texto enriquecido (Tiptap JSON), enlace,
 // examen Aulika embebido (FK a Exam) o tarea (binding con Assignment en Fase 2).
 model LmsLesson {
-  id            String              @id @default(uuid()) @db.Uuid
-  title         String
-  type          LessonType          @default(TEXTO)
-  order         Int                 @default(0)
+  id             String              @id @default(uuid()) @db.Uuid
+  title          String
+  type           LessonType          @default(TEXTO)
+  order          Int                 @default(0)
   // Contenido de la lección
-  contentJson   Json? // Texto enriquecido (Tiptap)
-  fileUrl       String? // URL del documento (Vercel Blob)
-  externalLink  String? // Enlace externo
-  durationSec   Int? // Duración estimada (videos/lecturas)
+  contentJson    Json? // Texto enriquecido (Tiptap)
+  fileUrl        String? // URL del documento (Vercel Blob)
+  externalLink   String? // Enlace externo
+  durationSec    Int? // Duración estimada (videos/lecturas)
   // Fase 5: Resumen generado por IA para lecciones TEXTO. Cacheado; se regenera on demand.
-  summaryJson   Json? // { summary: string, keyPoints: string[], generatedAt: string }
+  summaryJson    Json? // { summary: string, keyPoints: string[], generatedAt: string }
   // Integración con Aulika: la lección embebe un examen por FK. Setear type=EXAMEN
   // implica examId obligatorio (validado en Server Actions).
-  examId        String?             @db.Uuid
-  exam          Exam?               @relation(fields: [examId], references: [id], onDelete: SetNull)
-  moduleId      String              @db.Uuid
-  module        LmsModule           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  progress      LmsLessonProgress[]
-  assignment    LmsAssignment?
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
+  examId         String?             @db.Uuid
+  exam           Exam?               @relation(fields: [examId], references: [id], onDelete: SetNull)
+  moduleId       String              @db.Uuid
+  module         LmsModule           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress       LmsLessonProgress[]
+  assignment     LmsAssignment?
+  // Aulika Online: marca de agua de la última actualización por IA actualizadora.
+  // `null` indica que la lección fue creada/reescrita por el seeder original (humano).
+  // Cuando el cron IA agrega contenido, persiste aquí la fecha y la fuente (Gemini model).
+  lastAiUpdateAt DateTime?
+  aiUpdateSource String? // p.ej. "google:gemini-2.5-flash"
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
 
   @@index([moduleId])
   @@index([examId])
+  @@index([lastAiUpdateAt])
 }
 
 // Inscripción de un estudiante a un curso del LMS. Una sola inscripción activa
@@ -829,24 +835,24 @@ model LmsLessonProgress {
 // un pack por categoría (`kind=CATEGORY_BUNDLE`, `categoryId` seteado). El
 // webhook valida que exactamente uno de los dos esté presente.
 model LmsOrder {
-  id              String      @id @default(uuid()) @db.Uuid
+  id              String       @id @default(uuid()) @db.Uuid
   studentRut      String
   studentName     String
   studentLastname String
   studentEmail    String
   kind            B2cOrderKind @default(COURSE)
-  courseId        String?     @db.Uuid
-  course          LmsCourse?  @relation(fields: [courseId], references: [id], onDelete: Restrict)
-  categoryId      String?     @db.Uuid
+  courseId        String?      @db.Uuid
+  course          LmsCourse?   @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  categoryId      String?      @db.Uuid
   category        LmsCategory? @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   amount          Float
-  status          OrderStatus @default(PENDIENTE)
+  status          OrderStatus  @default(PENDIENTE)
   mpPreferenceId  String?
-  mpPaymentId     String?     @unique
-  enrolledUserId  String?     @db.Uuid
-  enrollmentId    String?     @db.Uuid
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  mpPaymentId     String?      @unique
+  enrolledUserId  String?      @db.Uuid
+  enrollmentId    String?      @db.Uuid
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
   @@index([courseId])
   @@index([categoryId])
@@ -1029,12 +1035,12 @@ model LmsNotification {
   type      String // NEW_POST | GRADE_POSTED | ANNOUNCEMENT | ...
   message   String
   link      String?
-  read       Boolean   @default(false)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   // Clave opcional para dedupe entre runs del cron. Estructura sugerida:
   // `<type>:<scopeId>` (ej: `ASSIGNMENT_DUE_SOON:<assignmentId>:<userId>`).
-  dedupeKey  String?
+  dedupeKey String?
 
   @@index([userId, read])
   @@index([userId, createdAt])
@@ -1179,24 +1185,24 @@ model LmsCertificate {
 // si `isBundle=true && bundlePrice != null && isPublic=true`: al comprarla el
 // estudiante se inscribe en TODOS los cursos asociados a la categoría.
 model LmsCategory {
-  id                    String             @id @default(uuid()) @db.Uuid
-  academicInstitutionId String             @db.Uuid
+  id                    String              @id @default(uuid()) @db.Uuid
+  academicInstitutionId String              @db.Uuid
   academicInstitution   AcademicInstitution @relation(fields: [academicInstitutionId], references: [id], onDelete: Cascade)
   name                  String
   slug                  String
   description           String?
   coverImageUrl         String?
-  order                 Int                @default(0)
+  order                 Int                 @default(0)
   // Venta como Pack Completo. Si true + bundlePrice != null + isPublic=true,
   // aparece como item comprable en el catálogo público.
-  isBundle              Boolean            @default(false)
+  isBundle              Boolean             @default(false)
   bundlePrice           Float?
   // Visibilidad en el catálogo público (sin venta todavía).
-  isPublic              Boolean            @default(false)
+  isPublic              Boolean             @default(false)
   courses               LmsCourseCategory[]
   lmsOrders             LmsOrder[]
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
 
   @@unique([academicInstitutionId, slug])
   @@index([academicInstitutionId, order])
@@ -1206,11 +1212,11 @@ model LmsCategory {
 // Tabla intermedia N a N entre LmsCourse y LmsCategory. Un curso puede estar
 // en varias categorías; una categoría puede tener varios cursos.
 model LmsCourseCategory {
-  courseId    String      @db.Uuid
-  course      LmsCourse   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  categoryId  String      @db.Uuid
-  category    LmsCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  createdAt   DateTime    @default(now())
+  courseId   String      @db.Uuid
+  course     LmsCourse   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  categoryId String      @db.Uuid
+  category   LmsCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt  DateTime    @default(now())
 
   @@id([courseId, categoryId])
   @@index([categoryId])
