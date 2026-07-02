@@ -148,7 +148,12 @@ export function NewProgramButton({ slug, label, isDemo }: Props) {
                         >
                             Cancelar
                         </Button>
-                        <Button variant="ink" size="md" disabled={isPending || isDemo} onClick={handleSave}>
+                        <Button
+                            variant="ink"
+                            size="md"
+                            disabled={isPending || isDemo}
+                            onClick={handleSave}
+                        >
                             {isPending && <Loader2 className="mr-2 animate-spin" />}
                             Crear {lower}
                         </Button>

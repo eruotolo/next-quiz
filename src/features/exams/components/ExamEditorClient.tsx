@@ -394,11 +394,23 @@ export function ExamEditorClient({
                     <Upload size={15} />
                     Importar
                 </Button>
-                <Button variant="ghost" size="md" onClick={openBankPicker} className="gap-2" disabled={isDemo}>
+                <Button
+                    variant="ghost"
+                    size="md"
+                    onClick={openBankPicker}
+                    className="gap-2"
+                    disabled={isDemo}
+                >
                     <Library size={15} />
                     Desde banco
                 </Button>
-                <Button variant="ink" size="md" onClick={openNew} className="gap-2" disabled={isDemo}>
+                <Button
+                    variant="ink"
+                    size="md"
+                    onClick={openNew}
+                    className="gap-2"
+                    disabled={isDemo}
+                >
                     <Plus size={15} />
                     Agregar pregunta
                 </Button>
@@ -476,7 +488,13 @@ export function ExamEditorClient({
                                 Agrega la primera o impórtalas en masa.
                             </p>
                             <div className="mt-6 flex gap-3">
-                                <Button variant="ink" size="md" onClick={openNew} className="gap-2" disabled={isDemo}>
+                                <Button
+                                    variant="ink"
+                                    size="md"
+                                    onClick={openNew}
+                                    className="gap-2"
+                                    disabled={isDemo}
+                                >
                                     <Plus size={16} />
                                     Agregar pregunta
                                 </Button>
@@ -1005,7 +1023,7 @@ export function ExamEditorClient({
                                             <button
                                                 type="button"
                                                 onClick={() => removeOption(i)}
-                                                className="text-mute hover:bg-danger-wash hover:text-destructive disabled:opacity-50 flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors"
+                                                className="text-mute hover:bg-danger-wash hover:text-destructive flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors disabled:opacity-50"
                                                 disabled={isDemo}
                                             >
                                                 <X size={14} />

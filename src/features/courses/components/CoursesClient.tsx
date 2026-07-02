@@ -168,6 +168,23 @@ export function CoursesClient({
 
     return (
         <>
+            {/* ── Subheader ── */}
+            <div
+                data-tour="courses-header"
+                className="border-border flex items-center gap-3 border-b bg-white px-8 py-4"
+            >
+                <span className="text-mute font-mono text-[11px] font-bold tracking-wider uppercase">
+                    {courses.length} {courseLabel.toLowerCase()}
+                    {courses.length !== 1 ? 's' : ''}
+                </span>
+                <div className="flex-1" />
+                {canMutate && (
+                    <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
+                        <Plus size={16} />
+                        Nueva {courseLabel.toLowerCase()}
+                    </Button>
+                )}
+            </div>
             <main className="flex-1 overflow-auto p-8">
                 {courses.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
@@ -177,30 +194,12 @@ export function CoursesClient({
                             Crea la primera {courseLabel.toLowerCase()} para asignar profesores y
                             alumnos.
                         </p>
-                        {canMutate && (
-                            <Button
-                                variant="primary"
-                                size="md"
-                                onClick={openCreate}
-                                className="mt-6"
-                            >
-                                <Plus size={16} /> Nueva {courseLabel.toLowerCase()}
-                            </Button>
-                        )}
                     </Card>
                 ) : (
-                    <Card data-tour="courses-list" className="border-border overflow-hidden bg-white shadow-sm">
-                        <div data-tour="courses-header" className="border-border flex items-center justify-between border-b px-6 py-4">
-                            <h2 className="text-ink font-display text-xl font-bold capitalize">
-                                {courseLabel}s
-                            </h2>
-                            {canMutate && (
-                                <Button variant="primary" size="sm" onClick={openCreate}>
-                                    <Plus size={14} className="mr-1" /> Nueva{' '}
-                                    {courseLabel.toLowerCase()}
-                                </Button>
-                            )}
-                        </div>
+                    <Card
+                        data-tour="courses-list"
+                        className="border-border overflow-hidden bg-white shadow-sm"
+                    >
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead className="bg-paper border-border border-b">
@@ -248,10 +247,8 @@ export function CoursesClient({
                                             </td>
                                             <td className="text-mute px-6 py-4 text-xs">
                                                 {(c.group?.professors?.length ?? 0) > 0
-                                                    ? c
-                                                          .group!.professors.map(
-                                                              (p) => `${p.name} ${p.lastname}`,
-                                                          )
+                                                    ? c.group?.professors
+                                                          .map((p) => `${p.name} ${p.lastname}`)
                                                           .join(', ')
                                                     : 'Sin asignar'}
                                             </td>

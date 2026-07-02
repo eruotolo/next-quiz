@@ -138,3 +138,37 @@ export function buildAdminWelcomeEmail(name: string, email: string, password: st
 </body>
 </html>`;
 }
+
+/**
+ * Email de bienvenida + activación para una compra B2C de curso. Contiene el
+ * enlace de un solo uso para que el estudiante defina su contraseña (flujo de
+ * token de activación). El token expira a las 24h.
+ */
+export function buildStudentActivationEmail(
+    name: string,
+    courseTitle: string,
+    activationUrl: string,
+): string {
+    const safeName = escapeHtml(name);
+    const safeTitle = escapeHtml(courseTitle);
+    const safeUrl = escapeHtml(activationUrl);
+    return `
+<!DOCTYPE html>
+<html lang="es">
+<body style="font-family: sans-serif; color: #111; max-width: 560px; margin: 0 auto; padding: 24px;">
+  <h2 style="margin-bottom: 4px;">¡Bienvenido/a a Aulika, ${safeName}!</h2>
+  <p style="color: #555; margin-top: 0;">Tu compra fue aprobada y ya estás inscrito en el curso.</p>
+  <table style="width:100%; border-collapse:collapse; margin: 24px 0;">
+    <tr>
+      <td style="padding: 8px; background:#f4f4f5; border-radius:6px 0 0 6px; font-weight:600; width:40%;">Curso</td>
+      <td style="padding: 8px; background:#f4f4f5; border-radius:0 6px 6px 0;">${safeTitle}</td>
+    </tr>
+  </table>
+  <p style="margin: 24px 0;">
+    <a href="${safeUrl}" style="display:inline-block; background:#2563eb; color:#fff; text-decoration:none; padding:12px 24px; border-radius:8px; font-weight:600;">Activar mi cuenta</a>
+  </p>
+  <p style="color:#555; font-size:13px;">O copiá este enlace en tu navegador:<br/><span style="word-break:break-all; color:#2563eb;">${safeUrl}</span></p>
+  <p style="color:#555; font-size:13px;">Este enlace expira en 24 horas. Si no creaste esta cuenta, ignorá este correo.</p>
+</body>
+</html>`;
+}

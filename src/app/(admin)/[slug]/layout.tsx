@@ -1,5 +1,6 @@
 import { auth } from '@/features/auth/auth';
 import { Sidebar } from '@/features/dashboard/components/Sidebar';
+import { SlugTopBar } from '@/shared/components/layout/SlugTopBar';
 import { TourButton } from '@/features/tour/components/TourButton';
 import { demoExamFilter } from '@/features/demo/lib/demo';
 import { PlanUsageBanner } from '@/features/subscriptions/components/PlanUsageBanner';
@@ -8,6 +9,7 @@ import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { getInstitutionSeo } from '@/shared/lib/seo';
 import { groupProfessorFilter } from '@/shared/lib/scoping';
+import { getInstitutionFlags } from '@/features/auth/lib/institution-flags';
 import type { Metadata } from 'next';
 import { cache } from 'react';
 import { redirect } from 'next/navigation';
@@ -85,7 +87,7 @@ export default async function InstitutionLayout({ children, params }: Props) {
               isSuperAdmin ? Promise.resolve([]) : getQuotaUsage(institutionId),
               prisma.academicInstitution.findUnique({
                   where: { id: institutionId },
-                  select: { plan: true, type: true },
+                  select: { plan: true, type: true, name: true },
               }),
           ])
         : [undefined, undefined, undefined, [], [], null];
@@ -93,6 +95,14 @@ export default async function InstitutionLayout({ children, params }: Props) {
     // Banner promocional del sidebar: solo para Administrador en planes Free o Docente.
     const institutionPlan = isAdmin ? (institutionData?.plan ?? null) : null;
     const showPlanPromo = institutionPlan === 'FREE' || institutionPlan === 'DOCENTE';
+
+    // Gating LMS (Fase 3.3): el flag se lee con fallback por plan si la DB aún
+    // no tiene las columnas. Para SuperAdmin se respeta el flag real de la
+    // institución visitada (no la de su sesión, que es null).
+    const flags = institutionId
+        ? await getInstitutionFlags(institutionId, institutionData?.plan ?? 'FREE')
+        : { examsEnabled: true, lmsEnabled: false, examsPlanCode: null, lmsPlanCode: null };
+    const lmsEnabled = flags.lmsEnabled;
 
     // Programas que coordina el usuario (Jefe de Carrera) — solo para Profesores.
     // Habilita el indicador de coordinación en el Sidebar (Fase 5). El JWT no lo
@@ -114,6 +124,7 @@ export default async function InstitutionLayout({ children, params }: Props) {
                 userRole={session.user?.userRoleName}
                 coordinatedProgramIds={coordinatedProgramIds}
                 institutionType={institutionData?.type ?? undefined}
+                lmsEnabled={lmsEnabled}
                 counts={{
                     students: students ?? undefined,
                     groups: groups ?? undefined,
@@ -122,12 +133,18 @@ export default async function InstitutionLayout({ children, params }: Props) {
                 institutionList={institutionList as { name: string; slug: string }[]}
                 showPlanPromo={showPlanPromo}
             />
-            <main className="flex flex-1 flex-col overflow-y-auto lg:ml-60">
-                {isAdmin && quotaUsage && quotaUsage.length > 0 && (
-                    <PlanUsageBanner usage={quotaUsage} slug={slug} />
-                )}
-                {children}
-            </main>
+            <div className="flex flex-1 flex-col overflow-y-auto lg:ml-60">
+                <SlugTopBar
+                    institutionName={institutionData?.name ?? slug}
+                    institutionType={institutionData?.type ?? 'OTRO'}
+                />
+                <main className="flex flex-1 flex-col">
+                    {isAdmin && quotaUsage && quotaUsage.length > 0 && (
+                        <PlanUsageBanner usage={quotaUsage} slug={slug} />
+                    )}
+                    {children}
+                </main>
+            </div>
             <TourButton slug={slug} />
         </div>
     );

@@ -39,7 +39,8 @@ export const softwareApplicationSchema = {
         '@type': 'Offer',
         price: '0',
         priceCurrency: 'CLP',
-        description: 'Plan gratuito disponible. Planes pagos para instituciones desde $9.990 CLP/mes.',
+        description:
+            'Plan gratuito disponible. Planes pagos para instituciones desde $9.990 CLP/mes.',
     },
     publisher: {
         '@id': `${BASE_URL}/#organization`,
@@ -81,5 +82,51 @@ export function faqSchema(faqs: Array<{ q: string; a: string }>) {
                 text: faq.a,
             },
         })),
+    };
+}
+
+/**
+ * Schema `Course` para cursos del Aula Virtual que se exhiben en el catálogo
+ * B2C (`/[slug]/cursos`). Inyectar tanto en la grilla como en la página de
+ * detalle para que Google los indexe como productos educativos.
+ */
+export interface CourseSchemaInput {
+    name: string;
+    description: string | null;
+    providerName: string;
+    url: string;
+    priceClp: number | null;
+    isFree: boolean;
+}
+
+export function courseSchema(course: CourseSchemaInput) {
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'Course',
+        name: course.name,
+        description: course.description ?? undefined,
+        provider: {
+            '@type': 'Organization',
+            name: course.providerName,
+            sameAs: BASE_URL,
+        },
+        url: course.url,
+        inLanguage: 'es-CL',
+        isAccessibleForFree: course.isFree,
+        offers: course.isFree
+            ? {
+                  '@type': 'Offer',
+                  price: '0',
+                  priceCurrency: 'CLP',
+                  availability: 'https://schema.org/InStock',
+                  url: course.url,
+              }
+            : {
+                  '@type': 'Offer',
+                  price: course.priceClp ?? 0,
+                  priceCurrency: 'CLP',
+                  availability: 'https://schema.org/InStock',
+                  url: course.url,
+              },
     };
 }

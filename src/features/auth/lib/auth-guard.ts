@@ -130,8 +130,33 @@ export async function requireInstitutionPageAccess(
 /** Guard exclusivo de SuperAdmin para acciones globales (sin scope de institución). */
 export async function requireSuperAdmin(): Promise<{ userId: string; userEmail: string }> {
     const session = await auth();
-    if (session?.user.userRoleName !== USER_ROLE.SUPER_ADMIN) {
+    if (session?.user?.userRoleName !== USER_ROLE.SUPER_ADMIN) {
         throw new Error('No autorizado');
     }
     return { userId: session.user.id, userEmail: session.user.email ?? '' };
+}
+
+/**
+ * Gating de LMS para páginas internas `/[slug]/aula/*`.
+ * Defensa en profundidad: el `proxy.ts` ya bloquea el acceso cuando el flag
+ * del JWT es `false`, pero el JWT puede quedar stale (cambios de toggle sin
+ * re-login). Este helper hace un check de DB y redirige si la institución
+ * visitada NO tiene LMS habilitado.
+ *
+ * - Admin/Profesor → `/{slug}/settings?notice=lms_disabled` (ya pasaron el
+ *   check de slug en `requireInstitutionPageAccess`).
+ * - SuperAdmin → `/config?notice=lms_disabled` (no tiene settings propio).
+ */
+export async function requireLmsAccess(slug: string): Promise<InstitutionPageContext> {
+    const ctx = await requireInstitutionPageAccess(slug);
+    if (ctx.isSuperAdmin) {
+        const inst = await prisma.academicInstitution.findUnique({
+            where: { id: ctx.institutionId },
+            select: { lmsEnabled: true },
+        });
+        if (inst?.lmsEnabled !== true) {
+            redirect('/config?notice=lms_disabled');
+        }
+    }
+    return ctx;
 }

@@ -1,4 +1,3 @@
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import {
     ResultsClient,
@@ -152,22 +151,15 @@ export default async function ResultsPage({ params, searchParams }: PageProps) {
     });
 
     return (
-        <>
-            <AdminTopBar
-                title="Historial de Resultados"
-                breadcrumb={[institutionName, 'Resultados']}
-                subtitle={`${results.length} evaluaciones completadas y procesadas`}
-            />
-            <ResultsClient
-                examGroups={buildExamGroups(results)}
-                totalCount={results.length}
-                slug={slug}
-                institutionName={institutionName}
-                examOptions={examOptions}
-                groupOptions={groupOptions}
-                selectedExamId={validExamId ?? null}
-                selectedGroupId={validGroupId ?? null}
-            />
-        </>
+        <ResultsClient
+            examGroups={buildExamGroups(results)}
+            totalCount={results.length}
+            slug={slug}
+            institutionName={institutionName}
+            examOptions={examOptions}
+            groupOptions={groupOptions}
+            selectedExamId={validExamId ?? null}
+            selectedGroupId={validGroupId ?? null}
+        />
     );
 }

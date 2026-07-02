@@ -19,6 +19,7 @@ async function requireSuperAdmin(): Promise<string> {
 
 const planLimitsUpdateSchema = z.object({
     plan: z.enum(['FREE', 'DOCENTE', 'COLEGIO', 'INSTITUCIONAL']),
+    planCode: z.string().nullable().optional(),
     maxGroups: z.number().int().positive().nullable(),
     maxAdmins: z.number().int().positive().nullable(),
     maxProfessors: z.number().int().positive().nullable(),
@@ -38,7 +39,12 @@ export async function updatePlanLimits(
         return { data: null, error: parsed.error.errors[0]?.message ?? 'Error de validación' };
 
     await prisma.planLimits.update({
-        where: { plan: parsed.data.plan as Plan },
+        where: {
+            plan_planCode: {
+                plan: parsed.data.plan as Plan,
+                planCode: (parsed.data.planCode ?? null) as unknown as string,
+            },
+        },
         data: {
             maxGroups: parsed.data.maxGroups,
             maxAdmins: parsed.data.maxAdmins,

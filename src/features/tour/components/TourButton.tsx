@@ -51,7 +51,7 @@ export function TourButton({ slug }: Props) {
     useEffect(() => {
         if (pageKey !== 'dashboard') return;
         if (localStorage.getItem(DASHBOARD_TOUR_KEY)) return;
-        const dashSteps = PAGE_TOUR_STEPS['dashboard'];
+        const dashSteps = PAGE_TOUR_STEPS.dashboard;
         if (!dashSteps) return;
         const t = setTimeout(() => startTour(dashSteps), 1500);
         return () => clearTimeout(t);
@@ -64,9 +64,9 @@ export function TourButton({ slug }: Props) {
             type="button"
             onClick={() => startTour(steps)}
             aria-label="Iniciar tour guiado"
-            className="fixed right-16 bottom-5 z-[9999] flex h-10 w-10 items-center justify-center rounded-full bg-[#1f2eff] text-white shadow-lg transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1f2eff] focus-visible:ring-offset-2"
+            className="fixed right-16 bottom-5 z-[9999] flex h-10 w-10 items-center justify-center rounded-full bg-[#1f2eff] text-white shadow-lg transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-[#1f2eff] focus-visible:ring-offset-2 focus-visible:outline-none"
         >
-            <span className="text-[15px] font-bold leading-none">?</span>
+            <span className="text-[15px] leading-none font-bold">?</span>
         </button>
     );
 }

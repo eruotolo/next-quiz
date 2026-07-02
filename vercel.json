@@ -10,8 +10,20 @@
             "schedule": "0 3 * * *"
         },
         {
+            "path": "/api/cron/cleanup-read-notifications",
+            "schedule": "0 5 * * *"
+        },
+        {
             "path": "/api/cron/demo-reset",
             "schedule": "0 6 * * *"
+        },
+        {
+            "path": "/api/cron/student-notifications",
+            "schedule": "0 9 * * *"
+        },
+        {
+            "path": "/api/cron/update-aulika-online-courses",
+            "schedule": "0 3 1 * *"
         }
     ]
 }

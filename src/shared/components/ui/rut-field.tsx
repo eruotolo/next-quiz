@@ -37,3 +37,58 @@ export function RutField({ id, value, onChange, disabled, className }: RutFieldP
         />
     );
 }
+
+interface RutInputFieldProps {
+    id?: string;
+    label?: string;
+    value: string;
+    onChange: (value: string) => void;
+    disabled?: boolean;
+    error?: string;
+    className?: string;
+}
+
+/**
+ * Variante de RutField con el mismo lenguaje visual que `InputField`
+ * (`@/shared/components/ui/input`): label mono arriba + input con borde,
+ * fondo blanco y foco primary. Pensada para formularios públicos
+ * (checkout, registro) que ya usan `InputField` para el resto de los campos.
+ */
+export function RutInputField({
+    id = 'rut',
+    label = 'RUT',
+    value,
+    onChange,
+    disabled,
+    error,
+    className,
+}: RutInputFieldProps) {
+    return (
+        <div className="flex flex-col gap-1.5">
+            <label
+                htmlFor={id}
+                className="text-ink-dim font-mono text-[11px] font-medium tracking-[0.08em] uppercase"
+            >
+                {label}
+            </label>
+            <IMaskInput
+                id={id}
+                mask={RUT_MASK}
+                definitions={RUT_MASK_DEFINITIONS}
+                value={value}
+                onAccept={(val: string) => onChange(val)}
+                disabled={disabled}
+                placeholder="12.345.678-9"
+                aria-invalid={Boolean(error)}
+                className={cn(
+                    'border-border placeholder:text-mute text-ink h-[38px] w-full min-w-0 rounded-[8px] border bg-white px-[14px] py-[11px] text-[14px] transition-colors outline-none',
+                    'focus-visible:border-primary focus-visible:ring-primary/20 focus-visible:ring-2',
+                    'disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50',
+                    'aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:ring-2',
+                    className,
+                )}
+            />
+            {error && <p className="text-destructive text-[12px]">{error}</p>}
+        </div>
+    );
+}

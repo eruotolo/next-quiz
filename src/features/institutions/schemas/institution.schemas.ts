@@ -15,6 +15,7 @@ export const institutionSchema = z.object({
     country: z.string().min(2, 'País requerido').max(100).default('Chile'),
     type: institutionTypeSchema.default('OTRO'),
     active: z.boolean().default(true),
+    lmsEnabled: z.boolean().default(false),
 });
 
 export type InstitutionInput = z.infer<typeof institutionSchema>;

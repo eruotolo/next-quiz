@@ -16,6 +16,7 @@ import {
 } from '@/features/exam-session/schemas/exam-session.schemas';
 import { calcGrade } from '@/shared/lib/grade';
 import { buildExamResultEmail, sendEmail } from '@/shared/lib/email';
+import { markLessonCompletionForExam } from '@/features/lms/actions/progress';
 
 /**
  * Inicia (o reanuda) el intento de un examen elegido en la página de selección.
@@ -23,13 +24,13 @@ import { buildExamResultEmail, sendEmail } from '@/shared/lib/email';
  */
 export async function startSelectedExam(examId: string): Promise<void> {
     const authSession = await getStudentAuthSession();
-    if (!authSession) redirect('/examen/login');
+    if (!authSession) redirect('/students/examen/login');
 
     const student = await prisma.user.findUnique({
         where: { id: authSession.studentId },
         select: { academicInstitutionId: true },
     });
-    if (!student) redirect('/examen/login');
+    if (!student) redirect('/students/examen/login');
 
     // Doble candado: el examen debe ser del grupo Y de la institución del estudiante.
     const exam = await prisma.exam.findFirst({
@@ -43,7 +44,7 @@ export async function startSelectedExam(examId: string): Promise<void> {
         },
         select: { id: true, timeLimit: true, scheduledAt: true, closesAt: true },
     });
-    if (!exam) redirect('/examen/seleccion');
+    if (!exam) redirect('/students/examen/seleccion');
 
     const existingAttempt = await prisma.examAttempt.findUnique({
         where: { studentId_examId: { studentId: authSession.studentId, examId: exam.id } },
@@ -58,7 +59,7 @@ export async function startSelectedExam(examId: string): Promise<void> {
             existingAttempt.attemptKey,
         );
         await createResultSession(resultId, authSession.studentId);
-        redirect(`/examen/resultado/${resultId}`);
+        redirect(`/students/examen/resultado/${resultId}`);
     }
 
     // Sin intento en curso: respetar la ventana del examen (no antes del inicio ni
@@ -67,7 +68,7 @@ export async function startSelectedExam(examId: string): Promise<void> {
     if (!existingAttempt?.endsAt) {
         const notOpen = exam.scheduledAt !== null && exam.scheduledAt.getTime() > now;
         const closed = exam.closesAt !== null && exam.closesAt.getTime() < now;
-        if (notOpen || closed) redirect('/examen/seleccion');
+        if (notOpen || closed) redirect('/students/examen/seleccion');
     }
 
     const attempt = await getOrCreateAttempt(authSession.studentId, exam.id);
@@ -79,7 +80,7 @@ export async function startSelectedExam(examId: string): Promise<void> {
         attemptKey: attempt.attemptKey,
     });
 
-    redirect(attempt.endsAt ? `/examen/${exam.id}` : `/examen/${exam.id}/intro`);
+    redirect(attempt.endsAt ? `/students/examen/${exam.id}` : `/students/examen/${exam.id}/intro`);
 }
 
 /**
@@ -88,16 +89,16 @@ export async function startSelectedExam(examId: string): Promise<void> {
  */
 export async function viewMyResult(resultId: string): Promise<void> {
     const authSession = await getStudentAuthSession();
-    if (!authSession) redirect('/examen/login');
+    if (!authSession) redirect('/students/examen/login');
 
     const result = await prisma.result.findFirst({
         where: { id: resultId, studentId: authSession.studentId },
         select: { id: true },
     });
-    if (!result) redirect('/examen/seleccion');
+    if (!result) redirect('/students/examen/seleccion');
 
     await createResultSession(result.id, authSession.studentId);
-    redirect(`/examen/resultado/${result.id}`);
+    redirect(`/students/examen/resultado/${result.id}`);
 }
 
 /**
@@ -106,12 +107,12 @@ export async function viewMyResult(resultId: string): Promise<void> {
  */
 export async function beginExam(): Promise<void> {
     const session = await getStudentSession();
-    if (!session) redirect('/examen/login');
+    if (!session) redirect('/students/examen/login');
 
     const attempt = await prisma.examAttempt.findUnique({
         where: { attemptKey: session.attemptKey },
     });
-    if (!attempt) redirect('/examen/login');
+    if (!attempt) redirect('/students/examen/login');
 
     let endsAt = attempt.endsAt;
     if (!endsAt) {
@@ -119,7 +120,7 @@ export async function beginExam(): Promise<void> {
             where: { id: session.examId },
             select: { timeLimit: true },
         });
-        if (!exam) redirect('/examen/login');
+        if (!exam) redirect('/students/examen/login');
         endsAt = new Date(Date.now() + exam.timeLimit * 60 * 1000);
         await prisma.examAttempt.update({
             where: { attemptKey: session.attemptKey },
@@ -134,7 +135,7 @@ export async function beginExam(): Promise<void> {
         attemptKey: session.attemptKey,
     });
 
-    redirect(`/examen/${session.examId}`);
+    redirect(`/students/examen/${session.examId}`);
 }
 
 export async function submitAnswer(input: SubmitAnswerInput): Promise<void> {
@@ -302,6 +303,10 @@ async function gradeAttempt(
             exam.passingPercentage,
         );
 
+        // Si este examen está embebido como lección EXAMEN en algún curso LMS,
+        // marca esa lección como completada automáticamente (fire-and-forget).
+        void markLessonCompletionForExam(studentId, examId).catch(console.error);
+
         return result.id;
     } catch (err: unknown) {
         if ((err as { code?: string })?.code === 'P2002') {
@@ -369,5 +374,5 @@ export async function logoutStudent(): Promise<void> {
     cookieStore.delete('aulika-result-session');
     cookieStore.delete('student_session');
     cookieStore.delete('result_session');
-    redirect('/examen/login');
+    redirect('/students/examen/login');
 }

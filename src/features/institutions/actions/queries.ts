@@ -65,6 +65,8 @@ export interface InstitutionRow {
     type: InstitutionType;
     plan: Plan;
     planExpiresAt: Date | null;
+    lmsEnabled: boolean;
+    examsEnabled: boolean;
     customPlan: { id: string; name: string } | null;
     _count: { users: number };
 }
@@ -106,6 +108,8 @@ export async function getInstitutions(
                 type: true,
                 plan: true,
                 planExpiresAt: true,
+                lmsEnabled: true,
+                examsEnabled: true,
                 customPlan: { select: { id: true, name: true } },
                 _count: { select: { users: true } },
             },

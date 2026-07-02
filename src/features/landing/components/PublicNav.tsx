@@ -42,6 +42,12 @@ export function PublicNav() {
                         </Link>
                     ))}
                     <Link
+                        href="/cursos"
+                        className="text-ink-dim hover:text-ink text-[14px] font-medium transition-colors"
+                    >
+                        Cursos
+                    </Link>
+                    <Link
                         href="/demo"
                         className="text-primary hover:text-primary/80 text-[14px] font-semibold transition-colors"
                     >
@@ -57,7 +63,7 @@ export function PublicNav() {
                         asChild
                         className="hidden text-[13px] font-bold sm:inline-flex"
                     >
-                        <Link href="/examen/login">Acceso alumnos</Link>
+                        <Link href="/students/examen/login">Acceso alumnos</Link>
                     </Button>
                     <Button
                         variant="ink"

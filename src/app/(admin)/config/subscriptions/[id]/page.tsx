@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Receipt } from 'lucide-react';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { SubscriptionDetailClient } from '@/features/admin-plan/components/SubscriptionDetailClient';
 import { getSubscriptionById } from '@/features/admin-plan/actions/mutations';
 import { Button } from '@/shared/components/ui/button';
@@ -26,21 +24,13 @@ export default async function SubscriptionDetailPage({ params }: Props) {
     const { data: detail } = result;
 
     return (
-        <>
-            <AdminTopBar
-                breadcrumb={['Panel Global', 'Suscripciones', `${detail.id.slice(0, 8)}…`]}
-                title="Detalle de suscripción"
-                subtitle={`${detail.institutionName ?? 'Sin institución'} · ${detail.plan}`}
-                icon={<Receipt size={18} />}
-                actions={
-                    <Button variant="ghost" size="sm" asChild>
-                        <Link href="/config/subscriptions">← Volver</Link>
-                    </Button>
-                }
-            />
-            <main className="flex-1 p-8">
-                <SubscriptionDetailClient detail={detail} />
-            </main>
-        </>
+        <main className="flex-1 p-8">
+            <div className="mb-4">
+                <Button variant="ghost" size="sm" asChild>
+                    <Link href="/config/subscriptions">← Volver</Link>
+                </Button>
+            </div>
+            <SubscriptionDetailClient detail={detail} />
+        </main>
     );
 }

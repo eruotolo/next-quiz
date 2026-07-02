@@ -57,6 +57,7 @@ import { studentSchema } from '@/features/students/schemas/student.schemas';
 import type { Group, User } from '@prisma/client';
 import {
     AlertTriangle,
+    Award,
     BookOpen,
     CheckCircle2,
     Download,
@@ -440,8 +441,11 @@ export function StudentsClient({
 
     const renderAcademicRow = (r: AcademicResultRow) => (
         <TableRow key={r.id} className="border-border h-12 border-b last:border-0">
-            <TableCell className="max-w-0 w-full">
-                <span className="text-ink block truncate text-[13px] leading-tight font-medium" title={r.exam.title}>
+            <TableCell className="w-full max-w-0">
+                <span
+                    className="text-ink block truncate text-[13px] leading-tight font-medium"
+                    title={r.exam.title}
+                >
                     {r.exam.title}
                 </span>
             </TableCell>
@@ -601,7 +605,13 @@ export function StudentsClient({
                             <Upload size={15} />
                             Importar Excel
                         </Button>
-                        <Button data-tour="student-actions" variant="ink" size="md" onClick={openCreate} className="gap-2">
+                        <Button
+                            data-tour="student-actions"
+                            variant="ink"
+                            size="md"
+                            onClick={openCreate}
+                            className="gap-2"
+                        >
                             <Plus size={16} />
                             Agregar estudiante
                         </Button>
@@ -638,7 +648,10 @@ export function StudentsClient({
                         )}
                     </Card>
                 ) : (
-                    <Card data-tour="student-table" className="border-border overflow-visible p-0 shadow-sm">
+                    <Card
+                        data-tour="student-table"
+                        className="border-border overflow-visible p-0 shadow-sm"
+                    >
                         <Table>
                             <TableHeader className="bg-paper">
                                 <TableRow className="border-border border-b hover:bg-transparent">
@@ -826,6 +839,18 @@ export function StudentsClient({
                                                     >
                                                         <Edit2 size={14} /> Editar
                                                     </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        asChild
+                                                        className="cursor-pointer gap-2 py-2"
+                                                    >
+                                                        <a
+                                                            href={`/certificados/estudiante/${s.id}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                        >
+                                                            <Award size={14} /> Certificados
+                                                        </a>
+                                                    </DropdownMenuItem>
                                                     {canToggleActive && (
                                                         <DropdownMenuItem
                                                             onClick={() => handleToggleActive(s)}
@@ -990,7 +1015,12 @@ export function StudentsClient({
                         >
                             Cancelar
                         </Button>
-                        <Button variant="ink" size="md" disabled={isPending || isDemo} onClick={handleSave}>
+                        <Button
+                            variant="ink"
+                            size="md"
+                            disabled={isPending || isDemo}
+                            onClick={handleSave}
+                        >
                             {isPending && <Loader2 className="mr-2 animate-spin" />}
                             {editing ? 'Guardar cambios' : 'Crear estudiante'}
                         </Button>
@@ -1131,7 +1161,7 @@ export function StudentsClient({
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
                             disabled={isDemo}
-                            className="border-border bg-paper-warm/30 hover:bg-paper-warm/50 disabled:opacity-50 group flex flex-col items-center gap-4 rounded-[22px] border-2 border-dashed py-12 transition-colors"
+                            className="border-border bg-paper-warm/30 hover:bg-paper-warm/50 group flex flex-col items-center gap-4 rounded-[22px] border-2 border-dashed py-12 transition-colors disabled:opacity-50"
                         >
                             <div className="ring-border rounded-full bg-white p-4 shadow-sm ring-1 transition-transform group-hover:scale-110">
                                 <Upload size={28} className="text-primary" />

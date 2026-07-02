@@ -1,7 +1,5 @@
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { requireInstitutionPageAccess } from '@/features/auth/lib/auth-guard';
 import { GroupsClient } from '@/features/groups/components/GroupsClient';
-import { NewGroupButton } from '@/features/groups/components/NewGroupButton';
 import { calcGrade } from '@/shared/lib/grade';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
@@ -106,23 +104,15 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
     });
 
     return (
-        <>
-            <AdminTopBar
-                title="Grupos"
-                breadcrumb={[institutionName, 'Grupos']}
-                subtitle={`${groupsWithAvg.length} grupos registrados`}
-                actions={canMutate ? <NewGroupButton slug={slug} isDemo={isDemo} /> : undefined}
-            />
-            <GroupsClient
-                slug={slug}
-                groups={groupsWithAvg}
-                professors={professors}
-                programs={programs}
-                periods={periods}
-                courseSections={courseSections}
-                canMutate={canMutate}
-                isDemo={isDemo}
-            />
-        </>
+        <GroupsClient
+            slug={slug}
+            groups={groupsWithAvg}
+            professors={professors}
+            programs={programs}
+            periods={periods}
+            courseSections={courseSections}
+            canMutate={canMutate}
+            isDemo={isDemo}
+        />
     );
 }

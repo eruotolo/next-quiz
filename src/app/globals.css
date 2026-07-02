@@ -168,7 +168,9 @@
     background: #ffffff;
     border-radius: 16px !important;
     border: 1px solid #e5e2dc;
-    box-shadow: 0 8px 40px rgba(11, 11, 17, 0.18), 0 1px 3px rgba(11, 11, 17, 0.08);
+    box-shadow:
+        0 8px 40px rgba(11, 11, 17, 0.18),
+        0 1px 3px rgba(11, 11, 17, 0.08);
     padding: 22px 22px 16px;
     max-width: 360px;
     color: #0b0b11;

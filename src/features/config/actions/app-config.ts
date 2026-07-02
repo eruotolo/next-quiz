@@ -34,6 +34,9 @@ export async function getAppConfig(): Promise<AppConfigMap> {
         [APP_CONFIG_KEY.SEO_GLOBAL_DESCRIPTION]: '',
         [APP_CONFIG_KEY.SEO_GLOBAL_KEYWORDS]: '',
         [APP_CONFIG_KEY.SEO_GLOBAL_OG_IMAGE]: '',
+        [APP_CONFIG_KEY.CLOUDINARY_CLOUD_NAME]: '',
+        [APP_CONFIG_KEY.CLOUDINARY_API_KEY]: '',
+        [APP_CONFIG_KEY.CLOUDINARY_API_SECRET]: '',
     };
     for (const c of configs) {
         if (c.key in defaults) {
@@ -52,6 +55,9 @@ const saveSchema = z.object({
         APP_CONFIG_KEY.SEO_GLOBAL_DESCRIPTION,
         APP_CONFIG_KEY.SEO_GLOBAL_KEYWORDS,
         APP_CONFIG_KEY.SEO_GLOBAL_OG_IMAGE,
+        APP_CONFIG_KEY.CLOUDINARY_CLOUD_NAME,
+        APP_CONFIG_KEY.CLOUDINARY_API_KEY,
+        APP_CONFIG_KEY.CLOUDINARY_API_SECRET,
     ]),
     value: z.string().max(2000, 'El valor no puede superar los 2000 caracteres'),
 });

@@ -1,4 +1,3 @@
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { ConfigGroupsClient } from '@/features/config/components/ConfigGroupsClient';
 import { prisma } from '@/shared/lib/prisma';
 
@@ -19,14 +18,5 @@ export default async function ConfigGroupsPage() {
             g.academicInstitution !== null,
     );
 
-    return (
-        <>
-            <AdminTopBar
-                title="Grupos / Cursos"
-                breadcrumb={['Sistema', 'Grupos']}
-                subtitle={`${groups.length} grupos registrados en todas las instituciones`}
-            />
-            <ConfigGroupsClient groups={groups} />
-        </>
-    );
+    return <ConfigGroupsClient groups={groups} />;
 }

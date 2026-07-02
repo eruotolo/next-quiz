@@ -106,3 +106,96 @@ export function verifyWebhookSignature(
     const hmac = createHmac('sha256', secret).update(manifest).digest('hex');
     return hmac === v1;
 }
+
+// ─── Checkout Pro (pago único B2C) ───────────────────────────────────────────
+// Crea una preferencia de pago único para la compra de un curso público por un
+// estudiante externo. A diferencia del preapproval (suscripción recurrente),
+// esto genera un cobro único vía Checkout Pro. El webhook
+// `/api/webhooks/mercadopago-b2c` procesa la notificación `payment` resultante.
+
+interface PreferenceItem {
+    title: string;
+    unitPrice: number;
+    quantity?: number;
+}
+
+interface CreatePreferenceParams {
+    item: PreferenceItem;
+    payerEmail: string;
+    payerName?: string;
+    payerSurname?: string;
+    externalReference: string;
+    backUrls: { success: string; pending: string; failure: string };
+    notificationUrl?: string;
+}
+
+interface PreferenceResponse {
+    id?: string;
+    init_point?: string;
+    sandbox_init_point?: string;
+    message?: string;
+    error?: string;
+}
+
+export interface CreatePreferenceResult {
+    preferenceId: string;
+    initPoint: string | null;
+}
+
+export async function createPreference(
+    params: CreatePreferenceParams,
+): Promise<CreatePreferenceResult> {
+    const token = process.env.MP_ACCESS_TOKEN;
+    if (!token) throw new Error('MP_ACCESS_TOKEN is not set');
+
+    const quantity = params.item.quantity ?? 1;
+    const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            items: [
+                {
+                    title: params.item.title,
+                    quantity,
+                    unit_price: params.item.unitPrice,
+                    currency_id: 'CLP',
+                },
+            ],
+            payer: {
+                email: params.payerEmail,
+                ...(params.payerName ? { name: params.payerName } : {}),
+                ...(params.payerSurname ? { surname: params.payerSurname } : {}),
+            },
+            external_reference: params.externalReference,
+            back_urls: params.backUrls,
+            auto_return: 'approved',
+            ...(params.notificationUrl ? { notification_url: params.notificationUrl } : {}),
+        }),
+    });
+
+    const data = (await response.json()) as PreferenceResponse;
+
+    if (!response.ok) {
+        throw new Error(data.message ?? data.error ?? `MP error ${response.status}`);
+    }
+
+    const preferenceId = data.id;
+    if (!preferenceId) throw new Error('MercadoPago did not return preference id');
+    return {
+        preferenceId,
+        initPoint: data.init_point ?? data.sandbox_init_point ?? null,
+    };
+}
+
+// ─── Pago único (B2C) ───────────────────────────────────────────────────────
+
+/**
+ * Crea una preferencia de pago único en MercadoPago (Checkout Pro B2C). La
+ * definición detallada del item, payer, backUrls y notificationUrl vive en
+ * `createPreference` arriba (sección "Checkout Pro (pago único B2C)"). Esta
+ * función de arriba es la canónica y este bloque queda vacío para evitar la
+ * redeclaración que se produciría al duplicar el símbolo.
+ */

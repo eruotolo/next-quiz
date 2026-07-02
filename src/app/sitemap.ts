@@ -12,12 +12,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 1,
         },
 
-        // PAES — página SEO de mayor potencial de tráfico
+        // Cursos — vitrina B2C de Aulika Online (preuniversitario PAES)
         {
-            url: `${baseUrl}/paes`,
+            url: `${baseUrl}/cursos`,
             lastModified: new Date(),
             changeFrequency: 'weekly',
-            priority: 0.95,
+            priority: 0.9,
         },
 
         // Audiencias — páginas de producto con alta intención comercial

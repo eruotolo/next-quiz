@@ -1,7 +1,6 @@
 import type { CSSProperties } from 'react';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { Button } from '@/shared/components/ui/button';
 import { Card } from '@/shared/components/ui/card';
 import { Tag } from '@/shared/components/ui/badge';
@@ -167,130 +166,123 @@ export default async function ConfigPage() {
     ];
 
     return (
-        <>
-            <AdminTopBar
-                breadcrumb={['Aulika · Plataforma', 'Panel Global']}
-                title="Panel SuperAdmin"
-                subtitle={`${activeInstitutions} instituciones activas · ${totalStudents} estudiantes · ${totalAdmins + totalProfessors} docentes`}
-                actions={
-                    <Button variant="ink" size="md" asChild className="gap-2">
-                        <Link href="/config/institutions">
-                            <Building2 size={16} />
-                            Crear institución
-                        </Link>
-                    </Button>
-                }
-            />
+        <main className="flex-1 space-y-8 overflow-auto p-8">
+            <div className="flex justify-end">
+                <Button variant="ink" size="md" asChild className="gap-2">
+                    <Link href="/config/institutions">
+                        <Building2 size={16} />
+                        Crear institución
+                    </Link>
+                </Button>
+            </div>
 
-            <main className="flex-1 space-y-8 overflow-auto p-8">
-                {/* Stats */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    {stats.map((s) => (
-                        <Card key={s.label} className="border-border bg-white p-6 shadow-sm">
-                            <div className="bg-primary-wash border-primary/10 text-primary mb-5 flex h-11 w-11 items-center justify-center rounded-[12px] border">
-                                <s.icon size={20} />
+            {/* Stats */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {stats.map((s) => (
+                    <Card key={s.label} className="border-border bg-white p-6 shadow-sm">
+                        <div className="bg-primary-wash border-primary/10 text-primary mb-5 flex h-11 w-11 items-center justify-center rounded-[12px] border">
+                            <s.icon size={20} />
+                        </div>
+                        <p className="font-display text-ink text-[40px] leading-none font-bold tracking-[-0.03em]">
+                            {s.value}
+                        </p>
+                        <p className="text-mute mt-2 font-mono text-[11px] font-bold tracking-[0.1em] uppercase">
+                            {s.label}
+                        </p>
+                        <p className="text-ink-dim mt-1 text-[12px]">{s.sub}</p>
+                    </Card>
+                ))}
+            </div>
+
+            {/* Navigation cards */}
+            <div>
+                <h2 className="text-mute mb-4 font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
+                    Módulos del sistema
+                </h2>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {navLinks.map((item) => (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className="group border-border flex items-center gap-4 rounded-[18px] border border-l-[4px] [border-left-color:var(--cfg-c)] bg-white p-5 shadow-sm transition-all hover:shadow-md"
+                            style={
+                                {
+                                    '--cfg-c': item.color,
+                                    '--cfg-wash': item.wash,
+                                } as CSSProperties
+                            }
+                        >
+                            <div className="border-border/50 flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border [background-color:var(--cfg-wash)] [color:var(--cfg-c)]">
+                                <item.icon size={18} />
                             </div>
-                            <p className="font-display text-ink text-[40px] leading-none font-bold tracking-[-0.03em]">
-                                {s.value}
-                            </p>
-                            <p className="text-mute mt-2 font-mono text-[11px] font-bold tracking-[0.1em] uppercase">
-                                {s.label}
-                            </p>
-                            <p className="text-ink-dim mt-1 text-[12px]">{s.sub}</p>
-                        </Card>
+                            <div className="min-w-0 flex-1">
+                                <p className="text-ink text-[14px] font-bold">{item.label}</p>
+                                <p className="text-mute mt-0.5 text-[12px] leading-snug">
+                                    {item.sub}
+                                </p>
+                            </div>
+                        </Link>
                     ))}
                 </div>
+            </div>
 
-                {/* Navigation cards */}
-                <div>
-                    <h2 className="text-mute mb-4 font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
-                        Módulos del sistema
-                    </h2>
-                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                        {navLinks.map((item) => (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                className="group border-border flex items-center gap-4 rounded-[18px] border border-l-[4px] [border-left-color:var(--cfg-c)] bg-white p-5 shadow-sm transition-all hover:shadow-md"
-                                style={
-                                    {
-                                        '--cfg-c': item.color,
-                                        '--cfg-wash': item.wash,
-                                    } as CSSProperties
-                                }
-                            >
-                                <div className="border-border/50 flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] border [background-color:var(--cfg-wash)] [color:var(--cfg-c)]">
-                                    <item.icon size={18} />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <p className="text-ink text-[14px] font-bold">{item.label}</p>
-                                    <p className="text-mute mt-0.5 text-[12px] leading-snug">
-                                        {item.sub}
-                                    </p>
-                                </div>
-                            </Link>
+            {/* System health + audit */}
+            <div className="grid gap-4 lg:grid-cols-2">
+                <Card className="border-border bg-white p-6 shadow-sm">
+                    <div className="mb-5 flex items-center gap-2">
+                        <Zap size={15} className="text-primary" />
+                        <h3 className="text-mute font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
+                            Salud del sistema · últimas 24h
+                        </h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        {[
+                            { label: 'API latencia', value: '< 120ms', ok: true },
+                            { label: 'Sesiones activas', value: '—', ok: true },
+                            { label: 'Errores 5xx', value: '0', ok: true },
+                            {
+                                label: 'Eventos audit',
+                                value: String(recentAuditEvents),
+                                ok: recentAuditEvents < 100,
+                            },
+                        ].map((item) => (
+                            <div key={item.label} className="flex flex-col gap-1">
+                                <span className="text-mute font-mono text-[10px] font-bold tracking-widest uppercase">
+                                    {item.label}
+                                </span>
+                                <span
+                                    className={`font-display text-[22px] leading-none font-bold ${item.ok ? 'text-success' : 'text-destructive'}`}
+                                >
+                                    {item.value}
+                                </span>
+                            </div>
                         ))}
                     </div>
-                </div>
+                </Card>
 
-                {/* System health + audit */}
-                <div className="grid gap-4 lg:grid-cols-2">
-                    <Card className="border-border bg-white p-6 shadow-sm">
-                        <div className="mb-5 flex items-center gap-2">
-                            <Zap size={15} className="text-primary" />
-                            <h3 className="text-mute font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
-                                Salud del sistema · últimas 24h
-                            </h3>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            {[
-                                { label: 'API latencia', value: '< 120ms', ok: true },
-                                { label: 'Sesiones activas', value: '—', ok: true },
-                                { label: 'Errores 5xx', value: '0', ok: true },
-                                {
-                                    label: 'Eventos audit',
-                                    value: String(recentAuditEvents),
-                                    ok: recentAuditEvents < 100,
-                                },
-                            ].map((item) => (
-                                <div key={item.label} className="flex flex-col gap-1">
-                                    <span className="text-mute font-mono text-[10px] font-bold tracking-widest uppercase">
-                                        {item.label}
-                                    </span>
-                                    <span
-                                        className={`font-display text-[22px] leading-none font-bold ${item.ok ? 'text-success' : 'text-destructive'}`}
-                                    >
-                                        {item.value}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </Card>
-
-                    <Card className="border-border bg-white p-6 shadow-sm">
-                        <div className="mb-5 flex items-center gap-2">
-                            <ScrollText size={15} className="text-primary" />
-                            <h3 className="text-mute font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
-                                Auditoría · últimos cambios
-                            </h3>
-                        </div>
-                        <div className="flex h-[100px] flex-col items-center justify-center gap-3">
-                            <Tag tone="outline" className="h-7 px-3 font-mono text-[11px]">
-                                {recentAuditEvents} evento{recentAuditEvents !== 1 ? 's' : ''} en
-                                las últimas 24h
-                            </Tag>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                asChild
-                                className="text-mute font-mono text-[11px] tracking-widest uppercase"
-                            >
-                                <Link href="/config/auditoria">Ver bitácora completa →</Link>
-                            </Button>
-                        </div>
-                    </Card>
-                </div>
-            </main>
-        </>
+                <Card className="border-border bg-white p-6 shadow-sm">
+                    <div className="mb-5 flex items-center gap-2">
+                        <ScrollText size={15} className="text-primary" />
+                        <h3 className="text-mute font-mono text-[11px] font-bold tracking-[0.12em] uppercase">
+                            Auditoría · últimos cambios
+                        </h3>
+                    </div>
+                    <div className="flex h-[100px] flex-col items-center justify-center gap-3">
+                        <Tag tone="outline" className="h-7 px-3 font-mono text-[11px]">
+                            {recentAuditEvents} evento{recentAuditEvents !== 1 ? 's' : ''} en las
+                            últimas 24h
+                        </Tag>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            asChild
+                            className="text-mute font-mono text-[11px] tracking-widest uppercase"
+                        >
+                            <Link href="/config/auditoria">Ver bitácora completa →</Link>
+                        </Button>
+                    </div>
+                </Card>
+            </div>
+        </main>
     );
 }

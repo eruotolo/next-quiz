@@ -2,10 +2,8 @@ import { auth } from '@/features/auth/auth';
 import { getAuditLogs, getDistinctActionsUsed } from '@/features/audit/actions/queries';
 import { auditQuerySchema } from '@/features/audit/schemas/audit.schemas';
 import { AuditClient } from '@/features/audit/components/AuditClient';
-import { AdminTopBar } from '@/shared/components/layout/AdminTopBar';
 import { prisma } from '@/shared/lib/prisma';
 import { USER_ROLE } from '@/shared/lib/roles';
-import { ScrollText } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
 interface PageProps {
@@ -39,19 +37,11 @@ export default async function AuditoriaPage({ searchParams }: PageProps) {
     ]);
 
     return (
-        <>
-            <AdminTopBar
-                title="Auditoría"
-                breadcrumb={['Sistema', 'Auditoría']}
-                icon={<ScrollText size={18} />}
-                subtitle={`${count.toLocaleString('es-CL')} eventos registrados en total`}
-            />
-            <AuditClient
-                result={result}
-                distinctActions={distinctActions}
-                institutions={institutions}
-                currentFilters={params}
-            />
-        </>
+        <AuditClient
+            result={result}
+            distinctActions={distinctActions}
+            institutions={institutions}
+            currentFilters={params}
+        />
     );
 }

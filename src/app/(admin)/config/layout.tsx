@@ -1,6 +1,7 @@
 import { auth } from '@/features/auth/auth';
 import { USER_ROLE } from '@/shared/lib/roles';
 import { Sidebar } from '@/features/dashboard/components/Sidebar';
+import { ConfigTopBar } from '@/shared/components/layout/ConfigTopBar';
 import { prisma } from '@/shared/lib/prisma';
 import { redirect } from 'next/navigation';
 import type { ReactNode } from 'react';
@@ -35,7 +36,10 @@ export default async function ConfigLayout({ children }: Props) {
                 counts={{ institutions: institutionList.length, admins, students }}
                 institutionList={institutionList}
             />
-            <main className="flex flex-1 flex-col overflow-y-auto lg:ml-60">{children}</main>
+            <div className="flex flex-1 flex-col overflow-y-auto lg:ml-60">
+                <ConfigTopBar />
+                <main className="flex flex-1 flex-col">{children}</main>
+            </div>
         </div>
     );
 }

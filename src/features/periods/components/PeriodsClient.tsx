@@ -179,6 +179,22 @@ export function PeriodsClient({ slug, periods, canMutate, isDemo }: Props) {
 
     return (
         <>
+            {/* ── Subheader ── */}
+            <div
+                data-tour="periods-header"
+                className="border-border flex items-center gap-3 border-b bg-white px-8 py-4"
+            >
+                <span className="text-mute font-mono text-[11px] font-bold tracking-wider uppercase">
+                    {periods.length} período{periods.length !== 1 ? 's' : ''}
+                </span>
+                <div className="flex-1" />
+                {canMutate && (
+                    <Button variant="ink" size="md" onClick={openCreate} className="gap-2">
+                        <Plus size={16} />
+                        Nuevo período
+                    </Button>
+                )}
+            </div>
             <main className="flex-1 overflow-auto p-8">
                 {periods.length === 0 ? (
                     <Card className="flex flex-col items-center justify-center border-dashed py-24">
@@ -187,30 +203,12 @@ export function PeriodsClient({ slug, periods, canMutate, isDemo }: Props) {
                         <p className="text-mute mt-1 text-sm">
                             Crea el primero para empezar a organizar los ciclos académicos.
                         </p>
-                        {canMutate && (
-                            <Button
-                                variant="primary"
-                                size="md"
-                                onClick={openCreate}
-                                className="mt-6"
-                            >
-                                <Plus size={16} />
-                                Nuevo período
-                            </Button>
-                        )}
                     </Card>
                 ) : (
-                    <Card data-tour="periods-list" className="border-border overflow-hidden bg-white shadow-sm">
-                        <div data-tour="periods-header" className="border-border flex items-center justify-between border-b px-6 py-4">
-                            <h2 className="text-ink font-display text-xl font-bold">
-                                Períodos Académicos
-                            </h2>
-                            {canMutate && (
-                                <Button variant="primary" size="sm" onClick={openCreate}>
-                                    <Plus size={14} className="mr-1" /> Nuevo período
-                                </Button>
-                            )}
-                        </div>
+                    <Card
+                        data-tour="periods-list"
+                        className="border-border overflow-hidden bg-white shadow-sm"
+                    >
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                                 <thead className="bg-paper border-border border-b">
@@ -349,7 +347,11 @@ export function PeriodsClient({ slug, periods, canMutate, isDemo }: Props) {
                             </div>
                             <div className="flex flex-col gap-2">
                                 <span className="text-ink text-[13px] font-bold">Tipo</span>
-                                <Select value={type} onValueChange={handleTypeChange} disabled={isDemo}>
+                                <Select
+                                    value={type}
+                                    onValueChange={handleTypeChange}
+                                    disabled={isDemo}
+                                >
                                     <SelectTrigger className="border-border h-11 rounded-[10px] bg-white">
                                         <SelectValue />
                                     </SelectTrigger>
@@ -449,7 +451,12 @@ export function PeriodsClient({ slug, periods, canMutate, isDemo }: Props) {
                         >
                             Cancelar
                         </Button>
-                        <Button variant="ink" size="md" disabled={isPending || isDemo} onClick={handleSave}>
+                        <Button
+                            variant="ink"
+                            size="md"
+                            disabled={isPending || isDemo}
+                            onClick={handleSave}
+                        >
                             {isPending && <Loader2 className="mr-2 animate-spin" />}
                             {editing ? 'Guardar' : 'Crear'}
                         </Button>
