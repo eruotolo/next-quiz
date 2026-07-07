@@ -38,6 +38,7 @@ interface CourseOption {
     name: string;
     programId: string | null;
     periodId: string;
+    groups: { id: string; name: string }[];
 }
 
 export interface EditingGroup {
@@ -258,27 +259,43 @@ export function GroupForm({
                         </span>
                         <div
                             className={cn(
-                                'border-border h-32 overflow-y-auto rounded-[10px] border bg-white p-2',
+                                'border-border h-40 overflow-y-auto rounded-[10px] border bg-white p-2',
                                 coursesDisabled && 'opacity-50',
                             )}
                         >
                             {filteredCourses.length === 0 ? (
                                 <p className="text-mute p-2 text-xs">{coursesHint}</p>
                             ) : (
-                                filteredCourses.map((c) => (
-                                    <label
-                                        key={c.id}
-                                        className="flex cursor-pointer items-center gap-2 p-1 text-sm"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            checked={courseSectionIds.includes(c.id)}
-                                            onChange={() => toggleCourse(c.id)}
-                                            disabled={coursesDisabled || !!disabled}
-                                        />
-                                        {c.name}
-                                    </label>
-                                ))
+                                filteredCourses.map((c) => {
+                                    const otherGroups = c.groups.filter(
+                                        (g) => g.id !== editing?.id,
+                                    );
+                                    return (
+                                        <label
+                                            key={c.id}
+                                            className="flex cursor-pointer items-start gap-2 p-1 text-sm"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                className="mt-0.5"
+                                                checked={courseSectionIds.includes(c.id)}
+                                                onChange={() => toggleCourse(c.id)}
+                                                disabled={coursesDisabled || !!disabled}
+                                            />
+                                            <span className="flex-1">
+                                                <span>{c.name}</span>
+                                                {otherGroups.length > 0 && (
+                                                    <span className="text-mute ml-2 text-[11px]">
+                                                        · En:{' '}
+                                                        {otherGroups
+                                                            .map((g) => g.name)
+                                                            .join(', ')}
+                                                    </span>
+                                                )}
+                                            </span>
+                                        </label>
+                                    );
+                                })
                             )}
                         </div>
                     </div>

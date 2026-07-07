@@ -23,6 +23,7 @@ import {
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
 import { SearchableSelect } from '@/shared/components/ui/searchable-select';
+import { cn } from '@/shared/lib/utils';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -34,16 +35,22 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition, useMemo } from 'react';
 import { toast } from 'sonner';
 
-import type { CourseSection, Program, AcademicPeriod, Group, User } from '@prisma/client';
+import type { Program, AcademicPeriod, Group, User } from '@prisma/client';
 
 interface GroupWithProfessors extends Group {
     professors: User[];
 }
 
-interface CourseSectionWithRelations extends CourseSection {
+/** Shape local para CourseSection — `groupId` ya no existe (N:M via groupLinks). */
+interface CourseSectionWithRelations {
+    id: string;
+    name: string;
+    code: string | null;
+    programId: string | null;
+    periodId: string;
     program: Program | null;
     period: AcademicPeriod;
-    group: GroupWithProfessors | null;
+    groups: GroupWithProfessors[];
     professors: User[];
     _count: { exams: number };
     studentsCount: number;
@@ -80,7 +87,7 @@ export function CoursesClient({
     const [code, setCode] = useState('');
     const [programId, setProgramId] = useState<string>('none');
     const [periodId, setPeriodId] = useState<string>('');
-    const [groupId, setGroupId] = useState<string>('none');
+    const [groupIds, setGroupIds] = useState<string[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [isPending, startTransition] = useTransition();
@@ -91,7 +98,7 @@ export function CoursesClient({
         setCode('');
         setProgramId('none');
         setPeriodId(periods.length > 0 ? (periods[0]?.id ?? '') : '');
-        setGroupId('none');
+        setGroupIds([]);
         setError(null);
         setIsOpen(true);
     };
@@ -102,7 +109,7 @@ export function CoursesClient({
         setCode(c.code ?? '');
         setProgramId(c.programId ?? 'none');
         setPeriodId(c.periodId);
-        setGroupId(c.groupId ?? 'none');
+        setGroupIds(c.groups.map((g) => g.id));
         setError(null);
         setIsOpen(true);
     };
@@ -133,7 +140,7 @@ export function CoursesClient({
             code: code.trim() || null,
             programId: programId === 'none' ? null : programId,
             periodId,
-            groupId: groupId === 'none' ? null : groupId,
+            groupIds,
             professorIds: [],
         };
 
@@ -246,11 +253,26 @@ export function CoursesClient({
                                                 {c.period?.name}
                                             </td>
                                             <td className="text-mute px-6 py-4 text-xs">
-                                                {(c.group?.professors?.length ?? 0) > 0
-                                                    ? c.group?.professors
-                                                          .map((p) => `${p.name} ${p.lastname}`)
-                                                          .join(', ')
-                                                    : 'Sin asignar'}
+                                                {c.groups.length > 0
+                                                    ? c.groups
+                                                          .flatMap((g) =>
+                                                              (g.professors ?? []).map(
+                                                                  (p) =>
+                                                                      `${p.name} ${p.lastname}`,
+                                                              ),
+                                                          )
+                                                          .filter(
+                                                              (v, i, a) => a.indexOf(v) === i,
+                                                          )
+                                                          .join(', ') || 'Sin tutores'
+                                                    : c.professors.length > 0
+                                                      ? c.professors
+                                                            .map(
+                                                                (p) =>
+                                                                    `${p.name} ${p.lastname}`,
+                                                            )
+                                                            .join(', ')
+                                                      : 'Sin asignar'}
                                             </td>
                                             <td className="text-ink px-6 py-4 text-center font-bold">
                                                 {c.studentsCount}
@@ -383,21 +405,47 @@ export function CoursesClient({
 
                         <div className="flex flex-col gap-2">
                             <span className="text-ink text-[13px] font-bold">
-                                Grupo de alumnos (opcional)
+                                Grupos de alumnos (opcional, N:M — una materia puede
+                                pertenecer a varios grupos)
                             </span>
-                            <SearchableSelect
-                                value={groupId}
-                                onChange={setGroupId}
-                                options={[
-                                    {
-                                        value: 'none',
-                                        label: 'Sin grupo / Se creará automáticamente',
-                                    },
-                                    ...filteredGroups.map((g) => ({ value: g.id, label: g.name })),
-                                ]}
-                                placeholder="Sin grupo / Se creará automáticamente"
-                                disabled={isDemo}
-                            />
+                            <div
+                                className={cn(
+                                    'border-border h-32 overflow-y-auto rounded-[10px] border bg-white p-2',
+                                    isDemo && 'opacity-50',
+                                )}
+                            >
+                                {filteredGroups.length === 0 ? (
+                                    <p className="text-mute p-2 text-xs">
+                                        No hay grupos disponibles.
+                                    </p>
+                                ) : (
+                                    filteredGroups.map((g) => (
+                                        <label
+                                            key={g.id}
+                                            className="flex cursor-pointer items-center gap-2 p-1 text-sm"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                className="mt-0.5"
+                                                checked={groupIds.includes(g.id)}
+                                                onChange={() =>
+                                                    setGroupIds((prev) =>
+                                                        prev.includes(g.id)
+                                                            ? prev.filter((x) => x !== g.id)
+                                                            : [...prev, g.id],
+                                                    )
+                                                }
+                                                disabled={isDemo}
+                                            />
+                                            {g.name}
+                                        </label>
+                                    ))
+                                )}
+                            </div>
+                            <p className="text-mute text-[11px]">
+                                Si está vacío y la institución es de educación superior, se
+                                crea un grupo automáticamente con el nombre de la materia.
+                            </p>
                         </div>
 
                         {error && (

@@ -256,7 +256,7 @@ async function seedCompletedExams(prisma: PrismaClient, institutionId: string): 
         });
 
         const courseSections = await prisma.courseSection.findMany({
-            where: { groupId: group.id },
+            where: { groupLinks: { some: { groupId: group.id } } },
             select: { id: true },
         });
 
@@ -530,14 +530,17 @@ export async function seedE2E(prisma: PrismaClient): Promise<void> {
             });
 
             for (const courseName of inst.courses) {
-                await prisma.courseSection.create({
+                const cs = await prisma.courseSection.create({
                     data: {
                         name: courseName,
                         programId: program.id,
                         periodId: period.id,
-                        groupId: group.id,
                         professors: { connect: { id: assignedProfId } },
                     },
+                });
+                // N:M: vincular materia↔grupo via tabla de unión.
+                await prisma.courseSectionGroup.create({
+                    data: { courseSectionId: cs.id, groupId: group.id },
                 });
             }
 

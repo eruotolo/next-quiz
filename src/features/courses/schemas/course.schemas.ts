@@ -5,7 +5,8 @@ export const courseSchema = z.object({
     code: z.string().optional().nullable(),
     programId: z.string().uuid().optional().nullable(),
     periodId: z.string().uuid('Debes seleccionar un período válido'),
-    groupId: z.string().uuid().optional().nullable(),
+    // N:M — una materia puede asignarse a N grupos (o ninguno). Vacío = sin grupos.
+    groupIds: z.array(z.string().uuid()).default([]),
     professorIds: z.array(z.string().uuid()).default([]),
 });
 

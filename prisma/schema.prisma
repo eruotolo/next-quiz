@@ -168,27 +168,27 @@ model AcademicPeriod {
 
 // Materia dictada (asignatura/ramo). Pieza central de la jerarquía: cruza
 // programa (opcional → transversal), período, profesores (N:M co-docencia) y
-// grupo (opcional → se autocrea en universidades).
+// grupos (N:M — una materia puede estar en N grupos). La asignación materia↔grupo
+// vive en la tabla de unión explícita `CourseSectionGroup` (permite backfill,
+// auditoría por `createdAt` y extender sin migrar).
 model CourseSection {
-  id         String         @id @default(uuid()) @db.Uuid
+  id         String               @id @default(uuid()) @db.Uuid
   name       String
   code       String?
-  programId  String?        @db.Uuid
-  program    Program?       @relation(fields: [programId], references: [id], onDelete: SetNull)
-  periodId   String         @db.Uuid
-  period     AcademicPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
-  professors User[]         @relation("CourseSectionTeachers")
-  groupId    String?        @db.Uuid
-  group      Group?         @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  programId  String?              @db.Uuid
+  program    Program?             @relation(fields: [programId], references: [id], onDelete: SetNull)
+  periodId   String               @db.Uuid
+  period     AcademicPeriod       @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  professors User[]               @relation("CourseSectionTeachers")
+  groupLinks CourseSectionGroup[]
   exams      Exam[]
   lmsCourses LmsCourse[]
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
 
-  @@unique([programId, periodId, name, groupId])
+  @@unique([programId, periodId, name])
   @@index([programId])
   @@index([periodId])
-  @@index([groupId])
 }
 
 // Jefe de Carrera = vínculo Profesor↔Programa (no es un 5° rol). Otorga alcance
@@ -224,7 +224,7 @@ model Group {
   users                 User[]
   professors            User[]               @relation("ProfessorGroups")
   exams                 Exam[]
-  courseSections        CourseSection[]
+  groupLinks            CourseSectionGroup[]
   createdAt             DateTime             @default(now())
   updatedAt             DateTime             @updatedAt
 
@@ -232,6 +232,25 @@ model Group {
   @@index([academicInstitutionId])
   @@index([programId])
   @@index([periodId])
+}
+
+// Tabla de unión explícita N:M entre `CourseSection` y `Group`. Antes existía
+// una FK simple `CourseSection.groupId` (1:N) que obligaba a que cada materia
+// viviera en un solo grupo. Esta tabla permite que una misma materia esté
+// asignada a N grupos (y cada grupo tenga N materias). Migrada desde los datos
+// históricos del campo eliminado `CourseSection.groupId` vía backfill SQL en
+// la migración `YYYYMMDDHHMMSS_course_section_n_to_n`.
+model CourseSectionGroup {
+  id              String        @id @default(uuid()) @db.Uuid
+  courseSectionId String        @db.Uuid
+  courseSection   CourseSection @relation(fields: [courseSectionId], references: [id], onDelete: Cascade)
+  groupId         String        @db.Uuid
+  group           Group         @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdAt       DateTime      @default(now())
+
+  @@unique([courseSectionId, groupId])
+  @@index([courseSectionId])
+  @@index([groupId])
 }
 
 model User {

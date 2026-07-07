@@ -37,19 +37,20 @@ async function authorizeCourseMutation(slug: string, programId?: string | null) 
 
 /**
  * Valida que todas las referencias de la materia pertenezcan a la institución
- * (anti-IDOR): período, programa, grupo y profesores. Los opcionales ausentes
+ * (anti-IDOR): período, programa, grupos y profesores. Los opcionales ausentes
  * (null/undefined o array vacío) se ignoran. Lanza Error con mensaje claro.
+ * Relación materia↔grupos es N:M via `CourseSectionGroup`.
  */
 async function assertCourseRelationsInstitution(
     institutionId: string,
     refs: {
         programId?: string | null;
         periodId: string;
-        groupId?: string | null;
+        groupIds: string[];
         professorIds: string[];
     },
 ): Promise<void> {
-    const [period, program, group, professorCount] = await Promise.all([
+    const [period, program, groupCount, professorCount] = await Promise.all([
         prisma.academicPeriod.findFirst({
             where: { id: refs.periodId, academicInstitutionId: institutionId },
             select: { id: true },
@@ -60,12 +61,11 @@ async function assertCourseRelationsInstitution(
                   select: { id: true },
               })
             : Promise.resolve(null),
-        refs.groupId
-            ? prisma.group.findFirst({
-                  where: { id: refs.groupId, academicInstitutionId: institutionId },
-                  select: { id: true },
+        refs.groupIds.length > 0
+            ? prisma.group.count({
+                  where: { id: { in: refs.groupIds }, academicInstitutionId: institutionId },
               })
-            : Promise.resolve(null),
+            : Promise.resolve(0),
         refs.professorIds.length > 0
             ? prisma.user.count({
                   where: {
@@ -80,8 +80,8 @@ async function assertCourseRelationsInstitution(
     if (!period) throw new Error('El período seleccionado no pertenece a esta institución.');
     if (refs.programId && !program)
         throw new Error('El programa seleccionado no pertenece a esta institución.');
-    if (refs.groupId && !group)
-        throw new Error('El grupo seleccionado no pertenece a esta institución.');
+    if (refs.groupIds.length > 0 && groupCount !== refs.groupIds.length)
+        throw new Error('Uno o más grupos seleccionados no pertenecen a esta institución.');
     if (refs.professorIds.length > 0 && professorCount !== refs.professorIds.length)
         throw new Error('Uno o más profesores no pertenecen a esta institución.');
 }
@@ -101,6 +101,21 @@ async function countValidProfessors(
     });
 }
 
+/** Reemplaza el set de uniones materia↔grupo por la nueva lista (atómico). */
+async function syncCourseSectionGroups(
+    tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
+    courseSectionId: string,
+    groupIds: string[],
+): Promise<void> {
+    await tx.courseSectionGroup.deleteMany({ where: { courseSectionId } });
+    if (groupIds.length > 0) {
+        await tx.courseSectionGroup.createMany({
+            data: groupIds.map((groupId) => ({ courseSectionId, groupId })),
+            skipDuplicates: true,
+        });
+    }
+}
+
 export async function createCourse(
     slug: string,
     data: unknown,
@@ -113,13 +128,12 @@ export async function createCourse(
 
         await assertQuota(ctx.institutionId, 'course', ctx.userRole);
 
-        const { name, code, programId, periodId, professorIds } = parsed.data;
-        let { groupId } = parsed.data;
+        const { name, code, programId, periodId, groupIds, professorIds } = parsed.data;
 
         await assertCourseRelationsInstitution(ctx.institutionId, {
             programId,
             periodId,
-            groupId,
+            groupIds,
             professorIds,
         });
 
@@ -132,8 +146,10 @@ export async function createCourse(
         const isUniType =
             !!institution?.type && AUTO_GROUP_INSTITUTION_TYPES.includes(institution.type);
 
+        const effectiveGroupIds = [...groupIds];
+
         const course = await prisma.$transaction(async (tx) => {
-            if (isUniType && !groupId) {
+            if (isUniType && effectiveGroupIds.length === 0) {
                 const groupName = code ? `${name} (${code})` : name;
                 const newGroup = await tx.group.create({
                     data: {
@@ -143,20 +159,23 @@ export async function createCourse(
                         periodId,
                     },
                 });
-                groupId = newGroup.id;
+                effectiveGroupIds.push(newGroup.id);
             }
 
-            return tx.courseSection.create({
+            const created = await tx.courseSection.create({
                 data: {
                     name,
                     code,
                     programId,
                     periodId,
-                    groupId,
                     professors: { connect: professorIds.map((id) => ({ id })) },
                 },
                 select: { id: true },
             });
+
+            await syncCourseSectionGroups(tx, created.id, effectiveGroupIds);
+
+            return created;
         });
 
         await logAudit({
@@ -183,27 +202,28 @@ export async function updateCourse(slug: string, id: string, data: unknown): Pro
 
         const ctx = await authorizeCourseMutation(slug, parsed.data.programId);
 
-        const { name, code, programId, periodId, groupId, professorIds } = parsed.data;
+        const { name, code, programId, periodId, groupIds, professorIds } = parsed.data;
 
         await assertCourseRelationsInstitution(ctx.institutionId, {
             programId,
             periodId,
-            groupId,
+            groupIds,
             professorIds,
         });
 
         // updateMany no soporta relaciones anidadas: actualiza escalares y luego
-        // los profesores en una transacción para evitar estado intermedio.
-        await prisma.$transaction([
-            prisma.courseSection.updateMany({
+        // los profesores + uniones materia↔grupo en una transacción.
+        await prisma.$transaction(async (tx) => {
+            await tx.courseSection.updateMany({
                 where: { id, period: { academicInstitutionId: ctx.institutionId } },
-                data: { name, code, programId, periodId, groupId },
-            }),
-            prisma.courseSection.update({
+                data: { name, code, programId, periodId },
+            });
+            await tx.courseSection.update({
                 where: { id },
                 data: { professors: { set: professorIds.map((pid) => ({ id: pid })) } },
-            }),
-        ]);
+            });
+            await syncCourseSectionGroups(tx, id, groupIds);
+        });
 
         await logAudit({
             action: AUDIT_ACTION.COURSE_UPDATE,

@@ -55,7 +55,11 @@ export default async function CoursesPage({ params }: Props) {
             include: {
                 program: true,
                 period: true,
-                group: { include: { professors: true } },
+                // N:M via tabla de unión. Traemos los grupos con sus profesores
+                // para mantener el shape del card (mostrar tutores si aplica).
+                groupLinks: {
+                    include: { group: { include: { professors: true } } },
+                },
                 professors: true,
                 _count: { select: { exams: true } },
             },
@@ -78,21 +82,35 @@ export default async function CoursesPage({ params }: Props) {
     ]);
 
     // Conteo real de estudiantes por grupo (los alumnos del grupo de cada materia).
-    const groupIds = courses.map((c) => c.groupId).filter((id): id is string => !!id);
+    // Una materia puede estar en N grupos; sumamos los estudiantes únicos de todos
+    // los grupos a los que pertenece (el admin ve el total agregado).
+    const groupIds = new Set<string>();
+    for (const c of courses) {
+        for (const link of c.groupLinks) groupIds.add(link.groupId);
+    }
+    const groupIdsArr = Array.from(groupIds);
     const studentCounts =
-        groupIds.length > 0
+        groupIdsArr.length > 0
             ? await prisma.user.groupBy({
                   by: ['groupId'],
-                  where: { groupId: { in: groupIds }, userRole: { name: USER_ROLE.STUDENT } },
+                  where: { groupId: { in: groupIdsArr }, userRole: { name: USER_ROLE.STUDENT } },
                   _count: { _all: true },
               })
             : [];
     const countByGroup = new Map(studentCounts.map((r) => [r.groupId, r._count._all]));
 
-    const mappedCourses = courses.map((c) => ({
-        ...c,
-        studentsCount: c.groupId ? (countByGroup.get(c.groupId) ?? 0) : 0,
-    }));
+    const mappedCourses = courses.map((c) => {
+        const groups = c.groupLinks.map((link) => link.group);
+        const studentsCount = groups.reduce(
+            (sum, g) => sum + (countByGroup.get(g.id) ?? 0),
+            0,
+        );
+        return {
+            ...c,
+            groups,
+            studentsCount,
+        };
+    });
 
     return (
         <CoursesClient

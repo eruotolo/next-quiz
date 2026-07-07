@@ -31,7 +31,8 @@ export default async function ExamsPage({ params }: { params: Promise<{ slug: st
                         name: true,
                         programId: true,
                         periodId: true,
-                        groupId: true,
+                        // N:M: la materia puede estar en N grupos.
+                        groupLinks: { select: { groupId: true } },
                     },
                 },
                 _count: { select: { questions: true, results: true } },
@@ -55,7 +56,8 @@ export default async function ExamsPage({ params }: { params: Promise<{ slug: st
                 name: true,
                 programId: true,
                 periodId: true,
-                groupId: true,
+                // N:M: la materia puede estar en N grupos.
+                groupLinks: { select: { groupId: true } },
                 program: { select: { id: true, name: true } },
                 period: { select: { id: true, name: true } },
             },
@@ -137,11 +139,23 @@ export default async function ExamsPage({ params }: { params: Promise<{ slug: st
         return { ...exam, avgGrade, passRate, totalStudents };
     });
 
+    // Mapear courseSections al shape `CourseOption` de ExamAcademicPicker
+    // (incluye `groups: { id: string }[]` en vez del antiguo `groupId` singular).
+    const courseSectionsForPicker = courseSections.map((c) => ({
+        id: c.id,
+        name: c.name,
+        programId: c.programId,
+        periodId: c.periodId,
+        groups: c.groupLinks.map((link) => ({ id: link.groupId })),
+        program: c.program,
+        period: c.period,
+    }));
+
     return (
         <ExamsClient
             exams={examsWithStats}
             groups={groups}
-            courseSections={courseSections}
+            courseSections={courseSectionsForPicker}
             isProfesor={isProfesor}
             isDemo={isDemo}
         />

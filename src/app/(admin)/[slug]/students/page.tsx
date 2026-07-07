@@ -33,7 +33,14 @@ export default async function StudentsPage({ params }: { params: Promise<{ slug:
         ? {
               OR: [
                   groupProfessorFilter(userId),
-                  { courseSections: { some: { professors: { some: { id: userId } } } } },
+                  // N:M: el grupo contiene la materia via CourseSectionGroup.
+                  {
+                      groupLinks: {
+                          some: {
+                              courseSection: { professors: { some: { id: userId } } },
+                          },
+                      },
+                  },
                   ...(coordinatedProgramIds.length > 0
                       ? [{ programId: { in: coordinatedProgramIds } }]
                       : []),

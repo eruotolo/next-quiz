@@ -65,6 +65,7 @@ interface CourseOption {
     name: string;
     programId: string | null;
     periodId: string;
+    groups: { id: string; name: string }[];
 }
 
 interface GroupWithCount extends Group {

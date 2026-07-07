@@ -616,8 +616,8 @@ Plan en `AcademicInstitution.plan` (`Plan`: FREE · DOCENTE · COLEGIO · INSTIT
 - **Fuente única (DRY)** — `src/shared/lib/academic-labels.ts`: `academicLabel(type)` devuelve los labels (Carrera/Nivel/Área…, Ramo/Asignatura/Materia…, Semestre/Año escolar/Proceso…); `INSTITUTION_TYPE_OPTIONS` alimenta todos los selects; `institutionTypeSchema` (z.enum derivado) reusa el enum en los schemas sin duplicar valores.
 - **Dónde se setea** — `/registro/free` (`signupFreeSchema`), `/registro/colegio` y `/registro/docente` post-pago (`registrationSchema`), `/config/institutions` crear/editar (`institutionSchema`), `/[slug]/settings` (`institutionSettingsSchema`). Las actions persisten `type` vía `parsed.data` / spread `...rest` sin lógica extra.
 - **Sidebar dinámico** — `[slug]/layout.tsx` pasa `institutionType` al `Sidebar`; la sección "Académico" muestra los 3 items (`/programs`, `/periods`, `/courses`) con labels según el tipo. `/[slug]/settings` revalida el layout al guardar, así que cambiar el `type` refresca el sidebar.
-- **Modelo de Grupo** — `Group` tiene **Carrera** (`programId`), **Semestre** (`periodId`, nullable) y **Ramos** (los `CourseSection` con `groupId` = este grupo, relación 1:N). El formulario compartido `GroupForm` (`src/features/groups/components/GroupForm.tsx`) lo usan tanto el modal de `/[slug]/groups` como `NewGroupButton`; filtra los ramos disponibles por carrera+semestre (coherencia). `groups/actions/mutations.ts` persiste `periodId` y reasigna ramos (`updateMany` de `courseSection` con filtro anti-IDOR). El autocreate de materia en universidades (`courses/actions/mutations.ts`) hereda `periodId` en el grupo generado.
-- **Asignación a Exámenes** — `ExamAcademicPicker` maneja la cascada (Carrera → Semestre → Ramo) en el modal de creación de exámenes. Seleccionar un ramo (CourseSection) auto-selecciona opcionalmente su `groupId` asociado. Los profesores están acotados (`courseSectionProfessorFilter`) a crear exámenes solo para los ramos donde dictan clases (`assertCourseSectionBelongsToProfessor`).
+- **Modelo de Grupo** — `Group` tiene **Carrera** (`programId`), **Semestre** (`periodId`, nullable) y **Ramos** (relación **N:M** con `CourseSection` via la tabla de unión explícita `CourseSectionGroup` — una materia puede estar en N grupos, un grupo tiene N materias). El unique `@@unique([programId, periodId, name])` de `CourseSection` NO incluye `groupId` (la materia es única por carrera+semestre). El formulario compartido `GroupForm` (`src/features/groups/components/GroupForm.tsx`) lo usan tanto el modal de `/[slug]/groups` como `NewGroupButton`; filtra los ramos disponibles por carrera+semestre (coherencia) y muestra para cada materia los grupos donde ya está (`· En: A, B`). `groups/actions/mutations.ts` persiste los `courseSectionIds` reemplazando la unión completa vía `courseSectionGroup.deleteMany + createMany` (con anti-IDOR por período/institución). El autocreate de materia en universidades (`courses/actions/mutations.ts`) crea un grupo automáticamente y luego crea la unión `CourseSectionGroup`. Helpers `syncCourseSectionGroups(tx, csId, groupIds)` reutilizable en create/update.
+- **Asignación a Exámenes** — `ExamAcademicPicker` maneja la cascada (Carrera → Semestre → Ramo) en el modal de creación de exámenes. Seleccionar un ramo (CourseSection) auto-selecciona opcionalmente los `groupIds` donde la materia ya está (N:M: pre-selecciona todas las uniones existentes). Los profesores están acotados (`courseSectionProfessorFilter`) a crear exámenes solo para los ramos donde dictan clases (`assertCourseSectionBelongsToProfessor`).
 
 ## Generación de Preguntas con IA (Modal IA)
 
@@ -668,6 +668,79 @@ Con 60 preguntas el límite de output de Gemini 2.5 Flash (8K tokens) queda apre
 
 - Tests unitarios del parser (escenarios por tipo UNICA/MULTIPLE, límite de 500 chars, extractores JSON). Hoy el parser no tiene cobertura.
 - Chunking opcional para `questionCount > 60`: 3 llamadas paralelas en lotes de 20 con concatenación server-side. No implementado por no estar pedido.
+
+## Materia ↔ Grupo: relación N:M (migración 2026-07-07)
+
+Relación entre `CourseSection` y `Group` migrada de **1:N** (`CourseSection.groupId` FK simple) a **N:M** via tabla de unión explícita `CourseSectionGroup`. Una materia puede estar en N grupos, un grupo tiene N materias. Cambio solicitado por Edgardo: la UI de `/[slug]/groups` solo dejaba agregar una materia a un único grupo; el modelo ahora lo permite.
+
+### Modelo Prisma
+
+- Eliminada la columna `CourseSection.groupId` + FK + index.
+- Eliminado el reverse relation `Group.courseSections` (era 1:N).
+- Nuevo modelo:
+```prisma
+model CourseSectionGroup {
+  id              String        @id @default(uuid()) @db.Uuid
+  courseSectionId String        @db.Uuid
+  courseSection   CourseSection @relation(fields: [courseSectionId], references: [id], onDelete: Cascade)
+  groupId         String        @db.Uuid
+  group           Group         @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdAt       DateTime      @default(now())
+  @@unique([courseSectionId, groupId])
+  @@index([courseSectionId])
+  @@index([groupId])
+}
+```
+- `CourseSection.groupLinks: CourseSectionGroup[]` y `Group.groupLinks: CourseSectionGroup[]`.
+- `@@unique([programId, periodId, name, groupId])` → `@@unique([programId, periodId, name])` (la materia es única por carrera+semestre, sin importar grupo).
+
+### Migración
+
+- `prisma/migrations/20260707225650_course_section_n_to_n/migration.sql` — **editada manualmente** (caso excepcional justificado) para agregar:
+    - Consolidación de duplicados vía CTEs: por cada set `(programId, periodId, name)` con N filas, la fila más antigua es la "winner" y se consolidan las relaciones de los losers en ella (preservando FKs de `Exam.courseSectionId` y `LmsCourse.courseSectionId` antes del DELETE del loser).
+    - `INSERT INTO CourseSectionGroup SELECT ... FROM CourseSection WHERE groupId IS NOT NULL` (backfill).
+- **Datos perdidos**: las 67 relaciones materia↔grupo históricas se perdieron al dropearse la columna `groupId` antes de que el backfill corriera completo en el primer intento. Reasignar manualmente desde la UI `/[slug]/groups` (los CourseSections siguen existiendo consolidados 67→19, solo las uniones materia↔grupo están vacías). Backup completo en `/tmp/quiz_db_full_backup.sql` durante la sesión de migración.
+
+### Reglas en server actions
+
+- **Anti-IDOR**: la unión `CourseSectionGroup` se valida contra `CourseSection.period.academicInstitutionId = ctx.institutionId` antes del `createMany`.
+- **Diff atómico en update**: `deleteMany({ where: { groupId: id } })` + `createMany({ data: [...], skipDuplicates: true })`. No se hace `updateMany` (no aplica en N:M).
+- **Autocreate de materia en universidades** (`courses/actions/mutations.ts:createCourse`): si la institución es `UNIVERSIDAD|INSTITUTO_PROFESIONAL|CFT` y no se eligió grupo, se crea uno con el nombre de la materia; luego se crea la unión materia↔grupo. La función `syncCourseSectionGroups(tx, courseSectionId, groupIds)` es reutilizable en create/update y maneja el diff atómico.
+
+### UI (`/[slug]/groups` + `/[slug]/courses`)
+
+- **`GroupForm`**: el filtro carrera+semestre sigue igual; cada materia muestra "· En: Grupo A, Grupo B" con los grupos donde ya está asignada (no bloquea la selección — solo es info visual).
+- **`CoursesClient`**: el selector de grupo pasó de un único `<SearchableSelect>` a checkboxes (lista scrolleable). `groupId: string` (singular, schema Zod) → `groupIds: z.array(z.string().uuid()).default([])`.
+- **`pages/[slug]/groups/page.tsx`**: el shape legacy `group.courseSections: { id, name }[]` se mantiene en el cliente mapeando `group.groupLinks` → `courseSections` server-side.
+- **`ExamAcademicPicker`**: el campo `groupId: string | null` en `CourseOption` se reemplaza por `groups: { id: string }[]`. Al elegir materia se auto-seleccionan todos los grupos donde la materia ya está (no solo uno como antes).
+
+### Queries a migrar en todo el código
+
+Patrón de migración para cualquier query que filtre por `courseSection.groupId` o `group.courseSections`:
+
+```ts
+// ❌ ANTES (1:N)
+where: { groupId: 'X' }                  // sobre Group.courseSections o CourseSection.groupId
+where: { courseSections: { some: { ... } } }   // sobre Group
+
+// ✅ AHORA (N:M)
+where: { groupLinks: { some: { groupId: 'X' } } }          // sobre CourseSection
+where: { groupLinks: { some: { courseSection: { ... } } } } // sobre Group
+```
+
+Lugares ya migrados:
+- `students/actions/mutations.ts` (`professorOwnsGroup`, `professorHasAccess`, importStudents)
+- `students/page.tsx`
+- `exams/page.tsx` (select con `groupLinks: { select: { groupId: true } }`)
+- `courses/page.tsx` (incluye `groupLinks` y deduplica estudiantes cross-grupo en el contador)
+- `groups/page.tsx` (del lado de Group)
+- `courses/[courseId]/page.tsx` (usa `groupLinks` para agregar estudiantes de TODOS los grupos)
+- `programs/[programId]/page.tsx` (toma el primer grupo como representativo en el detalle)
+
+### Pendiente para PR futuro
+
+- **Tests del parser de `assistant-bedrock` mutation actions** (`syncCourseSectionGroups`) para garantizar que el diff atómico no pierde relaciones cuando se llama concurrentemente.
+- **Migración del backfill perdido**: si Edgardo confirma que quiere recuperar las 67 relaciones históricas, se puede inferir parcialmente desde los exams (un exam con `courseSectionId=X` y `groupId=Y` sugiere que X estuvo en Y antes — pero requiere asumir y crear filas manualmente con confirmación).
 
 ## Aula Virtual (LMS) — Fundamentos (Fase 1)
 
