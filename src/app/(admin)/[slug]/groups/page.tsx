@@ -136,7 +136,7 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
     return (
         <GroupsClient
             slug={slug}
-            groups={groupsWithAvg as never}
+            groups={groupsWithAvg}
             professors={professors}
             programs={programs}
             periods={periods}

@@ -9,6 +9,31 @@ interface Props {
     params: Promise<{ slug: string; courseId: string }>;
 }
 
+interface UserWithRut {
+    id: string;
+    name: string;
+    lastname: string;
+    rut: string | null;
+    email: string;
+}
+
+interface GroupLinkWithUsers {
+    group: { users: { id: string; name: string; lastname: string; rut: string; email: string }[] };
+}
+
+/** N:M: agrega estudiantes de todos los grupos donde la materia está asignada, deduplicando por id. */
+function dedupeGroupLinkStudents(groupLinks: GroupLinkWithUsers[]): UserWithRut[] {
+    const userMap = new Map<string, UserWithRut>();
+    for (const link of groupLinks) {
+        for (const u of link.group.users) {
+            if (!userMap.has(u.id)) {
+                userMap.set(u.id, { ...u, rut: u.rut ?? null });
+            }
+        }
+    }
+    return Array.from(userMap.values());
+}
+
 export default async function CourseDetailPage({ params }: Props) {
     const { slug, courseId } = await params;
     const { institutionId, userId, isProfesor, coordinatedProgramIds } =
@@ -68,24 +93,7 @@ export default async function CourseDetailPage({ params }: Props) {
         if (!isTeacher && !isCoordinator) notFound();
     }
 
-    // N:M: agregar estudiantes de TODOS los grupos donde la materia está asignada,
-    // deduplicando por id.
-    interface UserWithRut {
-        id: string;
-        name: string;
-        lastname: string;
-        rut: string | null;
-        email: string;
-    }
-    const userMap = new Map<string, UserWithRut>();
-    for (const link of course.groupLinks) {
-        for (const u of link.group.users) {
-            if (!userMap.has(u.id)) {
-                userMap.set(u.id, { ...u, rut: u.rut ?? null });
-            }
-        }
-    }
-    const students = Array.from(userMap.values());
+    const students = dedupeGroupLinkStudents(course.groupLinks);
 
     const exams = course.exams.map((e) => ({
         id: e.id,

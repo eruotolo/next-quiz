@@ -84,7 +84,6 @@ interface ExamWithCount extends Exam {
         name: string;
         programId: string | null;
         periodId: string;
-        groupId: string | null;
     } | null;
     _count: { questions: number; results: number };
     avgGrade: number | null;

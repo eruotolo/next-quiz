@@ -97,15 +97,25 @@ export async function createGroup(
                 select: { id: true },
             });
             // Vincula los ramos seleccionados al nuevo grupo via la tabla de unión
-            // N:M `CourseSectionGroup`. Validación anti-IDOR por período (filtro
-            // indirecto a institución, sin tocar CourseSection directo).
+            // N:M `CourseSectionGroup`. Anti-IDOR: solo se crean uniones para
+            // CourseSections que pertenecen a un período de esta institución.
             if (gdata.courseSectionIds.length > 0) {
-                await tx.courseSectionGroup.createMany({
-                    data: gdata.courseSectionIds.map((courseSectionId) => ({
-                        courseSectionId,
-                        groupId: g.id,
-                    })),
+                const valid = await tx.courseSection.findMany({
+                    where: {
+                        id: { in: gdata.courseSectionIds },
+                        period: { academicInstitutionId: ctx.institutionId },
+                    },
+                    select: { id: true },
                 });
+                if (valid.length > 0) {
+                    await tx.courseSectionGroup.createMany({
+                        data: valid.map((c) => ({
+                            courseSectionId: c.id,
+                            groupId: g.id,
+                        })),
+                        skipDuplicates: true,
+                    });
+                }
             }
             return g;
         });

@@ -115,7 +115,7 @@ export default async function CoursesPage({ params }: Props) {
     return (
         <CoursesClient
             slug={slug}
-            courses={mappedCourses as never}
+            courses={mappedCourses}
             programs={programs}
             periods={periods}
             groups={groups}

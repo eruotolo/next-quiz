@@ -65,6 +65,7 @@ interface CourseOption {
     name: string;
     programId: string | null;
     periodId: string;
+    groups: { id: string; name: string }[];
 }
 
 interface GroupWithCount extends Group {
@@ -489,7 +490,7 @@ export function GroupsClient({
                 professors={professors}
                 programs={programs}
                 periods={periods}
-                courseSections={courseSections as never}
+                courseSections={courseSections}
                 disabled={isDemo}
             />
 

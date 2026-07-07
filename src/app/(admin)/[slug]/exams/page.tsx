@@ -153,7 +153,7 @@ export default async function ExamsPage({ params }: { params: Promise<{ slug: st
 
     return (
         <ExamsClient
-            exams={examsWithStats as never}
+            exams={examsWithStats}
             groups={groups}
             courseSections={courseSectionsForPicker}
             isProfesor={isProfesor}
