@@ -202,29 +202,41 @@ async function main(): Promise<void> {
           });
     console.log(`  Grupo: ${GROUP_NAME}`);
 
-    // ── Asignatura (materia del grupo) ──────────────────────────────────────
+    // ── Asignatura (materia del grupo, N:M via CourseSectionGroup) ──────────
     const existingCourse = await prisma.courseSection.findFirst({
         where: {
             programId: program.id,
             periodId: period.id,
             name: COURSE_NAME,
-            groupId: group.id,
         },
         select: { id: true },
     });
+    let courseSectionId: string;
     if (!existingCourse) {
-        await prisma.courseSection.create({
+        const created = await prisma.courseSection.create({
             data: {
                 name: COURSE_NAME,
                 code: 'FUND-001',
                 programId: program.id,
                 periodId: period.id,
-                groupId: group.id,
                 professors: { connect: { id: demoUser.id } },
             },
         });
+        courseSectionId = created.id;
         console.log(`  Asignatura: ${COURSE_NAME}`);
+    } else {
+        courseSectionId = existingCourse.id;
     }
+    await prisma.courseSectionGroup.upsert({
+        where: {
+            courseSectionId_groupId: {
+                courseSectionId,
+                groupId: group.id,
+            },
+        },
+        update: {},
+        create: { courseSectionId, groupId: group.id },
+    });
 
     // ── 10 alumnos ──────────────────────────────────────────────────────────
     for (const [i, student] of STUDENT_NAMES.entries()) {

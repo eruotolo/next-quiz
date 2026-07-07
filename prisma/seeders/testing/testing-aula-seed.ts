@@ -182,14 +182,15 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
         });
     }
 
-    // Materias
+    // Materias (N:M via CourseSectionGroup). El upsert usa el nuevo unique
+    // `[programId, periodId, name]` (sin groupId); la asignación materia↔grupo
+    // se hace con createMany a la tabla de unión después.
     const cs1 = await prisma.courseSection.upsert({
         where: {
-            programId_periodId_name_groupId: {
+            programId_periodId_name: {
                 programId: program.id,
                 periodId: period.id,
                 name: 'Introducción a la Programación',
-                groupId: group.id,
             },
         },
         update: {},
@@ -198,17 +199,25 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
             code: 'ICI-101',
             programId: program.id,
             periodId: period.id,
-            groupId: group.id,
         },
+    });
+    await prisma.courseSectionGroup.upsert({
+        where: {
+            courseSectionId_groupId: {
+                courseSectionId: cs1.id,
+                groupId: group.id,
+            },
+        },
+        update: {},
+        create: { courseSectionId: cs1.id, groupId: group.id },
     });
 
     const cs2 = await prisma.courseSection.upsert({
         where: {
-            programId_periodId_name_groupId: {
+            programId_periodId_name: {
                 programId: program.id,
                 periodId: period.id,
                 name: 'Base de Datos',
-                groupId: group.id,
             },
         },
         update: {},
@@ -217,8 +226,17 @@ export async function seedAula(prisma: PrismaClient): Promise<void> {
             code: 'ICI-201',
             programId: program.id,
             periodId: period.id,
-            groupId: group.id,
         },
+    });
+    await prisma.courseSectionGroup.upsert({
+        where: {
+            courseSectionId_groupId: {
+                courseSectionId: cs2.id,
+                groupId: group.id,
+            },
+        },
+        update: {},
+        create: { courseSectionId: cs2.id, groupId: group.id },
     });
 
     // ── Estudiantes ───────────────────────────────────────────────────────────

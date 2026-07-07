@@ -489,7 +489,7 @@ export function GroupsClient({
                 professors={professors}
                 programs={programs}
                 periods={periods}
-                courseSections={courseSections}
+                courseSections={courseSections as never}
                 disabled={isDemo}
             />
 

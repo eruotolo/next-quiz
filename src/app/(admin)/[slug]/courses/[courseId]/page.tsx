@@ -20,11 +20,24 @@ export default async function CourseDetailPage({ params }: Props) {
             program: { select: { name: true } },
             period: { select: { name: true, academicInstitutionId: true } },
             professors: { select: { id: true, name: true, lastname: true } },
-            group: {
+            // N:M: la materia puede estar en N grupos. Agregamos usuarios de todos
+            // los grupos y deduplicamos por id (un alumno puede estar en varios
+            // grupos si existe solapamiento teórico).
+            groupLinks: {
                 include: {
-                    users: {
-                        select: { id: true, name: true, lastname: true, rut: true, email: true },
-                        orderBy: { lastname: 'asc' },
+                    group: {
+                        include: {
+                            users: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    lastname: true,
+                                    rut: true,
+                                    email: true,
+                                },
+                                orderBy: { lastname: 'asc' },
+                            },
+                        },
                     },
                 },
             },
@@ -55,10 +68,24 @@ export default async function CourseDetailPage({ params }: Props) {
         if (!isTeacher && !isCoordinator) notFound();
     }
 
-    const students = (course.group?.users ?? []).map((u) => ({
-        ...u,
-        rut: u.rut ?? null,
-    }));
+    // N:M: agregar estudiantes de TODOS los grupos donde la materia está asignada,
+    // deduplicando por id.
+    interface UserWithRut {
+        id: string;
+        name: string;
+        lastname: string;
+        rut: string | null;
+        email: string;
+    }
+    const userMap = new Map<string, UserWithRut>();
+    for (const link of course.groupLinks) {
+        for (const u of link.group.users) {
+            if (!userMap.has(u.id)) {
+                userMap.set(u.id, { ...u, rut: u.rut ?? null });
+            }
+        }
+    }
+    const students = Array.from(userMap.values());
 
     const exams = course.exams.map((e) => ({
         id: e.id,

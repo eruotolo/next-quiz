@@ -24,7 +24,11 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
                 tutor: { select: { id: true, name: true, lastname: true } },
                 program: { select: { id: true, name: true } },
                 period: { select: { id: true, name: true } },
-                courseSections: { select: { id: true, name: true }, orderBy: { name: 'asc' } },
+                // N:M: los ramos del grupo ahora viven en la tabla de unión.
+                groupLinks: {
+                    include: { courseSection: { select: { id: true, name: true } } },
+                    orderBy: { courseSection: { name: 'asc' } },
+                },
                 users: {
                     where: { userRole: { name: USER_ROLE.STUDENT } },
                     select: { id: true, name: true, lastname: true, rut: true, active: true },
@@ -53,7 +57,18 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
         }),
         prisma.courseSection.findMany({
             where: { period: { academicInstitutionId: institutionId } },
-            select: { id: true, name: true, programId: true, periodId: true },
+            select: {
+                id: true,
+                name: true,
+                programId: true,
+                periodId: true,
+                // Para el form de grupo: saber en qué grupos está cada materia.
+                groupLinks: {
+                    select: {
+                        group: { select: { id: true, name: true } },
+                    },
+                },
+            },
             orderBy: { name: 'asc' },
         }),
     ]);
@@ -97,20 +112,35 @@ export default async function GroupsPage({ params }: { params: Promise<{ slug: s
 
     const groupsWithAvg = groups.map((g) => {
         const s = gradeSums.get(g.id);
+        // Mapear groupLinks → courseSections (shape legacy) para compatibilidad con el client.
+        const courseSectionsForClient = g.groupLinks.map((link) => link.courseSection);
         return {
             ...g,
+            courseSections: courseSectionsForClient,
             avgGrade: s && s.count > 0 ? Math.round((s.total / s.count) * 10) / 10 : null,
         };
     });
 
+    // Mapear courseSections global al shape que espera GroupForm (con `groups`).
+    const courseSectionsForForm = courseSections.map((c) => ({
+        id: c.id,
+        name: c.name,
+        programId: c.programId,
+        periodId: c.periodId,
+        groups: c.groupLinks.map((link) => ({
+            id: link.group.id,
+            name: link.group.name,
+        })),
+    }));
+
     return (
         <GroupsClient
             slug={slug}
-            groups={groupsWithAvg}
+            groups={groupsWithAvg as never}
             professors={professors}
             programs={programs}
             periods={periods}
-            courseSections={courseSections}
+            courseSections={courseSectionsForForm}
             canMutate={canMutate}
             isDemo={isDemo}
         />

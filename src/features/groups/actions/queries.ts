@@ -22,11 +22,20 @@ export async function getProfessorsForSlug(slug: string): Promise<ProfessorOptio
     });
 }
 
+/** Cada materia incluye los grupos donde ya está asignada (info visual). */
+export interface CourseSectionOption {
+    id: string;
+    name: string;
+    programId: string | null;
+    periodId: string;
+    groups: { id: string; name: string }[];
+}
+
 export interface GroupFormData {
     professors: ProfessorOption[];
     programs: { id: string; name: string }[];
     periods: { id: string; name: string }[];
-    courseSections: { id: string; name: string; programId: string | null; periodId: string }[];
+    courseSections: CourseSectionOption[];
 }
 
 /** Datos necesarios para el formulario de grupo (carrera, semestre, ramos). */
@@ -53,9 +62,33 @@ export async function getGroupFormData(slug: string): Promise<GroupFormData> {
         }),
         prisma.courseSection.findMany({
             where: { period: { academicInstitutionId: institutionId } },
-            select: { id: true, name: true, programId: true, periodId: true },
+            select: {
+                id: true,
+                name: true,
+                programId: true,
+                periodId: true,
+                groupLinks: {
+                    select: {
+                        group: { select: { id: true, name: true } },
+                    },
+                },
+            },
             orderBy: { name: 'asc' },
         }),
     ]);
-    return { professors, programs, periods, courseSections };
+    return {
+        professors,
+        programs,
+        periods,
+        courseSections: courseSections.map((c) => ({
+            id: c.id,
+            name: c.name,
+            programId: c.programId,
+            periodId: c.periodId,
+            groups: c.groupLinks.map((link) => ({
+                id: link.group.id,
+                name: link.group.name,
+            })),
+        })),
+    };
 }

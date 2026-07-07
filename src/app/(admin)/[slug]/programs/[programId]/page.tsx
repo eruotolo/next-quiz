@@ -42,7 +42,12 @@ export default async function ProgramDetailPage({ params }: Props) {
                     id: true,
                     name: true,
                     period: { select: { name: true } },
-                    group: { select: { name: true } },
+                    // N:M: la materia puede estar en N grupos. Tomamos el primero
+                    // solo para mostrar un "Grupo: X" representativo en la UI.
+                    groupLinks: {
+                        select: { group: { select: { name: true } } },
+                        take: 1,
+                    },
                     professors: { select: { name: true, lastname: true } },
                 },
                 orderBy: { name: 'asc' },
@@ -94,7 +99,8 @@ export default async function ProgramDetailPage({ params }: Props) {
                 id: c.id,
                 name: c.name,
                 periodName: c.period.name,
-                groupName: c.group?.name ?? null,
+                // Primer grupo como representativo en el detalle del programa.
+                groupName: c.groupLinks[0]?.group.name ?? null,
                 professors: c.professors.map((p) => `${p.name} ${p.lastname}`),
             }))}
             groups={program.groups.map((g) => ({

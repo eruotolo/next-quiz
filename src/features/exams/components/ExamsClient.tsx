@@ -314,11 +314,19 @@ export function ExamsClient({
             if (form.periodId !== NO_PERIOD && g.periodId !== form.periodId) return false;
             if (form.courseSectionId !== NO_COURSE) {
                 const course = courseSections.find((c) => c.id === form.courseSectionId);
-                if (course?.groupId && g.id !== course.groupId) return false;
+                // N:M: si la materia tiene grupos asignados, FILTRAMOS para mostrar
+                // solo los grupos donde está (más los grupos ya seleccionados).
+                if (course?.groups.length) {
+                    const allowed = new Set([
+                        ...course.groups.map((cg) => cg.id),
+                        ...form.groupIds,
+                    ]);
+                    return allowed.has(g.id);
+                }
             }
             return true;
         });
-    }, [groups, form.programId, form.periodId, form.courseSectionId, courseSections]);
+    }, [groups, form.programId, form.periodId, form.courseSectionId, form.groupIds, courseSections]);
 
     const setField = <K extends keyof FormState>(field: K, value: FormState[K]): void => {
         setForm((f) => ({ ...f, [field]: value }));
@@ -954,11 +962,13 @@ export function ExamsClient({
                                         const course = courseSections.find(
                                             (c) => c.id === patch.courseSectionId,
                                         );
-                                        if (
-                                            course?.groupId &&
-                                            !next.groupIds.includes(course.groupId)
-                                        ) {
-                                            next.groupIds = [...next.groupIds, course.groupId];
+                                        if (course?.groups.length) {
+                                            const newIds = course.groups
+                                                .map((cg) => cg.id)
+                                                .filter((id) => !next.groupIds.includes(id));
+                                            if (newIds.length > 0) {
+                                                next.groupIds = [...next.groupIds, ...newIds];
+                                            }
                                         }
                                     }
                                     return next;

@@ -315,20 +315,34 @@ export async function seedLocal(prisma: PrismaClient): Promise<void> {
         await prisma.group.update({ where: { id: groupId }, data: { programId: program.id } });
 
         for (const courseName of academic.courses) {
+            let courseSectionId: string;
             const existing = await prisma.courseSection.findFirst({
-                where: { periodId: period.id, name: courseName, groupId },
+                where: { periodId: period.id, name: courseName },
             });
             if (!existing) {
-                await prisma.courseSection.create({
+                const created = await prisma.courseSection.create({
                     data: {
                         name: courseName,
                         programId: program.id,
                         periodId: period.id,
-                        groupId,
                         professors: { connect: { id: professorId } },
                     },
                 });
+                courseSectionId = created.id;
+            } else {
+                courseSectionId = existing.id;
             }
+            // N:M: vincular materia↔grupo via tabla de unión (idempotente).
+            await prisma.courseSectionGroup.upsert({
+                where: {
+                    courseSectionId_groupId: {
+                        courseSectionId,
+                        groupId,
+                    },
+                },
+                update: {},
+                create: { courseSectionId, groupId },
+            });
         }
         console.log(
             `  Académico: ${academic.programName} · ${academic.courses.length} materias → ${academic.institution}`,

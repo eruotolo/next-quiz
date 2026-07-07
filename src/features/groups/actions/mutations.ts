@@ -25,12 +25,13 @@ interface NormalizedGroup {
  * Normaliza los datos del grupo y valida que el tutor (si se indica), el
  * programa (si se indica) y el período (si se indica) pertenezcan a la
  * institución (anti-IDOR). Los `courseSectionIds` se validan al persistir
- * (updateMany con filtro por institución). Devuelve null si algo no es válido.
+ * (filtro por institución vía Period). Devuelve null si algo no es válido.
  */
 async function normalizeGroupData(
-    parsed: GroupInput,
+    data: GroupInput,
     institutionId: string,
 ): Promise<NormalizedGroup | null> {
+    const parsed = data;
     const tutorId = parsed.tutorId ?? null;
     if (tutorId) {
         const tutor = await prisma.user.findFirst({
@@ -95,14 +96,15 @@ export async function createGroup(
                 },
                 select: { id: true },
             });
-            // Vincula los ramos seleccionados al nuevo grupo (filtro anti-IDOR).
+            // Vincula los ramos seleccionados al nuevo grupo via la tabla de unión
+            // N:M `CourseSectionGroup`. Validación anti-IDOR por período (filtro
+            // indirecto a institución, sin tocar CourseSection directo).
             if (gdata.courseSectionIds.length > 0) {
-                await tx.courseSection.updateMany({
-                    where: {
-                        id: { in: gdata.courseSectionIds },
-                        period: { academicInstitutionId: ctx.institutionId },
-                    },
-                    data: { groupId: g.id },
+                await tx.courseSectionGroup.createMany({
+                    data: gdata.courseSectionIds.map((courseSectionId) => ({
+                        courseSectionId,
+                        groupId: g.id,
+                    })),
                 });
             }
             return g;
@@ -144,25 +146,33 @@ export async function updateGroup(slug: string, id: string, data: unknown): Prom
         });
         if (res.count === 0) return fail('Grupo no encontrado.');
 
-        // Reasigna los ramos del grupo: los seleccionados → groupId = id; los que
-        // ya no están → groupId = null (filtro anti-IDOR por institución).
-        await prisma.$transaction([
-            prisma.courseSection.updateMany({
-                where: {
-                    id: { in: gdata.courseSectionIds },
-                    period: { academicInstitutionId: ctx.institutionId },
-                },
-                data: { groupId: id },
-            }),
-            prisma.courseSection.updateMany({
-                where: {
-                    groupId: id,
-                    id: { notIn: gdata.courseSectionIds },
-                    period: { academicInstitutionId: ctx.institutionId },
-                },
-                data: { groupId: null },
-            }),
-        ]);
+        // Reasigna los ramos del grupo vía la tabla de unión N:M.
+        // Estrategia: borrar todas las uniones del grupo y recrear con los IDs
+        // seleccionados (diff atómico). Anti-IDOR: solo se crean uniones para
+        // CourseSections que pertenecen a un período de la institución.
+        await prisma.$transaction(async (tx) => {
+            await tx.courseSectionGroup.deleteMany({ where: { groupId: id } });
+            if (gdata.courseSectionIds.length > 0) {
+                // Defensa adicional: verificar que cada courseSection pertenece
+                // a un período de esta institución antes de crear la unión.
+                const valid = await tx.courseSection.findMany({
+                    where: {
+                        id: { in: gdata.courseSectionIds },
+                        period: { academicInstitutionId: ctx.institutionId },
+                    },
+                    select: { id: true },
+                });
+                if (valid.length > 0) {
+                    await tx.courseSectionGroup.createMany({
+                        data: valid.map((c) => ({
+                            courseSectionId: c.id,
+                            groupId: id,
+                        })),
+                        skipDuplicates: true,
+                    });
+                }
+            }
+        });
 
         await logAudit({
             action: AUDIT_ACTION.GROUP_UPDATE,

@@ -27,7 +27,15 @@ async function professorOwnsGroup(
             id: groupId,
             OR: [
                 groupProfessorFilter(professorId),
-                { courseSections: { some: { professors: { some: { id: professorId } } } } },
+                // N:M: el grupo tiene la materia via CourseSectionGroup. Filtramos
+                // por la materia del lado de la unión.
+                {
+                    groupLinks: {
+                        some: {
+                            courseSection: { professors: { some: { id: professorId } } },
+                        },
+                    },
+                },
                 ...(coordinatedProgramIds.length > 0
                     ? [{ programId: { in: coordinatedProgramIds } }]
                     : []),
@@ -38,7 +46,8 @@ async function professorOwnsGroup(
 }
 
 /** Verifica que un profesor tenga acceso al estudiante: vía Group.professors (legacy),
- *  vía CourseSection.professors (nuevo), o vía programas coordinados. */
+ *  vía CourseSectionGroup (N:M) → CourseSection.professors (nuevo), o vía programas
+ *  coordinados. */
 async function professorHasAccess(
     studentId: string,
     professorId: string,
@@ -52,8 +61,11 @@ async function professorHasAccess(
                 select: {
                     programId: true,
                     professors: { where: { id: professorId }, select: { id: true } },
-                    courseSections: {
-                        where: { professors: { some: { id: professorId } } },
+                    // N:M: contar cuántas materias del grupo tienen al profesor.
+                    groupLinks: {
+                        where: {
+                            courseSection: { professors: { some: { id: professorId } } },
+                        },
                         select: { id: true },
                     },
                 },
@@ -62,7 +74,7 @@ async function professorHasAccess(
     });
     if (!student?.group) return false;
     if (student.group.professors.length > 0) return true;
-    if (student.group.courseSections.length > 0) return true;
+    if (student.group.groupLinks.length > 0) return true;
     if (coordinatedProgramIds.length > 0 && student.group.programId) {
         return coordinatedProgramIds.includes(student.group.programId);
     }
@@ -274,7 +286,16 @@ export async function importStudents(
                     academicInstitutionId: ctx.institutionId,
                     OR: [
                         groupProfessorFilter(ctx.userId),
-                        { courseSections: { some: { professors: { some: { id: ctx.userId } } } } },
+                        // N:M: el grupo tiene la materia via CourseSectionGroup.
+                        {
+                            groupLinks: {
+                                some: {
+                                    courseSection: {
+                                        professors: { some: { id: ctx.userId } },
+                                    },
+                                },
+                            },
+                        },
                         ...(ctx.coordinatedProgramIds.length > 0
                             ? [{ programId: { in: ctx.coordinatedProgramIds } }]
                             : []),

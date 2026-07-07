@@ -8,7 +8,8 @@ export interface CourseOption {
     name: string;
     programId: string | null;
     periodId: string;
-    groupId: string | null;
+    /** Grupos donde esta materia ya está asignada (N:M). */
+    groups: { id: string }[];
     program: { id: string; name: string } | null;
     period: { id: string; name: string };
 }
