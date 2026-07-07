@@ -6,8 +6,8 @@ export const generationInputSchema = z
     .object({
         slug: z.string().min(1),
         subject: z.string().min(1, 'Materia requerida').max(120),
-        topic: z.string().min(1, 'Temática requerida').max(500),
-        questionCount: z.coerce.number().int().min(1, 'Mínimo 1').max(20, 'Máximo 20'),
+        topic: z.string().min(1, 'Temática requerida').max(1000),
+        questionCount: z.coerce.number().int().min(1, 'Mínimo 1').max(60, 'Máximo 60'),
         optionsPerQuestion: z.coerce.number().int().min(2, 'Mínimo 2').max(6, 'Máximo 6'),
         correctAnswers: z.coerce.number().int().min(1).max(6),
         difficulty: difficultyEnum.default('MEDIA'),
