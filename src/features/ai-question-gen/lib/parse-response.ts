@@ -30,8 +30,11 @@ function validateQuestion(
     if (!text) {
         return { question: null, error: `Pregunta ${index + 1}: sin texto` };
     }
-    if (text.length > 2000) {
-        return { question: null, error: `Pregunta ${index + 1}: texto demasiado largo (máx 2000)` };
+    if (text.length > 500) {
+        return {
+            question: null,
+            error: `Pregunta ${index + 1}: enunciado demasiado largo (${text.length}/500 caracteres). Sé más directo.`,
+        };
     }
 
     if (!Array.isArray(q.options) || q.options.length < 2) {

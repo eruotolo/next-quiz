@@ -12,6 +12,7 @@ import {
     DialogTitle,
 } from '@/shared/components/ui/dialog';
 import { Input } from '@/shared/components/ui/input';
+import { Textarea } from '@/shared/components/ui/textarea';
 import {
     Select,
     SelectContent,
@@ -90,13 +91,18 @@ function ConfigurationForm({
                 <label htmlFor="ai-topic" className="text-ink text-[13px] font-bold">
                     Temática
                 </label>
-                <Input
+                <Textarea
                     id="ai-topic"
-                    placeholder="Ej: Fuerza y movimiento en el plano inclinado"
+                    placeholder="Ej: Fuerza y movimiento en el plano inclinado. Puedes describir unidades, fórmulas clave o subtemas a cubrir."
                     value={form.topic}
                     onChange={(e) => onUpdate('topic', e.target.value)}
-                    className="border-border h-10 rounded-[10px] bg-white"
+                    rows={3}
+                    maxLength={1000}
+                    className="border-border rounded-[10px] bg-white"
                 />
+                <div className="text-mute -mt-1 text-right text-[11px]">
+                    {form.topic.length}/1000
+                </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -105,7 +111,7 @@ function ConfigurationForm({
                     label="Preguntas"
                     value={form.questionCount}
                     min={1}
-                    max={20}
+                    max={60}
                     onChange={(v) => onUpdate('questionCount', v)}
                 />
                 <NumberField

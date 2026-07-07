@@ -619,6 +619,56 @@ Plan en `AcademicInstitution.plan` (`Plan`: FREE · DOCENTE · COLEGIO · INSTIT
 - **Modelo de Grupo** — `Group` tiene **Carrera** (`programId`), **Semestre** (`periodId`, nullable) y **Ramos** (los `CourseSection` con `groupId` = este grupo, relación 1:N). El formulario compartido `GroupForm` (`src/features/groups/components/GroupForm.tsx`) lo usan tanto el modal de `/[slug]/groups` como `NewGroupButton`; filtra los ramos disponibles por carrera+semestre (coherencia). `groups/actions/mutations.ts` persiste `periodId` y reasigna ramos (`updateMany` de `courseSection` con filtro anti-IDOR). El autocreate de materia en universidades (`courses/actions/mutations.ts`) hereda `periodId` en el grupo generado.
 - **Asignación a Exámenes** — `ExamAcademicPicker` maneja la cascada (Carrera → Semestre → Ramo) en el modal de creación de exámenes. Seleccionar un ramo (CourseSection) auto-selecciona opcionalmente su `groupId` asociado. Los profesores están acotados (`courseSectionProfessorFilter`) a crear exámenes solo para los ramos donde dictan clases (`assertCourseSectionBelongsToProfessor`).
 
+## Generación de Preguntas con IA (Modal IA)
+
+Modal en el editor de exámenes (`/[slug]/exams/[id]/edit`) que genera preguntas en bloque usando Gemini 2.5 Flash. Código en `src/features/ai-question-gen/`.
+
+### Endpoint
+
+- `POST /api/ai/generate-questions` (`src/app/api/ai/generate-questions/route.ts`). Valida body con `generationInputSchema` (Zod), exige `requireInstitutionAccess(slug)` y llama `generateText({ model: google('gemini-2.5-flash'), prompt: buildPrompt(input) })`. Retorna `{ ok: GeneratedQuestion[], errors: string[] }`.
+
+### Schemas y límites vigentes (`schemas/generation.schemas.ts`)
+
+- `subject` — string, 1–120 chars.
+- `topic` — string, 1–**1000** chars.
+- `questionCount` — int, 1–**60**.
+- `optionsPerQuestion` — int, 2–6.
+- `correctAnswers` — int, 1–6. Refine: `correctAnswers ≤ optionsPerQuestion`.
+- `difficulty` — enum `FACIL | MEDIA | DIFICIL` (default `MEDIA`).
+- `points` — int, 1–100 (default 1).
+
+### Componentes y UX (`components/GenerateQuestionsDialog.tsx`)
+
+- Campo **Temática**: `<Textarea>` con `rows={3}`, `maxLength={1000}`, contador `{length}/1000` debajo.
+- Campo **Preguntas**: `<NumberField>` con `min={1} max={60}`.
+- Resto del formulario sin cambios (Materia, Opciones/pregunta, Correctas/pregunta, Dificultad, Puntos).
+
+### Prompt (`lib/build-prompt.ts`)
+
+- Construye instrucción con `subject`, `topic`, `questionCount`, `optionsPerQuestion`, `correctAnswers`, `difficulty`, `points`.
+- Bloque **"Reglas de concisión (obligatorias)"** (reglas duras del producto):
+    - Cada enunciado: MÁXIMO 200 caracteres. Pregunta directa, sin párrafos introductorios ni contexto redundante.
+    - Cada opción: MÁXIMO 80 caracteres.
+    - No repetir el contexto de la pregunta dentro de cada opción.
+    - Evitar condicionales largas y casos hipotéticos extensos.
+- Output: JSON array puro (sin markdown, sin comentarios). Estructura: `{ "text": string, "options": [{ "text": string, "isCorrect": boolean }] }`.
+
+### Parser (`lib/parse-response.ts`)
+
+- `parseGeminiResponse(raw, questionType, points)` extrae JSON (soporta array directo, ```json fence y bracket slicing).
+- `validateQuestion` rechaza:
+    - `text.length > 500` → `Pregunta N: enunciado demasiado largo (X/500 caracteres). Sé más directo.` (defensa server-side de la regla de concisión).
+    - Menos de 2 opciones, opciones vacías, sin `isCorrect: true`, y para tipo `MULTIPLE` exige ≥2 correctas.
+
+### Riesgo conocido
+
+Con 60 preguntas el límite de output de Gemini 2.5 Flash (8K tokens) queda apretado. Si el modelo recorta, el frontend muestra `errors[]` con las preguntas descartadas — no es bug. La UI ya maneja el caso.
+
+### Pendiente
+
+- Tests unitarios del parser (escenarios por tipo UNICA/MULTIPLE, límite de 500 chars, extractores JSON). Hoy el parser no tiene cobertura.
+- Chunking opcional para `questionCount > 60`: 3 llamadas paralelas en lotes de 20 con concatenación server-side. No implementado por no estar pedido.
+
 ## Aula Virtual (LMS) — Fundamentos (Fase 1)
 
 Feature en `src/features/lms/` y Route Group `src/app/(aula)/` para evolucionar Aulika a un LMS independiente pero integrable con el motor de exámenes.
